@@ -1,2 +1,5 @@
 out/
 .vs/
+CMakeFiles/
+ext/project_path.hpp
+ext/project_path.hpp.in

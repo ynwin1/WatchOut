@@ -4,16 +4,28 @@
 
 // stlib
 #include <chrono>
+#include <common.hpp>
 
 // internal
 #include <world_system.hpp>
+#include <render_system.hpp>
 
 using Clock = std::chrono::high_resolution_clock;
 
 // Entry point
 int main()
 {
+	// Global Systems
 	WorldSystem world;
+	RenderSystem renderer;
+
+	// Initializing window
+	GLFWwindow* window = renderer.create_window();
+	if (!window) {
+		printf("Press any key to exit");
+		getchar();
+		return EXIT_FAILURE;
+	}
 
 	auto t = Clock::now();
 	while (!world.is_over()) {

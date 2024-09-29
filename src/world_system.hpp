@@ -4,6 +4,9 @@
 #include <vector>
 #include <random>
 
+// internal 
+#include <render_system.hpp>
+
 
 // Container for all our entities and game logic
 class WorldSystem
@@ -12,7 +15,7 @@ public:
 	WorldSystem();
 
 	// starts the game
-	void init();
+	void init(RenderSystem* renderer, GLFWwindow* window);
 
 	// Releases all associated resources
 	~WorldSystem();
@@ -25,7 +28,13 @@ public:
 
 	// Should the game be over ?
 	bool is_over()const;
+
 private:
+	// GLFW Window handle
+	GLFWwindow* window;
+
+	RenderSystem* renderer;
+
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);
 

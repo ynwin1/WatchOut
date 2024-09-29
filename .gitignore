@@ -1,4 +1,6 @@
 out/
 .vs/
+build/
 CMakeFiles/
 ext/project_path.hpp
+.vscode/

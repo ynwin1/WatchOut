@@ -19,8 +19,9 @@ Entity createPlayer(RenderSystem* renderer, vec2 pos)
 	hitbox.dimension = { PLAYER_BB_WIDTH, PLAYER_BB_HEIGHT };
 
 	// Setting initial player values
-	Player& player = registry.players.emplace(entity);
+	registry.players.emplace(entity);
 	// TODO LATER - A1 has this entity inserted into renderRequest container
+	return entity;
 };
 
 // Boar creation

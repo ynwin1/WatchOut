@@ -29,9 +29,6 @@ public:
 	// Handle player movement
     void update_player_movement(float elapsed_ms);
 
-    // Input callback functions
-    void on_key(int key, int, int action, int mod);
-
 	// Should the game be over ?
 	bool is_over()const;
 
@@ -41,6 +38,9 @@ private:
 
 	RenderSystem* renderer;
 	Entity playerEntity;
+
+    // Input callback functions
+    void on_key(int key, int, int action, int mod);
 
 	// restart level
 	void restart_game();

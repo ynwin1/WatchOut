@@ -18,12 +18,14 @@ public:
 
 	// constructor that adds all containers for looping over them
 	// IMPORTANT: Don't forget to add any newly added containers!
+	ComponentContainer<Player> players;
 	ComponentContainer<Motion> motions;
 	ComponentContainer<Collision> collisions;
 	ComponentContainer<Hitbox> hitboxes;
 
 	ECSRegistry()
 	{
+		registry_list.push_back(&players);
 		registry_list.push_back(&motions);
 		registry_list.push_back(&collisions);
 		registry_list.push_back(&hitboxes);

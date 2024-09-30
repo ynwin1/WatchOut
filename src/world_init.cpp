@@ -105,5 +105,6 @@ Entity createTrap(RenderSystem* renderer, vec2 pos)
 	hitbox.dimension = { TRAP_BB_WIDTH, TRAP_BB_HEIGHT };
 
 	// TODO LATER - A1 has this entity inserted into renderRequest container
+	registry.collectibles.emplace(entity);
 	return entity;
 };

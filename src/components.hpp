@@ -9,6 +9,15 @@ struct Player
 
 };
 
+// Collectible Component
+struct Collectible
+{
+	vec2 position = { 0, 0 };
+	vec2 scale = { 3, 3 };
+	bool collected = false;
+	float damage = 5.0f;
+};
+
 // All data relevant to the shape and motion of entities
 struct Motion 
 {

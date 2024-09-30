@@ -21,6 +21,7 @@ public:
 	ComponentContainer<Player> players;
 	ComponentContainer<Motion> motions;
 	ComponentContainer<Collision> collisions;
+	ComponentContainer<Collectible> collectibles;
 	ComponentContainer<Hitbox> hitboxes;
 
 	ECSRegistry()

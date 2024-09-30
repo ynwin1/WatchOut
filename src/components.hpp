@@ -14,7 +14,8 @@ struct Collectible
 {
 	vec2 position = { 0, 0 };
 	vec2 scale = { 3, 3 };
-	bool collected = false;
+	bool isActive = true;
+	// TODO Later - Discuss if damage belongs here
 	float damage = 5.0f;
 };
 

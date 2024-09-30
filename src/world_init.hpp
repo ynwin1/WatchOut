@@ -14,6 +14,8 @@ const float BARBARIAN_BB_WIDTH = 0.3f;
 const float BARBARIAN_BB_HEIGHT = 0.4f;
 const float ARCHER_BB_WIDTH = 0.4f;
 const float ARCHER_BB_HEIGHT = 0.5f;
+const float TRAP_BB_WIDTH = 0.3f;
+const float TRAP_BB_HEIGHT = 0.2f;
 
 // The player
 Entity createPlayer(RenderSystem* renderer, vec2 pos);
@@ -26,3 +28,6 @@ Entity createBarbarian(RenderSystem* renderer, vec2 pos);
 
 // The archer
 Entity createArcher(RenderSystem* renderer, vec2 pos);
+
+// The trap
+Entity createTrap(RenderSystem* renderer, vec2 pos);

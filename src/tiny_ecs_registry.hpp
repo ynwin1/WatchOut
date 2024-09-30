@@ -20,12 +20,13 @@ public:
 	// IMPORTANT: Don't forget to add any newly added containers!
 	ComponentContainer<Motion> motions;
 	ComponentContainer<Collision> collisions;
+	ComponentContainer<Hitbox> hitboxes;
 
 	ECSRegistry()
 	{
 		registry_list.push_back(&motions);
 		registry_list.push_back(&collisions);
-
+		registry_list.push_back(&hitboxes);
 	}
 
 	void clear_all_components() {

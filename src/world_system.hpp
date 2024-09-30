@@ -26,6 +26,12 @@ public:
 	// Check for collisions
 	void handle_collisions();
 
+	// Handle player movement
+    void update_player_movement(float elapsed_ms);
+
+    // Input callback functions
+    void on_key(int key, int, int action, int mod);
+
 	// Should the game be over ?
 	bool is_over()const;
 
@@ -34,9 +40,7 @@ private:
 	GLFWwindow* window;
 
 	RenderSystem* renderer;
-
-	// Input callback functions
-	void on_key(int key, int, int action, int mod);
+	Entity playerEntity;
 
 	// restart level
 	void restart_game();

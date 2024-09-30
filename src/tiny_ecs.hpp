@@ -11,7 +11,18 @@
 #include <functional>
 #include <typeindex>
 #include <assert.h>
+#include <glm/glm.hpp>
 
+
+// PlayerComponents 
+struct PlayerComponent {
+	glm::vec2 position; // Represents the player's current position
+    glm::vec2 velocity; // Represents the player's speed and direction
+    bool isRunning;     // Indicates if the player is currently running
+    bool isJumping;     // Indicates if the player is currently jumping
+    bool isDashing;     // Indicates if the player is currently dashing
+	bool isRolling;     // Indicates if the player is currently rolling
+};
 // Unique identifyer for all entities
 class Entity
 {

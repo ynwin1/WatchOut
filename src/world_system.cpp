@@ -12,6 +12,12 @@ void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window)
 {
 	this->renderer = renderer;
 	this->window = window;
+
+	// Create player entity
+    playerEntity = Entity();
+
+    // Add player component to registry (set initial values)
+    registry.players.emplace(playerEntity, PlayerComponent{glm::vec2(0, 0), glm::vec2(0, 0), false, false, false, false});
 }
 
 WorldSystem::~WorldSystem() {
@@ -21,7 +27,8 @@ WorldSystem::~WorldSystem() {
 
 bool WorldSystem::step(float elapsed_ms)
 {
-	return false;
+	update_player_movement(elapsed_ms);
+	return !is_over();
 }
 
 void WorldSystem::handle_collisions()
@@ -35,6 +42,81 @@ bool WorldSystem::is_over() const {
 
 void WorldSystem::on_key(int key, int, int action, int mod)
 {
+	PlayerComponent& player_comp = registry.players.get(playerEntity);
+
+    // Check key actions (press/release)
+    if (action == GLFW_PRESS || action == GLFW_RELEASE)
+    {
+        bool pressed = (action == GLFW_PRESS);
+        
+        // Set movement states based on key input
+        switch (key)
+        {
+            case GLFW_KEY_W:
+                // Set velocity upward
+                player_comp.velocity.y = pressed ? -1.0f : 0.0f;
+                break;
+            case GLFW_KEY_S:
+                // Set velocity downward
+                player_comp.velocity.y = pressed ? 1.0f : 0.0f;
+                break;
+            case GLFW_KEY_A:
+                // Set velocity left
+                player_comp.velocity.x = pressed ? -1.0f : 0.0f;
+                break;
+            case GLFW_KEY_D:
+                // Set velocity right
+                player_comp.velocity.x = pressed ? 1.0f : 0.0f;
+                break;
+            case GLFW_KEY_LEFT_SHIFT:
+                // Sprint
+                player_comp.isRunning = pressed;
+                break;
+            case GLFW_KEY_R:
+                // Roll
+                player_comp.isRolling = pressed;
+                break;
+            case GLFW_KEY_F:
+                // Dash
+                player_comp.isDashing = pressed;
+                break;
+				case GLFW_KEY_SPACE:
+                // Dash
+                player_comp.isJumping = pressed;
+                break;
+            default:
+                break;
+        }
+    }
+}
+
+void WorldSystem::update_player_movement(float elapsed_ms)
+{
+    PlayerComponent& player_comp = registry.players.get(playerEntity);
+
+	// Determine speed based on whether the player is running
+    const float speed = player_comp.isRunning ? 2.0f : 1.0f;
+
+    // Update the player's position based on velocity and elapsed time
+    player_comp.position.x += player_comp.velocity.x * speed * elapsed_ms;
+    player_comp.position.y += player_comp.velocity.y * speed * elapsed_ms;
+
+	if (player_comp.isDashing) {
+        // (dash distance = 4 units (arbitrary can be changed))
+		//target_position for the linear interpolation formula
+        glm::vec2 target_position = player_comp.position + glm::normalize(player_comp.velocity) * 4.0f; 
+
+        // Interpolating position
+        float t = elapsed_ms / 100.0f; // Arbitrary t (can be changed according to our requirements)
+        player_comp.position = glm::mix(player_comp.position, target_position, t); // Using glm::mix for linear interpolation
+
+        // Reset dashing state after dashing
+        player_comp.isDashing = false;
+    }
+    
+
+    // Reset velocity after applying movement
+    player_comp.velocity = glm::vec2(0, 0);
 }
 
 void WorldSystem::restart_game()

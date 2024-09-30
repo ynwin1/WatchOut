@@ -26,6 +26,7 @@ bool WorldSystem::step(float elapsed_ms)
 
 void WorldSystem::handle_collisions()
 {
+
 }
 
 // Should the game be over ?

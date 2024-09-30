@@ -21,3 +21,24 @@ bool collides(const Hitbox& a, const Hitbox& b)
 
 	return true;
 }
+
+void PhysicsSystem::step(float elapsed_ms)
+{
+	// Check for collisions between moving entities
+	ComponentContainer<Motion> &motion_container = registry.motions;
+	for (uint i = 0; i < motion_container.components.size() - 1; i++) {
+		Entity entity_i = motion_container.entities[i];
+		Hitbox& hitbox_i = registry.hitboxes.get(entity_i);
+
+		for (uint j = i + 1; j < motion_container.components.size() - 1; j++) {
+			Entity entity_j = motion_container.entities[j];
+			Hitbox& hitbox_j = registry.hitboxes.get(entity_j);
+
+			if (collides(hitbox_i, hitbox_j)) {
+				// Collision detected
+				registry.collisions.emplace(entity_i, entity_j);
+				registry.collisions.emplace(entity_j, entity_i);
+			}
+		}
+	}
+};

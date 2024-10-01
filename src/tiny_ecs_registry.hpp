@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "tiny_ecs.hpp"
+#include "components.hpp"
 
 class ECSRegistry
 {
@@ -14,13 +15,15 @@ class ECSRegistry
 
 public:
 	// Manually created list of all components this game has
-	ComponentContainer<PlayerComponent> players;
+	ComponentContainer<Player> players;
+	ComponentContainer<Motion> motions;
 
 	// constructor that adds all containers for looping over them
 	// IMPORTANT: Don't forget to add any newly added containers!
 	ECSRegistry()
 	{
 		registry_list.push_back(&players);
+		registry_list.push_back(&motions);
 	}
 
 	void clear_all_components() {

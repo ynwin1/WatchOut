@@ -6,6 +6,8 @@
 #include <vector>
 
 #include "tiny_ecs.hpp"
+#include "render_components.hpp"
+#include "components.hpp"
 
 class ECSRegistry
 {
@@ -14,6 +16,9 @@ class ECSRegistry
 
 public:
 	// Manually created list of all components this game has
+	ComponentContainer<RenderRequest> renderRequests;
+	ComponentContainer<Motion> motions;
+	ComponentContainer<ScreenState> screenStates;
 
 	// constructor that adds all containers for looping over them
 	// IMPORTANT: Don't forget to add any newly added containers!

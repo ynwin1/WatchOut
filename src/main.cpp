@@ -28,6 +28,7 @@ int main()
 	}
 
 	// Initialize the main systems
+	renderer.init(window);
 	world.init(&renderer, window);
 
 	auto t = Clock::now();
@@ -43,7 +44,7 @@ int main()
 		//physics.step(elapsed_ms);
 		world.handle_collisions();
 
-		//renderer.draw();
+		renderer.draw();
 	}
 
 	return 0;

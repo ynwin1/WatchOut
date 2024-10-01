@@ -9,13 +9,27 @@ struct Player
 
 };
 
+struct Enemy
+{
+
+};
+
 // Collectible Component
 struct Collectible
 {
+	// fixed position and scale once set
 	vec2 position = { 0, 0 };
 	vec2 scale = { 3, 3 };
 	bool isActive = true;
-	// TODO Later - Discuss if damage belongs here
+};
+
+// Trap Component
+struct Trap
+{
+	// fixed position and scale once set
+	vec2 position = { 0, 0 };
+	vec2 scale = { 3, 3 };
+	bool isActive = true;
 	float damage = 5.0f;
 };
 

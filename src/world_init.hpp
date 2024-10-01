@@ -29,5 +29,8 @@ Entity createBarbarian(RenderSystem* renderer, vec2 pos);
 // The archer
 Entity createArcher(RenderSystem* renderer, vec2 pos);
 
-// The trap
-Entity createTrap(RenderSystem* renderer, vec2 pos);
+// The collectible trap
+Entity createCollectibleTrap(RenderSystem* renderer, vec2 pos);
+
+// The damage trap
+Entity createDamageTrap(RenderSystem* renderer, vec2 pos);

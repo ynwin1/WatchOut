@@ -42,6 +42,7 @@ Entity createBoar(RenderSystem* renderer, vec2 pos)
 	hitbox.dimension = { BOAR_BB_WIDTH, BOAR_BB_HEIGHT };
 
 	// TODO LATER - A1 has this entity inserted into renderRequest container
+	registry.enemies.emplace(entity);
 	return entity;
 };
 
@@ -63,6 +64,7 @@ Entity createBarbarian(RenderSystem* renderer, vec2 pos)
 	hitbox.dimension = { BARBARIAN_BB_WIDTH, BARBARIAN_BB_HEIGHT };
 
 	// TODO LATER - A1 has this entity inserted into renderRequest container
+	registry.enemies.emplace(entity);
 	return entity;
 };
 
@@ -84,11 +86,12 @@ Entity createArcher(RenderSystem* renderer, vec2 pos)
 	hitbox.dimension = { ARCHER_BB_WIDTH, ARCHER_BB_HEIGHT };
 
 	// TODO LATER - A1 has this entity inserted into renderRequest container
+	registry.enemies.emplace(entity);
 	return entity;
 };
 
-// Trap creation
-Entity createTrap(RenderSystem* renderer, vec2 pos)
+// Collectible trap creation
+Entity createCollectibleTrap(RenderSystem* renderer, vec2 pos)
 {
 	auto entity = Entity();
 
@@ -106,5 +109,28 @@ Entity createTrap(RenderSystem* renderer, vec2 pos)
 
 	// TODO LATER - A1 has this entity inserted into renderRequest container
 	registry.collectibles.emplace(entity);
+	return entity;
+};
+
+// Damage trap creation
+Entity createDamageTrap(RenderSystem* renderer, vec2 pos)
+{
+	auto entity = Entity();
+
+	// Setting intial motion values
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.scale = { TRAP_BB_WIDTH, TRAP_BB_HEIGHT };
+
+	// Setting initial hitbox values
+	Hitbox& hitbox = registry.hitboxes.emplace(entity);
+	hitbox.position = pos;
+	hitbox.dimension = { TRAP_BB_WIDTH, TRAP_BB_HEIGHT };
+
+	// Setting initial trap values
+	registry.traps.emplace(entity);
+	// TODO LATER - A1 has this entity inserted into renderRequest container
 	return entity;
 };

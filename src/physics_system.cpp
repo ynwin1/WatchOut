@@ -26,11 +26,11 @@ void PhysicsSystem::step(float elapsed_ms)
 {
 	// Check for collisions between moving entities
 	ComponentContainer<Motion> &motion_container = registry.motions;
-	for (uint i = 0; i < motion_container.components.size() - 1; i++) {
+	for (uint i = 0; i < motion_container.components.size(); i++) {
 		Entity entity_i = motion_container.entities[i];
 		Hitbox& hitbox_i = registry.hitboxes.get(entity_i);
 
-		for (uint j = i + 1; j < motion_container.components.size() - 1; j++) {
+		for (uint j = i + 1; j < motion_container.components.size(); j++) {
 			Entity entity_j = motion_container.entities[j];
 			Hitbox& hitbox_j = registry.hitboxes.get(entity_j);
 

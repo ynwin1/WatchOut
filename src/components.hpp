@@ -6,12 +6,12 @@
 // Player Component
 struct Player 
 {
-	float health = 100.0f;
+	unsigned int health = 100;
 };
 
 struct Enemy
 {
-	float health = 100.0f;
+	unsigned int health = 100;
 };
 
 // Collectible Component
@@ -28,7 +28,7 @@ struct Trap
 	// fixed position and scale once set
 	vec2 position = { 0, 0 };
 	vec2 scale = { 3, 3 };
-	float damage = 5.0f;
+	unsigned int damage = 5.0;
 };
 
 // All data relevant to the shape and motion of entities

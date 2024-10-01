@@ -41,11 +41,15 @@ void WorldSystem::handle_collisions()
 
 			}
 			else if (registry.traps.has(entity_other)) {
-				// TODO: [WO-14] If the other entity is a damage trap
 				// destroy the trap
 				registry.remove_all_components_of(entity_other);
 				printf("Player hit a trap\n");
-				// TODO LATER: reduce player health (but need to implement player health first)
+
+				// reduce player health
+				Player& player = registry.players.get(entity);
+				Trap& trap = registry.traps.get(entity_other);
+				player.health -= trap.damage;
+				printf("Player health reduced from %d to %d\n", player.health + trap.damage, player.health);
 			}
 			else if (registry.enemies.has(entity_other)) {
 				// TODO: [WO-16] If the other entity is an enemy
@@ -53,11 +57,15 @@ void WorldSystem::handle_collisions()
 		}
 		else if (registry.enemies.has(entity)) {
 			if (registry.traps.has(entity_other)) {
-				// TODO: [WO-14] If the other entity is a damage trap
 				// destroy the trap
 				registry.remove_all_components_of(entity_other);
 				printf("Enemy hit a trap\n");
-				// TODO LATER: reduce enemy health (but need to implement enemy health first)
+
+				// reduce enemy health
+				Enemy& enemy = registry.enemies.get(entity);
+				Trap& trap = registry.traps.get(entity_other);
+				enemy.health -= trap.damage;
+				printf("Enemy health reduced from %d to %d\n", enemy.health + trap.damage, enemy.health);
 			}
 		}
 	}

@@ -38,19 +38,28 @@ void WorldSystem::handle_collisions()
 			// If the entity is colliding with a collectible
 			if (registry.collectibles.has(entity_other)) {
 				// TODO: [WO-17] Logic to collect the collectibles
+
 			}
 			else if (registry.traps.has(entity_other)) {
 				// TODO: [WO-14] If the other entity is a damage trap
-
+				// destroy the trap
+				registry.remove_all_components_of(entity_other);
+				printf("Player hit a trap\n");
+				// TODO LATER: reduce player health (but need to implement player health first)
 			}
 			else if (registry.enemies.has(entity_other)) {
 				// TODO: [WO-16] If the other entity is an enemy
 			}
 		}
 		else if (registry.enemies.has(entity)) {
-			// TODO: [Enemy - Others] Collision Logics go here
+			if (registry.traps.has(entity_other)) {
+				// TODO: [WO-14] If the other entity is a damage trap
+				// destroy the trap
+				registry.remove_all_components_of(entity_other);
+				printf("Enemy hit a trap\n");
+				// TODO LATER: reduce enemy health (but need to implement enemy health first)
+			}
 		}
-
 	}
 }
 

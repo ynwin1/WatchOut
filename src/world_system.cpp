@@ -108,7 +108,8 @@ void WorldSystem::update_player_movement(float elapsed_ms)
 
 	if (player_comp.isDashing) {
         // (dash distance = 4 units (arbitrary can be changed))
-		//target_position for the linear interpolation formula
+		//target_position for the linear interpolation formula L(t)=(1−t)⋅A+t⋅B
+		// L(t) = interpolated position, A = original position, B = target position, and t is the interpolation factor (or in our case determines how long we want the dash to last)
         glm::vec2 target_position = player_motion.position + glm::normalize(player_motion.velocity) * 4.0f; 
 
         // Interpolating position

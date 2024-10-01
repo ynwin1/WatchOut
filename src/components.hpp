@@ -6,12 +6,12 @@
 // Player Component
 struct Player 
 {
-
+	float health = 100.0f;
 };
 
 struct Enemy
 {
-
+	float health = 100.0f;
 };
 
 // Collectible Component

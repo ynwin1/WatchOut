@@ -3,6 +3,7 @@
 #include <array>
 #include <utility>
 
+#include "camera.hpp"
 #include "common.hpp"
 #include "render_components.hpp"
 #include "tiny_ecs.hpp"
@@ -58,9 +59,13 @@ public:
 	// Draw all entities
 	void draw();
 
+	void updateCamera(Entity playerSalmon);
+
 	mat3 createProjectionMatrix();
 
 private:
+	Camera camera;
+
 	// Internal drawing functions for each entity type
 	void drawTexturedMesh(Entity entity, const mat3& projection);
 

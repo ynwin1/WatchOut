@@ -44,6 +44,7 @@ bool WorldSystem::step(float elapsed_ms)
     update_positions(elapsed_ms);
     update_cooldown(elapsed_ms);
 
+    renderer->updateCamera(playerEntity);
 	return !is_over();
 }
 

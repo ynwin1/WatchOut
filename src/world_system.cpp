@@ -49,10 +49,14 @@ void WorldSystem::handle_collisions()
 				Player& player = registry.players.get(entity);
 				Trap& trap = registry.traps.get(entity_other);
 				player.health -= trap.damage;
-				printf("Player health reduced from %d to %d\n", player.health + trap.damage, player.health);
+				printf("Player health reduced by trap from %d to %d\n", player.health + trap.damage, player.health);
 			}
 			else if (registry.enemies.has(entity_other)) {
-				// TODO: [WO-16] If the other entity is an enemy
+				// player takes the damage
+				Player& player = registry.players.get(entity);
+				Enemy& enemy = registry.enemies.get(entity_other);
+				player.health -= enemy.damage;
+				printf("Player health reduced by enemy from %d to %d\n", player.health + enemy.damage, player.health);
 			}
 		}
 		else if (registry.enemies.has(entity)) {

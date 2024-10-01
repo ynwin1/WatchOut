@@ -12,6 +12,7 @@ struct Player
 struct Enemy
 {
 	unsigned int health = 100;
+	unsigned int damage = 10;
 };
 
 // Collectible Component

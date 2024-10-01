@@ -42,7 +42,8 @@ Entity createBoar(RenderSystem* renderer, vec2 pos)
 	hitbox.dimension = { BOAR_BB_WIDTH, BOAR_BB_HEIGHT };
 
 	// TODO LATER - A1 has this entity inserted into renderRequest container
-	registry.enemies.emplace(entity);
+	Enemy& enemy = registry.enemies.emplace(entity);
+	enemy.damage = 3;
 	return entity;
 };
 
@@ -64,7 +65,8 @@ Entity createBarbarian(RenderSystem* renderer, vec2 pos)
 	hitbox.dimension = { BARBARIAN_BB_WIDTH, BARBARIAN_BB_HEIGHT };
 
 	// TODO LATER - A1 has this entity inserted into renderRequest container
-	registry.enemies.emplace(entity);
+	Enemy& enemy = registry.enemies.emplace(entity);
+	enemy.damage = 5;
 	return entity;
 };
 
@@ -86,7 +88,8 @@ Entity createArcher(RenderSystem* renderer, vec2 pos)
 	hitbox.dimension = { ARCHER_BB_WIDTH, ARCHER_BB_HEIGHT };
 
 	// TODO LATER - A1 has this entity inserted into renderRequest container
-	registry.enemies.emplace(entity);
+	Enemy& enemy = registry.enemies.emplace(entity);
+	enemy.damage = 5;
 	return entity;
 };
 

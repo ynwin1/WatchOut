@@ -1,6 +1,7 @@
 #include "world_system.hpp"
 #include "tiny_ecs_registry.hpp"
 #include "common.hpp"
+#include "world_init.hpp"
 
 
 WorldSystem::WorldSystem() {
@@ -12,6 +13,8 @@ void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window)
 {
 	this->renderer = renderer;
 	this->window = window;
+
+	createJeff(renderer, vec2(100, 100));
 }
 
 WorldSystem::~WorldSystem() {

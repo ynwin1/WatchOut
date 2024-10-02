@@ -1,12 +1,9 @@
-/*
-	Copied from A1
-*/
-
 #pragma once
 #include <vector>
 
 #include "tiny_ecs.hpp"
 #include "components.hpp"
+#include "render_components.hpp"
 
 class ECSRegistry
 {
@@ -15,6 +12,8 @@ class ECSRegistry
 
 public:
 	// Manually created list of all components this game has
+	ComponentContainer<Motion> motions;
+	ComponentContainer<RenderRequest> renderRequests;
 
 	// constructor that adds all containers for looping over them
 	// IMPORTANT: Don't forget to add any newly added containers!
@@ -35,6 +34,7 @@ public:
 		registry_list.push_back(&collectibles);
 		registry_list.push_back(&hitboxes);
 		registry_list.push_back(&traps);
+		registry_list.push_back(&renderRequests);
 	}
 
 	void clear_all_components() {

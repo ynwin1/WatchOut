@@ -137,3 +137,28 @@ Entity createDamageTrap(RenderSystem* renderer, vec2 pos)
 	// TODO LATER - A1 has this entity inserted into renderRequest container
 	return entity;
 };
+
+Entity createJeff(RenderSystem* renderer, vec2 position)
+{
+	auto entity = Entity();
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0, 100.f };
+	motion.position = position;
+
+	// Setting initial values, scale is negative to make it face the opposite way
+	motion.scale = vec2({ JEFF_BB_WIDTH, JEFF_BB_HEIGHT });
+
+	// create an empty Eel component to be able to refer to all eels
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::JEFF,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	return entity;
+}

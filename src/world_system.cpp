@@ -57,6 +57,8 @@ void WorldSystem::handle_collisions()
 				Enemy& enemy = registry.enemies.get(entity_other);
 				player.health -= enemy.damage;
 				printf("Player health reduced by enemy from %d to %d\n", player.health + enemy.damage, player.health);
+
+				// TODO M1 [WO-13] - Change player color to (red) for a short duration
 			}
 		}
 		else if (registry.enemies.has(entity)) {
@@ -70,6 +72,9 @@ void WorldSystem::handle_collisions()
 				Trap& trap = registry.traps.get(entity_other);
 				enemy.health -= trap.damage;
 				printf("Enemy health reduced from %d to %d\n", enemy.health + trap.damage, enemy.health);
+			}
+			else if (registry.enemies.has(entity_other)) {
+				// TODO LATER - Logic for enemy-enemy collision
 			}
 		}
 	}

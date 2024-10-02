@@ -9,6 +9,11 @@
 #include "render_components.hpp"
 #include "components.hpp"
 
+// stlib
+#include <iostream>
+#include <sstream>
+
+
 class ECSRegistry
 {
 	// Callbacks to remove a particular or all entities in the system
@@ -27,6 +32,10 @@ public:
 	// IMPORTANT: Don't forget to add any newly added containers!
 	ECSRegistry()
 	{
+		registry_list.push_back(&motions);
+        registry_list.push_back(&renderRequests);
+        registry_list.push_back(&screenStates);
+        registry_list.push_back(&meshPtrs);
 	}
 
 	void clear_all_components() {

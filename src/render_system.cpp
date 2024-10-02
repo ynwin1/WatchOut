@@ -1,6 +1,7 @@
 // internal
 #include "render_system.hpp"
 #include "tiny_ecs_registry.hpp"
+#include "world_system.hpp" // Include the header file for WorldSystem
 
 // Debugging
 namespace {
@@ -32,11 +33,21 @@ GLFWwindow* RenderSystem::create_window() {
 	glfwWindowHint(GLFW_RESIZABLE, 0);
 
 	// Create the main window (for rendering, keyboard, and mouse input)
-	window = glfwCreateWindow(window_width_px, window_height_px, "Salmon Game Assignment", nullptr, nullptr);
+	window = glfwCreateWindow(window_width_px, window_height_px, "Watch Out!", nullptr, nullptr);
 	if (window == nullptr) {
 		fprintf(stderr, "Failed to glfwCreateWindow");
 		return nullptr;
 	}
+
+	
+	// Setting callbacks to member functions (that's why the redirect is needed)
+	// Input is handled using GLFW, for more info see
+	// http://www.glfw.org/docs/latest/input_guide.html
+	glfwSetWindowUserPointer(window, this);
+	auto key_redirect = [](GLFWwindow* wnd, int _0, int _1, int _2, int _3) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_key(_0, _1, _2, _3); };
+	auto cursor_pos_redirect = [](GLFWwindow* wnd, double _0, double _1) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse_move({ _0, _1 }); };
+	glfwSetKeyCallback(window, key_redirect);
+	glfwSetCursorPosCallback(window, cursor_pos_redirect);
 
     return window;
 }

@@ -55,6 +55,7 @@ public:
 	void initializeGlGeometryBuffers();
 
 	void initializeGlMeshes();
+	Mesh& getMesh(GEOMETRY_BUFFER_ID id) { return meshes[(int)id]; };
 
 	template <class T>
 	void bindVBOandIBO(GEOMETRY_BUFFER_ID gid, std::vector<T> vertices, std::vector<uint16_t> indices);

@@ -23,20 +23,23 @@ public:
 	// Steps the game ahead by ms milliseconds
 	bool step(float elapsed_ms);
 
+	// Input callback functions
+	void on_key(int key, int, int action, int mod);
+	void on_mouse_move(vec2 pos);
+
 	// Check for collisions
 	void handle_collisions();
 
 	// Should the game be over ?
 	bool is_over()const;
 
+	Entity createJeff(RenderSystem* renderer, vec2 position);
+
 private:
 	// GLFW Window handle
 	GLFWwindow* window;
 
 	RenderSystem* renderer;
-
-	// Input callback functions
-	void on_key(int key, int, int action, int mod);
 
 	// restart level
 	void restart_game();

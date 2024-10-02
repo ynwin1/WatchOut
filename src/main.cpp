@@ -31,8 +31,13 @@ int main()
 	renderer.init(window);
 	world.init(&renderer, window);
 
+	world.createJeff(&renderer, {0,0});
+
 	auto t = Clock::now();
+	int counter = 0;
 	while (!world.is_over()) {
+		std::cout << "In main loop: " << counter << std::endl;
+		counter++;
 		// Processes system messages, if this wasn't present the window would become unresponsive
 		glfwPollEvents();
 		// Calculating elapsed times in milliseconds from the previous iteration
@@ -46,6 +51,6 @@ int main()
 
 		renderer.draw();
 	}
-
-	return 0;
+	std::cout << "Exiting" << std::endl;
+	return EXIT_SUCCESS;
 }

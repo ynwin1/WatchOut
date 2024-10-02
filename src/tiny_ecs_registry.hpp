@@ -16,9 +16,12 @@ class ECSRegistry
 
 public:
 	// Manually created list of all components this game has
-	ComponentContainer<RenderRequest> renderRequests;
 	ComponentContainer<Motion> motions;
+
+	// used for rendering
+	ComponentContainer<RenderRequest> renderRequests;
 	ComponentContainer<ScreenState> screenStates;
+	ComponentContainer<Mesh*> meshPtrs;
 
 	// constructor that adds all containers for looping over them
 	// IMPORTANT: Don't forget to add any newly added containers!

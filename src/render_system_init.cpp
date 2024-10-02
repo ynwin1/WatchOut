@@ -217,8 +217,11 @@ RenderSystem::~RenderSystem()
 	gl_has_errors();
 
 	// remove all entities created by the render system
-	while (registry.renderRequests.entities.size() > 0)
+	while (registry.renderRequests.entities.size() > 0) {
+		std::cout << "ID: " << registry.renderRequests.entities.back() << std::endl;
 	    registry.remove_all_components_of(registry.renderRequests.entities.back());
+		std::cout << "Number of render requests: " << registry.renderRequests.entities.size() << std::endl;
+	}
 }
 
 // Initialize the screen texture from a standard sprite

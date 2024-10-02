@@ -59,9 +59,6 @@ private:
 
 	// Window handle
 	GLFWwindow* window;
-
-
-	Entity screen_state_entity;
 };
 
 bool loadEffectFromFile(

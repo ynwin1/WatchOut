@@ -1,29 +1,6 @@
 #include "world_init.hpp"
 #include "tiny_ecs_registry.hpp"
 
-// Player creation
-Entity createPlayer(RenderSystem* renderer, vec2 pos)
-{
-	auto entity = Entity();
-
-	// Setting intial motion values
-	Motion& motion = registry.motions.emplace(entity);
-	motion.position = pos;
-	motion.angle = 0.f;
-	motion.velocity = { 0.f, 0.f };
-	motion.scale = { PLAYER_BB_WIDTH, PLAYER_BB_HEIGHT };
-
-	// Setting initial hitbox values
-	Hitbox& hitbox = registry.hitboxes.emplace(entity);
-	hitbox.position = pos;
-	hitbox.dimension = { PLAYER_BB_WIDTH, PLAYER_BB_HEIGHT };
-
-	// Setting initial player values
-	registry.players.emplace(entity);
-	// TODO LATER - A1 has this entity inserted into renderRequest container
-	return entity;
-};
-
 // Boar creation
 Entity createBoar(RenderSystem* renderer, vec2 pos)
 {
@@ -150,6 +127,11 @@ Entity createJeff(RenderSystem* renderer, vec2 position)
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ JEFF_BB_WIDTH, JEFF_BB_HEIGHT });
+
+	// Setting initial hitbox values
+	Hitbox& hitbox = registry.hitboxes.emplace(entity);
+	hitbox.position = position;
+	hitbox.dimension = { PLAYER_BB_WIDTH, PLAYER_BB_HEIGHT };
 
 	// create an empty Eel component to be able to refer to all eels
 	registry.renderRequests.insert(

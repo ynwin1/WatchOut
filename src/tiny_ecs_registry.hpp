@@ -11,15 +11,26 @@ class ECSRegistry
 	std::vector<ContainerInterface*> registry_list;
 
 public:
-	// Manually created list of all components this game has
-	ComponentContainer<Motion> motions;
-	ComponentContainer<RenderRequest> renderRequests;
-
 	// constructor that adds all containers for looping over them
 	// IMPORTANT: Don't forget to add any newly added containers!
+	ComponentContainer<Player> players;
+	ComponentContainer<Enemy> enemies;
+	ComponentContainer<Motion> motions;
+	ComponentContainer<Collision> collisions;
+	ComponentContainer<Collectible> collectibles;
+	ComponentContainer<Hitbox> hitboxes;
+	ComponentContainer<Trap> traps;
+	ComponentContainer<RenderRequest> renderRequests;
+
 	ECSRegistry()
 	{
+		registry_list.push_back(&players);
+		registry_list.push_back(&enemies);
 		registry_list.push_back(&motions);
+		registry_list.push_back(&collisions);
+		registry_list.push_back(&collectibles);
+		registry_list.push_back(&hitboxes);
+		registry_list.push_back(&traps);
 		registry_list.push_back(&renderRequests);
 	}
 

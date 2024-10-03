@@ -11,6 +11,9 @@ struct Player {
     bool isJumping;     // Indicates if the player is currently jumping
     bool isDashing;     // Indicates if the player is currently dashing
 	bool isRolling;     // Indicates if the player is currently rolling
+	glm::vec2 dashStartPosition; // Start position for dash
+    glm::vec2 dashTargetPosition; // Target position for dash
+    float dashTimer = 0.0f;       // Timer to track dash progress
 };
 
 struct Enemy

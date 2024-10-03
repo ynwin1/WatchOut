@@ -140,9 +140,16 @@ void WorldSystem::on_key(int key, int, int action, int mod)
                 player_comp.isRolling = pressed;
                 break;
             case GLFW_KEY_F:
-                // Dash only if the player is already moving
-                if (player_motion.velocity != glm::vec2(0.0f, 0.0f)) {
-                    player_comp.isDashing = pressed;
+                if (pressed && player_motion.velocity != glm::vec2(0.0f, 0.0f)) {
+                    // Start dashing if player is moving
+                    player_comp.isDashing = true;
+                    player_comp.dashStartPosition = player_motion.position;
+
+                    // Calculate dash target position based on current velocity
+                    glm::vec2 dashDirection = glm::normalize(player_motion.velocity);
+                    const float dashDistance = 1000.0f; 
+                    player_comp.dashTargetPosition = player_motion.position + dashDirection * dashDistance;
+                    player_comp.dashTimer = 0.0f; // Reset timer
                 }
                 break;
 				case GLFW_KEY_SPACE:
@@ -168,6 +175,7 @@ void WorldSystem::update_player_movement(float elapsed_ms)
 {
     Player& player_comp = registry.players.get(playerEntity);
     Motion& player_motion = registry.motions.get(playerEntity);
+    const float dashDuration = 0.2f;
 
 	// Determine speed based on whether the player is running
     const float speed = player_comp.isRunning ? 2.0f : 1.0f;
@@ -176,23 +184,21 @@ void WorldSystem::update_player_movement(float elapsed_ms)
     player_motion.position.x += player_motion.velocity.x * speed * elapsed_ms;
     player_motion.position.y += player_motion.velocity.y * speed * elapsed_ms;
 
-	if (player_comp.isDashing) {
-        // (arbitrary number)
-        const float dash_distance = 4.0f; 
-        
-        // Calculate the target position for dashing
-        glm::vec2 dash_direction = glm::normalize(player_motion.velocity);
-        glm::vec2 target_position = player_motion.position + dash_direction * dash_distance;
+    if (player_comp.isDashing) {
+        player_comp.dashTimer += elapsed_ms / 1000.0f; // Converting ms to seconds
 
-        float t = 100.0f; // Controls interpolation distance
+        if (player_comp.dashTimer < dashDuration) {
+            // Interpolation factor
+            float t = player_comp.dashTimer / dashDuration;
 
-        // Interpolating position
+        // Interpolate between start and target positions
         //player_motion.position is the target_position for the linear interpolation formula L(t)=(1−t)⋅A+t⋅B
-		// L(t) = interpolated position, A = original position, B = target position, and t is the interpolation factor (or in our case determines interpolation distance)
-        player_motion.position = glm::mix(player_motion.position, target_position, t);
-
-        // Reset dashing state after dashing
-        player_comp.isDashing = false;
+		// L(t) = interpolated position, A = original position, B = target position, and t is the interpolation factor
+            player_motion.position = glm::mix(player_comp.dashStartPosition, player_comp.dashTargetPosition, t);
+        } else {
+            player_motion.position = player_comp.dashTargetPosition;
+            player_comp.isDashing = false; // Reset isDashing
+        }
     }
     
 

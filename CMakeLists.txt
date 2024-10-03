@@ -157,15 +157,3 @@ target_link_libraries(${PROJECT_NAME} PUBLIC ${GLFW_LIBRARIES} ${SDL2_LIBRARIES}
 if(IS_OS_LINUX)
   target_link_libraries(${PROJECT_NAME} PUBLIC glfw ${CMAKE_DL_LIBS})
 endif()
-
-#Got cmake logic from chatgpt (didn't know how to do this)
-#uncomment below lines to run ecs_test
-# # Create a separate executable for ecs_test
-# add_executable(ecs_test tests/ecs_test.cpp)
-# target_include_directories(ecs_test PRIVATE src/)
-# target_link_libraries(ecs_test PRIVATE ${GLFW_LIBRARIES} ${SDL2_LIBRARIES} ${SDL2MIXER_LIBRARIES} glm::glm)
-
-# # Ensure ecs_test links to the required libraries
-# if (IS_OS_LINUX)
-#     target_link_libraries(ecs_test PRIVATE glfw ${CMAKE_DL_LIBS})
-# endif()

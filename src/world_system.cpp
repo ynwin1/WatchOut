@@ -77,7 +77,14 @@ void WorldSystem::handle_collisions()
 				printf("Enemy health reduced from %d to %d\n", enemy.health + trap.damage, enemy.health);
 			}
 			else if (registry.enemies.has(entity_other)) {
-				// TODO LATER - Logic for enemy-enemy collision
+				// Reduce health of both enemies
+				Enemy& enemy1 = registry.enemies.get(entity);
+				Enemy& enemy2 = registry.enemies.get(entity_other);
+
+				enemy1.health -= enemy2.damage;
+				enemy2.health -= enemy1.damage;
+				printf("Enemy 1's health reduced from %d to %d\n", enemy1.health + enemy2.damage, enemy1.health);
+				printf("Enemy 2's health reduced from %d to %d\n", enemy2.health + enemy1.damage, enemy2.health);
 			}
 		}
 	}

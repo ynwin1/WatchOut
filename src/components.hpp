@@ -3,10 +3,14 @@
 #include <vector>
 #include <unordered_map>
 
-// Player Component
-struct Player 
-{
+
+// PlayerComponents 
+struct Player {
 	unsigned int health = 100;
+    bool isRunning;     // Indicates if the player is currently running
+    bool isJumping;     // Indicates if the player is currently jumping
+    bool isDashing;     // Indicates if the player is currently dashing
+	bool isRolling;     // Indicates if the player is currently rolling
 };
 
 struct Enemy

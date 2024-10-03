@@ -26,6 +26,9 @@ public:
 	// Check for collisions
 	void handle_collisions();
 
+	// Handle player movement
+    void update_player_movement(float elapsed_ms);
+
 	// Should the game be over ?
 	bool is_over()const;
 
@@ -38,6 +41,7 @@ private:
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);
 	void on_mouse_move(vec2 mouse_position);
+	Entity playerEntity;
 
 	// restart level
 	void restart_game();

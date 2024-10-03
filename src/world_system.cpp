@@ -147,7 +147,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 
                     // Calculate dash target position based on current velocity
                     glm::vec2 dashDirection = glm::normalize(player_motion.velocity);
-                    const float dashDistance = 1000.0f; 
+                    const float dashDistance = 500.0f; 
                     player_comp.dashTargetPosition = player_motion.position + dashDirection * dashDistance;
                     player_comp.dashTimer = 0.0f; // Reset timer
                 }

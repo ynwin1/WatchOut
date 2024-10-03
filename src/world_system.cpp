@@ -23,12 +23,9 @@ void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window)
 	glfwSetKeyCallback(window, key_redirect);
 	glfwSetCursorPosCallback(window, cursor_pos_redirect);
 
-	createJeff(renderer, vec2(100, 100));
 	// Create player entity
     playerEntity = createJeff(renderer, vec2(100, 100));
 
-    // Add player component to registry (set initial values)
-    registry.players.emplace(playerEntity, Player{ 100, false, false, false, false});
 }
 
 WorldSystem::~WorldSystem() {
@@ -143,8 +140,10 @@ void WorldSystem::on_key(int key, int, int action, int mod)
                 player_comp.isRolling = pressed;
                 break;
             case GLFW_KEY_F:
-                // Dash
-                player_comp.isDashing = pressed;
+                // Dash only if the player is already moving
+                if (player_motion.velocity != glm::vec2(0.0f, 0.0f)) {
+                    player_comp.isDashing = pressed;
+                }
                 break;
 				case GLFW_KEY_SPACE:
                 // Dash
@@ -152,6 +151,15 @@ void WorldSystem::on_key(int key, int, int action, int mod)
                 break;
             default:
                 break;
+        }
+    }
+
+    if (action == GLFW_RELEASE) {
+        if (key == GLFW_KEY_W || key == GLFW_KEY_S) {
+            player_motion.velocity.y = 0.f; // Stop vertical movement
+        }
+        if (key == GLFW_KEY_A || key == GLFW_KEY_D) {
+            player_motion.velocity.x = 0.f; // Stop horizontal movement
         }
     }
 }
@@ -169,21 +177,25 @@ void WorldSystem::update_player_movement(float elapsed_ms)
     player_motion.position.y += player_motion.velocity.y * speed * elapsed_ms;
 
 	if (player_comp.isDashing) {
-        // (dash distance = 4 units (arbitrary can be changed))
-		//target_position for the linear interpolation formula
-        glm::vec2 target_position = player_motion.position + glm::normalize(player_motion.velocity) * 4.0f; 
+        // (arbitrary number)
+        const float dash_distance = 4.0f; 
+        
+        // Calculate the target position for dashing
+        glm::vec2 dash_direction = glm::normalize(player_motion.velocity);
+        glm::vec2 target_position = player_motion.position + dash_direction * dash_distance;
+
+        float t = 100.0f; // Controls interpolation distance
 
         // Interpolating position
-        float t = elapsed_ms / 100.0f; // Arbitrary t (can be changed according to our requirements)
-        player_motion.position = glm::mix(player_motion.position, target_position, t); // Using glm::mix for linear interpolation
+        //player_motion.position is the target_position for the linear interpolation formula L(t)=(1−t)⋅A+t⋅B
+		// L(t) = interpolated position, A = original position, B = target position, and t is the interpolation factor (or in our case determines interpolation distance)
+        player_motion.position = glm::mix(player_motion.position, target_position, t);
 
         // Reset dashing state after dashing
         player_comp.isDashing = false;
     }
     
 
-    // Reset velocity after applying movement
-    player_motion.velocity = glm::vec2(0, 0);
 }
 
 void WorldSystem::restart_game()

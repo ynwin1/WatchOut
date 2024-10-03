@@ -145,8 +145,15 @@ Entity createJeff(RenderSystem* renderer, vec2 position)
 	// Initialize the motion
 	auto& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
-	motion.velocity = { 0, 100.f };
+	motion.velocity = { 0, 0 };
 	motion.position = position;
+
+	//Initialize movement
+	auto& player = registry.players.emplace(entity);
+	player.isDashing = false;
+	player.isJumping = false;
+	player.isRolling = false;
+	player.isRunning = false;
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ JEFF_BB_WIDTH, JEFF_BB_HEIGHT });

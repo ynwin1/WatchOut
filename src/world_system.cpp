@@ -49,8 +49,12 @@ void WorldSystem::handle_collisions()
 		if (registry.players.has(entity)) {
 			// If the entity is colliding with a collectible
 			if (registry.collectibles.has(entity_other)) {
-				// TODO: [WO-17] Logic to collect the collectibles
-
+				// destroy the collectible
+				registry.remove_all_components_of(entity_other);
+				// increase collectible count in player
+				Player& player = registry.players.get(entity);
+				player.trapsCollected++;
+				printf("Player collected a trap\n");
 			}
 			else if (registry.traps.has(entity_other)) {
 				// destroy the trap

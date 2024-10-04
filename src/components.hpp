@@ -7,6 +7,7 @@
 struct Player 
 {
 	unsigned int health = 100;
+	unsigned int trapsCollected = 0;
 };
 
 struct Enemy

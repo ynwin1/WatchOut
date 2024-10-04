@@ -14,6 +14,15 @@ void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window)
 	this->renderer = renderer;
 	this->window = window;
 
+	// Setting callbacks to member functions (that's why the redirect is needed)
+	// Input is handled using GLFW, for more info see
+	// http://www.glfw.org/docs/latest/input_guide.html
+	glfwSetWindowUserPointer(window, this);
+	auto key_redirect = [](GLFWwindow* wnd, int _0, int _1, int _2, int _3) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_key(_0, _1, _2, _3); };
+	auto cursor_pos_redirect = [](GLFWwindow* wnd, double _0, double _1) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse_move({ _0, _1 }); };
+	glfwSetKeyCallback(window, key_redirect);
+	glfwSetCursorPosCallback(window, cursor_pos_redirect);
+
 	createJeff(renderer, vec2(100, 100));
 }
 
@@ -97,6 +106,12 @@ bool WorldSystem::is_over() const {
 
 void WorldSystem::on_key(int key, int, int action, int mod)
 {
+	printf("clack\n");
+}
+
+void WorldSystem::on_mouse_move(vec2 mouse_position)
+{
+	printf("vroom\n");
 }
 
 void WorldSystem::restart_game()

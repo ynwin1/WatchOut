@@ -44,6 +44,15 @@ Entity createBoar(RenderSystem* renderer, vec2 pos)
 	// TODO LATER - A1 has this entity inserted into renderRequest container
 	Enemy& enemy = registry.enemies.emplace(entity);
 	enemy.damage = 3;
+
+	registry.renderRequests.insert(
+	entity,
+	{
+		TEXTURE_ASSET_ID::BOAR,
+		EFFECT_ASSET_ID::TEXTURED,
+		GEOMETRY_BUFFER_ID::SPRITE
+	});
+	
 	return entity;
 };
 
@@ -98,6 +107,15 @@ Entity createArcher(RenderSystem* renderer, vec2 pos)
 	// TODO LATER - A1 has this entity inserted into renderRequest container
 	Enemy& enemy = registry.enemies.emplace(entity);
 	enemy.damage = 5;
+
+	registry.renderRequests.insert(
+	entity,
+	{
+		TEXTURE_ASSET_ID::ARCHER,
+		EFFECT_ASSET_ID::TEXTURED,
+		GEOMETRY_BUFFER_ID::SPRITE
+	});
+	
 	return entity;
 };
 

@@ -38,8 +38,10 @@ struct TexturedVertex
 
 enum class TEXTURE_ASSET_ID {
 	JEFF = 0,
-	BARBARIAN = 1,
-	TEXTURE_COUNT = BARBARIAN + 1
+	BARBARIAN = JEFF + 1,
+	BOAR = BARBARIAN + 1,
+	ARCHER = BOAR + 1,
+	TEXTURE_COUNT = ARCHER + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 

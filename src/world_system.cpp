@@ -25,6 +25,8 @@ void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window)
 
 	createJeff(renderer, vec2(100, 100));
 	createBarbarian(renderer, vec2(200, 200));
+	createBoar(renderer, vec2(400, 400));
+	createArcher(renderer, vec2(100, 500));
 }
 
 WorldSystem::~WorldSystem() {

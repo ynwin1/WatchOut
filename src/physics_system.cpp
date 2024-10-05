@@ -22,6 +22,26 @@ bool collides(const Hitbox& a, const Hitbox& b)
 	return true;
 }
 
+void handleBoundsCheck() {
+	ComponentContainer<Motion> &motion_container = registry.motions;
+
+	for (uint i = 0; i < motion_container.components.size(); i++) {
+		Motion& motion = motion_container.components[i];
+
+		if(motion.position.x < 0) {
+			motion.position.x = 0;
+		} else if(motion.position.x > world_size_x) {
+			motion.position.x = world_size_x;
+		}
+
+		if(motion.position.y < 0) {
+			motion.position.y = 0;
+		} else if(motion.position.y > world_size_y) {
+			motion.position.y = world_size_y;
+		}
+	}
+}
+
 void PhysicsSystem::step(float elapsed_ms)
 {
 	// Check for collisions between moving entities
@@ -41,4 +61,6 @@ void PhysicsSystem::step(float elapsed_ms)
 			}
 		}
 	}
+
+	handleBoundsCheck();
 };

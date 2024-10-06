@@ -131,7 +131,7 @@ Entity createJeff(RenderSystem* renderer, vec2 position)
 	// Setting initial hitbox values
 	Hitbox& hitbox = registry.hitboxes.emplace(entity);
 	hitbox.position = position;
-	hitbox.dimension = { PLAYER_BB_WIDTH, PLAYER_BB_HEIGHT };
+	hitbox.dimension = { JEFF_BB_WIDTH, JEFF_BB_HEIGHT };
 
 	// create an empty Eel component to be able to refer to all eels
 	registry.renderRequests.insert(

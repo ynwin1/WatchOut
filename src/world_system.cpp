@@ -111,6 +111,35 @@ bool WorldSystem::is_over() const {
 void WorldSystem::on_key(int key, int, int action, int mod)
 {
 	printf("clack\n");
+
+	// Place a trap
+	if (key == GLFW_KEY_ENTER && action == GLFW_PRESS) {
+		if (registry.players.entities.size() == 0) {
+			printf("No player entity found\n");
+			return;
+		}
+		// Get player entity and its position
+		Entity player = registry.players.entities[0];
+		Motion& playerMotion = registry.motions.get(player);
+		vec2 playerPos = playerMotion.position;
+
+		// TODO LATER - Think about where exactly to place the trap
+		// Currently, it is placed at the player's position
+		// MAYBE - Place it behind the player in the direction they are facing
+
+		// Reduce player's trap count
+		Player& playerComponent = registry.players.get(player);
+		if (playerComponent.trapsCollected == 0) {
+			printf("Player has no traps to place\n");
+			// TODO LATER - Do something to indicate that player has no traps [Milestone AFTER]
+			return;
+		}
+		playerComponent.trapsCollected--;
+
+		// Create a trap at player's position
+		createDamageTrap(renderer, playerPos);
+		printf("Trap placed at (%f, %f)\n", playerPos.x, playerPos.y);
+	}
 }
 
 void WorldSystem::on_mouse_move(vec2 mouse_position)

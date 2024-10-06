@@ -14,6 +14,7 @@ public:
 	// constructor that adds all containers for looping over them
 	// IMPORTANT: Don't forget to add any newly added containers!
 	ComponentContainer<Player> players;
+	ComponentContainer<Dash> dashers;
 	ComponentContainer<Enemy> enemies;
 	ComponentContainer<Motion> motions;
 	ComponentContainer<Collision> collisions;
@@ -21,10 +22,12 @@ public:
 	ComponentContainer<Hitbox> hitboxes;
 	ComponentContainer<Trap> traps;
 	ComponentContainer<RenderRequest> renderRequests;
+	
 
 	ECSRegistry()
 	{
 		registry_list.push_back(&players);
+		registry_list.push_back(&dashers);
 		registry_list.push_back(&enemies);
 		registry_list.push_back(&motions);
 		registry_list.push_back(&collisions);

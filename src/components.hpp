@@ -3,11 +3,23 @@
 #include <vector>
 #include <unordered_map>
 
-// Player Component
-struct Player 
-{
+
+// PlayerComponents 
+struct Player {
 	unsigned int health = 100;
 	unsigned int trapsCollected = 0;
+  bool isRunning;     // Indicates if the player is currently running
+  bool isJumping;     // Indicates if the player is currently jumping
+	bool isRolling;     // Indicates if the player is currently rolling
+};
+
+//Dashing
+struct Dash {
+    bool isDashing;     // Indicates if the entity is currently dashing
+	  glm::vec2 dashStartPosition; // Start position for dash
+    glm::vec2 dashTargetPosition; // Target position for dash
+    float dashTimer = 0.0f;       // Timer to track dash progress
+	  float dashDuration = 0.2f;    // Duration of Dash
 };
 
 struct Enemy

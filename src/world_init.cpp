@@ -150,13 +150,16 @@ Entity createJeff(RenderSystem* renderer, vec2 position)
 
 	//Initialize movement
 	auto& player = registry.players.emplace(entity);
-	player.isDashing = false;
 	player.isJumping = false;
 	player.isRolling = false;
 	player.isRunning = false;
-	player.dashStartPosition = { 0, 0 };
-	player.dashTargetPosition = { 0, 0 };
-	player.dashTimer = 0.0f;
+
+	auto& dasher = registry.dashers.emplace(entity);
+	dasher.isDashing = false;
+	dasher.dashStartPosition = { 0, 0 };
+	dasher.dashTargetPosition = { 0, 0 };
+	dasher.dashTimer = 0.0f;
+	dasher.dashDuration = 0.2f;
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ JEFF_BB_WIDTH, JEFF_BB_HEIGHT });

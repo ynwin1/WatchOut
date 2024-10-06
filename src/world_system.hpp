@@ -26,8 +26,8 @@ public:
 	// Check for collisions
 	void handle_collisions();
 
-	// Handle player movement
-    void update_player_movement(float elapsed_ms);
+	// Update entity positions
+	void update_positions(float elapsed_ms);
 
 	// Should the game be over ?
 	bool is_over()const;

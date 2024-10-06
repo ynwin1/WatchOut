@@ -9,11 +9,16 @@ struct Player {
 	unsigned int health = 100;
     bool isRunning;     // Indicates if the player is currently running
     bool isJumping;     // Indicates if the player is currently jumping
-    bool isDashing;     // Indicates if the player is currently dashing
 	bool isRolling;     // Indicates if the player is currently rolling
+};
+
+//Dashing
+struct Dash {
+    bool isDashing;     // Indicates if the entity is currently dashing
 	glm::vec2 dashStartPosition; // Start position for dash
     glm::vec2 dashTargetPosition; // Target position for dash
     float dashTimer = 0.0f;       // Timer to track dash progress
+	float dashDuration = 0.2f;    // Duration of Dash
 };
 
 struct Enemy

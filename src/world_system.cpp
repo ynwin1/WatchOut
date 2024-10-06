@@ -35,7 +35,7 @@ WorldSystem::~WorldSystem() {
 
 bool WorldSystem::step(float elapsed_ms)
 {
-	update_player_movement(elapsed_ms);
+    update_positions(elapsed_ms);
 	return !is_over();
 }
 
@@ -106,6 +106,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 {
 	Player& player_comp = registry.players.get(playerEntity);
     Motion& player_motion = registry.motions.get(playerEntity);
+    Dash& player_dash = registry.dashers.get(playerEntity);
 
     // Check key actions (press/release)
     if (action == GLFW_PRESS || action == GLFW_RELEASE)
@@ -142,14 +143,14 @@ void WorldSystem::on_key(int key, int, int action, int mod)
             case GLFW_KEY_F:
                 if (pressed && player_motion.velocity != glm::vec2(0.0f, 0.0f)) {
                     // Start dashing if player is moving
-                    player_comp.isDashing = true;
-                    player_comp.dashStartPosition = player_motion.position;
+                    player_dash.isDashing = true;
+                    player_dash.dashStartPosition = player_motion.position;
 
                     // Calculate dash target position based on current velocity
                     glm::vec2 dashDirection = glm::normalize(player_motion.velocity);
-                    const float dashDistance = 1000.0f; 
-                    player_comp.dashTargetPosition = player_motion.position + dashDirection * dashDistance;
-                    player_comp.dashTimer = 0.0f; // Reset timer
+                    const float dashDistance = 800.0f; 
+                    player_dash.dashTargetPosition = player_motion.position + dashDirection * dashDistance;
+                    player_dash.dashTimer = 0.0f; // Reset timer
                 }
                 break;
 				case GLFW_KEY_SPACE:
@@ -171,34 +172,44 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     }
 }
 
-void WorldSystem::update_player_movement(float elapsed_ms)
+void WorldSystem::update_positions(float elapsed_ms)
 {
-    Player& player_comp = registry.players.get(playerEntity);
-    Motion& player_motion = registry.motions.get(playerEntity);
-    const float dashDuration = 0.2f;
 
-	// Determine speed based on whether the player is running
-    const float speed = player_comp.isRunning ? 2.0f : 1.0f;
+    for (Entity entity : registry.motions.entities) {
+        float Running_Speed = 1.0f;
+        // Get the Motion component of the entity
+        Motion& motion = registry.motions.get(entity);
+        if(registry.players.has(entity)){
+            Player& player_comp = registry.players.get(entity);
+            Running_Speed = player_comp.isRunning ? 2.0f : 1.0f;
 
-    // Update the player's position based on velocity and elapsed time
-    player_motion.position.x += player_motion.velocity.x * speed * elapsed_ms;
-    player_motion.position.y += player_motion.velocity.y * speed * elapsed_ms;
-
-    if (player_comp.isDashing) {
-        player_comp.dashTimer += elapsed_ms / 1000.0f; // Converting ms to seconds
-
-        if (player_comp.dashTimer < dashDuration) {
-            // Interpolation factor
-            float t = player_comp.dashTimer / dashDuration;
-
-        // Interpolate between start and target positions
-        //player_motion.position is the target_position for the linear interpolation formula L(t)=(1−t)⋅A+t⋅B
-		// L(t) = interpolated position, A = original position, B = target position, and t is the interpolation factor
-            player_motion.position = glm::mix(player_comp.dashStartPosition, player_comp.dashTargetPosition, t);
-        } else {
-            player_motion.position = player_comp.dashTargetPosition;
-            player_comp.isDashing = false; // Reset isDashing
         }
+
+        if (registry.dashers.has(entity)){
+            Dash& dashing = registry.dashers.get(entity);
+            if (dashing.isDashing) {
+                dashing.dashTimer += elapsed_ms / 1000.0f; // Converting ms to seconds
+
+                if (dashing.dashTimer < dashing.dashDuration) {
+                    // Interpolation factor
+                    float t = dashing.dashTimer / dashing.dashDuration;
+
+                    // Interpolate between start and target positions
+                    //player_motion.position is the target_position for the linear interpolation formula L(t)=(1−t)⋅A+t⋅B
+		            // L(t) = interpolated position, A = original position, B = target position, and t is the interpolation factor
+                        motion.position = glm::mix(dashing.dashStartPosition, dashing.dashTargetPosition, t);
+                } else {
+                    motion.position = dashing.dashTargetPosition;
+                    dashing.isDashing = false; // Reset isDashing
+                }
+            }  
+
+        }    
+        
+
+        // Update the entity's position based on its velocity and elapsed time
+        motion.position.x += motion.velocity.x * Running_Speed * elapsed_ms;
+        motion.position.y += motion.velocity.y * Running_Speed * elapsed_ms;
     }
     
 

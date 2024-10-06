@@ -188,3 +188,33 @@ Entity createJeff(RenderSystem* renderer, vec2 position)
 
 	return entity;
 }
+
+Entity createAnimatedJeff(RenderSystem* renderer, vec2 position)
+{
+	auto entity = Entity();
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0, 0.f };
+	motion.position = position;
+
+	// Setting initial values, scale is negative to make it face the opposite way
+	// motion.scale = vec2({ JEFF_ANIMATED_BB_WIDTH, JEFF_ANIMATED_BB_HEIGHT });
+	motion.scale = vec2({ JEFF_ANIMATED_BB_HEIGHT, JEFF_ANIMATED_BB_HEIGHT });
+
+	auto& animation = registry.animations.emplace(entity);
+	animation.frameTime = 150;
+	animation.numFrames = 4;
+
+	// create an empty Eel component to be able to refer to all eels
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::ANIMATED_JEFF,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::ANIMATED
+		});
+
+	return entity;
+}

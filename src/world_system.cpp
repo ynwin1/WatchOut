@@ -27,6 +27,7 @@ void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window)
 	createBarbarian(renderer, vec2(200, 200));
 	createBoar(renderer, vec2(400, 400));
 	createArcher(renderer, vec2(100, 500));
+	createAnimatedJeff(renderer, vec2(500, 500));
 }
 
 WorldSystem::~WorldSystem() {
@@ -36,6 +37,11 @@ WorldSystem::~WorldSystem() {
 
 bool WorldSystem::step(float elapsed_ms)
 {
+	auto& animationRegistry = registry.animations;
+	for (uint i = 0; i < animationRegistry.components.size(); i++) {
+		Entity entity = animationRegistry.entities[i];
+		animationRegistry.get(entity).update(elapsed_ms);
+	}
 	return false;
 }
 
@@ -102,12 +108,12 @@ bool WorldSystem::is_over() const {
 
 void WorldSystem::on_key(int key, int, int action, int mod)
 {
-	printf("clack\n");
+	// printf("clack\n");
 }
 
 void WorldSystem::on_mouse_move(vec2 mouse_position)
 {
-	printf("vroom\n");
+	// printf("vroom\n");
 }
 
 void WorldSystem::restart_game()

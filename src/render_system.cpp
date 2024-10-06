@@ -1,6 +1,7 @@
 // internal
 #include "render_system.hpp"
 #include <SDL.h>
+#include <iostream>
 
 #include "tiny_ecs_registry.hpp"
 
@@ -153,3 +154,5 @@ mat3 RenderSystem::createProjectionMatrix()
 	float ty = -(top + bottom) / (top - bottom);
 	return { {sx, 0.f, 0.f}, {0.f, sy, 0.f}, {tx, ty, 1.f} };
 }
+
+//

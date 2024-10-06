@@ -21,6 +21,7 @@ public:
 	ComponentContainer<Hitbox> hitboxes;
 	ComponentContainer<Trap> traps;
 	ComponentContainer<RenderRequest> renderRequests;
+	ComponentContainer<Animation> animations;
 
 	ECSRegistry()
 	{
@@ -32,6 +33,7 @@ public:
 		registry_list.push_back(&hitboxes);
 		registry_list.push_back(&traps);
 		registry_list.push_back(&renderRequests);
+		registry_list.push_back(&animations);
 	}
 
 	void clear_all_components() {

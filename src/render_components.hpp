@@ -2,6 +2,7 @@
 #include "common.hpp"
 #include <vector>
 #include <unordered_map>
+#include <iostream>
 #include "../ext/stb_image/stb_image.h"
 
 
@@ -11,6 +12,41 @@ struct TexturedVertex
 	vec3 position;
 	vec2 texcoord;
 };
+
+struct Animation {
+    int currentFrame = 0;
+    float elapsedTime = 0.0f;
+    float frameTime;
+    int numFrames;
+
+    // Update frame based on time in ms
+    void update(float deltaTime) {
+        elapsedTime += deltaTime;
+
+        if (elapsedTime >= frameTime) {
+            currentFrame = (currentFrame + 1) % numFrames;
+			updateVBOs();
+            elapsedTime = 0.0f;
+        }
+    }
+
+	void updateVBOs() {
+		float frameSize = 1.0/numFrames;
+		std::vector<TexturedVertex> textured_vertices(4);
+		textured_vertices[0].position = { -1.f / 2, +1.f / 2, 0.f };
+		textured_vertices[1].position = { +1.f / 2, +1.f / 2, 0.f };
+		textured_vertices[2].position = { +1.f / 2, -1.f / 2, 0.f };
+		textured_vertices[3].position = { -1.f / 2, -1.f / 2, 0.f };
+		textured_vertices[0].texcoord = { frameSize * currentFrame, 1.f };
+		textured_vertices[1].texcoord = { frameSize * (currentFrame + 1.), 1.f };
+		textured_vertices[2].texcoord = { frameSize * (currentFrame + 1.), 0.f };
+		textured_vertices[3].texcoord = { frameSize * currentFrame, 0.f };
+		
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(textured_vertices[0]) * textured_vertices.size(), textured_vertices.data());
+		gl_has_errors();
+	}
+};
+
 
 /**
  * The following enumerators represent global identifiers refering to graphic
@@ -38,7 +74,8 @@ struct TexturedVertex
 
 enum class TEXTURE_ASSET_ID {
 	JEFF = 0,
-	BARBARIAN = JEFF + 1,
+	ANIMATED_JEFF = JEFF + 1,
+	BARBARIAN = ANIMATED_JEFF + 1,
 	BOAR = BARBARIAN + 1,
 	ARCHER = BOAR + 1,
 	TEXTURE_COUNT = ARCHER + 1
@@ -53,7 +90,8 @@ const int effect_count = (int)EFFECT_ASSET_ID::EFFECT_COUNT;
 
 enum class GEOMETRY_BUFFER_ID {
 	SPRITE = 0,
-	GEOMETRY_COUNT = SPRITE + 1
+	ANIMATED = SPRITE + 1,
+	GEOMETRY_COUNT = ANIMATED + 1
 };
 const int geometry_count = (int)GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;
 

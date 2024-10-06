@@ -23,8 +23,12 @@ void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window)
 	glfwSetKeyCallback(window, key_redirect);
 	glfwSetCursorPosCallback(window, cursor_pos_redirect);
 
+
 	// Create player entity
-    playerEntity = createJeff(renderer, vec2(100, 100));
+  playerEntity = createJeff(renderer, vec2(100, 100));
+	createBarbarian(renderer, vec2(200, 200));
+	createBoar(renderer, vec2(400, 400));
+	createArcher(renderer, vec2(100, 500));
 
 }
 

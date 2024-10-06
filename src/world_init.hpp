@@ -6,8 +6,6 @@
 
 // hardcoded dimensions of player and enemies (boar, babarian, and archer)
 // BB = Bounding Box
-const float PLAYER_BB_WIDTH = 0.5f;
-const float PLAYER_BB_HEIGHT = 0.5f;
 const float BOAR_BB_WIDTH = 0.8f;
 const float BOAR_BB_HEIGHT = 0.4f;
 const float BARBARIAN_BB_WIDTH = 0.3f;

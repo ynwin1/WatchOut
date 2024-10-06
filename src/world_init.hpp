@@ -6,18 +6,19 @@
 
 // hardcoded dimensions of player and enemies (boar, babarian, and archer)
 // BB = Bounding Box
+const float SPRITE_SCALE = 3.f;
 const float PLAYER_BB_WIDTH = 0.5f;
 const float PLAYER_BB_HEIGHT = 0.5f;
-const float BOAR_BB_WIDTH = 0.8f;
-const float BOAR_BB_HEIGHT = 0.4f;
-const float BARBARIAN_BB_WIDTH = 0.3f;
-const float BARBARIAN_BB_HEIGHT = 0.4f;
-const float ARCHER_BB_WIDTH = 0.4f;
-const float ARCHER_BB_HEIGHT = 0.5f;
+const float BOAR_BB_WIDTH = 32.f * SPRITE_SCALE;
+const float BOAR_BB_HEIGHT = 32.f * SPRITE_SCALE;
+const float BARBARIAN_BB_WIDTH = 20.f * SPRITE_SCALE;
+const float BARBARIAN_BB_HEIGHT = 34.f * SPRITE_SCALE;
+const float ARCHER_BB_WIDTH = 32.f * SPRITE_SCALE;
+const float ARCHER_BB_HEIGHT = 32.f * SPRITE_SCALE;
 const float TRAP_BB_WIDTH = 0.3f;
 const float TRAP_BB_HEIGHT = 0.2f;
-const float JEFF_BB_WIDTH   = 0.6f * 300.f;	// 1001
-const float JEFF_BB_HEIGHT  = 0.6f * 202.f;	// 870
+const float JEFF_BB_WIDTH   = 20.f * SPRITE_SCALE;
+const float JEFF_BB_HEIGHT  = 28.f * SPRITE_SCALE;
 
 // The player
 Entity createPlayer(RenderSystem* renderer, vec2 pos);
@@ -39,3 +40,5 @@ Entity createDamageTrap(RenderSystem* renderer, vec2 pos);
 
 // Jeff the Player
 Entity createJeff(RenderSystem* renderer, vec2 position);
+
+Entity createBarbarian(RenderSystem* renderer, vec2 position);

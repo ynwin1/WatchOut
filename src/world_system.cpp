@@ -110,6 +110,7 @@ void WorldSystem::handle_collisions()
 			}
 		}
 	}
+	registry.collisions.clear();
 }
 
 // Should the game be over ?

@@ -18,9 +18,18 @@ Entity createBoar(RenderSystem* renderer, vec2 pos)
 	hitbox.position = pos;
 	hitbox.dimension = { BOAR_BB_WIDTH, BOAR_BB_HEIGHT };
 
-	// TODO LATER - A1 has this entity inserted into renderRequest container
 	Enemy& enemy = registry.enemies.emplace(entity);
 	enemy.damage = 3;
+
+	// Add Render Request for drawing sprite
+	registry.renderRequests.insert(
+	entity,
+	{
+		TEXTURE_ASSET_ID::BOAR,
+		EFFECT_ASSET_ID::TEXTURED,
+		GEOMETRY_BUFFER_ID::SPRITE
+	});
+	
 	return entity;
 };
 
@@ -40,10 +49,18 @@ Entity createBarbarian(RenderSystem* renderer, vec2 pos)
 	Hitbox& hitbox = registry.hitboxes.emplace(entity);
 	hitbox.position = pos;
 	hitbox.dimension = { BARBARIAN_BB_WIDTH, BARBARIAN_BB_HEIGHT };
-
-	// TODO LATER - A1 has this entity inserted into renderRequest container
+	
 	Enemy& enemy = registry.enemies.emplace(entity);
 	enemy.damage = 5;
+
+	// Add Render Request for drawing sprite
+	registry.renderRequests.insert(
+	entity,
+	{
+		TEXTURE_ASSET_ID::BARBARIAN,
+		EFFECT_ASSET_ID::TEXTURED,
+		GEOMETRY_BUFFER_ID::SPRITE
+	});
 	return entity;
 };
 
@@ -64,9 +81,18 @@ Entity createArcher(RenderSystem* renderer, vec2 pos)
 	hitbox.position = pos;
 	hitbox.dimension = { ARCHER_BB_WIDTH, ARCHER_BB_HEIGHT };
 
-	// TODO LATER - A1 has this entity inserted into renderRequest container
+	// Add Render Request for drawing sprite
 	Enemy& enemy = registry.enemies.emplace(entity);
 	enemy.damage = 5;
+
+	registry.renderRequests.insert(
+	entity,
+	{
+		TEXTURE_ASSET_ID::ARCHER,
+		EFFECT_ASSET_ID::TEXTURED,
+		GEOMETRY_BUFFER_ID::SPRITE
+	});
+	
 	return entity;
 };
 
@@ -122,7 +148,7 @@ Entity createJeff(RenderSystem* renderer, vec2 position)
 	// Initialize the motion
 	auto& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
-	motion.velocity = { 0, 100.f };
+	motion.velocity = { 0, 0.f };
 	motion.position = position;
 
 	// Setting initial values, scale is negative to make it face the opposite way

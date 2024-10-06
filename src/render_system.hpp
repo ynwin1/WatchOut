@@ -18,10 +18,17 @@ class RenderSystem {
 	 * it is easier to debug and faster to execute for the computer.
 	 */
 	std::array<GLuint, texture_count> texture_gl_handles;
-	std::array<ivec2, texture_count> texture_dimensions;
+	std::array<ivec2, texture_count> texture_dimensions = {
+		ivec2(20, 28),
+		ivec2(20, 34)
+	};
 
 	// Make sure these paths remain in sync with the associated enumerators.
-	const std::array<std::string, texture_count> texture_paths = { textures_path("jeff/jeff.png") };
+	const std::array<std::string, texture_count> texture_paths = 
+	{ textures_path("jeff/jeff.png"),
+	  textures_path("barbarian/barbarian.png"),
+	  textures_path("boar/boar.png"),
+	  textures_path("archer/archer.png")};
 
 	std::array<GLuint, effect_count> effects;
 	// Make sure these paths remain in sync with the associated enumerators.

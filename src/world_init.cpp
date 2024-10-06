@@ -141,6 +141,7 @@ Entity createDamageTrap(RenderSystem* renderer, vec2 pos)
 	return entity;
 };
 
+// Create Player Jeff
 Entity createJeff(RenderSystem* renderer, vec2 position)
 {
 	auto entity = Entity();
@@ -171,9 +172,6 @@ Entity createJeff(RenderSystem* renderer, vec2 position)
 	Hitbox& hitbox = registry.hitboxes.emplace(entity);
 	hitbox.position = position;
 	hitbox.dimension = { JEFF_BB_WIDTH, JEFF_BB_HEIGHT };
-
-	// Add Jeff to player container
-	registry.players.emplace(entity);
 
 	// Jeff Render Request
 	registry.renderRequests.insert(

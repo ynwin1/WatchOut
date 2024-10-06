@@ -2,6 +2,8 @@
 #include "tiny_ecs_registry.hpp"
 #include "common.hpp"
 #include "world_init.hpp"
+#include "physics_system.hpp"
+#include <iostream>
 
 
 WorldSystem::WorldSystem() {
@@ -25,10 +27,10 @@ void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window)
 
 
 	// Create player entity
-  playerEntity = createJeff(renderer, vec2(100, 100));
-	createBarbarian(renderer, vec2(200, 200));
+    playerEntity = createJeff(renderer, vec2(100, 100));
+	// createBarbarian(renderer, vec2(200, 200));
 	createBoar(renderer, vec2(400, 400));
-	createArcher(renderer, vec2(100, 500));
+	// createArcher(renderer, vec2(100, 500));
 
 }
 
@@ -119,8 +121,8 @@ void WorldSystem::on_mouse_move(vec2 mouse_position){
 }
 void WorldSystem::on_key(int key, int, int action, int mod)
 {
-	  printf("clack\n");
-	  Player& player_comp = registry.players.get(playerEntity);
+    printf("clack\n");
+	Player& player_comp = registry.players.get(playerEntity);
     Motion& player_motion = registry.motions.get(playerEntity);
     Dash& player_dash = registry.dashers.get(playerEntity);
 
@@ -175,8 +177,8 @@ void WorldSystem::on_key(int key, int, int action, int mod)
                 break;
             case GLFW_KEY_ENTER:
                 // TODO LATER - Think about where exactly to place the trap
-		            // Currently, it is placed at the player's position
-		            // MAYBE - Place it behind the player in the direction they are facing
+		        // Currently, it is placed at the player's position
+		        // MAYBE - Place it behind the player in the direction they are facing
             
                 // Player position
                 vec2 playerPos = player_motion.position;
@@ -187,10 +189,10 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 			            return;
 		            }
 
-		            // Create a trap at player's position
-		            createDamageTrap(renderer, playerPos);
+		        // Create a trap at player's position
+		        createDamageTrap(renderer, playerPos);
                 player_comp.trapsCollected--;
-		            printf("Trap placed at (%f, %f)\n", playerPos.x, playerPos.y);
+		        printf("Trap placed at (%f, %f)\n", playerPos.x, playerPos.y);
                 break;
             default:
                 break;
@@ -214,6 +216,8 @@ void WorldSystem::update_positions(float elapsed_ms)
         float Running_Speed = 1.0f;
         // Get the Motion component of the entity
         Motion& motion = registry.motions.get(entity);
+		Hitbox& hitbox = registry.hitboxes.get(entity);
+
         if(registry.players.has(entity)){
             Player& player_comp = registry.players.get(entity);
             Running_Speed = player_comp.isRunning ? 2.0f : 1.0f;
@@ -245,6 +249,9 @@ void WorldSystem::update_positions(float elapsed_ms)
         // Update the entity's position based on its velocity and elapsed time
         motion.position.x += motion.velocity.x * Running_Speed * elapsed_ms;
         motion.position.y += motion.velocity.y * Running_Speed * elapsed_ms;
+
+		// Update the hitbox position
+		hitbox.position = motion.position;
     }
     
 

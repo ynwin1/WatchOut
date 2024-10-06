@@ -1,11 +1,12 @@
 #include "physics_system.hpp"
 #include "world_init.hpp"
+#include <iostream>
 
 bool collides(const Hitbox& a, const Hitbox& b)
 {
 	// position represents the center of the entity
 	// dimension represents the width and height of entity
-	
+
 	// If a's bottom is higher than b's top
 	if (a.position.y > b.position.y + (b.dimension.y / 2.0f))
 		return false;
@@ -36,6 +37,7 @@ void PhysicsSystem::step(float elapsed_ms)
 
 			if (collides(hitbox_i, hitbox_j)) {
 				// Collision detected
+				// std::cout << "Collision detected between entities " << entity_i << " and " << entity_j << std::endl;
 				registry.collisions.emplace(entity_i, entity_j);
 				registry.collisions.emplace(entity_j, entity_i);
 			}

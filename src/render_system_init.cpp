@@ -44,7 +44,7 @@ GLFWwindow* RenderSystem::create_window() {
 	glfwWindowHint(GLFW_RESIZABLE, 0);
 
 	// Create the main window (for rendering, keyboard, and mouse input)
-	window = glfwCreateWindow(window_width_px, window_height_px, "Watch Out!", nullptr, nullptr);
+	window = glfwCreateWindow(camera.getWidth(), camera.getHeight(), "Watch Out!", nullptr, nullptr);
 	if (window == nullptr) {
 		fprintf(stderr, "Failed to glfwCreateWindow");
 		return nullptr;

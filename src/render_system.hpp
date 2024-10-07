@@ -41,6 +41,10 @@ class RenderSystem {
 public:
 	GLFWwindow* create_window();
 
+	void toggleCamera();
+
+	bool cameraIsToggled();
+
 	// Initialize the window
 	bool init();
 
@@ -65,6 +69,7 @@ public:
 
 private:
 	Camera camera;
+	bool cameraToggled = true;
 
 	// Internal drawing functions for each entity type
 	void drawTexturedMesh(Entity entity, const mat3& projection);

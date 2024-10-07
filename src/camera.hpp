@@ -6,8 +6,8 @@
 class Camera {
 private:
     vec2 position = {0.0f, 0.0f};
-    float width = 960;  // Width and height to determine viewport of camera  
-    float height = 540;  
+    float width = 800;  // Width and height to determine viewport of camera  
+    float height = 450;  
     vec2 boundsMin; // Bounds vectors to restrict camera movement within game world
     vec2 boundsMax; 
 

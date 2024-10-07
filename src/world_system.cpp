@@ -43,8 +43,11 @@ bool WorldSystem::step(float elapsed_ms)
 {
     update_positions(elapsed_ms);
     update_cooldown(elapsed_ms);
+    
+    if(renderer->cameraIsToggled()) {
+        renderer->updateCamera(playerEntity);
+    }
 
-    renderer->updateCamera(playerEntity);
 	return !is_over();
 }
 
@@ -247,6 +250,11 @@ void WorldSystem::on_key(int key, int, int action, int mod)
         if (key == GLFW_KEY_A || key == GLFW_KEY_D) {
             player_motion.velocity.x = 0.f; // Stop horizontal movement
         }
+    }
+
+    // toggle camera on/off for debugging/testing
+    if(action == GLFW_PRESS && key == GLFW_KEY_C) {
+        renderer->toggleCamera();
     }
 }
 

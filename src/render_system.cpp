@@ -144,13 +144,24 @@ void RenderSystem::updateCamera(Entity player) {
 }
 
 mat3 RenderSystem::createProjectionMatrix() {
+	float left;
+	float right;
+	float bottom;
+	float top;
 
-	// viewing screen is based on camera position and its dimensions
-	float left = camera.getPosition().x - (camera.getWidth() / 2);
-    float right = camera.getPosition().x + (camera.getWidth() / 2);
-    float bottom = camera.getPosition().y + (camera.getHeight() / 2);
-    float top = camera.getPosition().y - (camera.getHeight() / 2);
-	
+	if(cameraToggled) {
+		// viewing screen is based on camera position and its dimensions
+		left = camera.getPosition().x - (camera.getWidth() / 2);
+    	right = camera.getPosition().x + (camera.getWidth() / 2);
+    	bottom = camera.getPosition().y + (camera.getHeight() / 2);
+    	top = camera.getPosition().y - (camera.getHeight() / 2);
+	} else {
+		top = 0;
+		left = 0;
+    	right = world_size_x;
+    	bottom = world_size_y;
+	}
+ 
 	gl_has_errors();
 
 	float sx = 2.f / (right - left);
@@ -158,4 +169,18 @@ mat3 RenderSystem::createProjectionMatrix() {
 	float tx = -(right + left) / (right - left);
 	float ty = -(top + bottom) / (top - bottom);
 	return { {sx, 0.f, 0.f}, {0.f, sy, 0.f}, {tx, ty, 1.f} };
+}
+
+void RenderSystem::toggleCamera() {
+	cameraToggled = !cameraToggled;
+
+	if(cameraToggled) {
+		glfwSetWindowSize(window, camera.getWidth(), camera.getHeight());
+	} else {
+		glfwSetWindowSize(window, world_size_x, world_size_y);
+	}
+}
+
+bool RenderSystem::cameraIsToggled() {
+	return cameraToggled;
 }

@@ -42,6 +42,8 @@ WorldSystem::~WorldSystem() {
 bool WorldSystem::step(float elapsed_ms)
 {
     update_positions(elapsed_ms);
+    update_cooldown(elapsed_ms);
+
 	return !is_over();
 }
 
@@ -80,7 +82,8 @@ void WorldSystem::handle_collisions()
 
                 // TODO LATER - Logic to handle player death
             }
-			else if (registry.enemies.has(entity_other)) {
+			// Enemy attacks the player while it can (no cooldown)
+			else if (registry.enemies.has(entity_other) && !registry.cooldowns.has(entity_other)) {
 				// player takes the damage
 				Player& player = registry.players.get(entity);
                 Enemy& enemy = registry.enemies.get(entity_other);
@@ -90,6 +93,10 @@ void WorldSystem::handle_collisions()
                 player.health = new_health < 0 ? 0 : new_health;
                 printf("Player health reduced by enemy from %d to %d\n", player.health + enemy.damage, player.health);
 
+				// Set cooldown for the enemy
+				Cooldown& cooldown = registry.cooldowns.emplace(entity_other);
+				cooldown.remaining = enemy.cooldown;
+                
                 // TODO LATER - Logic to handle player death
 				// TODO M1 [WO-13] - Change player color to (red) for a short duration
 			}
@@ -139,7 +146,6 @@ void WorldSystem::on_mouse_move(vec2 mouse_position){
 }
 void WorldSystem::on_key(int key, int, int action, int mod)
 {
-    printf("clack\n");
 	Player& player_comp = registry.players.get(playerEntity);
     Motion& player_motion = registry.motions.get(playerEntity);
     Dash& player_dash = registry.dashers.get(playerEntity);
@@ -254,7 +260,7 @@ void WorldSystem::update_positions(float elapsed_ms)
                     // Interpolate between start and target positions
                     //player_motion.position is the target_position for the linear interpolation formula L(t)=(1−t)⋅A+t⋅B
 		            // L(t) = interpolated position, A = original position, B = target position, and t is the interpolation factor
-                        motion.position = glm::mix(dashing.dashStartPosition, dashing.dashTargetPosition, t);
+                    motion.position = glm::mix(dashing.dashStartPosition, dashing.dashTargetPosition, t);
                 } else {
                     motion.position = dashing.dashTargetPosition;
                     dashing.isDashing = false; // Reset isDashing
@@ -273,6 +279,19 @@ void WorldSystem::update_positions(float elapsed_ms)
     }
     
 
+}
+
+void WorldSystem::update_cooldown(float elapsed_ms) {
+    for (auto& cooldownEntity : registry.cooldowns.entities) {
+		Cooldown& cooldown = registry.cooldowns.get(cooldownEntity);
+		float new_remaining = cooldown.remaining - elapsed_ms;
+		cooldown.remaining = new_remaining < 0 ? 0 : new_remaining;
+
+		// Avaialble to attack again
+        if (cooldown.remaining == 0) {
+            registry.cooldowns.remove(cooldownEntity);
+        }
+    }
 }
 
 void WorldSystem::restart_game()

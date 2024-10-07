@@ -8,24 +8,25 @@
 struct Player {
 	unsigned int health = 100;
 	unsigned int trapsCollected = 0;
-  bool isRunning;     // Indicates if the player is currently running
-  bool isJumping;     // Indicates if the player is currently jumping
+	bool isRunning;     // Indicates if the player is currently running
+	bool isJumping;     // Indicates if the player is currently jumping
 	bool isRolling;     // Indicates if the player is currently rolling
 };
 
 //Dashing
 struct Dash {
     bool isDashing;     // Indicates if the entity is currently dashing
-	  glm::vec2 dashStartPosition; // Start position for dash
+	glm::vec2 dashStartPosition; // Start position for dash
     glm::vec2 dashTargetPosition; // Target position for dash
     float dashTimer = 0.0f;       // Timer to track dash progress
-	  float dashDuration = 0.2f;    // Duration of Dash
+	float dashDuration = 0.2f;    // Duration of Dash
 };
 
 struct Enemy
 {
 	unsigned int health = 100;
 	unsigned int damage = 10;
+	unsigned int cooldown = 0;
 };
 
 // Collectible Component
@@ -66,4 +67,10 @@ struct Hitbox
 {
 	vec2 position = { 0, 0 };
 	vec2 dimension = { 0, 0 };
+};
+
+// Collision Cooldown
+struct Cooldown
+{
+	float remaining = 0.0f;
 };

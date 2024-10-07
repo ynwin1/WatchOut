@@ -26,6 +26,7 @@ struct Enemy
 {
 	unsigned int health = 100;
 	unsigned int damage = 10;
+	std::string type;
 	unsigned int cooldown = 0;
 };
 

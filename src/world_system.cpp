@@ -165,6 +165,26 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     Motion& player_motion = registry.motions.get(playerEntity);
     Dash& player_dash = registry.dashers.get(playerEntity);
 
+	if (action == GLFW_PRESS && key == GLFW_KEY_ENTER) {
+        // TODO LATER - Think about where exactly to place the trap
+        // Currently, it is placed at the player's position
+        // MAYBE - Place it behind the player in the direction they are facin
+        
+        // Player position
+        vec2 playerPos = player_motion.position;
+        // Reduce player's trap count
+        if (player_comp.trapsCollected == 0) {
+            printf("Player has no traps to place\n");
+            // TODO LATER - Do something to indicate that player has no traps [Milestone AFTER]
+            return;
+        }
+
+        // Create a trap at player's position
+        createDamageTrap(renderer, playerPos);
+        player_comp.trapsCollected--;
+        printf("Trap placed at (%f, %f)\n", playerPos.x, playerPos.y);
+	}
+
     // Check key actions (press/release)
     if (action == GLFW_PRESS || action == GLFW_RELEASE)
     {
@@ -213,25 +233,6 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 				    case GLFW_KEY_SPACE:
                 // Dash
                 player_comp.isJumping = pressed;
-                break;
-            case GLFW_KEY_ENTER:
-                // TODO LATER - Think about where exactly to place the trap
-		        // Currently, it is placed at the player's position
-		        // MAYBE - Place it behind the player in the direction they are facing
-            
-                // Player position
-                vec2 playerPos = player_motion.position;
-		            // Reduce player's trap count
-		            if (player_comp.trapsCollected == 0) {
-			            printf("Player has no traps to place\n");
-			            // TODO LATER - Do something to indicate that player has no traps [Milestone AFTER]
-			            return;
-		            }
-
-		        // Create a trap at player's position
-		        createDamageTrap(renderer, playerPos);
-                player_comp.trapsCollected--;
-		        printf("Trap placed at (%f, %f)\n", playerPos.x, playerPos.y);
                 break;
             default:
                 break;

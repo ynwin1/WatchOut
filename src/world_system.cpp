@@ -69,8 +69,6 @@ void WorldSystem::handle_collisions()
 				printf("Player collected a trap\n");
 			}
 			else if (registry.traps.has(entity_other)) {
-				// destroy the trap
-				registry.remove_all_components_of(entity_other);
 				printf("Player hit a trap\n");
 
 				// reduce player health
@@ -80,6 +78,8 @@ void WorldSystem::handle_collisions()
 				player.health = new_health < 0 ? 0 : new_health;
 				printf("Player health reduced by trap from %d to %d\n", player.health + trap.damage, player.health);
 
+                // destroy the trap
+                registry.remove_all_components_of(entity_other);
                 // TODO LATER - Logic to handle player death
             }
 			// Enemy attacks the player while it can (no cooldown)
@@ -103,8 +103,6 @@ void WorldSystem::handle_collisions()
 		}
 		else if (registry.enemies.has(entity)) {
 			if (registry.traps.has(entity_other)) {
-				// destroy the trap
-				registry.remove_all_components_of(entity_other);
 				printf("Enemy hit a trap\n");
 
 				// reduce enemy health
@@ -114,6 +112,9 @@ void WorldSystem::handle_collisions()
 				int new_health = enemy.health - trap.damage;
 				enemy.health = new_health < 0 ? 0 : new_health;
 				printf("Enemy health reduced from %d to %d\n", enemy.health + trap.damage, enemy.health);
+                
+                // destroy the trap
+                registry.remove_all_components_of(entity_other);
 
                 // TODO LATER - Logic to handle enemy death
 			}
@@ -122,13 +123,27 @@ void WorldSystem::handle_collisions()
 				Enemy& enemy1 = registry.enemies.get(entity);
 				Enemy& enemy2 = registry.enemies.get(entity_other);
 
-				int newE1Health = enemy1.health - enemy2.damage;
-				int newE2Health = enemy2.health - enemy1.damage;
-                enemy1.health = newE1Health < 0 ? 0 : newE1Health;
-				enemy2.health = newE2Health < 0 ? 0 : newE2Health;
+                auto& allCooldowns = registry.cooldowns;
+				// enemy 1 can attack enemy 2
+                if (!allCooldowns.has(entity)) {
+                    int newE2Health = enemy2.health - enemy1.damage;
+                    enemy2.health = newE2Health < 0 ? 0 : newE2Health;
+                    printf("Enemy 2's health reduced from %d to %d\n", enemy2.health + enemy1.damage, enemy2.health);
 
-				printf("Enemy 1's health reduced from %d to %d\n", enemy1.health + enemy2.damage, enemy1.health);
-				printf("Enemy 2's health reduced from %d to %d\n", enemy2.health + enemy1.damage, enemy2.health);
+					// Set cooldown for enemy 1 
+					Cooldown& cooldown = registry.cooldowns.emplace(entity);
+					cooldown.remaining = enemy1.cooldown;
+                }
+				// enemy 2 can attack enemy 1
+                if (!allCooldowns.has(entity_other)) {
+					int newE1Health = enemy1.health - enemy2.damage;
+					enemy1.health = newE1Health < 0 ? 0 : newE1Health;
+					printf("Enemy 1's health reduced from %d to %d\n", enemy1.health + enemy2.damage, enemy1.health);
+
+					// Set cooldown for enemy 2
+					Cooldown& cooldown = registry.cooldowns.emplace(entity_other);
+					cooldown.remaining = enemy2.cooldown;
+                }
 
                 // TODO LATER - Logic to handle enemy deaths
 			}

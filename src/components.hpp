@@ -7,8 +7,9 @@
 // PlayerComponents 
 struct Player {
 	unsigned int health = 100;
-    bool isRunning;     // Indicates if the player is currently running
-    bool isJumping;     // Indicates if the player is currently jumping
+	unsigned int trapsCollected = 0;
+	bool isRunning;     // Indicates if the player is currently running
+	bool isJumping;     // Indicates if the player is currently jumping
 	bool isRolling;     // Indicates if the player is currently rolling
 };
 
@@ -25,6 +26,7 @@ struct Enemy
 {
 	unsigned int health = 100;
 	unsigned int damage = 10;
+	unsigned int cooldown = 0;
 };
 
 // Collectible Component
@@ -65,4 +67,10 @@ struct Hitbox
 {
 	vec2 position = { 0, 0 };
 	vec2 dimension = { 0, 0 };
+};
+
+// Collision Cooldown
+struct Cooldown
+{
+	float remaining = 0.0f;
 };

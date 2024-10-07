@@ -2,6 +2,8 @@
 #include "tiny_ecs_registry.hpp"
 #include "common.hpp"
 #include "world_init.hpp"
+#include "physics_system.hpp"
+#include <iostream>
 
 
 WorldSystem::WorldSystem() {
@@ -25,7 +27,7 @@ void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window)
 
 
 	// Create player entity
-  playerEntity = createJeff(renderer, vec2(100, 100));
+    playerEntity = createJeff(renderer, vec2(100, 100));
 	createBarbarian(renderer, vec2(200, 200));
 	createBoar(renderer, vec2(400, 400));
 	createArcher(renderer, vec2(100, 500));
@@ -40,6 +42,8 @@ WorldSystem::~WorldSystem() {
 bool WorldSystem::step(float elapsed_ms)
 {
     update_positions(elapsed_ms);
+    update_cooldown(elapsed_ms);
+
 	return !is_over();
 }
 
@@ -56,47 +60,96 @@ void WorldSystem::handle_collisions()
 		if (registry.players.has(entity)) {
 			// If the entity is colliding with a collectible
 			if (registry.collectibles.has(entity_other)) {
-				// TODO: [WO-17] Logic to collect the collectibles
+				// destroy the collectible
+				registry.remove_all_components_of(entity_other);
 
+				// increase collectible count in player
+				Player& player = registry.players.get(entity);
+				player.trapsCollected++;
+				printf("Player collected a trap\n");
 			}
 			else if (registry.traps.has(entity_other)) {
-				// destroy the trap
-				registry.remove_all_components_of(entity_other);
 				printf("Player hit a trap\n");
 
 				// reduce player health
 				Player& player = registry.players.get(entity);
 				Trap& trap = registry.traps.get(entity_other);
-				player.health -= trap.damage;
+				int new_health = player.health - trap.damage;
+				player.health = new_health < 0 ? 0 : new_health;
 				printf("Player health reduced by trap from %d to %d\n", player.health + trap.damage, player.health);
-			}
-			else if (registry.enemies.has(entity_other)) {
+
+                // destroy the trap
+                registry.remove_all_components_of(entity_other);
+                // TODO LATER - Logic to handle player death
+            }
+			// Enemy attacks the player while it can (no cooldown)
+			else if (registry.enemies.has(entity_other) && !registry.cooldowns.has(entity_other)) {
 				// player takes the damage
 				Player& player = registry.players.get(entity);
-				Enemy& enemy = registry.enemies.get(entity_other);
-				player.health -= enemy.damage;
-				printf("Player health reduced by enemy from %d to %d\n", player.health + enemy.damage, player.health);
+                Enemy& enemy = registry.enemies.get(entity_other);
 
+                // Calculate potential new health
+                int new_health = player.health - enemy.damage;
+                player.health = new_health < 0 ? 0 : new_health;
+                printf("Player health reduced by enemy from %d to %d\n", player.health + enemy.damage, player.health);
+
+				// Set cooldown for the enemy
+				Cooldown& cooldown = registry.cooldowns.emplace(entity_other);
+				cooldown.remaining = enemy.cooldown;
+                
+                // TODO LATER - Logic to handle player death
 				// TODO M1 [WO-13] - Change player color to (red) for a short duration
 			}
 		}
 		else if (registry.enemies.has(entity)) {
 			if (registry.traps.has(entity_other)) {
-				// destroy the trap
-				registry.remove_all_components_of(entity_other);
 				printf("Enemy hit a trap\n");
 
 				// reduce enemy health
 				Enemy& enemy = registry.enemies.get(entity);
 				Trap& trap = registry.traps.get(entity_other);
-				enemy.health -= trap.damage;
+				
+				int new_health = enemy.health - trap.damage;
+				enemy.health = new_health < 0 ? 0 : new_health;
 				printf("Enemy health reduced from %d to %d\n", enemy.health + trap.damage, enemy.health);
+                
+                // destroy the trap
+                registry.remove_all_components_of(entity_other);
+
+                // TODO LATER - Logic to handle enemy death
 			}
 			else if (registry.enemies.has(entity_other)) {
-				// TODO LATER - Logic for enemy-enemy collision
+				// Reduce health of both enemies
+				Enemy& enemy1 = registry.enemies.get(entity);
+				Enemy& enemy2 = registry.enemies.get(entity_other);
+
+                auto& allCooldowns = registry.cooldowns;
+				// enemy 1 can attack enemy 2
+                if (!allCooldowns.has(entity)) {
+                    int newE2Health = enemy2.health - enemy1.damage;
+                    enemy2.health = newE2Health < 0 ? 0 : newE2Health;
+                    printf("Enemy 2's health reduced from %d to %d\n", enemy2.health + enemy1.damage, enemy2.health);
+
+					// Set cooldown for enemy 1 
+					Cooldown& cooldown = registry.cooldowns.emplace(entity);
+					cooldown.remaining = enemy1.cooldown;
+                }
+				// enemy 2 can attack enemy 1
+                if (!allCooldowns.has(entity_other)) {
+					int newE1Health = enemy1.health - enemy2.damage;
+					enemy1.health = newE1Health < 0 ? 0 : newE1Health;
+					printf("Enemy 1's health reduced from %d to %d\n", enemy1.health + enemy2.damage, enemy1.health);
+
+					// Set cooldown for enemy 2
+					Cooldown& cooldown = registry.cooldowns.emplace(entity_other);
+					cooldown.remaining = enemy2.cooldown;
+                }
+
+                // TODO LATER - Logic to handle enemy deaths
 			}
 		}
 	}
+	registry.collisions.clear();
 }
 
 // Should the game be over ?
@@ -111,6 +164,26 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	Player& player_comp = registry.players.get(playerEntity);
     Motion& player_motion = registry.motions.get(playerEntity);
     Dash& player_dash = registry.dashers.get(playerEntity);
+
+	if (action == GLFW_PRESS && key == GLFW_KEY_ENTER) {
+        // TODO LATER - Think about where exactly to place the trap
+        // Currently, it is placed at the player's position
+        // MAYBE - Place it behind the player in the direction they are facin
+        
+        // Player position
+        vec2 playerPos = player_motion.position;
+        // Reduce player's trap count
+        if (player_comp.trapsCollected == 0) {
+            printf("Player has no traps to place\n");
+            // TODO LATER - Do something to indicate that player has no traps [Milestone AFTER]
+            return;
+        }
+
+        // Create a trap at player's position
+        createDamageTrap(renderer, playerPos);
+        player_comp.trapsCollected--;
+        printf("Trap placed at (%f, %f)\n", playerPos.x, playerPos.y);
+	}
 
     // Check key actions (press/release)
     if (action == GLFW_PRESS || action == GLFW_RELEASE)
@@ -157,7 +230,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
                     player_dash.dashTimer = 0.0f; // Reset timer
                 }
                 break;
-				case GLFW_KEY_SPACE:
+				    case GLFW_KEY_SPACE:
                 // Dash
                 player_comp.isJumping = pressed;
                 break;
@@ -183,6 +256,8 @@ void WorldSystem::update_positions(float elapsed_ms)
         float Running_Speed = 1.0f;
         // Get the Motion component of the entity
         Motion& motion = registry.motions.get(entity);
+		Hitbox& hitbox = registry.hitboxes.get(entity);
+
         if(registry.players.has(entity)){
             Player& player_comp = registry.players.get(entity);
             Running_Speed = player_comp.isRunning ? 2.0f : 1.0f;
@@ -201,7 +276,7 @@ void WorldSystem::update_positions(float elapsed_ms)
                     // Interpolate between start and target positions
                     //player_motion.position is the target_position for the linear interpolation formula L(t)=(1−t)⋅A+t⋅B
 		            // L(t) = interpolated position, A = original position, B = target position, and t is the interpolation factor
-                        motion.position = glm::mix(dashing.dashStartPosition, dashing.dashTargetPosition, t);
+                    motion.position = glm::mix(dashing.dashStartPosition, dashing.dashTargetPosition, t);
                 } else {
                     motion.position = dashing.dashTargetPosition;
                     dashing.isDashing = false; // Reset isDashing
@@ -214,9 +289,25 @@ void WorldSystem::update_positions(float elapsed_ms)
         // Update the entity's position based on its velocity and elapsed time
         motion.position.x += motion.velocity.x * Running_Speed * elapsed_ms;
         motion.position.y += motion.velocity.y * Running_Speed * elapsed_ms;
+
+		// Update the hitbox position
+		hitbox.position = motion.position;
     }
     
 
+}
+
+void WorldSystem::update_cooldown(float elapsed_ms) {
+    for (auto& cooldownEntity : registry.cooldowns.entities) {
+		Cooldown& cooldown = registry.cooldowns.get(cooldownEntity);
+		float new_remaining = cooldown.remaining - elapsed_ms;
+		cooldown.remaining = new_remaining < 0 ? 0 : new_remaining;
+
+		// Avaialble to attack again
+        if (cooldown.remaining == 0) {
+            registry.cooldowns.remove(cooldownEntity);
+        }
+    }
 }
 
 void WorldSystem::restart_game()

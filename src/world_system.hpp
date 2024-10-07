@@ -29,6 +29,9 @@ public:
 	// Update entity positions
 	void update_positions(float elapsed_ms);
 
+	// Update cooldown
+	void update_cooldown(float elapsed_ms);
+
 	// Should the game be over ?
 	bool is_over()const;
 

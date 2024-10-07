@@ -27,17 +27,19 @@ void handleBoundsCheck() {
 
 	for (uint i = 0; i < motion_container.components.size(); i++) {
 		Motion& motion = motion_container.components[i];
+		float halfScaleX = motion.scale.x / 2;
+		float halfScaleY = motion.scale.y / 2;
 
-		if(motion.position.x < 0) {
-			motion.position.x = 0;
-		} else if(motion.position.x > world_size_x) {
-			motion.position.x = world_size_x;
+		if(motion.position.x - halfScaleX < 0) {
+			motion.position.x = halfScaleX;
+		} else if(motion.position.x + halfScaleX > world_size_x) {
+			motion.position.x = world_size_x - halfScaleX;
 		}
 
-		if(motion.position.y < 0) {
-			motion.position.y = 0;
-		} else if(motion.position.y > world_size_y) {
-			motion.position.y = world_size_y;
+		if(motion.position.y - halfScaleY < 0) {
+			motion.position.y = halfScaleY;
+		} else if(motion.position.y + halfScaleY > world_size_y) {
+			motion.position.y = world_size_y - halfScaleY;
 		}
 	}
 }

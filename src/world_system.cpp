@@ -28,9 +28,9 @@ void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window)
 
 	// Create player entity
     playerEntity = createJeff(renderer, vec2(100, 100));
-	// createBarbarian(renderer, vec2(200, 200));
+	createBarbarian(renderer, vec2(200, 200));
 	createBoar(renderer, vec2(400, 400));
-	// createArcher(renderer, vec2(100, 500));
+	createArcher(renderer, vec2(100, 500));
 
 }
 
@@ -73,16 +73,20 @@ void WorldSystem::handle_collisions()
 				// reduce player health
 				Player& player = registry.players.get(entity);
 				Trap& trap = registry.traps.get(entity_other);
-				player.health -= trap.damage;
+				player.health = player.health - trap.damage < 0 ? 0 : player.health - trap.damage;
 				printf("Player health reduced by trap from %d to %d\n", player.health + trap.damage, player.health);
-			}
+
+                // TODO LATER - Logic to handle player death
+            }
 			else if (registry.enemies.has(entity_other)) {
 				// player takes the damage
 				Player& player = registry.players.get(entity);
 				Enemy& enemy = registry.enemies.get(entity_other);
-				player.health -= enemy.damage;
+                printf("Before applying damage: Player Health = %d, Enemy Damage = %d\n", player.health, enemy.damage);
+				player.health = player.health - enemy.damage < 0 ? 0 : player.health - enemy.damage;
 				printf("Player health reduced by enemy from %d to %d\n", player.health + enemy.damage, player.health);
 
+                // TODO LATER - Logic to handle player death
 				// TODO M1 [WO-13] - Change player color to (red) for a short duration
 			}
 		}
@@ -95,18 +99,23 @@ void WorldSystem::handle_collisions()
 				// reduce enemy health
 				Enemy& enemy = registry.enemies.get(entity);
 				Trap& trap = registry.traps.get(entity_other);
-				enemy.health -= trap.damage;
+				enemy.health = enemy.health - trap.damage < 0 ? 0 : enemy.health - trap.damage;
 				printf("Enemy health reduced from %d to %d\n", enemy.health + trap.damage, enemy.health);
+
+                // TODO LATER - Logic to handle enemy death
 			}
 			else if (registry.enemies.has(entity_other)) {
 				// Reduce health of both enemies
 				Enemy& enemy1 = registry.enemies.get(entity);
 				Enemy& enemy2 = registry.enemies.get(entity_other);
 
-				enemy1.health -= enemy2.damage;
-				enemy2.health -= enemy1.damage;
+				enemy1.health = enemy1.health - enemy2.damage < 0 ? 0 : enemy1.health - enemy2.damage;
+				enemy2.health = enemy2.health - enemy1.damage < 0 ? 0 : enemy2.health - enemy1.damage;
+
 				printf("Enemy 1's health reduced from %d to %d\n", enemy1.health + enemy2.damage, enemy1.health);
 				printf("Enemy 2's health reduced from %d to %d\n", enemy2.health + enemy1.damage, enemy2.health);
+
+                // TODO LATER - Logic to handle enemy deaths
 			}
 		}
 	}

@@ -60,6 +60,7 @@ void WorldSystem::handle_collisions()
 			if (registry.collectibles.has(entity_other)) {
 				// destroy the collectible
 				registry.remove_all_components_of(entity_other);
+
 				// increase collectible count in player
 				Player& player = registry.players.get(entity);
 				player.trapsCollected++;
@@ -73,7 +74,8 @@ void WorldSystem::handle_collisions()
 				// reduce player health
 				Player& player = registry.players.get(entity);
 				Trap& trap = registry.traps.get(entity_other);
-				player.health = player.health - trap.damage < 0 ? 0 : player.health - trap.damage;
+				int new_health = player.health - trap.damage;
+				player.health = new_health < 0 ? 0 : new_health;
 				printf("Player health reduced by trap from %d to %d\n", player.health + trap.damage, player.health);
 
                 // TODO LATER - Logic to handle player death
@@ -81,10 +83,12 @@ void WorldSystem::handle_collisions()
 			else if (registry.enemies.has(entity_other)) {
 				// player takes the damage
 				Player& player = registry.players.get(entity);
-				Enemy& enemy = registry.enemies.get(entity_other);
-                printf("Before applying damage: Player Health = %d, Enemy Damage = %d\n", player.health, enemy.damage);
-				player.health = player.health - enemy.damage < 0 ? 0 : player.health - enemy.damage;
-				printf("Player health reduced by enemy from %d to %d\n", player.health + enemy.damage, player.health);
+                Enemy& enemy = registry.enemies.get(entity_other);
+
+                // Calculate potential new health
+                int new_health = player.health - enemy.damage;
+                player.health = new_health < 0 ? 0 : new_health;
+                printf("Player health reduced by enemy from %d to %d\n", player.health + enemy.damage, player.health);
 
                 // TODO LATER - Logic to handle player death
 				// TODO M1 [WO-13] - Change player color to (red) for a short duration
@@ -99,7 +103,9 @@ void WorldSystem::handle_collisions()
 				// reduce enemy health
 				Enemy& enemy = registry.enemies.get(entity);
 				Trap& trap = registry.traps.get(entity_other);
-				enemy.health = enemy.health - trap.damage < 0 ? 0 : enemy.health - trap.damage;
+				
+				int new_health = enemy.health - trap.damage;
+				enemy.health = new_health < 0 ? 0 : new_health;
 				printf("Enemy health reduced from %d to %d\n", enemy.health + trap.damage, enemy.health);
 
                 // TODO LATER - Logic to handle enemy death
@@ -109,8 +115,10 @@ void WorldSystem::handle_collisions()
 				Enemy& enemy1 = registry.enemies.get(entity);
 				Enemy& enemy2 = registry.enemies.get(entity_other);
 
-				enemy1.health = enemy1.health - enemy2.damage < 0 ? 0 : enemy1.health - enemy2.damage;
-				enemy2.health = enemy2.health - enemy1.damage < 0 ? 0 : enemy2.health - enemy1.damage;
+				int newE1Health = enemy1.health - enemy2.damage;
+				int newE2Health = enemy2.health - enemy1.damage;
+                enemy1.health = newE1Health < 0 ? 0 : newE1Health;
+				enemy2.health = newE2Health < 0 ? 0 : newE2Health;
 
 				printf("Enemy 1's health reduced from %d to %d\n", enemy1.health + enemy2.damage, enemy1.health);
 				printf("Enemy 2's health reduced from %d to %d\n", enemy2.health + enemy1.damage, enemy2.health);

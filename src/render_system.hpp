@@ -39,11 +39,7 @@ class RenderSystem {
 	std::array<GLuint, geometry_count> index_buffers;
 
 public:
-	GLFWwindow* create_window();
-
-	void toggleCamera();
-
-	bool cameraIsToggled();
+	GLFWwindow* create_window(Camera* camera);
 
 	// Initialize the window
 	bool init();
@@ -63,13 +59,10 @@ public:
 	// Draw all entities
 	void draw();
 
-	void updateCamera(Entity playerSalmon);
-
 	mat3 createProjectionMatrix();
 
 private:
-	Camera camera;
-	bool cameraToggled = true;
+	Camera* camera;
 
 	// Internal drawing functions for each entity type
 	void drawTexturedMesh(Entity entity, const mat3& projection);

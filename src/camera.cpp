@@ -19,6 +19,15 @@ void Camera::followPosition(vec2 newPosition) {
     position.y = glm::clamp(position.y, boundsMin.y, boundsMax.y);
 }
 
+bool Camera::toggle() {
+    toggled = !toggled;
+    return toggled;
+}
+
+bool Camera::isToggled() {
+    return toggled;
+}
+
 vec2 Camera::getPosition() const {
     return position;
 }

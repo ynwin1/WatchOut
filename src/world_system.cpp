@@ -11,10 +11,11 @@ WorldSystem::WorldSystem() {
 	rng = std::default_random_engine(std::random_device()());
 }
 
-void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window)
+void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camera)
 {
 	this->renderer = renderer;
 	this->window = window;
+    this->camera = camera;
 
 	// Setting callbacks to member functions (that's why the redirect is needed)
 	// Input is handled using GLFW, for more info see
@@ -44,8 +45,9 @@ bool WorldSystem::step(float elapsed_ms)
     update_positions(elapsed_ms);
     update_cooldown(elapsed_ms);
     
-    if(renderer->cameraIsToggled()) {
-        renderer->updateCamera(playerEntity);
+    if(camera->isToggled()) {
+        Motion& playerMotion = registry.motions.get(playerEntity);
+        camera->followPosition(playerMotion.position);
     }
 
 	return !is_over();
@@ -254,7 +256,11 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 
     // toggle camera on/off for debugging/testing
     if(action == GLFW_PRESS && key == GLFW_KEY_C) {
-        renderer->toggleCamera();
+        if(camera->toggle()) {
+		    glfwSetWindowSize(window, camera->getWidth(), camera->getHeight());
+	    } else {
+		    glfwSetWindowSize(window, world_size_x, world_size_y);
+	    }
     }
 }
 

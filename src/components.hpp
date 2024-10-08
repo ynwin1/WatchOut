@@ -26,7 +26,6 @@ struct Enemy
 {
 	unsigned int health = 100;
 	unsigned int damage = 10;
-	std::string type;
 	unsigned int cooldown = 0;
 };
 
@@ -75,3 +74,8 @@ struct Cooldown
 {
 	float remaining = 0.0f;
 };
+
+// Enemy types
+struct Boar {};
+struct Barbarian {};
+struct Archer {};

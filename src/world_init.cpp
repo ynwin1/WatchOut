@@ -20,8 +20,9 @@ Entity createBoar(RenderSystem* renderer, vec2 pos)
 
 	Enemy& enemy = registry.enemies.emplace(entity);
 	enemy.damage = 3;
-	enemy.type = "boar";
 	enemy.cooldown = 1500.f; // 1.5s
+
+	registry.boars.emplace(entity);
 
 	// Add Render Request for drawing sprite
 	registry.renderRequests.insert(
@@ -54,8 +55,9 @@ Entity createBarbarian(RenderSystem* renderer, vec2 pos)
 	
 	Enemy& enemy = registry.enemies.emplace(entity);
 	enemy.damage = 5;
-	enemy.type = "barbarian";
 	enemy.cooldown = 2000.f; // 2s
+
+	registry.barbarians.emplace(entity);
 
 	// Add Render Request for drawing sprite
 	registry.renderRequests.insert(
@@ -88,8 +90,9 @@ Entity createArcher(RenderSystem* renderer, vec2 pos)
 	// Add Render Request for drawing sprite
 	Enemy& enemy = registry.enemies.emplace(entity);
 	enemy.damage = 5;
-	enemy.type = "archer";
 	enemy.cooldown = 3000.f; // 3s
+
+	registry.archers.emplace(entity);
 
 	registry.renderRequests.insert(
 	entity,

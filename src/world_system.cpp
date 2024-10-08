@@ -338,9 +338,10 @@ void WorldSystem::update_cooldown(float elapsed_ms) {
 
 void WorldSystem::spawn(float elapsed_ms)
 {
+
     for (std::string& entity_type : entity_types) {
         next_spawns.at(entity_type) -= elapsed_ms;
-        if (next_spawns.at(entity_type) < 0) {
+        if (next_spawns.at(entity_type) < 0 && registry.spawnable_lists.at(entity_type)->size() < max_entities.at(entity_type)) {
             vec2 spawnLocation = { 100, 100 };
             spawn_func f = spawn_functions.at(entity_type);
             (*f)(renderer, spawnLocation);

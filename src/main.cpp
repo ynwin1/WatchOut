@@ -20,9 +20,10 @@ int main()
 	WorldSystem world;
 	RenderSystem renderer;
 	PhysicsSystem physics;
+	Camera camera;
 
 	// Initializing window
-	GLFWwindow* window = renderer.create_window();
+	GLFWwindow* window = renderer.create_window(&camera);
 	if (!window) {
 		printf("Press any key to exit");
 		getchar();
@@ -31,7 +32,7 @@ int main()
 
 	// Initialize the main systems
 	renderer.init();
-	world.init(&renderer, window, &physics);
+	world.init(&renderer, window, &camera, &physics);
 
 	auto t = Clock::now();
 	while (!world.is_over()) {
@@ -41,7 +42,7 @@ int main()
 		auto now = Clock::now();
 		float elapsed_ms = (float)(std::chrono::duration_cast<std::chrono::microseconds>(now - t)).count() / 1000;
 		t = now;
-
+		
 		world.step(elapsed_ms);
 		physics.step(elapsed_ms);
 		world.handle_collisions();

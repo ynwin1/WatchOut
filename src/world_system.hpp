@@ -16,7 +16,7 @@ public:
 	WorldSystem();
 
 	// starts the game
-	void init(RenderSystem* renderer, GLFWwindow* window, PhysicsSystem* physics);
+	void init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics);
 
 	// Releases all associated resources
 	~WorldSystem();
@@ -36,6 +36,8 @@ private:
 
 	RenderSystem* renderer;
 	PhysicsSystem* physics;
+
+	Camera* camera;
 
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);

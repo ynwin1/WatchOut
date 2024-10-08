@@ -175,7 +175,8 @@ void WorldSystem::handle_collisions()
 			}
 		}
 	}
-	registry.collisions.clear();
+	// Clear all collisions
+	physics->collisions.clear();
 }
 
 // Should the game be over ?

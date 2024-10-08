@@ -334,7 +334,6 @@ void WorldSystem::update_cooldown(float elapsed_ms) {
             registry.cooldowns.remove(cooldownEntity);
         }
     }
-    }
 }
 
 void WorldSystem::spawn(float elapsed_ms)

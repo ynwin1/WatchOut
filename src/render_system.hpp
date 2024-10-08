@@ -3,6 +3,7 @@
 #include <array>
 #include <utility>
 
+#include "camera.hpp"
 #include "common.hpp"
 #include "render_components.hpp"
 #include "tiny_ecs.hpp"
@@ -38,7 +39,7 @@ class RenderSystem {
 	std::array<GLuint, geometry_count> index_buffers;
 
 public:
-	GLFWwindow* create_window();
+	GLFWwindow* create_window(Camera* camera);
 
 	// Initialize the window
 	bool init();
@@ -61,6 +62,8 @@ public:
 	mat3 createProjectionMatrix();
 
 private:
+	Camera* camera;
+
 	// Internal drawing functions for each entity type
 	void drawTexturedMesh(Entity entity, const mat3& projection);
 

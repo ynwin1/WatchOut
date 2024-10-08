@@ -21,7 +21,9 @@ namespace {
 	}
 }
 
-GLFWwindow* RenderSystem::create_window() {
+GLFWwindow* RenderSystem::create_window(Camera* camera) {
+	this->camera = camera;
+
 	///////////////////////////////////////
 	// Initialize GLFW
 	glfwSetErrorCallback(glfw_err_cb);
@@ -44,7 +46,7 @@ GLFWwindow* RenderSystem::create_window() {
 	glfwWindowHint(GLFW_RESIZABLE, 0);
 
 	// Create the main window (for rendering, keyboard, and mouse input)
-	window = glfwCreateWindow(window_width_px, window_height_px, "Watch Out!", nullptr, nullptr);
+	window = glfwCreateWindow(this->camera->getWidth(), this->camera->getHeight(), "Watch Out!", nullptr, nullptr);
 	if (window == nullptr) {
 		fprintf(stderr, "Failed to glfwCreateWindow");
 		return nullptr;
@@ -57,7 +59,7 @@ GLFWwindow* RenderSystem::create_window() {
 // World initialization
 bool RenderSystem::init()
 {
-
+	
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(1); // vsync
 

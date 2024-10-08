@@ -154,7 +154,7 @@ void WorldSystem::handle_collisions()
                 if (!allCooldowns.has(entity)) {
                     int newE2Health = enemy2.health - enemy1.damage;
                     enemy2.health = newE2Health < 0 ? 0 : newE2Health;
-                    printf("Enemy 2's health reduced from %d to %d\n", enemy2.health + enemy1.damage, enemy2.health);
+                    printf("Enemy %d's health reduced from %d to %d\n", (unsigned int)entity_other, enemy2.health + enemy1.damage, enemy2.health);
 
 					// Set cooldown for enemy 1 
 					Cooldown& cooldown = registry.cooldowns.emplace(entity);
@@ -164,7 +164,7 @@ void WorldSystem::handle_collisions()
                 if (!allCooldowns.has(entity_other)) {
 					int newE1Health = enemy1.health - enemy2.damage;
 					enemy1.health = newE1Health < 0 ? 0 : newE1Health;
-					printf("Enemy 1's health reduced from %d to %d\n", enemy1.health + enemy2.damage, enemy1.health);
+					printf("Enemy %d's health reduced from %d to %d\n", (unsigned int)entity, enemy1.health + enemy2.damage, enemy1.health);
 
 					// Set cooldown for enemy 2
 					Cooldown& cooldown = registry.cooldowns.emplace(entity_other);

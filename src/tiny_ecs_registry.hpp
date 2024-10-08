@@ -23,7 +23,9 @@ public:
 	ComponentContainer<Hitbox> hitboxes;
 	ComponentContainer<Trap> traps;
 	ComponentContainer<RenderRequest> renderRequests;
-	
+	ComponentContainer<vec3> colours;
+	ComponentContainer<Damaged> damageds;
+
 
 	ECSRegistry()
 	{
@@ -37,6 +39,8 @@ public:
 		registry_list.push_back(&hitboxes);
 		registry_list.push_back(&traps);
 		registry_list.push_back(&renderRequests);
+		registry_list.push_back(&colours);
+		registry_list.push_back(&damageds);
 	}
 
 	void clear_all_components() {

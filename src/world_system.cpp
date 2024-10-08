@@ -27,10 +27,11 @@ WorldSystem::WorldSystem():
 	rng = std::default_random_engine(std::random_device()());
 }
 
-void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window)
+void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, PhysicsSystem* physics)
 {
 	this->renderer = renderer;
 	this->window = window;
+    this->physics = physics;
 
 	// Setting callbacks to member functions (that's why the redirect is needed)
 	// Input is handled using GLFW, for more info see
@@ -76,11 +77,10 @@ bool WorldSystem::step(float elapsed_ms)
 void WorldSystem::handle_collisions()
 {
 	// Loop over all collisions detected by the physics system
-	auto& collisionsRegistry = registry.collisions;
-	for (uint i = 0; i < collisionsRegistry.components.size(); i++) {
+	for (uint i = 0; i < physics->collisions.size(); i++) {
 		// The entity and its collider
-		Entity entity = collisionsRegistry.entities[i];
-		Entity entity_other = collisionsRegistry.components[i].other;
+		Entity entity = physics->collisions[i].first;
+		Entity entity_other = physics->collisions[i].second;
 		
 		// If the entity is a player
 		if (registry.players.has(entity)) {

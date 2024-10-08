@@ -6,6 +6,7 @@
 
 // internal 
 #include <render_system.hpp>
+#include <physics_system.hpp>
 
 
 // Container for all our entities and game logic
@@ -15,7 +16,7 @@ public:
 	WorldSystem();
 
 	// starts the game
-	void init(RenderSystem* renderer, GLFWwindow* window);
+	void init(RenderSystem* renderer, GLFWwindow* window, PhysicsSystem* physics);
 
 	// Releases all associated resources
 	~WorldSystem();
@@ -34,6 +35,7 @@ private:
 	GLFWwindow* window;
 
 	RenderSystem* renderer;
+	PhysicsSystem* physics;
 
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);

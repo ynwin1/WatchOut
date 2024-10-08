@@ -60,8 +60,8 @@ void PhysicsSystem::step(float elapsed_ms)
 			if (collides(hitbox_i, hitbox_j)) {
 				// Collision detected
 				// std::cout << "Collision detected between entities " << entity_i << " and " << entity_j << std::endl;
-				registry.collisions.emplace(entity_i, entity_j);
-				registry.collisions.emplace(entity_j, entity_i);
+				collisions.push_back(std::make_pair(entity_i, entity_j));
+				collisions.push_back(std::make_pair(entity_j, entity_i));
 			}
 		}
 	}

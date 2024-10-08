@@ -11,6 +11,9 @@ class PhysicsSystem
 public:
 	void step(float elapsed_ms);
 
+	// Array to store collision pairs
+	std::vector<std::pair<Entity, Entity>> collisions;
+
 	PhysicsSystem()
 	{
 	}

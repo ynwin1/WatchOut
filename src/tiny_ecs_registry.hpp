@@ -25,6 +25,7 @@ public:
 	ComponentContainer<RenderRequest> renderRequests;
 	ComponentContainer<vec3> colours;
 	ComponentContainer<Damaged> damageds;
+	ComponentContainer<DeathTimer> deathTimers;
 
 	// Spawnable types
 	std::unordered_map<std::string, ContainerInterface*> spawnable_lists;
@@ -46,6 +47,8 @@ public:
 		registry_list.push_back(&renderRequests);
 		registry_list.push_back(&colours);
 		registry_list.push_back(&damageds);
+		registry_list.push_back(&deathTimers);
+
 		registry_list.push_back(&boars);
 		registry_list.push_back(&barbarians);
 		registry_list.push_back(&archers);

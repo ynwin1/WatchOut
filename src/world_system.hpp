@@ -58,6 +58,7 @@ private:
 	// Actions performed for each step
 	void update_positions(float elapsed_ms);
 	void update_cooldown(float elapsed_ms);
+	void handle_deaths(float elapsed_ms);
 	void spawn(float elapsed_ms);
 	void think();
 

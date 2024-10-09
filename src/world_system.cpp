@@ -27,11 +27,12 @@ WorldSystem::WorldSystem():
 	rng = std::default_random_engine(std::random_device()());
 }
 
-void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camera)
+void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics)
 {
 	this->renderer = renderer;
 	this->window = window;
-    this->camera = camera;
+  this->camera = camera;
+  this->physics = physics;
 
 	// Setting callbacks to member functions (that's why the redirect is needed)
 	// Input is handled using GLFW, for more info see
@@ -81,14 +82,12 @@ bool WorldSystem::step(float elapsed_ms)
 
 void WorldSystem::handle_collisions()
 {
-	// Loop over all collisions detected by the physics system
     std::vector<Entity> was_damaged;
-
-	auto& collisionsRegistry = registry.collisions;
-	for (uint i = 0; i < collisionsRegistry.components.size(); i++) {
+	// Loop over all collisions detected by the physics system
+	for (uint i = 0; i < physics->collisions.size(); i++) {
 		// The entity and its collider
-		Entity entity = collisionsRegistry.entities[i];
-		Entity entity_other = collisionsRegistry.components[i].other;
+		Entity entity = physics->collisions[i].first;
+		Entity entity_other = physics->collisions[i].second;
 		
 		// If the entity is a player
 		if (registry.players.has(entity)) {
@@ -166,7 +165,7 @@ void WorldSystem::handle_collisions()
                     int newE2Health = enemy2.health - enemy1.damage;
                     enemy2.health = newE2Health < 0 ? 0 : newE2Health;
                     was_damaged.push_back(entity_other);
-                    printf("Enemy 2's health reduced from %d to %d\n", enemy2.health + enemy1.damage, enemy2.health);
+                    printf("Enemy %d's health reduced from %d to %d\n", (unsigned int)entity_other, enemy2.health + enemy1.damage, enemy2.health);
 
 					// Set cooldown for enemy 1 
 					Cooldown& cooldown = registry.cooldowns.emplace(entity);
@@ -178,19 +177,21 @@ void WorldSystem::handle_collisions()
 					int newE1Health = enemy1.health - enemy2.damage;
 					enemy1.health = newE1Health < 0 ? 0 : newE1Health;
                     was_damaged.push_back(entity);
-					printf("Enemy 1's health reduced from %d to %d\n", enemy1.health + enemy2.damage, enemy1.health);
+					printf("Enemy %d's health reduced from %d to %d\n", (unsigned int)entity, enemy1.health + enemy2.damage, enemy1.health);
 
 					// Set cooldown for enemy 2
 					Cooldown& cooldown = registry.cooldowns.emplace(entity_other);
 					cooldown.remaining = enemy2.cooldown;
-                }
+          }
 
-                // TODO LATER - Logic to handle enemy deaths
+          // TODO LATER - Logic to handle enemy deaths
 			}
 		}
 	}
+  
+	// Clear all collisions
     renderer->turn_damaged_red(was_damaged);
-	registry.collisions.clear();
+	physics->collisions.clear();
 }
 
 // Should the game be over ?
@@ -362,7 +363,6 @@ void WorldSystem::update_cooldown(float elapsed_ms) {
 
 void WorldSystem::spawn(float elapsed_ms)
 {
-
     for (std::string& entity_type : entity_types) {
         next_spawns.at(entity_type) -= elapsed_ms;
         if (next_spawns.at(entity_type) < 0 && registry.spawnable_lists.at(entity_type)->size() < max_entities.at(entity_type)) {
@@ -373,6 +373,7 @@ void WorldSystem::spawn(float elapsed_ms)
         }
     }
 }
+
 
 void WorldSystem::think()
 {

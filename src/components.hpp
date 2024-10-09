@@ -76,6 +76,7 @@ struct Cooldown
 	float remaining = 0.0f;
 };
 
+
 // Entity was damaged recently
 struct Damaged
 {
@@ -86,4 +87,3 @@ struct Damaged
 struct Boar {};
 struct Barbarian {};
 struct Archer {};
-

@@ -32,7 +32,7 @@ int main()
 
 	// Initialize the main systems
 	renderer.init();
-	world.init(&renderer, window, &camera);
+	world.init(&renderer, window, &camera, &physics);
 
 	auto t = Clock::now();
 	while (!world.is_over()) {

@@ -190,19 +190,24 @@ void WorldSystem::handle_collisions()
                 }
 
 				// Handle enemy death
-				if (enemy1.health == 0) {
+				if (enemy1.health == 0 && !registry.deathTimers.has(entity)) {
 					Motion& enemyMotion = registry.motions.get(entity);
 					enemyMotion.velocity = { 0, 0 }; // Stop enemy movement
 					enemyMotion.angle = 1.57f; // Rotate enemy 90 degrees
 					printf("Enemy %d died\n", (unsigned int)entity);
-                    //registry.deathTimers.emplace(entity);
+
+                    // remove enemy from enemy
+                    registry.enemies.remove(entity);
+                    registry.deathTimers.emplace(entity);
 				}
-                if (enemy2.health == 0) {
+                if (enemy2.health == 0 && !registry.deathTimers.has(entity_other)) {
                     Motion& enemyMotion = registry.motions.get(entity);
                     enemyMotion.velocity = { 0, 0 }; // Stop enemy movement
                     enemyMotion.angle = 1.57f; // Rotate enemy 90 degrees
                     printf("Enemy %d died\n", (unsigned int)entity);
-					//registry.deathTimers.emplace(entity_other);
+
+                    registry.enemies.remove(entity_other);
+					registry.deathTimers.emplace(entity_other);
                 }
 			}
 		}

@@ -139,10 +139,10 @@ void RenderSystem::draw()
 
 void RenderSystem::step(float elapsed_ms)
 {
-	for (const Entity& entity : registry.damageds.entities) {
+	for (Entity entity : registry.damageds.entities) {
 		Damaged& timer = registry.damageds.get(entity);
 		timer.timer -= elapsed_ms;
-		if (timer.timer <= 0) {
+		if (timer.timer < 0) {
 			registry.damageds.remove(entity);
 			if (registry.colours.has(entity)) {
 				registry.colours.remove(entity);
@@ -155,7 +155,7 @@ void RenderSystem::turn_damaged_red(std::vector<Entity>& was_damaged)
 {
 	const float DAMAGE_TIME = 400;
 	const vec3 DAMAGE_COLOUR = { 1, 0, 0 };
-	for (const Entity& entity : was_damaged) {
+	for (Entity entity : was_damaged) {
 		if (registry.damageds.has(entity)) {
 			registry.damageds.get(entity).timer = DAMAGE_TIME;
 		}

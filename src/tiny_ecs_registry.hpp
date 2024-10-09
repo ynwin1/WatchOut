@@ -23,7 +23,14 @@ public:
 	ComponentContainer<Hitbox> hitboxes;
 	ComponentContainer<Trap> traps;
 	ComponentContainer<RenderRequest> renderRequests;
-	
+	ComponentContainer<vec3> colours;
+	ComponentContainer<Damaged> damageds;
+
+	// Spawnable types
+	std::unordered_map<std::string, ContainerInterface*> spawnable_lists;
+	ComponentContainer<Boar> boars;
+	ComponentContainer<Barbarian> barbarians;
+	ComponentContainer<Archer> archers;
 
 	ECSRegistry()
 	{
@@ -37,6 +44,15 @@ public:
 		registry_list.push_back(&hitboxes);
 		registry_list.push_back(&traps);
 		registry_list.push_back(&renderRequests);
+		registry_list.push_back(&colours);
+		registry_list.push_back(&damageds);
+		registry_list.push_back(&boars);
+		registry_list.push_back(&barbarians);
+		registry_list.push_back(&archers);
+
+		spawnable_lists["boar"] = &boars;
+		spawnable_lists["barbarian"] = &barbarians;
+		spawnable_lists["archer"] = &archers;
 	}
 
 	void clear_all_components() {

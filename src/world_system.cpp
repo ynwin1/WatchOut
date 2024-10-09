@@ -6,16 +6,33 @@
 #include <iostream>
 
 
-WorldSystem::WorldSystem() {
+WorldSystem::WorldSystem():
+    spawn_functions({
+        {"boar", createBoar},
+        {"barbarian", createBarbarian},
+        {"archer", createArcher}
+    }),
+    spawn_delays({ 
+        {"boar", 3000},
+        {"barbarian", 5000},
+        {"archer", 10000}
+    }),
+    max_entities({
+        {"boar", 2},
+        {"barbarian", 5},
+        {"archer", 1}
+    })
+{
 	// Seeding rng with random device
 	rng = std::default_random_engine(std::random_device()());
 }
 
-void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camera)
+void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics)
 {
 	this->renderer = renderer;
 	this->window = window;
-    this->camera = camera;
+  this->camera = camera;
+  this->physics = physics;
 
 	// Setting callbacks to member functions (that's why the redirect is needed)
 	// Input is handled using GLFW, for more info see
@@ -26,14 +43,7 @@ void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camer
 	glfwSetKeyCallback(window, key_redirect);
 	glfwSetCursorPosCallback(window, cursor_pos_redirect);
 
-
-	// Create player entity
-    playerEntity = createJeff(renderer, vec2(100, 100));
-	createBarbarian(renderer, vec2(200, 200));
-	createBoar(renderer, vec2(400, 400));
-	createArcher(renderer, vec2(100, 500));
-   // createGameOver(renderer, vec2(200, 500));
-
+    restart_game();
 }
 
 WorldSystem::~WorldSystem() {
@@ -41,8 +51,25 @@ WorldSystem::~WorldSystem() {
 	registry.clear_all_components();
 }
 
+void WorldSystem::restart_game()
+{
+    registry.clear_all_components();
+    entity_types = {
+        "barbarian",
+        "boar",
+        "archer"
+    };
+
+    // Create player entity
+    playerEntity = createJeff(renderer, vec2(world_size_x / 2.f, world_size_y / 2.f));
+    game_over = false;
+
+    next_spawns = spawn_delays;
+}
+
 bool WorldSystem::step(float elapsed_ms)
 {
+    spawn(elapsed_ms);
     update_positions(elapsed_ms);
     update_cooldown(elapsed_ms);
     
@@ -59,17 +86,18 @@ bool WorldSystem::step(float elapsed_ms)
 
     }
 
+    think();
 	return !is_over();
 }
 
 void WorldSystem::handle_collisions()
 {
+    std::vector<Entity> was_damaged;
 	// Loop over all collisions detected by the physics system
-	auto& collisionsRegistry = registry.collisions;
-	for (uint i = 0; i < collisionsRegistry.components.size(); i++) {
+	for (uint i = 0; i < physics->collisions.size(); i++) {
 		// The entity and its collider
-		Entity entity = collisionsRegistry.entities[i];
-		Entity entity_other = collisionsRegistry.components[i].other;
+		Entity entity = physics->collisions[i].first;
+		Entity entity_other = physics->collisions[i].second;
 		
 		// If the entity is a player
 		if (registry.players.has(entity)) {
@@ -91,6 +119,7 @@ void WorldSystem::handle_collisions()
 				Trap& trap = registry.traps.get(entity_other);
 				int new_health = player.health - trap.damage;
 				player.health = new_health < 0 ? 0 : new_health;
+                was_damaged.push_back(entity);
 				printf("Player health reduced by trap from %d to %d\n", player.health + trap.damage, player.health);
 
                 // destroy the trap
@@ -106,6 +135,7 @@ void WorldSystem::handle_collisions()
                 // Calculate potential new health
                 int new_health = player.health - enemy.damage;
                 player.health = new_health < 0 ? 0 : new_health;
+                was_damaged.push_back(entity);
                 printf("Player health reduced by enemy from %d to %d\n", player.health + enemy.damage, player.health);
 
 				// Set cooldown for the enemy
@@ -126,6 +156,7 @@ void WorldSystem::handle_collisions()
 				
 				int new_health = enemy.health - trap.damage;
 				enemy.health = new_health < 0 ? 0 : new_health;
+                was_damaged.push_back(entity);
 				printf("Enemy health reduced from %d to %d\n", enemy.health + trap.damage, enemy.health);
                 
                 // destroy the trap
@@ -143,37 +174,45 @@ void WorldSystem::handle_collisions()
                 if (!allCooldowns.has(entity)) {
                     int newE2Health = enemy2.health - enemy1.damage;
                     enemy2.health = newE2Health < 0 ? 0 : newE2Health;
-                    printf("Enemy 2's health reduced from %d to %d\n", enemy2.health + enemy1.damage, enemy2.health);
+                    was_damaged.push_back(entity_other);
+                    printf("Enemy %d's health reduced from %d to %d\n", (unsigned int)entity_other, enemy2.health + enemy1.damage, enemy2.health);
 
 					// Set cooldown for enemy 1 
 					Cooldown& cooldown = registry.cooldowns.emplace(entity);
 					cooldown.remaining = enemy1.cooldown;
+
                 }
 				// enemy 2 can attack enemy 1
                 if (!allCooldowns.has(entity_other)) {
 					int newE1Health = enemy1.health - enemy2.damage;
 					enemy1.health = newE1Health < 0 ? 0 : newE1Health;
-					printf("Enemy 1's health reduced from %d to %d\n", enemy1.health + enemy2.damage, enemy1.health);
+                    was_damaged.push_back(entity);
+					printf("Enemy %d's health reduced from %d to %d\n", (unsigned int)entity, enemy1.health + enemy2.damage, enemy1.health);
 
 					// Set cooldown for enemy 2
 					Cooldown& cooldown = registry.cooldowns.emplace(entity_other);
 					cooldown.remaining = enemy2.cooldown;
-                }
+          }
 
-                // TODO LATER - Logic to handle enemy deaths
+          // TODO LATER - Logic to handle enemy deaths
 			}
 		}
 	}
-	registry.collisions.clear();
+  
+	// Clear all collisions
+    renderer->turn_damaged_red(was_damaged);
+	physics->collisions.clear();
 }
 
 // Should the game be over ?
 bool WorldSystem::is_over() const {
 	return bool(glfwWindowShouldClose(window));
 }
-void WorldSystem::on_mouse_move(vec2 mouse_position){
+
+void WorldSystem::on_mouse_move(vec2 mouse_position) {
     
 }
+
 void WorldSystem::on_key(int key, int, int action, int mod)
 {
 	Player& player_comp = registry.players.get(playerEntity);
@@ -181,7 +220,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     Dash& player_dash = registry.dashers.get(playerEntity);
 
     if(game_over){
-        if(action == GLFW_PRESS){
+        if (action == GLFW_PRESS && key == GLFW_KEY_ENTER){
             restart_game();
 
         }
@@ -321,10 +360,8 @@ void WorldSystem::update_positions(float elapsed_ms)
                     dashing.isDashing = false; // Reset isDashing
                 }
             }  
-
         }    
         
-
         // Update the entity's position based on its velocity and elapsed time
         motion.position.x += motion.velocity.x * Running_Speed * elapsed_ms;
         motion.position.y += motion.velocity.y * Running_Speed * elapsed_ms;
@@ -349,17 +386,28 @@ void WorldSystem::update_cooldown(float elapsed_ms) {
     }
 }
 
-void WorldSystem::restart_game()
+void WorldSystem::spawn(float elapsed_ms)
 {
-    // Clear all current entities and components
-    registry.clear_all_components();
+    for (std::string& entity_type : entity_types) {
+        next_spawns.at(entity_type) -= elapsed_ms;
+        if (next_spawns.at(entity_type) < 0 && registry.spawnable_lists.at(entity_type)->size() < max_entities.at(entity_type)) {
+            vec2 spawnLocation = { 100, 100 };
+            spawn_func f = spawn_functions.at(entity_type);
+            (*f)(renderer, spawnLocation);
+            next_spawns[entity_type] = spawn_delays.at(entity_type);
+        }
+    }
+}
 
-    // Reinitialize the player, enemies, and other game objects
-    playerEntity = createJeff(renderer, vec2(100, 100));
-    createBarbarian(renderer, vec2(200, 200));
-    createBoar(renderer, vec2(400, 400));
-    createArcher(renderer, vec2(100, 500));
 
-    // Reset any additional game state variables
-    game_over = false;
+void WorldSystem::think()
+{
+    const float ENEMY_SPEED = 0.5;
+    Motion& playerMotion = registry.motions.get(playerEntity);
+    for (Entity& enemy : registry.enemies.entities) {
+        Motion& enemyMotion = registry.motions.get(enemy);
+        vec2 direction = playerMotion.position - enemyMotion.position;
+        direction /= distance(playerMotion.position, enemyMotion.position);
+        enemyMotion.velocity = direction * ENEMY_SPEED;
+    }
 }

@@ -32,7 +32,7 @@ int main()
 
 	// Initialize the main systems
 	renderer.init();
-	world.init(&renderer, window, &camera);
+	world.init(&renderer, window, &camera, &physics);
 
 	auto t = Clock::now();
 	while (!world.is_over()) {
@@ -48,11 +48,6 @@ int main()
             physics.step(elapsed_ms);
             world.handle_collisions();
         } 
-		
-		
-		// world.step(elapsed_ms);
-		// physics.step(elapsed_ms);
-		// world.handle_collisions();
 
 		renderer.draw();
 		

@@ -6,7 +6,7 @@
 
 // PlayerComponents 
 struct Player {
-	unsigned int health = 10;
+	unsigned int health = 100;
 	unsigned int trapsCollected = 0;
 	bool isRunning;     // Indicates if the player is currently running
 	bool isJumping;     // Indicates if the player is currently jumping
@@ -26,6 +26,7 @@ struct Enemy
 {
 	unsigned int health = 100;
 	unsigned int damage = 10;
+	std::string type;
 	unsigned int cooldown = 0;
 };
 
@@ -74,3 +75,15 @@ struct Cooldown
 {
 	float remaining = 0.0f;
 };
+
+
+// Entity was damaged recently
+struct Damaged
+{
+	float timer = 400;
+};
+
+// Enemy types
+struct Boar {};
+struct Barbarian {};
+struct Archer {};

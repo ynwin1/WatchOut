@@ -60,8 +60,9 @@ public:
 	// Draw all entities
 	void draw();
 
-	// // Draw Game Over Screen
-	// void drawGameOverScreen(const mat3& projection);
+	void turn_damaged_red(std::vector<Entity>& was_damaged);
+
+	void step(float elapsed_ms);
 
 	mat3 createProjectionMatrix();
 

@@ -70,6 +70,7 @@ bool WorldSystem::step(float elapsed_ms)
     spawn(elapsed_ms);
     update_positions(elapsed_ms);
     update_cooldown(elapsed_ms);
+    handle_deaths(elapsed_ms);
     
     if(camera->isToggled()) {
         Motion& playerMotion = registry.motions.get(playerEntity);
@@ -132,8 +133,12 @@ void WorldSystem::handle_collisions()
 				Cooldown& cooldown = registry.cooldowns.emplace(entity_other);
 				cooldown.remaining = enemy.cooldown;
                 
-                // TODO LATER - Logic to handle player death
-				// TODO M1 [WO-13] - Change player color to (red) for a short duration
+                // Handle player death
+                if (player.health == 0) {
+					Motion& playerMotion = registry.motions.get(entity);
+					playerMotion.angle = 1.57f; // Rotate player 90 degrees
+					printf("Player died\n");
+                }
 			}
 		}
 		else if (registry.enemies.has(entity)) {
@@ -182,9 +187,28 @@ void WorldSystem::handle_collisions()
 					// Set cooldown for enemy 2
 					Cooldown& cooldown = registry.cooldowns.emplace(entity_other);
 					cooldown.remaining = enemy2.cooldown;
-          }
+                }
 
-          // TODO LATER - Logic to handle enemy deaths
+				// Handle enemy death
+				if (enemy1.health == 0 && !registry.deathTimers.has(entity)) {
+					Motion& enemyMotion = registry.motions.get(entity);
+					enemyMotion.velocity = { 0, 0 }; // Stop enemy movement
+					enemyMotion.angle = 1.57f; // Rotate enemy 90 degrees
+					printf("Enemy %d died\n", (unsigned int)entity);
+
+                    // remove enemy from enemy
+                    registry.enemies.remove(entity);
+                    registry.deathTimers.emplace(entity);
+				}
+                if (enemy2.health == 0 && !registry.deathTimers.has(entity_other)) {
+                    Motion& enemyMotion = registry.motions.get(entity);
+                    enemyMotion.velocity = { 0, 0 }; // Stop enemy movement
+                    enemyMotion.angle = 1.57f; // Rotate enemy 90 degrees
+                    printf("Enemy %d died\n", (unsigned int)entity);
+
+                    registry.enemies.remove(entity_other);
+					registry.deathTimers.emplace(entity_other);
+                }
 			}
 		}
 	}
@@ -359,6 +383,16 @@ void WorldSystem::update_cooldown(float elapsed_ms) {
             registry.cooldowns.remove(cooldownEntity);
         }
     }
+}
+
+void WorldSystem::handle_deaths(float elapsed_ms) {
+	for (auto& deathEntity : registry.deathTimers.entities) {
+		DeathTimer& deathTimer = registry.deathTimers.get(deathEntity);
+		deathTimer.timer -= elapsed_ms;
+		if (deathTimer.timer < 0) {
+			registry.remove_all_components_of(deathEntity);
+		}
+	}
 }
 
 void WorldSystem::spawn(float elapsed_ms)

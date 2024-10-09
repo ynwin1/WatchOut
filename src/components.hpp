@@ -83,6 +83,12 @@ struct Damaged
 	float timer = 400;
 };
 
+// DeathTimer Component
+struct DeathTimer
+{
+	float timer = 3000;
+};
+
 // Enemy types
 struct Boar {};
 struct Barbarian {};

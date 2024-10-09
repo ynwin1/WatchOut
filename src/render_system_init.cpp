@@ -52,7 +52,7 @@ GLFWwindow* RenderSystem::create_window(Camera* camera) {
 		return nullptr;
 	}
 
-	// Get the primary monitor and its video mode
+	// Primary monitor and its video mode
     GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
     const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
 

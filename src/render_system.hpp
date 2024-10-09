@@ -29,7 +29,8 @@ class RenderSystem {
 	{ textures_path("jeff/jeff.png"),
 	  textures_path("barbarian/barbarian.png"),
 	  textures_path("boar/boar.png"),
-	  textures_path("archer/archer.png")};
+	  textures_path("archer/archer.png"),
+	  textures_path("game/game_over.png")};
 
 	std::array<GLuint, effect_count> effects;
 	// Make sure these paths remain in sync with the associated enumerators.
@@ -58,6 +59,9 @@ public:
 
 	// Draw all entities
 	void draw();
+
+	// // Draw Game Over Screen
+	// void drawGameOverScreen(const mat3& projection);
 
 	mat3 createProjectionMatrix();
 

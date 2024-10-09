@@ -122,7 +122,7 @@ void RenderSystem::draw()
 	// sprites back to front
 	gl_has_errors();
 	mat3 projection_2D = createProjectionMatrix();
-	// Draw all textured meshes that have a position and size component
+	//Draw all textured meshes that have a position and size component
 	for (Entity entity : registry.renderRequests.entities)
 	{
 		if (!registry.motions.has(entity))
@@ -136,6 +136,38 @@ void RenderSystem::draw()
 	glfwSwapBuffers(window);
 	gl_has_errors();
 }
+
+// void RenderSystem::drawGameOverScreen(const mat3& projection)
+// {
+//     // Assuming the "Game Over" texture ID corresponds to the GAMEOVER enum
+//     GLuint gameOverTextureID = texture_gl_handles[(GLuint)TEXTURE_ASSET_ID::GAMEOVER];
+    
+//     // Set up the transformation matrix for the Game Over screen
+//     Transform transform;
+//     transform.translate(vec2(0.0f, 0.0f)); // Centering the texture on the screen
+//     transform.scale(vec2(800.0f, 200.0f)); // Scale the texture as needed
+
+//     // Use the appropriate shader program
+//     GLuint program = (GLuint)effects[(GLuint)EFFECT_ASSET_ID::TEXTURED];
+//     glUseProgram(program);
+//     gl_has_errors();
+
+//     // Bind the Game Over texture
+//     glActiveTexture(GL_TEXTURE0);
+//     glBindTexture(GL_TEXTURE_2D, gameOverTextureID);
+//     gl_has_errors();
+
+//     // Getting uniform locations for glUniform* calls
+//     GLint transform_loc = glGetUniformLocation(program, "transform");
+//     glUniformMatrix3fv(transform_loc, 1, GL_FALSE, (float*)&transform.mat);
+//     GLuint projection_loc = glGetUniformLocation(program, "projection");
+//     glUniformMatrix3fv(projection_loc, 1, GL_FALSE, (float*)&projection);
+//     gl_has_errors();
+
+//     // Swap buffers to display the rendered frame
+//     glfwSwapBuffers(window);
+// }
+
 
 mat3 RenderSystem::createProjectionMatrix() {
 	float left;

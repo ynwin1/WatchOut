@@ -32,6 +32,7 @@ void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camer
 	createBarbarian(renderer, vec2(200, 200));
 	createBoar(renderer, vec2(400, 400));
 	createArcher(renderer, vec2(100, 500));
+   // createGameOver(renderer, vec2(200, 500));
 
 }
 
@@ -48,6 +49,12 @@ bool WorldSystem::step(float elapsed_ms)
     if(camera->isToggled()) {
         Motion& playerMotion = registry.motions.get(playerEntity);
         camera->followPosition(playerMotion.position);
+    }
+    Player& player = registry.players.get(playerEntity);
+    if(player.health <= 0){
+        //CREATEGAMEOVERENTITY
+        game_over = true;
+
     }
 
 	return !is_over();
@@ -170,6 +177,13 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	Player& player_comp = registry.players.get(playerEntity);
     Motion& player_motion = registry.motions.get(playerEntity);
     Dash& player_dash = registry.dashers.get(playerEntity);
+
+    if(game_over){
+        if(action == GLFW_PRESS){
+            restart_game();
+
+        }
+    }
 
 	if (action == GLFW_PRESS && key == GLFW_KEY_ENTER) {
         // TODO LATER - Think about where exactly to place the trap
@@ -327,4 +341,15 @@ void WorldSystem::update_cooldown(float elapsed_ms) {
 
 void WorldSystem::restart_game()
 {
+    // Clear all current entities and components
+    registry.clear_all_components();
+
+    // Reinitialize the player, enemies, and other game objects
+    playerEntity = createJeff(renderer, vec2(100, 100));
+    createBarbarian(renderer, vec2(200, 200));
+    createBoar(renderer, vec2(400, 400));
+    createArcher(renderer, vec2(100, 500));
+
+    // Reset any additional game state variables
+    game_over = false;
 }

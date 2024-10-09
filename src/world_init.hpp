@@ -35,3 +35,6 @@ Entity createCollectibleTrap(RenderSystem* renderer, vec2 pos);
 
 // The damage trap
 Entity createDamageTrap(RenderSystem* renderer, vec2 pos);
+
+// GameOver
+Entity createGameOver(RenderSystem* renderer, vec2 pos);

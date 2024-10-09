@@ -82,9 +82,9 @@ bool WorldSystem::step(float elapsed_ms)
 
 void WorldSystem::handle_collisions()
 {
+    std::vector<Entity> was_damaged;
 	// Loop over all collisions detected by the physics system
 	for (uint i = 0; i < physics->collisions.size(); i++) {
-    std::vector<Entity> was_damaged;
 		// The entity and its collider
 		Entity entity = physics->collisions[i].first;
 		Entity entity_other = physics->collisions[i].second;
@@ -176,7 +176,7 @@ void WorldSystem::handle_collisions()
                 if (!allCooldowns.has(entity_other)) {
 					int newE1Health = enemy1.health - enemy2.damage;
 					enemy1.health = newE1Health < 0 ? 0 : newE1Health;
-          was_damaged.push_back(entity);
+                    was_damaged.push_back(entity);
 					printf("Enemy %d's health reduced from %d to %d\n", (unsigned int)entity, enemy1.health + enemy2.damage, enemy1.health);
 
 					// Set cooldown for enemy 2
@@ -190,7 +190,7 @@ void WorldSystem::handle_collisions()
 	}
   
 	// Clear all collisions
-  renderer->turn_damaged_red(was_damaged);
+    renderer->turn_damaged_red(was_damaged);
 	physics->collisions.clear();
 }
 

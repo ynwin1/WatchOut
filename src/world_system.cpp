@@ -84,6 +84,7 @@ void WorldSystem::handle_collisions()
 {
 	// Loop over all collisions detected by the physics system
 	for (uint i = 0; i < physics->collisions.size(); i++) {
+    std::vector<Entity> was_damaged;
 		// The entity and its collider
 		Entity entity = physics->collisions[i].first;
 		Entity entity_other = physics->collisions[i].second;
@@ -108,6 +109,7 @@ void WorldSystem::handle_collisions()
 				Trap& trap = registry.traps.get(entity_other);
 				int new_health = player.health - trap.damage;
 				player.health = new_health < 0 ? 0 : new_health;
+                was_damaged.push_back(entity);
 				printf("Player health reduced by trap from %d to %d\n", player.health + trap.damage, player.health);
 
                 // destroy the trap
@@ -123,6 +125,7 @@ void WorldSystem::handle_collisions()
                 // Calculate potential new health
                 int new_health = player.health - enemy.damage;
                 player.health = new_health < 0 ? 0 : new_health;
+                was_damaged.push_back(entity);
                 printf("Player health reduced by enemy from %d to %d\n", player.health + enemy.damage, player.health);
 
 				// Set cooldown for the enemy
@@ -143,6 +146,7 @@ void WorldSystem::handle_collisions()
 				
 				int new_health = enemy.health - trap.damage;
 				enemy.health = new_health < 0 ? 0 : new_health;
+                was_damaged.push_back(entity);
 				printf("Enemy health reduced from %d to %d\n", enemy.health + trap.damage, enemy.health);
                 
                 // destroy the trap
@@ -160,28 +164,33 @@ void WorldSystem::handle_collisions()
                 if (!allCooldowns.has(entity)) {
                     int newE2Health = enemy2.health - enemy1.damage;
                     enemy2.health = newE2Health < 0 ? 0 : newE2Health;
+                    was_damaged.push_back(entity_other);
                     printf("Enemy %d's health reduced from %d to %d\n", (unsigned int)entity_other, enemy2.health + enemy1.damage, enemy2.health);
 
 					// Set cooldown for enemy 1 
 					Cooldown& cooldown = registry.cooldowns.emplace(entity);
 					cooldown.remaining = enemy1.cooldown;
+
                 }
 				// enemy 2 can attack enemy 1
                 if (!allCooldowns.has(entity_other)) {
 					int newE1Health = enemy1.health - enemy2.damage;
 					enemy1.health = newE1Health < 0 ? 0 : newE1Health;
+          was_damaged.push_back(entity);
 					printf("Enemy %d's health reduced from %d to %d\n", (unsigned int)entity, enemy1.health + enemy2.damage, enemy1.health);
 
 					// Set cooldown for enemy 2
 					Cooldown& cooldown = registry.cooldowns.emplace(entity_other);
 					cooldown.remaining = enemy2.cooldown;
-                }
+          }
 
-                // TODO LATER - Logic to handle enemy deaths
+          // TODO LATER - Logic to handle enemy deaths
 			}
 		}
 	}
+  
 	// Clear all collisions
+  renderer->turn_damaged_red(was_damaged);
 	physics->collisions.clear();
 }
 
@@ -354,7 +363,6 @@ void WorldSystem::update_cooldown(float elapsed_ms) {
 
 void WorldSystem::spawn(float elapsed_ms)
 {
-
     for (std::string& entity_type : entity_types) {
         next_spawns.at(entity_type) -= elapsed_ms;
         if (next_spawns.at(entity_type) < 0 && registry.spawnable_lists.at(entity_type)->size() < max_entities.at(entity_type)) {
@@ -365,6 +373,7 @@ void WorldSystem::spawn(float elapsed_ms)
         }
     }
 }
+
 
 void WorldSystem::think()
 {

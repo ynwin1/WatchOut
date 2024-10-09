@@ -199,6 +199,10 @@ Entity createGameOver(RenderSystem* renderer, vec2 pos)
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = { ARCHER_BB_WIDTH, ARCHER_BB_HEIGHT };
 
+	// Setting initial hitbox values
+	Hitbox& hitbox = registry.hitboxes.emplace(entity);
+
+
 	registry.renderRequests.insert(
 	entity,
 	{

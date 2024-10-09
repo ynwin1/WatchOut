@@ -52,6 +52,17 @@ GLFWwindow* RenderSystem::create_window(Camera* camera) {
 		return nullptr;
 	}
 
+	// Get the primary monitor and its video mode
+    GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
+    const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
+
+    // Make the window fullscreen by resizing and positioning it
+    glfwSetWindowPos(window, 0, 0); 
+    glfwSetWindowSize(window, mode->width, mode->height); 
+    glfwMakeContextCurrent(window);
+
+	
+
 	return window;
 }
 

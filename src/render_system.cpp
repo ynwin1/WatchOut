@@ -136,6 +136,7 @@ void RenderSystem::draw()
 	gl_has_errors();
 }
 
+
 void RenderSystem::step(float elapsed_ms)
 {
 	for (const Entity& entity : registry.damageds.entities) {
@@ -170,15 +171,28 @@ void RenderSystem::turn_damaged_red(std::vector<Entity>& was_damaged)
 	}
 }
 
-mat3 RenderSystem::createProjectionMatrix()
+mat3 RenderSystem::createProjectionMatrix() 
 {
-	// Fake projection matrix, scales with respect to window coordinates
-	float left = 0.f;
-	float top = 0.f;
+	float left;
+	float right;
+	float bottom;
+	float top;
+
+	if (camera->isToggled()) {
+		// viewing screen is based on camera position and its dimensions
+		left = camera->getPosition().x - (camera->getWidth() / 2);
+		right = camera->getPosition().x + (camera->getWidth() / 2);
+		bottom = camera->getPosition().y + (camera->getHeight() / 2);
+		top = camera->getPosition().y - (camera->getHeight() / 2);
+	}
+	else {
+		top = 0;
+		left = 0;
+		right = world_size_x;
+		bottom = world_size_y;
+	}
 
 	gl_has_errors();
-	float right = (float)window_width_px;
-	float bottom = (float)window_height_px;
 
 	float sx = 2.f / (right - left);
 	float sy = 2.f / (top - bottom);

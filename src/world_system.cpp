@@ -81,6 +81,10 @@ bool WorldSystem::step(float elapsed_ms)
     Player& player = registry.players.get(playerEntity);
     if(player.health <= 0){
         //CREATEGAMEOVERENTITY
+        Motion& playerMotion = registry.motions.get(playerEntity);
+        playerMotion.velocity = { 0, 0 };
+		playerMotion.angle = 1.57f; // Rotate player 90 degrees
+		printf("Player died\n");
         vec2 camera_pos = camera->getPosition();
         createGameOver(renderer, camera_pos);
         game_over = true;
@@ -143,12 +147,6 @@ void WorldSystem::handle_collisions()
 				Cooldown& cooldown = registry.cooldowns.emplace(entity_other);
 				cooldown.remaining = enemy.cooldown;
                 
-                // Handle player death
-                if (player.health == 0) {
-					Motion& playerMotion = registry.motions.get(entity);
-					playerMotion.angle = 1.57f; // Rotate player 90 degrees
-					printf("Player died\n");
-                }
 			}
 		}
 		else if (registry.enemies.has(entity)) {

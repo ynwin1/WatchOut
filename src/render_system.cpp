@@ -4,8 +4,7 @@
 
 #include "tiny_ecs_registry.hpp"
 
-void RenderSystem::drawTexturedMesh(Entity entity,
-	const mat3& projection)
+void RenderSystem::drawTexturedMesh(Entity entity, const mat3& projection)
 {
 	Motion& motion = registry.motions.get(entity);
 	// Transformation code, see Rendering and Transformation in the template
@@ -72,9 +71,9 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 	}
 
 	// Getting uniform locations for glUniform* calls
-	GLint color_uloc = glGetUniformLocation(program, "fcolor");
-	const vec3 color = vec3(1);
-	glUniform3fv(color_uloc, 1, (float*)&color);
+	GLint colour_uloc = glGetUniformLocation(program, "entity_colour");
+	const vec3 colour = registry.colours.has(entity) ? registry.colours.get(entity) : vec3(1);
+	glUniform3fv(colour_uloc, 1, (float*)&colour);
 	gl_has_errors();
 
 	// Get number of indices from index buffer, which has elements uint16_t
@@ -137,25 +136,62 @@ void RenderSystem::draw()
 	gl_has_errors();
 }
 
-mat3 RenderSystem::createProjectionMatrix() {
+
+void RenderSystem::step(float elapsed_ms)
+{
+	for (const Entity& entity : registry.damageds.entities) {
+		Damaged& timer = registry.damageds.get(entity);
+		timer.timer -= elapsed_ms;
+		if (timer.timer <= 0) {
+			registry.damageds.remove(entity);
+			if (registry.colours.has(entity)) {
+				registry.colours.remove(entity);
+			}
+		}
+	}
+}
+
+void RenderSystem::turn_damaged_red(std::vector<Entity>& was_damaged)
+{
+	const float DAMAGE_TIME = 400;
+	const vec3 DAMAGE_COLOUR = { 1, 0, 0 };
+	for (const Entity& entity : was_damaged) {
+		if (registry.damageds.has(entity)) {
+			registry.damageds.get(entity).timer = DAMAGE_TIME;
+		}
+		else {
+			registry.damageds.insert(entity, { DAMAGE_TIME });
+			if (registry.colours.has(entity)) {
+				registry.colours.get(entity) = DAMAGE_COLOUR;
+			}
+			else {
+				registry.colours.insert(entity, DAMAGE_COLOUR);
+			}
+		}
+	}
+}
+
+mat3 RenderSystem::createProjectionMatrix() 
+{
 	float left;
 	float right;
 	float bottom;
 	float top;
 
-	if(camera->isToggled()) {
+	if (camera->isToggled()) {
 		// viewing screen is based on camera position and its dimensions
 		left = camera->getPosition().x - (camera->getWidth() / 2);
-    	right = camera->getPosition().x + (camera->getWidth() / 2);
-    	bottom = camera->getPosition().y + (camera->getHeight() / 2);
-    	top = camera->getPosition().y - (camera->getHeight() / 2);
-	} else {
+		right = camera->getPosition().x + (camera->getWidth() / 2);
+		bottom = camera->getPosition().y + (camera->getHeight() / 2);
+		top = camera->getPosition().y - (camera->getHeight() / 2);
+	}
+	else {
 		top = 0;
 		left = 0;
-    	right = world_size_x;
-    	bottom = world_size_y;
+		right = world_size_x;
+		bottom = world_size_y;
 	}
- 
+
 	gl_has_errors();
 
 	float sx = 2.f / (right - left);

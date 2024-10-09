@@ -59,6 +59,10 @@ public:
 	// Draw all entities
 	void draw();
 
+	void turn_damaged_red(std::vector<Entity>& was_damaged);
+
+	void step(float elapsed_ms);
+
 	mat3 createProjectionMatrix();
 
 private:

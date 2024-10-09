@@ -86,7 +86,7 @@ struct Damaged
 // DeathTimer Component
 struct DeathTimer
 {
-	float timer = 5000;
+	float timer = 3000;
 };
 
 // Enemy types

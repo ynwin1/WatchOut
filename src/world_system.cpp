@@ -6,7 +6,23 @@
 #include <iostream>
 
 
-WorldSystem::WorldSystem() {
+WorldSystem::WorldSystem():
+    spawn_functions({
+        {"boar", createBoar},
+        {"barbarian", createBarbarian},
+        {"archer", createArcher}
+    }),
+    spawn_delays({ 
+        {"boar", 3000},
+        {"barbarian", 5000},
+        {"archer", 10000}
+    }),
+    max_entities({
+        {"boar", 2},
+        {"barbarian", 5},
+        {"archer", 1}
+    })
+{
 	// Seeding rng with random device
 	rng = std::default_random_engine(std::random_device()());
 }
@@ -26,13 +42,7 @@ void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camer
 	glfwSetKeyCallback(window, key_redirect);
 	glfwSetCursorPosCallback(window, cursor_pos_redirect);
 
-
-	// Create player entity
-    playerEntity = createJeff(renderer, vec2(100, 100));
-	createBarbarian(renderer, vec2(200, 200));
-	createBoar(renderer, vec2(400, 400));
-	createArcher(renderer, vec2(100, 500));
-
+    restart_game();
 }
 
 WorldSystem::~WorldSystem() {
@@ -40,8 +50,23 @@ WorldSystem::~WorldSystem() {
 	registry.clear_all_components();
 }
 
+void WorldSystem::restart_game()
+{
+    entity_types = {
+        "barbarian",
+        "boar",
+        "archer"
+    };
+
+    // Create player entity
+    playerEntity = createJeff(renderer, vec2(world_size_x / 2.f, world_size_y / 2.f));
+
+    next_spawns = spawn_delays;
+}
+
 bool WorldSystem::step(float elapsed_ms)
 {
+    spawn(elapsed_ms);
     update_positions(elapsed_ms);
     update_cooldown(elapsed_ms);
     
@@ -50,6 +75,7 @@ bool WorldSystem::step(float elapsed_ms)
         camera->followPosition(playerMotion.position);
     }
 
+    think();
 	return !is_over();
 }
 
@@ -162,9 +188,11 @@ void WorldSystem::handle_collisions()
 bool WorldSystem::is_over() const {
 	return bool(glfwWindowShouldClose(window));
 }
-void WorldSystem::on_mouse_move(vec2 mouse_position){
+
+void WorldSystem::on_mouse_move(vec2 mouse_position) {
     
 }
+
 void WorldSystem::on_key(int key, int, int action, int mod)
 {
 	Player& player_comp = registry.players.get(playerEntity);
@@ -297,10 +325,8 @@ void WorldSystem::update_positions(float elapsed_ms)
                     dashing.isDashing = false; // Reset isDashing
                 }
             }  
-
         }    
         
-
         // Update the entity's position based on its velocity and elapsed time
         motion.position.x += motion.velocity.x * Running_Speed * elapsed_ms;
         motion.position.y += motion.velocity.y * Running_Speed * elapsed_ms;
@@ -325,6 +351,28 @@ void WorldSystem::update_cooldown(float elapsed_ms) {
     }
 }
 
-void WorldSystem::restart_game()
+void WorldSystem::spawn(float elapsed_ms)
 {
+
+    for (std::string& entity_type : entity_types) {
+        next_spawns.at(entity_type) -= elapsed_ms;
+        if (next_spawns.at(entity_type) < 0 && registry.spawnable_lists.at(entity_type)->size() < max_entities.at(entity_type)) {
+            vec2 spawnLocation = { 100, 100 };
+            spawn_func f = spawn_functions.at(entity_type);
+            (*f)(renderer, spawnLocation);
+            next_spawns[entity_type] = spawn_delays.at(entity_type);
+        }
+    }
+}
+
+void WorldSystem::think()
+{
+    const float ENEMY_SPEED = 0.5;
+    Motion& playerMotion = registry.motions.get(playerEntity);
+    for (Entity& enemy : registry.enemies.entities) {
+        Motion& enemyMotion = registry.motions.get(enemy);
+        vec2 direction = playerMotion.position - enemyMotion.position;
+        direction /= distance(playerMotion.position, enemyMotion.position);
+        enemyMotion.velocity = direction * ENEMY_SPEED;
+    }
 }

@@ -74,3 +74,8 @@ struct Cooldown
 {
 	float remaining = 0.0f;
 };
+
+// Enemy types
+struct Boar {};
+struct Barbarian {};
+struct Archer {};

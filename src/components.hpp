@@ -81,3 +81,9 @@ struct Damaged
 {
 	float timer = 400;
 };
+
+// Enemy types
+struct Boar {};
+struct Barbarian {};
+struct Archer {};
+

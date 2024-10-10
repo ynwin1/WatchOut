@@ -46,22 +46,15 @@ GLFWwindow* RenderSystem::create_window(Camera* camera) {
 	glfwWindowHint(GLFW_RESIZABLE, 0);
 
 	// Create the main window (for rendering, keyboard, and mouse input)
-	window = glfwCreateWindow(this->camera->getWidth(), this->camera->getHeight(), "Watch Out!", nullptr, nullptr);
+	GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
+	const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
+	window = glfwCreateWindow(mode->width, mode->height, "Watch Out!", primaryMonitor, nullptr);
 	if (window == nullptr) {
 		fprintf(stderr, "Failed to glfwCreateWindow");
 		return nullptr;
 	}
 
-	// Primary monitor and its video mode
-    GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
-    const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
-
-    // Make the window fullscreen by resizing and positioning it
-    glfwSetWindowPos(window, 0, 0); 
-    glfwSetWindowSize(window, mode->width, mode->height); 
     glfwMakeContextCurrent(window);
-
-	
 
 	return window;
 }

@@ -338,19 +338,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 
     // toggle camera on/off for debugging/testing
     if(action == GLFW_PRESS && key == GLFW_KEY_C) {
-        if(camera->toggle()) {
-		    glfwSetWindowSize(window, camera->getWidth(), camera->getHeight());
-	    } else {
-		    glfwSetWindowSize(window, world_size_x, world_size_y);
-	    }
-        // Primary monitor and its video mode
-        GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
-        const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
-
-        // Make the window fullscreen by resizing and positioning it
-        glfwSetWindowPos(window, 0, 0); 
-        glfwSetWindowSize(window, mode->width, mode->height); 
-        glfwMakeContextCurrent(window);
+        camera->toggle();
     }
 }
 

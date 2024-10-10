@@ -235,23 +235,24 @@ void WorldSystem::on_key(int key, int, int action, int mod)
         bool pressed = (action == GLFW_PRESS);
         
         // Set movement states based on key input
+        const float PLAYER_SPEED = 0.5;
         switch (key)
         {
             case GLFW_KEY_W:
                 // Set velocity upward
-                player_motion.velocity.y = pressed ? -1.0f : 0.0f;
+                player_motion.velocity.y = pressed ? -PLAYER_SPEED : 0.0f;
                 break;
             case GLFW_KEY_S:
                 // Set velocity downward
-                player_motion.velocity.y = pressed ? 1.0f : 0.0f;
+                player_motion.velocity.y = pressed ? PLAYER_SPEED : 0.0f;
                 break;
             case GLFW_KEY_A:
                 // Set velocity left
-                player_motion.velocity.x = pressed ? -1.0f : 0.0f;
+                player_motion.velocity.x = pressed ? -PLAYER_SPEED : 0.0f;
                 break;
             case GLFW_KEY_D:
                 // Set velocity right
-                player_motion.velocity.x = pressed ? 1.0f : 0.0f;
+                player_motion.velocity.x = pressed ? PLAYER_SPEED : 0.0f;
                 break;
             case GLFW_KEY_LEFT_SHIFT:
                 // Sprint
@@ -377,12 +378,29 @@ void WorldSystem::spawn(float elapsed_ms)
 
 void WorldSystem::think()
 {
-    const float ENEMY_SPEED = 0.5;
     Motion& playerMotion = registry.motions.get(playerEntity);
-    for (Entity& enemy : registry.enemies.entities) {
+
+    const float BOAR_SPEED = 0.4;
+    for (Entity boar : registry.boars.entities) {
+        Motion& enemyMotion = registry.motions.get(boar);
+        vec2 direction = playerMotion.position - enemyMotion.position;
+        direction /= distance(playerMotion.position, enemyMotion.position);
+        enemyMotion.velocity = direction * BOAR_SPEED;
+    }
+
+    const float BARBARIAN_SPEED = 0.3;
+    for (Entity enemy : registry.barbarians.entities) {
         Motion& enemyMotion = registry.motions.get(enemy);
         vec2 direction = playerMotion.position - enemyMotion.position;
         direction /= distance(playerMotion.position, enemyMotion.position);
-        enemyMotion.velocity = direction * ENEMY_SPEED;
+        enemyMotion.velocity = direction * BARBARIAN_SPEED;
+    }
+
+    const float ARCHER_SPEED = 0.2;
+    for (Entity archer : registry.archers.entities) {
+        Motion& enemyMotion = registry.motions.get(archer);
+        vec2 direction = playerMotion.position - enemyMotion.position;
+        direction /= distance(playerMotion.position, enemyMotion.position);
+        enemyMotion.velocity = direction * ARCHER_SPEED;
     }
 }

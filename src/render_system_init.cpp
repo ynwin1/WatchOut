@@ -160,6 +160,19 @@ void RenderSystem::initializeGlGeometryBuffers()
 	const std::vector<uint16_t> textured_indices = { 0, 3, 1, 1, 3, 2 };
 	bindVBOandIBO(GEOMETRY_BUFFER_ID::SPRITE, textured_vertices, textured_indices);
 
+	// initialize game space triangles
+	std::vector<TexturedVertex> game_space_vertices(4);
+	game_space_vertices[0].position = {0.0f, 0.0f, 0.0f};
+	game_space_vertices[1].position = {(float)window_width_px, 0.0f, 0.0f};
+	game_space_vertices[2].position = {(float)window_width_px, (float)window_height_px, 0.0f};
+	game_space_vertices[3].position = {0.0f, (float)window_height_px, 0.0f };
+	game_space_vertices[0].texcoord = { 0.f, 0.f };
+	game_space_vertices[1].texcoord = { 1.f, 0.f };
+	game_space_vertices[2].texcoord = { 1.f, 1.f };
+	game_space_vertices[3].texcoord = { 0.f, 1.f };
+
+	const std::vector<uint16_t> game_space_indices = { 0, 1, 2, 0, 2, 3 };
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::GAME_SPACE, game_space_vertices, game_space_indices);
 }
 
 RenderSystem::~RenderSystem()

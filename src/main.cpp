@@ -1,6 +1,7 @@
 
 #define GL3W_IMPLEMENTATION
 #include <gl3w.h>
+#include <glm/gtc/matrix_transform.hpp>
 
 // stlib
 #include <chrono>
@@ -12,7 +13,6 @@
 #include <physics_system.hpp>
 
 using Clock = std::chrono::high_resolution_clock;
-
 // Entry point
 int main()
 {
@@ -42,13 +42,15 @@ int main()
 		auto now = Clock::now();
 		float elapsed_ms = (float)(std::chrono::duration_cast<std::chrono::microseconds>(now - t)).count() / 1000;
 		t = now;
-		
-		world.step(elapsed_ms);
-		physics.step(elapsed_ms);
-		renderer.step(elapsed_ms);
-		world.handle_collisions();
+
+		if (!world.game_over) {
+            world.step(elapsed_ms);
+            physics.step(elapsed_ms);
+            world.handle_collisions();
+        } 
 
 		renderer.draw();
+		
 	}
 
 	return 0;

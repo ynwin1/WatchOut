@@ -53,6 +53,7 @@ WorldSystem::~WorldSystem() {
 
 void WorldSystem::restart_game()
 {
+    registry.clear_all_components();
     entity_types = {
         "barbarian",
         "boar",
@@ -61,6 +62,7 @@ void WorldSystem::restart_game()
 
     // Create player entity
     playerEntity = createJeff(renderer, vec2(world_size_x / 2.f, world_size_y / 2.f));
+    game_over = false;
 
     next_spawns = spawn_delays;
 }
@@ -75,6 +77,18 @@ bool WorldSystem::step(float elapsed_ms)
     if (camera->isToggled()) {
         Motion& playerMotion = registry.motions.get(playerEntity);
         camera->followPosition(playerMotion.position);
+    }
+    Player& player = registry.players.get(playerEntity);
+    if(player.health <= 0){
+        //CREATEGAMEOVERENTITY
+        Motion& playerMotion = registry.motions.get(playerEntity);
+        playerMotion.velocity = { 0, 0 };
+		playerMotion.angle = 1.57f; // Rotate player 90 degrees
+		printf("Player died\n");
+        vec2 camera_pos = camera->getPosition();
+        createGameOver(renderer, camera_pos);
+        game_over = true;
+
     }
 
     think();
@@ -245,7 +259,13 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     Motion& player_motion = registry.motions.get(playerEntity);
     Dash& player_dash = registry.dashers.get(playerEntity);
 
-    if (action == GLFW_PRESS && key == GLFW_KEY_ENTER) {
+    if(game_over){
+        if (action == GLFW_PRESS && key == GLFW_KEY_ENTER){
+            restart_game();
+        }
+    }
+
+	if (action == GLFW_PRESS && key == GLFW_KEY_ENTER) {
         // TODO LATER - Think about where exactly to place the trap
         // Currently, it is placed at the player's position
         // MAYBE - Place it behind the player in the direction they are facin
@@ -263,6 +283,10 @@ void WorldSystem::on_key(int key, int, int action, int mod)
         createDamageTrap(renderer, playerPos);
         player_comp.trapsCollected--;
         printf("Trap placed at (%f, %f)\n", playerPos.x, playerPos.y);
+	}
+    // Handle ESC key to close the game window
+    if (action == GLFW_PRESS && key == GLFW_KEY_ESCAPE) {
+        glfwSetWindowShouldClose(window, true);
     }
 
     // Check key actions (press/release)
@@ -329,13 +353,20 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     }
 
     // toggle camera on/off for debugging/testing
-    if (action == GLFW_PRESS && key == GLFW_KEY_C) {
-        if (camera->toggle()) {
-            glfwSetWindowSize(window, camera->getWidth(), camera->getHeight());
-        }
-        else {
-            glfwSetWindowSize(window, world_size_x, world_size_y);
-        }
+    if(action == GLFW_PRESS && key == GLFW_KEY_C) {
+        if(camera->toggle()) {
+		    glfwSetWindowSize(window, camera->getWidth(), camera->getHeight());
+	    } else {
+		    glfwSetWindowSize(window, world_size_x, world_size_y);
+	    }
+        // Primary monitor and its video mode
+        GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
+
+        // Make the window fullscreen by resizing and positioning it
+        glfwSetWindowPos(window, 0, 0); 
+        glfwSetWindowSize(window, mode->width, mode->height); 
+        glfwMakeContextCurrent(window);
     }
 }
 

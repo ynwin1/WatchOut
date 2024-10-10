@@ -205,3 +205,30 @@ void createBattleGround() {
 			GEOMETRY_BUFFER_ID::GAME_SPACE
 		});
 }
+
+// gameover
+Entity createGameOver(RenderSystem* renderer, vec2 pos)
+{
+	auto entity = Entity();
+
+	// Setting intial motion values
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.scale = { GO_BB_WIDTH, GO_BB_HEIGHT };
+
+	// Setting initial hitbox values
+	Hitbox& hitbox = registry.hitboxes.emplace(entity);
+
+
+	registry.renderRequests.insert(
+	entity,
+	{
+		TEXTURE_ASSET_ID::GAMEOVER,
+		EFFECT_ASSET_ID::TEXTURED,
+		GEOMETRY_BUFFER_ID::SPRITE
+	});
+	
+	return entity;
+};

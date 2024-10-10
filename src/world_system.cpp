@@ -43,8 +43,6 @@ void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camer
 	glfwSetKeyCallback(window, key_redirect);
 	glfwSetCursorPosCallback(window, cursor_pos_redirect);
 
-    createBattleGround();
-
     restart_game();
 }
 
@@ -55,6 +53,8 @@ WorldSystem::~WorldSystem() {
 
 void WorldSystem::restart_game()
 {
+    registry.clear_all_components();
+    createBattleGround();
     entity_types = {
         "barbarian",
         "boar",
@@ -63,6 +63,7 @@ void WorldSystem::restart_game()
 
     // Create player entity
     playerEntity = createJeff(renderer, vec2(world_size_x / 2.f, world_size_y / 2.f));
+    game_over = false;
 
     next_spawns = spawn_delays;
 }
@@ -72,10 +73,23 @@ bool WorldSystem::step(float elapsed_ms)
     spawn(elapsed_ms);
     update_positions(elapsed_ms);
     update_cooldown(elapsed_ms);
+    handle_deaths(elapsed_ms);
     
     if(camera->isToggled()) {
         Motion& playerMotion = registry.motions.get(playerEntity);
         camera->followPosition(playerMotion.position);
+    }
+    Player& player = registry.players.get(playerEntity);
+    if(player.health <= 0){
+        //CREATEGAMEOVERENTITY
+        Motion& playerMotion = registry.motions.get(playerEntity);
+        playerMotion.velocity = { 0, 0 };
+		playerMotion.angle = 1.57f; // Rotate player 90 degrees
+		printf("Player died\n");
+        vec2 camera_pos = camera->getPosition();
+        createGameOver(renderer, camera_pos);
+        game_over = true;
+
     }
 
     think();
@@ -134,8 +148,6 @@ void WorldSystem::handle_collisions()
 				Cooldown& cooldown = registry.cooldowns.emplace(entity_other);
 				cooldown.remaining = enemy.cooldown;
                 
-                // TODO LATER - Logic to handle player death
-				// TODO M1 [WO-13] - Change player color to (red) for a short duration
 			}
 		}
 		else if (registry.enemies.has(entity)) {
@@ -184,9 +196,28 @@ void WorldSystem::handle_collisions()
 					// Set cooldown for enemy 2
 					Cooldown& cooldown = registry.cooldowns.emplace(entity_other);
 					cooldown.remaining = enemy2.cooldown;
-          }
+                }
 
-          // TODO LATER - Logic to handle enemy deaths
+				// Handle enemy death
+				if (enemy1.health == 0 && !registry.deathTimers.has(entity)) {
+					Motion& enemyMotion = registry.motions.get(entity);
+					enemyMotion.velocity = { 0, 0 }; // Stop enemy movement
+					enemyMotion.angle = 1.57f; // Rotate enemy 90 degrees
+					printf("Enemy %d died\n", (unsigned int)entity);
+
+                    // remove enemy from enemy
+                    registry.enemies.remove(entity);
+                    registry.deathTimers.emplace(entity);
+				}
+                if (enemy2.health == 0 && !registry.deathTimers.has(entity_other)) {
+                    Motion& enemyMotion = registry.motions.get(entity);
+                    enemyMotion.velocity = { 0, 0 }; // Stop enemy movement
+                    enemyMotion.angle = 1.57f; // Rotate enemy 90 degrees
+                    printf("Enemy %d died\n", (unsigned int)entity);
+
+                    registry.enemies.remove(entity_other);
+					registry.deathTimers.emplace(entity_other);
+                }
 			}
 		}
 	}
@@ -211,6 +242,13 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     Motion& player_motion = registry.motions.get(playerEntity);
     Dash& player_dash = registry.dashers.get(playerEntity);
 
+    if(game_over){
+        if (action == GLFW_PRESS && key == GLFW_KEY_ENTER){
+            restart_game();
+
+        }
+    }
+
 	if (action == GLFW_PRESS && key == GLFW_KEY_ENTER) {
         // TODO LATER - Think about where exactly to place the trap
         // Currently, it is placed at the player's position
@@ -230,6 +268,10 @@ void WorldSystem::on_key(int key, int, int action, int mod)
         player_comp.trapsCollected--;
         printf("Trap placed at (%f, %f)\n", playerPos.x, playerPos.y);
 	}
+    // Handle ESC key to close the game window
+    if (action == GLFW_PRESS && key == GLFW_KEY_ESCAPE) {
+        glfwSetWindowShouldClose(window, true);
+    }
 
     // Check key actions (press/release)
     if (action == GLFW_PRESS || action == GLFW_RELEASE)
@@ -301,6 +343,14 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	    } else {
 		    glfwSetWindowSize(window, world_size_x, world_size_y);
 	    }
+        // Primary monitor and its video mode
+        GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
+
+        // Make the window fullscreen by resizing and positioning it
+        glfwSetWindowPos(window, 0, 0); 
+        glfwSetWindowSize(window, mode->width, mode->height); 
+        glfwMakeContextCurrent(window);
     }
 }
 
@@ -361,6 +411,16 @@ void WorldSystem::update_cooldown(float elapsed_ms) {
             registry.cooldowns.remove(cooldownEntity);
         }
     }
+}
+
+void WorldSystem::handle_deaths(float elapsed_ms) {
+	for (auto& deathEntity : registry.deathTimers.entities) {
+		DeathTimer& deathTimer = registry.deathTimers.get(deathEntity);
+		deathTimer.timer -= elapsed_ms;
+		if (deathTimer.timer < 0) {
+			registry.remove_all_components_of(deathEntity);
+		}
+	}
 }
 
 void WorldSystem::spawn(float elapsed_ms)

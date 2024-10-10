@@ -17,6 +17,8 @@ const float TRAP_BB_WIDTH = 0.3f;
 const float TRAP_BB_HEIGHT = 0.2f;
 const float JEFF_BB_WIDTH   = 20.f * SPRITE_SCALE;
 const float JEFF_BB_HEIGHT  = 28.f * SPRITE_SCALE;
+const float GO_BB_WIDTH   = 100.f * SPRITE_SCALE;
+const float GO_BB_HEIGHT  = 68.f * SPRITE_SCALE;
 
 // Jeff the Player
 Entity createJeff(RenderSystem* renderer, vec2 position);
@@ -37,3 +39,6 @@ Entity createCollectibleTrap(RenderSystem* renderer, vec2 pos);
 Entity createDamageTrap(RenderSystem* renderer, vec2 pos);
 
 void createBattleGround();
+
+// GameOver
+Entity createGameOver(RenderSystem* renderer, vec2 pos);

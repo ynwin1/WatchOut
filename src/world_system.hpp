@@ -23,6 +23,7 @@ public:
 
 	// Steps the game ahead by ms milliseconds
 	bool step(float elapsed_ms);
+	bool game_over;
 
 	// Check for collisions
 	void handle_collisions();
@@ -58,6 +59,7 @@ private:
 	// Actions performed for each step
 	void update_positions(float elapsed_ms);
 	void update_cooldown(float elapsed_ms);
+	void handle_deaths(float elapsed_ms);
 	void spawn(float elapsed_ms);
 	void think();
 

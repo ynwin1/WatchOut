@@ -166,6 +166,7 @@ Entity createJeff(RenderSystem* renderer, vec2 position)
 	player.isJumping = false;
 	player.isRolling = false;
 	player.isRunning = false;
+	player.facing = { 1, 0 };
 
 	auto& dasher = registry.dashers.emplace(entity);
 	dasher.isDashing = false;

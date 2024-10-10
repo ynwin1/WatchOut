@@ -61,6 +61,7 @@ private:
 	void handle_deaths(float elapsed_ms);
 	void spawn(float elapsed_ms);
 	void think();
+	void push_back_entities(Motion& motion1, Motion& motion2);
 
 
 	// C++ random number generator

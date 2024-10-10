@@ -13,13 +13,13 @@ WorldSystem::WorldSystem():
         {"archer", createArcher}
     }),
     spawn_delays({ 
-        {"boar", 3000},
-        {"barbarian", 5000},
-        {"archer", 10000}
+        {"boar", 5000},
+        {"barbarian", 10000},
+        {"archer", 20000}
     }),
     max_entities({
-        {"boar", 2},
-        {"barbarian", 5},
+        {"boar", 1},
+        {"barbarian", 1},
         {"archer", 1}
     })
 {
@@ -119,26 +119,32 @@ void WorldSystem::handle_collisions()
             }
 			// Enemy attacks the player while it can (no cooldown)
 			else if (registry.enemies.has(entity_other) && !registry.cooldowns.has(entity_other)) {
-				// player takes the damage
-				Player& player = registry.players.get(entity);
-                Enemy& enemy = registry.enemies.get(entity_other);
 
-                // Calculate potential new health
-                int new_health = player.health - enemy.damage;
-                player.health = new_health < 0 ? 0 : new_health;
-                was_damaged.push_back(entity);
-                printf("Player health reduced by enemy from %d to %d\n", player.health + enemy.damage, player.health);
+				// Recoil between player and enemy
+                // Motion& playerMotion = registry.motions.get(entity);
+                // Motion& enemyMotion = registry.motions.get(entity_other);
+                // push_back_entities(playerMotion, enemyMotion);
 
-				// Set cooldown for the enemy
-				Cooldown& cooldown = registry.cooldowns.emplace(entity_other);
-				cooldown.remaining = enemy.cooldown;
-                
-                // Handle player death
-                if (player.health == 0) {
-					Motion& playerMotion = registry.motions.get(entity);
-					playerMotion.angle = 1.57f; // Rotate player 90 degrees
-					printf("Player died\n");
-                }
+                    // player takes the damage
+                    Player& player = registry.players.get(entity);
+                    Enemy& enemy = registry.enemies.get(entity_other);
+
+                    // Calculate potential new health
+                    int new_health = player.health - enemy.damage;
+                    player.health = new_health < 0 ? 0 : new_health;
+                    was_damaged.push_back(entity);
+                    printf("Player health reduced by enemy from %d to %d\n", player.health + enemy.damage, player.health);
+
+                    // Set cooldown for the enemy
+                    Cooldown& cooldown = registry.cooldowns.emplace(entity_other);
+                    cooldown.remaining = enemy.cooldown;
+
+                    // Handle player death
+                    if (player.health == 0) {
+                        Motion& playerMotion = registry.motions.get(entity);
+                        playerMotion.angle = 1.57f; // Rotate player 90 degrees
+                        printf("Player died\n");
+                    }              
 			}
 		}
 		else if (registry.enemies.has(entity)) {
@@ -163,6 +169,11 @@ void WorldSystem::handle_collisions()
 				// Reduce health of both enemies
 				Enemy& enemy1 = registry.enemies.get(entity);
 				Enemy& enemy2 = registry.enemies.get(entity_other);
+
+				// Enemy Recoil
+				// Motion& enemyMotion1 = registry.motions.get(entity);
+				// Motion& enemyMotion2 = registry.motions.get(entity_other);
+                // push_back_entities(enemyMotion1, enemyMotion2);
 
                 auto& allCooldowns = registry.cooldowns;
 				// enemy 1 can attack enemy 2
@@ -194,7 +205,7 @@ void WorldSystem::handle_collisions()
 					Motion& enemyMotion = registry.motions.get(entity);
 					enemyMotion.velocity = { 0, 0 }; // Stop enemy movement
 					enemyMotion.angle = 1.57f; // Rotate enemy 90 degrees
-					printf("Enemy %d died\n", (unsigned int)entity);
+					printf("Enemy 1 - %d died\n", (unsigned int)entity);
 
                     // remove enemy from enemy
                     registry.enemies.remove(entity);
@@ -204,7 +215,7 @@ void WorldSystem::handle_collisions()
                     Motion& enemyMotion = registry.motions.get(entity);
                     enemyMotion.velocity = { 0, 0 }; // Stop enemy movement
                     enemyMotion.angle = 1.57f; // Rotate enemy 90 degrees
-                    printf("Enemy %d died\n", (unsigned int)entity);
+                    printf("Enemy 2 - %d died\n", (unsigned int)entity);
 
                     registry.enemies.remove(entity_other);
 					registry.deathTimers.emplace(entity_other);
@@ -408,7 +419,6 @@ void WorldSystem::spawn(float elapsed_ms)
     }
 }
 
-
 void WorldSystem::think()
 {
     const float ENEMY_SPEED = 0.5;
@@ -419,4 +429,46 @@ void WorldSystem::think()
         direction /= distance(playerMotion.position, enemyMotion.position);
         enemyMotion.velocity = direction * ENEMY_SPEED;
     }
+}
+
+void WorldSystem::push_back_entities(Motion& motion1, Motion& motion2) {
+    // find overlap
+    // overlap x
+	float x1_half_scale = motion1.scale.x / 2;
+	float x2_half_scale = motion2.scale.x / 2;
+    float x_overlap = abs(abs(motion1.position.x - motion2.position.x) - (abs(motion1.position.x - (motion2.position.x + x2_half_scale)) + abs(motion2.position.x - (motion1.position.x + x1_half_scale))));
+
+	// overlap y
+	float y1_half_scale = motion1.scale.y / 2;
+	float y2_half_scale = motion2.scale.y / 2;
+	float y_overlap = abs(abs(motion1.position.y - motion2.position.y) - (abs(motion1.position.y - (motion2.position.y + y2_half_scale)) + abs(motion2.position.y - (motion1.position.y + y1_half_scale))));
+
+    // push back entities
+    motion1.position.x += x_overlap;
+	motion2.position.x -= x_overlap;
+
+	motion1.position.y += y_overlap;
+	motion2.position.y -= y_overlap;
+
+	// push back entities
+	/*if (x_overlap > y_overlap) {
+		if (motion1.position.x < motion2.position.x) {
+			motion1.position.x -= x_overlap / 2;
+			motion2.position.x += x_overlap / 2;
+		}
+		else {
+			motion1.position.x += x_overlap / 2;
+			motion2.position.x -= x_overlap / 2;
+		}
+	}
+	else {
+		if (motion1.position.y < motion2.position.y) {
+			motion1.position.y -= y_overlap / 2;
+			motion2.position.y += y_overlap / 2;
+		}
+		else {
+			motion1.position.y += y_overlap / 2;
+			motion2.position.y -= y_overlap / 2;
+		}
+	}*/
 }

@@ -61,7 +61,9 @@ private:
 	void handle_deaths(float elapsed_ms);
 	void spawn(float elapsed_ms);
 	void think();
-	void push_back_entities(Motion& motion1, Motion& motion2);
+	void recoil_entities(Motion& motion1, Motion& motion2);
+	float calculate_x_overlap(Motion& motion1, Motion& motion2);
+	float calculate_y_overlap(Motion& motion1, Motion& motion2);
 
 
 	// C++ random number generator

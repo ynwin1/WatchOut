@@ -104,134 +104,26 @@ void WorldSystem::handle_collisions()
         if (registry.players.has(entity)) {
             // If the entity is colliding with a collectible
             if (registry.collectibles.has(entity_other)) {
-                // destroy the collectible
-                registry.remove_all_components_of(entity_other);
-
-                // increase collectible count in player
-                Player& player = registry.players.get(entity);
-                player.trapsCollected++;
-                printf("Player collected a trap\n");
+				entity_collectible_collision(entity, entity_other);
             }
             else if (registry.traps.has(entity_other)) {
-                printf("Player hit a trap\n");
-
-                // reduce player health
-                Player& player = registry.players.get(entity);
-                Trap& trap = registry.traps.get(entity_other);
-                int new_health = player.health - trap.damage;
-                player.health = new_health < 0 ? 0 : new_health;
-                was_damaged.push_back(entity);
-                printf("Player health reduced by trap from %d to %d\n", player.health + trap.damage, player.health);
-
-                // destroy the trap
-                registry.remove_all_components_of(entity_other);
-                // TODO LATER - Logic to handle player death
+				// Collision between player and trap
+				entity_trap_collision(entity, entity_other, was_damaged);
             }
-            // Enemy attacks the player while it can (no cooldown)
             else if (registry.enemies.has(entity_other)) {
-
-				// Recoil the entities
-				Motion& playerMotion = registry.motions.get(entity);
-				Motion& enemyMotion = registry.motions.get(entity_other);
-				recoil_entities(playerMotion, enemyMotion);
-
-                if (!registry.cooldowns.has(entity_other)) {
-                    // player takes the damage
-                    Player& player = registry.players.get(entity);
-                    Enemy& enemy = registry.enemies.get(entity_other);
-
-                    // Calculate potential new health
-                    int new_health = player.health - enemy.damage;
-                    player.health = new_health <= 0 ? 0 : new_health;
-                    was_damaged.push_back(entity);
-                    printf("Player health reduced by enemy from %d to %d\n", player.health + enemy.damage, player.health);
-
-                    // Set cooldown for the enemy
-                    Cooldown& cooldown = registry.cooldowns.emplace(entity_other);
-                    cooldown.remaining = enemy.cooldown;
-
-                    // Handle player death
-                    if (player.health == 0) {
-                        Motion& playerMotion = registry.motions.get(entity);
-                        playerMotion.angle = 1.57f; // Rotate player 90 degrees
-                        printf("Player died\n");
-                    }
-                }
+				// Collision between player and enemy
+				moving_entities_collision(entity, entity_other, was_damaged);
             }
         }
         else if (registry.enemies.has(entity)) {
             if (registry.traps.has(entity_other)) {
-                printf("Enemy hit a trap\n");
-
-                // reduce enemy health
-                Enemy& enemy = registry.enemies.get(entity);
-                Trap& trap = registry.traps.get(entity_other);
-
-                int new_health = enemy.health - trap.damage;
-                enemy.health = new_health < 0 ? 0 : new_health;
-                was_damaged.push_back(entity);
-                printf("Enemy health reduced from %d to %d\n", enemy.health + trap.damage, enemy.health);
-
-                // destroy the trap
-                registry.remove_all_components_of(entity_other);
-
-                // TODO LATER - Logic to handle enemy death
+				// Collision between enemy and trap
+				entity_trap_collision(entity, entity_other, was_damaged);
             }
             else if (registry.enemies.has(entity_other)) {
-                // Reduce health of both enemies
-                Enemy& enemy1 = registry.enemies.get(entity);
-                Enemy& enemy2 = registry.enemies.get(entity_other);
-
-				// Recoil the enemies
-				Motion& enemyMotion1 = registry.motions.get(entity);
-				Motion& enemyMotion2 = registry.motions.get(entity_other);
-				recoil_entities(enemyMotion1, enemyMotion2);
-
-                auto& allCooldowns = registry.cooldowns;
-                // enemy 1 can attack enemy 2
-                if (!allCooldowns.has(entity)) {
-                    int newE2Health = enemy2.health - enemy1.damage;
-                    enemy2.health = newE2Health <= 0 ? 0 : newE2Health;
-                    was_damaged.push_back(entity_other);
-                    printf("Enemy %d's health reduced from %d to %d\n", (unsigned int)entity_other, enemy2.health + enemy1.damage, enemy2.health);
-
-                    // Set cooldown for enemy 1 
-                    Cooldown& cooldown = registry.cooldowns.emplace(entity);
-                    cooldown.remaining = enemy1.cooldown;
-                }
-                // enemy 2 can attack enemy 1
-                if (!allCooldowns.has(entity_other)) {
-                    int newE1Health = enemy1.health - enemy2.damage;
-                    enemy1.health = newE1Health <= 0 ? 0 : newE1Health;
-                    was_damaged.push_back(entity);
-                    printf("Enemy %d's health reduced from %d to %d\n", (unsigned int)entity, enemy1.health + enemy2.damage, enemy1.health);
-
-                    // Set cooldown for enemy 2
-                    Cooldown& cooldown = registry.cooldowns.emplace(entity_other);
-                    cooldown.remaining = enemy2.cooldown;
-                }
-
-                // Handle enemy death
-                if (enemy1.health == 0 && !registry.deathTimers.has(entity)) {
-                    Motion& enemyMotion = registry.motions.get(entity);
-                    enemyMotion.velocity = { 0, 0 }; // Stop enemy movement
-                    enemyMotion.angle = 1.57f; // Rotate enemy 90 degrees
-                    printf("Enemy %d died with health %d\n", (unsigned int)entity, enemy1.health);
-
-					// remove enemy from enemy container
-					registry.enemies.remove(entity);
-                    registry.deathTimers.emplace(entity);
-                }
-                if (enemy2.health == 0 && !registry.deathTimers.has(entity_other)) {
-                    Motion& enemyMotion = registry.motions.get(entity_other);
-                    enemyMotion.velocity = { 0, 0 }; // Stop enemy movement
-                    printf("Enemy %d died with health %d\n", (unsigned int)entity_other, enemy2.health);
-
-                    // remove enemy from enemy container
-                    registry.enemies.remove(entity_other);
-                    registry.deathTimers.emplace(entity_other);
-                }
-            }
+				// Collision between two enemies
+				moving_entities_collision(entity, entity_other, was_damaged);
+            }   
         }
     }
 
@@ -530,4 +422,122 @@ float WorldSystem::calculate_y_overlap(Motion& motion1, Motion& motion2) {
 
 	// Calculate y overlap
 	return max(0.f, min(bottom1, bottom2) - max(top1, top2));
+}
+
+// Collision functions
+void WorldSystem::entity_collectible_collision(Entity entity, Entity entity_other) {
+    // ONLY PLAYER CAN COLLECT COLLECTIBLES
+    
+    // destroy the collectible
+    registry.remove_all_components_of(entity_other);
+
+    // increase collectible count in player
+    Player& player = registry.players.get(entity);
+    player.trapsCollected++;
+    printf("Player collected a trap\n");
+}
+
+void WorldSystem::entity_trap_collision(Entity entity, Entity entity_other, std::vector<Entity>& was_damaged) {
+    Trap& trap = registry.traps.get(entity_other);
+
+    if (registry.players.has(entity)) {
+        printf("Player hit a trap\n");
+
+        // reduce player health
+        Player& player = registry.players.get(entity);
+        int new_health = player.health - trap.damage;
+        player.health = new_health < 0 ? 0 : new_health;
+		was_damaged.push_back(entity);
+        printf("Player health reduced by trap from %d to %d\n", player.health + trap.damage, player.health);
+	}
+	else if (registry.enemies.has(entity)) {
+        printf("Enemy hit a trap\n");
+
+        // reduce enemy health
+        Enemy& enemy = registry.enemies.get(entity);
+        int new_health = enemy.health - trap.damage;
+        enemy.health = new_health < 0 ? 0 : new_health;
+        was_damaged.push_back(entity);
+        printf("Enemy health reduced from %d to %d\n", enemy.health + trap.damage, enemy.health);
+	}
+	else {
+		printf("Entity is not a player or enemy\n");
+		return;
+	}
+
+    // destroy the trap
+    registry.remove_all_components_of(entity_other);
+}
+
+void WorldSystem::moving_entities_collision(Entity entity, Entity entityOther, std::vector<Entity>& was_damaged) {
+    if (registry.players.has(entity)) {
+        processPlayerEnemyCollision(entity, entityOther, was_damaged);
+    }
+    else if (registry.enemies.has(entity)) {
+        processEnemyEnemyCollision(entity, entityOther, was_damaged);
+    }
+}
+
+void WorldSystem::processPlayerEnemyCollision(Entity player, Entity enemy, std::vector<Entity>& was_damaged) {
+    Motion& playerMotion = registry.motions.get(player);
+    Motion& enemyMotion = registry.motions.get(enemy);
+    recoil_entities(playerMotion, enemyMotion);
+
+    if (!registry.cooldowns.has(enemy)) {
+        Player& playerData = registry.players.get(player);
+        Enemy& enemyData = registry.enemies.get(enemy);
+
+        int newHealth = playerData.health - enemyData.damage;
+        playerData.health = std::max(newHealth, 0);
+        was_damaged.push_back(player);
+        printf("Player health reduced by enemy from %d to %d\n", playerData.health + enemyData.damage, playerData.health);
+
+        Cooldown& cooldown = registry.cooldowns.emplace(enemy);
+        cooldown.remaining = enemyData.cooldown;
+
+        if (playerData.health == 0) {
+            playerMotion.angle = 1.57f; // Rotate player 90 degrees
+            printf("Player died\n");
+        }
+    }
+}
+
+void WorldSystem::processEnemyEnemyCollision(Entity enemy1, Entity enemy2, std::vector<Entity>& was_damaged) {
+    Motion& motion1 = registry.motions.get(enemy1);
+    Motion& motion2 = registry.motions.get(enemy2);
+    recoil_entities(motion1, motion2);
+
+    handleEnemyCollision(enemy1, enemy2, was_damaged);
+    handleEnemyCollision(enemy2, enemy1, was_damaged);
+
+    checkAndHandleEnemyDeath(enemy1);
+    checkAndHandleEnemyDeath(enemy2);
+}
+
+void WorldSystem::handleEnemyCollision(Entity attacker, Entity target, std::vector<Entity>& was_damaged) {
+    if (!registry.cooldowns.has(attacker)) {
+        Enemy& attackerData = registry.enemies.get(attacker);
+        Enemy& targetData = registry.enemies.get(target);
+
+        int newHealth = targetData.health - attackerData.damage;
+        targetData.health = std::max(newHealth, 0);
+        was_damaged.push_back(target);
+        printf("Enemy %d's health reduced from %d to %d\n", (unsigned int)target, targetData.health + attackerData.damage, targetData.health);
+
+        Cooldown& cooldown = registry.cooldowns.emplace(attacker);
+        cooldown.remaining = attackerData.cooldown;
+    }
+}
+
+void WorldSystem::checkAndHandleEnemyDeath(Entity enemy) {
+    Enemy& enemyData = registry.enemies.get(enemy);
+    if (enemyData.health == 0 && !registry.deathTimers.has(enemy)) {
+        Motion& motion = registry.motions.get(enemy);
+        motion.velocity = { 0, 0 }; // Stop enemy movement
+        motion.angle = 1.57f; // Rotate enemy 90 degrees
+        printf("Enemy %d died with health %d\n", (unsigned int)enemy, enemyData.health);
+
+        registry.enemies.remove(enemy);
+        registry.deathTimers.emplace(enemy);
+    }
 }

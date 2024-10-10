@@ -174,9 +174,9 @@ void RenderSystem::initializeGlGeometryBuffers()
 	// initialize game space triangles
 	std::vector<TexturedVertex> game_space_vertices(4);
 	game_space_vertices[0].position = {0.0f, 0.0f, 0.0f};
-	game_space_vertices[1].position = {(float)window_width_px, 0.0f, 0.0f};
-	game_space_vertices[2].position = {(float)window_width_px, (float)window_height_px, 0.0f};
-	game_space_vertices[3].position = {0.0f, (float)window_height_px, 0.0f };
+	game_space_vertices[1].position = {(float)world_size_x, 0.0f, 0.0f};
+	game_space_vertices[2].position = {(float)world_size_x, (float)world_size_y, 0.0f};
+	game_space_vertices[3].position = {0.0f, (float)world_size_y, 0.0f };
 	game_space_vertices[0].texcoord = { 0.f, 0.f };
 	game_space_vertices[1].texcoord = { 1.f, 0.f };
 	game_space_vertices[2].texcoord = { 1.f, 1.f };

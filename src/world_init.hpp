@@ -35,3 +35,5 @@ Entity createCollectibleTrap(RenderSystem* renderer, vec2 pos);
 
 // The damage trap
 Entity createDamageTrap(RenderSystem* renderer, vec2 pos);
+
+void createBattleGround();

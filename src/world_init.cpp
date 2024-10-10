@@ -193,3 +193,15 @@ Entity createJeff(RenderSystem* renderer, vec2 position)
 
 	return entity;
 }
+
+void createBattleGround() {
+	auto entity = Entity();
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::BATTLEGROUND,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::GAME_SPACE
+		});
+}

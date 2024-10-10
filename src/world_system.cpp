@@ -43,6 +43,8 @@ void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camer
 	glfwSetKeyCallback(window, key_redirect);
 	glfwSetCursorPosCallback(window, cursor_pos_redirect);
 
+    createBattleGround();
+
     restart_game();
 }
 

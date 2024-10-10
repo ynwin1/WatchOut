@@ -62,6 +62,7 @@ private:
 	void update_cooldown(float elapsed_ms);
 	void handle_deaths(float elapsed_ms);
 	void spawn(float elapsed_ms);
+	vec2 get_spawn_location(const std::string& entity_type);
 	void think();
 
 

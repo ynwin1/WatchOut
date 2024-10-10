@@ -436,12 +436,41 @@ void WorldSystem::spawn(float elapsed_ms)
     for (std::string& entity_type : entity_types) {
         next_spawns.at(entity_type) -= elapsed_ms;
         if (next_spawns.at(entity_type) < 0 && registry.spawnable_lists.at(entity_type)->size() < max_entities.at(entity_type)) {
-            vec2 spawnLocation = { 100, 100 };
+            vec2 spawnLocation = get_spawn_location(entity_type);
             spawn_func f = spawn_functions.at(entity_type);
             (*f)(renderer, spawnLocation);
             next_spawns[entity_type] = spawn_delays.at(entity_type);
         }
     }
+}
+
+vec2 WorldSystem::get_spawn_location(const std::string& entity_type)
+{
+    int side = (int)(uniform_dist(rng) * 4);
+    float loc = uniform_dist(rng);
+    vec2 size = entity_sizes.at(entity_type);
+    vec2 spawn_location{};
+    if (side == 0) {
+        // Spawn north
+        spawn_location.x = size.x / 2.f + (world_size_x - size.x / 2.f) * loc;
+        spawn_location.y = size.y / 2.f;
+    }
+    else if (side == 1) {
+        // Spawn south
+        spawn_location.x = size.x / 2.f + (world_size_x - size.x / 2.f) * loc;
+        spawn_location.y = world_size_y - (size.y / 2.f);
+    }
+    else if (side == 2) {
+        // Spawn west
+        spawn_location.x = size.x / 2.f;
+        spawn_location.y = size.y / 2.f + (world_size_y - size.y / 2.f) * loc;
+    }
+    else {
+        // Spawn east
+        spawn_location.x = world_size_x - (size.x / 2.f);
+        spawn_location.y = size.y / 2.f + (world_size_y - size.y / 2.f) * loc;
+    }
+    return spawn_location;
 }
 
 

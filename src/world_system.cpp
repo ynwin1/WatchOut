@@ -218,16 +218,16 @@ void WorldSystem::handle_collisions()
                     enemyMotion.angle = 1.57f; // Rotate enemy 90 degrees
                     printf("Enemy %d died with health %d\n", (unsigned int)entity, enemy1.health);
 
-                    // remove enemy from enemy
-                    registry.enemies.remove(entity);
+					// remove enemy from enemy container
+					registry.enemies.remove(entity);
                     registry.deathTimers.emplace(entity);
                 }
                 if (enemy2.health == 0 && !registry.deathTimers.has(entity_other)) {
                     Motion& enemyMotion = registry.motions.get(entity_other);
                     enemyMotion.velocity = { 0, 0 }; // Stop enemy movement
-                    enemyMotion.angle = 1.57f; // Rotate enemy 90 degrees
                     printf("Enemy %d died with health %d\n", (unsigned int)entity_other, enemy2.health);
 
+                    // remove enemy from enemy container
                     registry.enemies.remove(entity_other);
                     registry.deathTimers.emplace(entity_other);
                 }
@@ -463,6 +463,7 @@ void WorldSystem::think()
 
     const float BOAR_SPEED = 0.4;
     for (Entity boar : registry.boars.entities) {
+		if (registry.deathTimers.has(boar)) continue; // Skip dead boars
         Motion& enemyMotion = registry.motions.get(boar);
         vec2 direction = normalize(playerMotion.position - enemyMotion.position);
         enemyMotion.velocity = direction * BOAR_SPEED;
@@ -470,6 +471,7 @@ void WorldSystem::think()
 
     const float BARBARIAN_SPEED = 0.3;
     for (Entity enemy : registry.barbarians.entities) {
+		if (registry.deathTimers.has(enemy)) continue; // Skip dead barbarians
         Motion& enemyMotion = registry.motions.get(enemy);
         vec2 direction = normalize(playerMotion.position - enemyMotion.position);
         enemyMotion.velocity = direction * BARBARIAN_SPEED;
@@ -477,6 +479,7 @@ void WorldSystem::think()
 
     const float ARCHER_SPEED = 0.2;
     for (Entity archer : registry.archers.entities) {
+		if (registry.deathTimers.has(archer)) continue; // Skip dead archers
         Motion& enemyMotion = registry.motions.get(archer);
         vec2 direction = normalize(playerMotion.position - enemyMotion.position);
         enemyMotion.velocity = direction * ARCHER_SPEED;

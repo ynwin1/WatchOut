@@ -255,9 +255,10 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     Motion& player_motion = registry.motions.get(playerEntity);
     Dash& player_dash = registry.dashers.get(playerEntity);
 
-    if(game_over){
+    if (game_over) {
         if (action == GLFW_PRESS && key == GLFW_KEY_ENTER){
             restart_game();
+            return;
         }
     }
 
@@ -280,6 +281,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
         player_comp.trapsCollected--;
         printf("Trap placed at (%f, %f)\n", playerPos.x, playerPos.y);
 	}
+
     // Handle ESC key to close the game window
     if (action == GLFW_PRESS && key == GLFW_KEY_ESCAPE) {
         glfwSetWindowShouldClose(window, true);
@@ -487,19 +489,16 @@ void WorldSystem::recoil_entities(Motion& motion1, Motion& motion2) {
 	// Calculate y overlap
 	float y_overlap = calculate_y_overlap(motion1, motion2);
 
-	// Calculate the direction of the collision
-	float x_direction = motion1.position.x < motion2.position.x ? -1 : 1;
-	float y_direction = motion1.position.y < motion2.position.y ? -1 : 1;
+    // Calculate the direction of the collision
+    float x_direction = motion1.position.x < motion2.position.x ? -1 : 1;
+    float y_direction = motion1.position.y < motion2.position.y ? -1 : 1;
 
-	// Calculate the direction of the recoil
-	float x_recoil = x_overlap > y_overlap ? x_direction : 0;
-	float y_recoil = x_overlap < y_overlap ? y_direction : 0;
-
-	// Apply the recoil (direction * magnitude)
-	motion1.position.x += x_recoil * x_overlap;
-	motion1.position.y += y_recoil * y_overlap;
-	motion2.position.x -= x_recoil * x_overlap;
-	motion2.position.y -= y_recoil * y_overlap;
+    // Apply the recoil (direction * magnitude)
+    const float RECOIL_STRENGTH = 0.08;
+    motion1.position.x += x_direction * x_overlap * RECOIL_STRENGTH;
+    motion1.position.y += y_direction * y_overlap * RECOIL_STRENGTH;
+    motion2.position.x -= x_direction * x_overlap * RECOIL_STRENGTH;
+    motion2.position.y -= y_direction * y_overlap * RECOIL_STRENGTH;
 }
 
 float WorldSystem::calculate_x_overlap(Motion& motion1, Motion& motion2) {

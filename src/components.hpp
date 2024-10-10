@@ -11,15 +11,21 @@ struct Player {
 	bool isRunning;     // Indicates if the player is currently running
 	bool isJumping;     // Indicates if the player is currently jumping
 	bool isRolling;     // Indicates if the player is currently rolling
+	bool goingUp;		// Key for going up is held down
+	bool goingDown;		// Key for going down is held down
+	bool goingLeft;		// Key for going left is held down
+	bool goingRight;	// Key for going right is held down
+	bool isMoving;		// Indicates if any movement keys are pressed
+	vec2 facing;		// Direction the player is facing
 };
 
 //Dashing
 struct Dash {
-    bool isDashing;     // Indicates if the entity is currently dashing
-	glm::vec2 dashStartPosition; // Start position for dash
-    glm::vec2 dashTargetPosition; // Target position for dash
-    float dashTimer = 0.0f;       // Timer to track dash progress
-	float dashDuration = 0.2f;    // Duration of Dash
+    bool isDashing;				// Indicates if the entity is currently dashing
+	vec2 dashStartPosition;		// Start position for dash
+    vec2 dashTargetPosition;	// Target position for dash
+    float dashTimer = 0.0f;     // Timer to track dash progress
+	float dashDuration = 0.2f;  // Duration of Dash
 };
 
 struct Enemy

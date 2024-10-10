@@ -235,24 +235,19 @@ void WorldSystem::on_key(int key, int, int action, int mod)
         bool pressed = (action == GLFW_PRESS);
         
         // Set movement states based on key input
-        const float PLAYER_SPEED = 0.5;
         switch (key)
         {
             case GLFW_KEY_W:
-                // Set velocity upward
-                player_motion.velocity.y = pressed ? -PLAYER_SPEED : 0.0f;
+                player_comp.goingUp = pressed;
                 break;
             case GLFW_KEY_S:
-                // Set velocity downward
-                player_motion.velocity.y = pressed ? PLAYER_SPEED : 0.0f;
+                player_comp.goingDown = pressed;
                 break;
             case GLFW_KEY_A:
-                // Set velocity left
-                player_motion.velocity.x = pressed ? -PLAYER_SPEED : 0.0f;
+                player_comp.goingLeft = pressed;
                 break;
             case GLFW_KEY_D:
-                // Set velocity right
-                player_motion.velocity.x = pressed ? PLAYER_SPEED : 0.0f;
+                player_comp.goingRight = pressed;
                 break;
             case GLFW_KEY_LEFT_SHIFT:
                 // Sprint
@@ -263,19 +258,16 @@ void WorldSystem::on_key(int key, int, int action, int mod)
                 player_comp.isRolling = pressed;
                 break;
             case GLFW_KEY_F:
-                if (pressed && player_motion.velocity != glm::vec2(0.0f, 0.0f)) {
+                if (pressed) {
+                    const float dashDistance = 300;
                     // Start dashing if player is moving
                     player_dash.isDashing = true;
                     player_dash.dashStartPosition = player_motion.position;
-
-                    // Calculate dash target position based on current velocity
-                    glm::vec2 dashDirection = glm::normalize(player_motion.velocity);
-                    const float dashDistance = 800.0f; 
-                    player_dash.dashTargetPosition = player_motion.position + dashDirection * dashDistance;
+                    player_dash.dashTargetPosition = player_motion.position + player_comp.facing * dashDistance;
                     player_dash.dashTimer = 0.0f; // Reset timer
                 }
                 break;
-				    case GLFW_KEY_SPACE:
+		    case GLFW_KEY_SPACE:
                 // Dash
                 player_comp.isJumping = pressed;
                 break;
@@ -283,15 +275,8 @@ void WorldSystem::on_key(int key, int, int action, int mod)
                 break;
         }
     }
-
-    if (action == GLFW_RELEASE) {
-        if (key == GLFW_KEY_W || key == GLFW_KEY_S) {
-            player_motion.velocity.y = 0.f; // Stop vertical movement
-        }
-        if (key == GLFW_KEY_A || key == GLFW_KEY_D) {
-            player_motion.velocity.x = 0.f; // Stop horizontal movement
-        }
-    }
+    
+    update_player_facing(player_comp);
 
     // toggle camera on/off for debugging/testing
     if(action == GLFW_PRESS && key == GLFW_KEY_C) {
@@ -300,6 +285,23 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	    } else {
 		    glfwSetWindowSize(window, world_size_x, world_size_y);
 	    }
+    }
+}
+
+void WorldSystem::update_player_facing(Player& player) 
+{
+    vec2 player_facing = { 
+        player.goingRight - player.goingLeft,
+        player.goingDown - player.goingUp
+    };
+
+    // Keep old facing direction if no direction keys are pressed
+    if (player_facing == vec2(0, 0)) {
+        player.isMoving = false;
+    }
+    else {
+        player.isMoving = true;
+        player.facing = normalize(player_facing);
     }
 }
 
@@ -314,10 +316,20 @@ void WorldSystem::update_positions(float elapsed_ms)
 
         if(registry.players.has(entity)){
             Player& player_comp = registry.players.get(entity);
-            Running_Speed = player_comp.isRunning ? 2.0f : 1.0f;
 
+            float player_speed = 0.5;
+            if (!player_comp.isMoving) player_speed = 0;
+            else if (player_comp.isRunning) player_speed *= 2;
+
+            motion.velocity = player_speed * player_comp.facing;
         }
 
+        // Update the entity's position based on its velocity and elapsed time
+        motion.position.x += motion.velocity.x * elapsed_ms;
+        motion.position.y += motion.velocity.y * elapsed_ms;
+
+
+        // Dashing overwrites normal movement
         if (registry.dashers.has(entity)){
             Dash& dashing = registry.dashers.get(entity);
             if (dashing.isDashing) {
@@ -337,11 +349,7 @@ void WorldSystem::update_positions(float elapsed_ms)
                 }
             }  
         }    
-        
-        // Update the entity's position based on its velocity and elapsed time
-        motion.position.x += motion.velocity.x * Running_Speed * elapsed_ms;
-        motion.position.y += motion.velocity.y * Running_Speed * elapsed_ms;
-
+       
 		// Update the hitbox position
 		hitbox.position = motion.position;
     }

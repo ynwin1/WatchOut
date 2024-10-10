@@ -267,6 +267,10 @@ void WorldSystem::on_key(int key, int, int action, int mod)
         player_comp.trapsCollected--;
         printf("Trap placed at (%f, %f)\n", playerPos.x, playerPos.y);
 	}
+    // Handle ESC key to close the game window
+    if (action == GLFW_PRESS && key == GLFW_KEY_ESCAPE) {
+        glfwSetWindowShouldClose(window, true);
+    }
 
     // Check key actions (press/release)
     if (action == GLFW_PRESS || action == GLFW_RELEASE)

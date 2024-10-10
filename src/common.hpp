@@ -30,7 +30,7 @@ inline std::string audio_path(const std::string& name) { return data_path() + "/
 inline std::string mesh_path(const std::string& name) { return data_path() + "/meshes/" + std::string(name); };
 
 const int world_size_x = 1600.f;
-const int world_size_y = 1600.f;
+const int world_size_y = 1000.f;
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846f

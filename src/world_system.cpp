@@ -391,24 +391,21 @@ void WorldSystem::think()
     const float BOAR_SPEED = 0.4;
     for (Entity boar : registry.boars.entities) {
         Motion& enemyMotion = registry.motions.get(boar);
-        vec2 direction = playerMotion.position - enemyMotion.position;
-        direction /= distance(playerMotion.position, enemyMotion.position);
+        vec2 direction = normalize(playerMotion.position - enemyMotion.position);
         enemyMotion.velocity = direction * BOAR_SPEED;
     }
 
     const float BARBARIAN_SPEED = 0.3;
     for (Entity enemy : registry.barbarians.entities) {
         Motion& enemyMotion = registry.motions.get(enemy);
-        vec2 direction = playerMotion.position - enemyMotion.position;
-        direction /= distance(playerMotion.position, enemyMotion.position);
+        vec2 direction = normalize(playerMotion.position - enemyMotion.position);
         enemyMotion.velocity = direction * BARBARIAN_SPEED;
     }
 
     const float ARCHER_SPEED = 0.2;
     for (Entity archer : registry.archers.entities) {
         Motion& enemyMotion = registry.motions.get(archer);
-        vec2 direction = playerMotion.position - enemyMotion.position;
-        direction /= distance(playerMotion.position, enemyMotion.position);
+        vec2 direction = normalize(playerMotion.position - enemyMotion.position);
         enemyMotion.velocity = direction * ARCHER_SPEED;
     }
 }

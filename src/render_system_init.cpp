@@ -46,22 +46,15 @@ GLFWwindow* RenderSystem::create_window(Camera* camera) {
 	glfwWindowHint(GLFW_RESIZABLE, 0);
 
 	// Create the main window (for rendering, keyboard, and mouse input)
-	window = glfwCreateWindow(this->camera->getWidth(), this->camera->getHeight(), "Watch Out!", nullptr, nullptr);
+	GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
+	const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
+	window = glfwCreateWindow(mode->width, mode->height, "Watch Out!", primaryMonitor, nullptr);
 	if (window == nullptr) {
 		fprintf(stderr, "Failed to glfwCreateWindow");
 		return nullptr;
 	}
 
-	// Primary monitor and its video mode
-    GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
-    const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
-
-    // Make the window fullscreen by resizing and positioning it
-    glfwSetWindowPos(window, 0, 0); 
-    glfwSetWindowSize(window, mode->width, mode->height); 
     glfwMakeContextCurrent(window);
-
-	
 
 	return window;
 }
@@ -171,6 +164,19 @@ void RenderSystem::initializeGlGeometryBuffers()
 	const std::vector<uint16_t> textured_indices = { 0, 3, 1, 1, 3, 2 };
 	bindVBOandIBO(GEOMETRY_BUFFER_ID::SPRITE, textured_vertices, textured_indices);
 
+	// initialize game space triangles
+	std::vector<TexturedVertex> game_space_vertices(4);
+	game_space_vertices[0].position = {0.0f, 0.0f, 0.0f};
+	game_space_vertices[1].position = {(float)world_size_x, 0.0f, 0.0f};
+	game_space_vertices[2].position = {(float)world_size_x, (float)world_size_y, 0.0f};
+	game_space_vertices[3].position = {0.0f, (float)world_size_y, 0.0f };
+	game_space_vertices[0].texcoord = { 0.f, 0.f };
+	game_space_vertices[1].texcoord = { 1.f, 0.f };
+	game_space_vertices[2].texcoord = { 1.f, 1.f };
+	game_space_vertices[3].texcoord = { 0.f, 1.f };
+
+	const std::vector<uint16_t> game_space_indices = { 0, 1, 2, 0, 2, 3 };
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::GAME_SPACE, game_space_vertices, game_space_indices);
 }
 
 RenderSystem::~RenderSystem()

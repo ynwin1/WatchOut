@@ -64,6 +64,18 @@ private:
 	void spawn(float elapsed_ms);
 	vec2 get_spawn_location(const std::string& entity_type);
 	void think();
+	void recoil_entities(Motion& motion1, Motion& motion2);
+	float calculate_x_overlap(Motion& motion1, Motion& motion2);
+	float calculate_y_overlap(Motion& motion1, Motion& motion2);
+
+	// Collision functions
+	void entity_collectible_collision(Entity entity, Entity collectible);
+	void entity_trap_collision(Entity entity, Entity trap, std::vector<Entity>& was_damaged);
+	void moving_entities_collision(Entity entity, Entity entityOther, std::vector<Entity>& was_damaged);
+	void processPlayerEnemyCollision(Entity player, Entity enemy, std::vector<Entity>& was_damaged);
+	void processEnemyEnemyCollision(Entity enemy1, Entity enemy2, std::vector<Entity>& was_damaged);
+	void handleEnemyCollision(Entity attacker, Entity target, std::vector<Entity>& was_damaged);
+	void checkAndHandleEnemyDeath(Entity entity);
 
 
 	// C++ random number generator

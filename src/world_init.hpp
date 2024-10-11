@@ -20,6 +20,12 @@ const float JEFF_BB_HEIGHT  = 28.f * SPRITE_SCALE;
 const float GO_BB_WIDTH   = 100.f * SPRITE_SCALE;
 const float GO_BB_HEIGHT  = 68.f * SPRITE_SCALE;
 
+const std::unordered_map<std::string, vec2> entity_sizes = {
+	{"boar", { BOAR_BB_WIDTH, BOAR_BB_HEIGHT }},
+	{"barbarian", { BARBARIAN_BB_WIDTH, BARBARIAN_BB_HEIGHT }},
+	{"archer", { ARCHER_BB_WIDTH, ARCHER_BB_HEIGHT }}
+};
+
 // Jeff the Player
 Entity createJeff(RenderSystem* renderer, vec2 position);
 

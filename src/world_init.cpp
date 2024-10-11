@@ -19,7 +19,7 @@ Entity createBoar(RenderSystem* renderer, vec2 pos)
 	hitbox.dimension = { BOAR_BB_WIDTH, BOAR_BB_HEIGHT };
 
 	Enemy& enemy = registry.enemies.emplace(entity);
-	enemy.damage = 3;
+	enemy.damage = 20;
 	enemy.cooldown = 1500.f; // 1.5s
 
 	registry.boars.emplace(entity);
@@ -54,7 +54,7 @@ Entity createBarbarian(RenderSystem* renderer, vec2 pos)
 	hitbox.dimension = { BARBARIAN_BB_WIDTH, BARBARIAN_BB_HEIGHT };
 	
 	Enemy& enemy = registry.enemies.emplace(entity);
-	enemy.damage = 5;
+	enemy.damage = 30;
 	enemy.cooldown = 2000.f; // 2s
 
 	registry.barbarians.emplace(entity);
@@ -89,7 +89,7 @@ Entity createArcher(RenderSystem* renderer, vec2 pos)
 
 	// Add Render Request for drawing sprite
 	Enemy& enemy = registry.enemies.emplace(entity);
-	enemy.damage = 5;
+	enemy.damage = 40;
 	enemy.cooldown = 3000.f; // 3s
 
 	registry.archers.emplace(entity);

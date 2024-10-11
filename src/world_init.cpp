@@ -233,3 +233,17 @@ Entity createGameOver(RenderSystem* renderer, vec2 pos)
 	
 	return entity;
 };
+
+Entity createHealthBar() {
+	auto entity = Entity();
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::UNTEXTURED,
+			GEOMETRY_BUFFER_ID::HEALTH_BAR
+		});
+	
+	return entity;
+}

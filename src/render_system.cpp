@@ -4,7 +4,7 @@
 
 #include "tiny_ecs_registry.hpp"
 
-void RenderSystem::drawTexturedMesh(Entity entity, const mat3& projection)
+void RenderSystem::drawMesh(Entity entity, const mat3& projection)
 {
 	// Transformation code, see Rendering and Transformation in the template
 	// specification for more info Incrementally updates transformation matrix,
@@ -36,47 +36,53 @@ void RenderSystem::drawTexturedMesh(Entity entity, const mat3& projection)
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 	gl_has_errors();
-
-	// Input data location as in the vertex buffer
+	
+	// set attributes for textured meshes
 	if (render_request.used_effect == EFFECT_ASSET_ID::TEXTURED)
 	{
 		GLint in_position_loc = glGetAttribLocation(program, "in_position");
+		gl_has_errors();
+		glEnableVertexAttribArray(in_position_loc);
+		glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), (void*)0);
+		gl_has_errors();
+
 		GLint in_texcoord_loc = glGetAttribLocation(program, "in_texcoord");
 		gl_has_errors();
 		assert(in_texcoord_loc >= 0);
 
-		glEnableVertexAttribArray(in_position_loc);
-		glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE,
-			sizeof(TexturedVertex), (void*)0);
+		glEnableVertexAttribArray(in_texcoord_loc);
+		glVertexAttribPointer(in_texcoord_loc, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), (void*)sizeof(vec3)); // stride to skip position data
 		gl_has_errors();
 
-		glEnableVertexAttribArray(in_texcoord_loc);
-		glVertexAttribPointer(
-			in_texcoord_loc, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex),
-			(void*)sizeof(
-				vec3)); // note the stride to skip the preceeding vertex position
-
-		// Enabling and binding texture to slot 0
 		glActiveTexture(GL_TEXTURE0);
 		gl_has_errors();
 
 		assert(registry.renderRequests.has(entity));
-		GLuint texture_id =
-			texture_gl_handles[(GLuint)registry.renderRequests.get(entity).used_texture];
-
+		GLuint texture_id = texture_gl_handles[(GLuint)registry.renderRequests.get(entity).used_texture];
 		glBindTexture(GL_TEXTURE_2D, texture_id);
 		gl_has_errors();
+
+		// Getting uniform locations for glUniform* calls
+		GLint colour_uloc = glGetUniformLocation(program, "entity_colour");
+		const vec3 colour = registry.colours.has(entity) ? registry.colours.get(entity) : vec3(1);
+		glUniform3fv(colour_uloc, 1, (float*)&colour);
+		gl_has_errors();
 	}
-	else
+	// set attributes for untextured meshes
+	else if(render_request.used_effect == EFFECT_ASSET_ID::UNTEXTURED)
 	{
+		GLint in_position_loc = glGetAttribLocation(program, "in_position");
+		GLint in_color_loc = glGetAttribLocation(program, "in_color");
+		gl_has_errors();
+		glEnableVertexAttribArray(in_position_loc);
+		glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(UntexturedVertex), (void*)0);
+		gl_has_errors();
+		glEnableVertexAttribArray(in_color_loc);
+		glVertexAttribPointer(in_color_loc, 3, GL_FLOAT, GL_FALSE, sizeof(UntexturedVertex), (void *)sizeof(vec3));
+		gl_has_errors();
+	} else {
 		assert(false && "Type of render request not supported");
 	}
-
-	// Getting uniform locations for glUniform* calls
-	GLint colour_uloc = glGetUniformLocation(program, "entity_colour");
-	const vec3 colour = registry.colours.has(entity) ? registry.colours.get(entity) : vec3(1);
-	glUniform3fv(colour_uloc, 1, (float*)&colour);
-	gl_has_errors();
 
 	// Get number of indices from index buffer, which has elements uint16_t
 	GLint size = 0;
@@ -128,7 +134,7 @@ void RenderSystem::draw()
 	{
 		// Note, its not very efficient to access elements indirectly via the entity
 		// albeit iterating through all Sprites in sequence. A good point to optimize
-		drawTexturedMesh(entity, projection_2D);
+		drawMesh(entity, projection_2D);
 	}
 
 	// flicker-free display with a double buffer

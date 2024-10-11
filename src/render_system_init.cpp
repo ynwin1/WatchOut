@@ -177,7 +177,25 @@ void RenderSystem::initializeGlGeometryBuffers()
 
 	const std::vector<uint16_t> game_space_indices = { 0, 1, 2, 0, 2, 3 };
 	bindVBOandIBO(GEOMETRY_BUFFER_ID::GAME_SPACE, game_space_vertices, game_space_indices);
+
+	initHealthBarBuffer();
 }
+
+void RenderSystem::initHealthBarBuffer() {
+	std::vector<UntexturedVertex> health_bar_vertices(4);
+	health_bar_vertices[0].position = {0.0f,  0.0f, 0.0f};
+	health_bar_vertices[1].position = {50.0f,  0.f, 0.0f};
+	health_bar_vertices[2].position = {0.0f,  50.0f, 0.0f};
+	health_bar_vertices[3].position = {50.0f,  50.0f, 0.0f};
+	health_bar_vertices[0].color = {0.0f, 1.0f, 0.0f};
+	health_bar_vertices[1].color = {0.0f, 1.0f, 0.0f};
+	health_bar_vertices[2].color = {0.0f, 1.0f, 0.0f};
+	health_bar_vertices[3].color = {0.0f, 1.0f, 0.0f};
+
+	const std::vector<uint16_t> health_bar_indices = { 0, 1, 2, 1, 2, 3 };
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::HEALTH_BAR, health_bar_vertices, health_bar_indices);
+}
+
 
 RenderSystem::~RenderSystem()
 {

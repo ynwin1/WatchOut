@@ -28,10 +28,6 @@ struct Dash {
 	float dashDuration = 0.2f;  // Duration of Dash
 };
 
-struct MeshColour {
-	vec3 vec3;
-};
-
 struct Enemy
 {
 	unsigned int health = 100;

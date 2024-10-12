@@ -67,27 +67,24 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection)
 		GLuint texture_id = texture_gl_handles[(GLuint)registry.renderRequests.get(entity).used_texture];
 		glBindTexture(GL_TEXTURE_2D, texture_id);
 		gl_has_errors();
-
-		// Getting uniform locations for glUniform* calls
-		GLint colour_uloc = glGetUniformLocation(program, "entity_colour");
-		const vec3 colour = registry.colours.has(entity) ? registry.colours.get(entity) : vec3(1);
-		glUniform3fv(colour_uloc, 1, (float*)&colour);
-		gl_has_errors();
 	}
 	// set attributes for untextured meshes
 	else if(render_request.used_effect == EFFECT_ASSET_ID::UNTEXTURED)
 	{
 		GLint in_position_loc = glGetAttribLocation(program, "in_position");
-		GLint color_uloc = glGetUniformLocation(program, "color");
 		gl_has_errors();
 		glEnableVertexAttribArray(in_position_loc);
 		glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(UntexturedVertex), (void*)0);
 		gl_has_errors();
-		const vec3 color = registry.meshColours.has(entity) ? registry.meshColours.get(entity).vec3 : vec3(1);
-		glUniform3fv(color_uloc, 1, (float *)&color);
 	} else {
 		assert(false && "Type of render request not supported");
 	}
+
+	// Getting uniform locations for glUniform* calls
+	GLint colour_uloc = glGetUniformLocation(program, "entity_colour");
+	const vec3 colour = registry.colours.has(entity) ? registry.colours.get(entity) : vec3(1);
+	glUniform3fv(colour_uloc, 1, (float*)&colour);
+	gl_has_errors();
 
 	// Get number of indices from index buffer, which has elements uint16_t
 	GLint size = 0;
@@ -161,7 +158,7 @@ void RenderSystem::step(float elapsed_ms)
 		}
 	}
 
-	update_hpbar_color();
+	update_hpbars();
 }
 
 void RenderSystem::turn_damaged_red(std::vector<Entity>& was_damaged)
@@ -184,15 +181,12 @@ void RenderSystem::turn_damaged_red(std::vector<Entity>& was_damaged)
 	}
 }
 
-void RenderSystem::update_hpbar_color() {
+void RenderSystem::update_hpbars() {
 	for (Entity entity : registry.players.entities) {
 		Player& player = registry.players.get(entity);
 		HealthBar& hpbar = registry.healthBars.get(entity);
-		MeshColour& colour = registry.meshColours.get(hpbar.meshEntity);
-
-		if(player.health < 100) {
-			colour.vec3 = vec3(1.0f, 0.0f, 0.0f);
-		}
+		StaticMotion& motion = registry.staticMotions.get(hpbar.meshEntity);
+		motion.scale.x = player.health/100.f;
 	}
 }
 

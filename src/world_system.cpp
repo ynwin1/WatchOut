@@ -566,5 +566,11 @@ void WorldSystem::update_hp_positions() {
 
     Motion& playerMotion = registry.motions.get(playerEntity);
     StaticMotion& healthBarMotion =  registry.staticMotions.get(healthBar.meshEntity);
-    healthBarMotion.position = playerMotion.position;
+
+    float halfScaleX = playerMotion.scale.x / 2;
+    float halfScaleY = playerMotion.scale.y / 2;
+
+    // place above character
+    healthBarMotion.position.y = playerMotion.position.y - halfScaleY - 18;
+    healthBarMotion.position.x = playerMotion.position.x - halfScaleX;
 }

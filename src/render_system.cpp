@@ -64,7 +64,7 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection)
 
 		assert(registry.renderRequests.has(entity));
 		GLuint texture_id = texture_gl_handles[(GLuint)registry.renderRequests.get(entity).used_texture];
-		
+
 		glBindTexture(GL_TEXTURE_2D, texture_id);
 		gl_has_errors();
 	}
@@ -134,8 +134,6 @@ void RenderSystem::draw()
 	//Draw all textured meshes that have a position and size component
 	for (Entity entity : registry.renderRequests.entities)
 	{
-		// Note, its not very efficient to access elements indirectly via the entity
-		// albeit iterating through all Sprites in sequence. A good point to optimize
 		drawMesh(entity, projection_2D);
 	}
 

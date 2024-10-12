@@ -74,6 +74,7 @@ bool WorldSystem::step(float elapsed_ms)
     update_positions(elapsed_ms);
     update_cooldown(elapsed_ms);
     handle_deaths(elapsed_ms);
+    update_hp_positions();
 
     if (camera->isToggled()) {
         Motion& playerMotion = registry.motions.get(playerEntity);
@@ -558,4 +559,12 @@ void WorldSystem::checkAndHandleEnemyDeath(Entity enemy) {
         registry.enemies.remove(enemy);
         registry.deathTimers.emplace(enemy);
     }
+}
+
+void WorldSystem::update_hp_positions() {
+    HealthBar& healthBar = registry.healthBars.get(playerEntity);
+
+    Motion& playerMotion = registry.motions.get(playerEntity);
+    StaticMotion& healthBarMotion =  registry.staticMotions.get(healthBar.meshEntity);
+    healthBarMotion.position = playerMotion.position;
 }

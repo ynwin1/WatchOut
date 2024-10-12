@@ -78,14 +78,13 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection)
 	else if(render_request.used_effect == EFFECT_ASSET_ID::UNTEXTURED)
 	{
 		GLint in_position_loc = glGetAttribLocation(program, "in_position");
-		GLint in_color_loc = glGetAttribLocation(program, "in_color");
+		GLint color_uloc = glGetUniformLocation(program, "color");
 		gl_has_errors();
 		glEnableVertexAttribArray(in_position_loc);
 		glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(UntexturedVertex), (void*)0);
 		gl_has_errors();
-		glEnableVertexAttribArray(in_color_loc);
-		glVertexAttribPointer(in_color_loc, 3, GL_FLOAT, GL_FALSE, sizeof(UntexturedVertex), (void *)sizeof(vec3));
-		gl_has_errors();
+		const vec3 color = registry.meshColours.has(entity) ? registry.meshColours.get(entity).vec3 : vec3(1);
+		glUniform3fv(color_uloc, 1, (float *)&color);
 	} else {
 		assert(false && "Type of render request not supported");
 	}
@@ -161,6 +160,8 @@ void RenderSystem::step(float elapsed_ms)
 			}
 		}
 	}
+
+	update_hpbar_color();
 }
 
 void RenderSystem::turn_damaged_red(std::vector<Entity>& was_damaged)
@@ -179,6 +180,18 @@ void RenderSystem::turn_damaged_red(std::vector<Entity>& was_damaged)
 			else {
 				registry.colours.insert(entity, DAMAGE_COLOUR);
 			}
+		}
+	}
+}
+
+void RenderSystem::update_hpbar_color() {
+	for (Entity entity : registry.players.entities) {
+		Player& player = registry.players.get(entity);
+		HealthBar& hpbar = registry.healthBars.get(entity);
+		MeshColour& colour = registry.meshColours.get(hpbar.meshEntity);
+
+		if(player.health < 100) {
+			colour.vec3 = vec3(1.0f, 0.0f, 0.0f);
 		}
 	}
 }

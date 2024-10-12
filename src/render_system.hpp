@@ -64,6 +64,7 @@ public:
 	void draw();
 
 	void turn_damaged_red(std::vector<Entity>& was_damaged);
+	void update_hpbar_color();
 
 	void step(float elapsed_ms);
 

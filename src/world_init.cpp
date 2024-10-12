@@ -246,6 +246,9 @@ void createHealthBar(Entity characterEntity) {
 	staticMotion.angle = 0.f;
 	staticMotion.scale = { 1.0f, 1.0f };
 
+	MeshColour& meshColour = registry.meshColours.emplace(meshEntity);
+	meshColour.vec3 = vec3(0.0f, 1.0f, 0.0f);
+
 	registry.renderRequests.insert(
 		meshEntity,
 		{

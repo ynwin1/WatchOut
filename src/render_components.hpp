@@ -15,7 +15,6 @@ struct TexturedVertex
 struct UntexturedVertex
 {
 	vec3 position;
-	vec3 color;
 };
 
 /**

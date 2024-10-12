@@ -106,6 +106,8 @@ Entity createArcher(RenderSystem* renderer, vec2 pos)
 		EFFECT_ASSET_ID::TEXTURED,
 		GEOMETRY_BUFFER_ID::SPRITE
 	});
+
+	createHealthBar(entity, vec3(1.0f, 0.0f, 0.0f));
 	
 	return entity;
 };

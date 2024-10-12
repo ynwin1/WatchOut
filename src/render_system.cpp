@@ -16,6 +16,12 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection)
 		transform.rotate(motion.angle);
 		transform.scale(motion.scale);
 	}
+	else if(registry.staticMotions.has(entity)) {
+		StaticMotion& motion = registry.staticMotions.get(entity);
+		transform.translate(motion.position);
+		transform.rotate(motion.angle);
+		transform.scale(motion.scale);
+	}
 
 	assert(registry.renderRequests.has(entity));
 	const RenderRequest& render_request = registry.renderRequests.get(entity);

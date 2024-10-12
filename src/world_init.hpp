@@ -49,4 +49,4 @@ void createBattleGround();
 // GameOver
 Entity createGameOver(RenderSystem* renderer, vec2 pos);
 
-Entity createHealthBar();
+void createHealthBar(Entity characterEntity);

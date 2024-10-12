@@ -192,6 +192,8 @@ Entity createJeff(RenderSystem* renderer, vec2 position)
 			GEOMETRY_BUFFER_ID::SPRITE
 		});
 
+	createHealthBar(entity);
+	
 	return entity;
 }
 
@@ -234,16 +236,23 @@ Entity createGameOver(RenderSystem* renderer, vec2 pos)
 	return entity;
 };
 
-Entity createHealthBar() {
-	auto entity = Entity();
+void createHealthBar(Entity characterEntity) {
+	auto meshEntity = Entity();
+
+	Motion& characterMotion = registry.motions.get(characterEntity);
+
+	StaticMotion& staticMotion = registry.staticMotions.emplace(meshEntity);
+	staticMotion.position = characterMotion.position;
+	staticMotion.angle = 0.f;
+	staticMotion.scale = { 1.0f, 1.0f };
 
 	registry.renderRequests.insert(
-		entity,
+		meshEntity,
 		{
 			TEXTURE_ASSET_ID::NONE,
 			EFFECT_ASSET_ID::UNTEXTURED,
 			GEOMETRY_BUFFER_ID::HEALTH_BAR
 		});
-	
-	return entity;
+
+	registry.healthBars.emplace(characterEntity, meshEntity);
 }

@@ -26,6 +26,9 @@ public:
 	ComponentContainer<vec3> colours;
 	ComponentContainer<Damaged> damageds;
 	ComponentContainer<DeathTimer> deathTimers;
+	ComponentContainer<HealthBar> healthBars;
+	ComponentContainer<StaticMotion> staticMotions;
+
 
 	// Spawnable types
 	std::unordered_map<std::string, ContainerInterface*> spawnable_lists;

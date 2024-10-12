@@ -14,12 +14,12 @@ WorldSystem::WorldSystem() :
         }),
     spawn_delays({
         {"boar", 3000},
-        {"barbarian", 5000},
+        {"barbarian", 8000},
         {"archer", 10000}
         }),
     max_entities({
-        {"boar", 1},
-        {"barbarian", 1},
+        {"boar", 2},
+        {"barbarian", 2},
         {"archer", 0}
         })
 {
@@ -201,15 +201,19 @@ void WorldSystem::on_key(int key, int, int action, int mod)
         switch (key)
         {
             case GLFW_KEY_W:
+            case GLFW_KEY_UP:
                 player_comp.goingUp = pressed;
                 break;
             case GLFW_KEY_S:
+            case GLFW_KEY_DOWN:
                 player_comp.goingDown = pressed;
                 break;
             case GLFW_KEY_A:
+            case GLFW_KEY_LEFT:
                 player_comp.goingLeft = pressed;
                 break;
             case GLFW_KEY_D:
+            case GLFW_KEY_RIGHT:
                 player_comp.goingRight = pressed;
                 break;
             case GLFW_KEY_LEFT_SHIFT:

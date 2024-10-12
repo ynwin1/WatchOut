@@ -24,6 +24,7 @@ public:
 	// Steps the game ahead by ms milliseconds
 	bool step(float elapsed_ms);
 	bool game_over;
+	bool is_paused;
 
 	// Check for collisions
 	void handle_collisions();

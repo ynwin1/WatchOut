@@ -4,7 +4,7 @@
 
 #include "tiny_ecs_registry.hpp"
 
-void RenderSystem::drawTexturedMesh(Entity entity, const mat3& projection)
+void RenderSystem::drawMesh(Entity entity, const mat3& projection)
 {
 	// Transformation code, see Rendering and Transformation in the template
 	// specification for more info Incrementally updates transformation matrix,
@@ -12,6 +12,12 @@ void RenderSystem::drawTexturedMesh(Entity entity, const mat3& projection)
 	Transform transform;
 	if(registry.motions.has(entity)) {
 		Motion& motion = registry.motions.get(entity);
+		transform.translate(motion.position);
+		transform.rotate(motion.angle);
+		transform.scale(motion.scale);
+	}
+	else if(registry.staticMotions.has(entity)) {
+		StaticMotion& motion = registry.staticMotions.get(entity);
 		transform.translate(motion.position);
 		transform.rotate(motion.angle);
 		transform.scale(motion.scale);
@@ -36,8 +42,8 @@ void RenderSystem::drawTexturedMesh(Entity entity, const mat3& projection)
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 	gl_has_errors();
-
-	// Input data location as in the vertex buffer
+	
+	// set attributes for textured meshes
 	if (render_request.used_effect == EFFECT_ASSET_ID::TEXTURED)
 	{
 		GLint in_position_loc = glGetAttribLocation(program, "in_position");
@@ -46,29 +52,31 @@ void RenderSystem::drawTexturedMesh(Entity entity, const mat3& projection)
 		assert(in_texcoord_loc >= 0);
 
 		glEnableVertexAttribArray(in_position_loc);
-		glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE,
-			sizeof(TexturedVertex), (void*)0);
+		glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), (void*)0);
 		gl_has_errors();
 
 		glEnableVertexAttribArray(in_texcoord_loc);
-		glVertexAttribPointer(
-			in_texcoord_loc, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex),
-			(void*)sizeof(
-				vec3)); // note the stride to skip the preceeding vertex position
-
+		glVertexAttribPointer(in_texcoord_loc, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), (void*)sizeof(vec3)); // stride to skip position data
+		
 		// Enabling and binding texture to slot 0
 		glActiveTexture(GL_TEXTURE0);
 		gl_has_errors();
 
 		assert(registry.renderRequests.has(entity));
-		GLuint texture_id =
-			texture_gl_handles[(GLuint)registry.renderRequests.get(entity).used_texture];
+		GLuint texture_id = texture_gl_handles[(GLuint)registry.renderRequests.get(entity).used_texture];
 
 		glBindTexture(GL_TEXTURE_2D, texture_id);
 		gl_has_errors();
 	}
-	else
+	// set attributes for untextured meshes
+	else if(render_request.used_effect == EFFECT_ASSET_ID::UNTEXTURED)
 	{
+		GLint in_position_loc = glGetAttribLocation(program, "in_position");
+		gl_has_errors();
+		glEnableVertexAttribArray(in_position_loc);
+		glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(UntexturedVertex), (void*)0);
+		gl_has_errors();
+	} else {
 		assert(false && "Type of render request not supported");
 	}
 
@@ -126,9 +134,7 @@ void RenderSystem::draw()
 	//Draw all textured meshes that have a position and size component
 	for (Entity entity : registry.renderRequests.entities)
 	{
-		// Note, its not very efficient to access elements indirectly via the entity
-		// albeit iterating through all Sprites in sequence. A good point to optimize
-		drawTexturedMesh(entity, projection_2D);
+		drawMesh(entity, projection_2D);
 	}
 
 	// flicker-free display with a double buffer
@@ -149,6 +155,8 @@ void RenderSystem::step(float elapsed_ms)
 			}
 		}
 	}
+
+	update_hpbars();
 }
 
 void RenderSystem::turn_damaged_red(std::vector<Entity>& was_damaged)
@@ -168,6 +176,21 @@ void RenderSystem::turn_damaged_red(std::vector<Entity>& was_damaged)
 				registry.colours.insert(entity, DAMAGE_COLOUR);
 			}
 		}
+	}
+}
+
+void RenderSystem::update_hpbars() {
+	for (Entity entity : registry.players.entities) {
+		Player& player = registry.players.get(entity);
+		HealthBar& hpbar = registry.healthBars.get(entity);
+		StaticMotion& motion = registry.staticMotions.get(hpbar.meshEntity);
+		motion.scale.x = player.health/100.f;
+	}
+	for (Entity entity : registry.enemies.entities) {
+		Enemy& enemy = registry.enemies.get(entity);
+		HealthBar& hpbar = registry.healthBars.get(entity);
+		StaticMotion& motion = registry.staticMotions.get(hpbar.meshEntity);
+		motion.scale.x = enemy.health/100.f;
 	}
 }
 

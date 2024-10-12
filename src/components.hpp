@@ -36,6 +36,11 @@ struct Enemy
 	unsigned int cooldown = 0;
 };
 
+struct HealthBar {
+	Entity meshEntity;
+	HealthBar(Entity& meshEntity) { this->meshEntity = meshEntity; };
+};
+
 // Collectible Component
 struct Collectible
 {
@@ -58,6 +63,12 @@ struct Motion {
 	vec2 position = { 0, 0 };
 	float angle = 0;
 	vec2 velocity = { 0, 0 };
+	vec2 scale = { 10, 10 };
+};
+
+struct StaticMotion {
+	vec2 position = { 0, 0 };
+	float angle = 0;
 	vec2 scale = { 10, 10 };
 };
 

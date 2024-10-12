@@ -73,6 +73,7 @@ bool WorldSystem::step(float elapsed_ms)
     spawn(elapsed_ms);
     update_positions(elapsed_ms);
     update_cooldown(elapsed_ms);
+    update_hp_positions();
     handle_deaths(elapsed_ms);
 
     if (camera->isToggled()) {
@@ -555,7 +556,30 @@ void WorldSystem::checkAndHandleEnemyDeath(Entity enemy) {
         motion.angle = 1.57f; // Rotate enemy 90 degrees
         printf("Enemy %d died with health %d\n", (unsigned int)enemy, enemyData.health);
 
+        HealthBar& hpbar = registry.healthBars.get(enemy);
+        registry.remove_all_components_of(hpbar.meshEntity);
         registry.enemies.remove(enemy);
         registry.deathTimers.emplace(enemy);
     }
 }
+
+void hpBarPositionHelper(const std::vector<Entity>& entities) {
+    for (Entity entity : entities) {
+	    HealthBar& healthBar = registry.healthBars.get(entity);
+        Motion& motion = registry.motions.get(entity);
+        StaticMotion& healthBarMotion =  registry.staticMotions.get(healthBar.meshEntity);
+        float halfScaleX = motion.scale.x / 2;
+        float halfScaleY = motion.scale.y / 2;
+
+        // place above character
+        healthBarMotion.position.y = motion.position.y - halfScaleY - 18;
+        healthBarMotion.position.x = motion.position.x - halfScaleX;
+    }   
+}
+
+void WorldSystem::update_hp_positions() {
+    hpBarPositionHelper(registry.players.entities);
+    hpBarPositionHelper(registry.enemies.entities);
+}
+
+

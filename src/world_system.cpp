@@ -424,10 +424,15 @@ void WorldSystem::recoil_entities(Motion& motion1, Motion& motion2) {
 
     // Apply the recoil (direction * magnitude)
     const float RECOIL_STRENGTH = 0.08;
-    motion1.position.x += x_direction * x_overlap * RECOIL_STRENGTH;
-    motion1.position.y += y_direction * y_overlap * RECOIL_STRENGTH;
-    motion2.position.x -= x_direction * x_overlap * RECOIL_STRENGTH;
-    motion2.position.y -= y_direction * y_overlap * RECOIL_STRENGTH;
+    if (y_overlap < x_overlap) {
+        motion1.position.y += y_direction * y_overlap * RECOIL_STRENGTH;
+        motion2.position.y -= y_direction * y_overlap * RECOIL_STRENGTH;
+    }
+    else {
+        motion1.position.x += x_direction * x_overlap * RECOIL_STRENGTH;
+        motion2.position.x -= x_direction * x_overlap * RECOIL_STRENGTH;
+    }
+    
 }
 
 float WorldSystem::calculate_x_overlap(Motion& motion1, Motion& motion2) {

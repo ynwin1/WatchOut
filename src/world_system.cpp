@@ -64,6 +64,7 @@ void WorldSystem::restart_game()
     // Create player entity
     playerEntity = createJeff(renderer, vec2(world_size_x / 2.f, world_size_y / 2.f));
     game_over = false;
+    is_paused = false;
 
     next_spawns = spawn_delays;
 }
@@ -178,6 +179,16 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     // Handle ESC key to close the game window
     if (action == GLFW_PRESS && key == GLFW_KEY_ESCAPE) {
         glfwSetWindowShouldClose(window, true);
+    }
+
+    // Handle EP to pause gameplay
+    if (action == GLFW_PRESS && key == GLFW_KEY_P) {
+        if(is_paused == false){
+            is_paused = true;
+        } else{
+            is_paused = false;
+        }
+        
     }
 
     // Check key actions (press/release)

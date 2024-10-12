@@ -32,6 +32,8 @@ Entity createBoar(RenderSystem* renderer, vec2 pos)
 		EFFECT_ASSET_ID::TEXTURED,
 		GEOMETRY_BUFFER_ID::SPRITE
 	});
+
+	createHealthBar(entity, vec3(1.0f, 0.0f, 0.0f));
 	
 	return entity;
 };
@@ -67,6 +69,9 @@ Entity createBarbarian(RenderSystem* renderer, vec2 pos)
 		EFFECT_ASSET_ID::TEXTURED,
 		GEOMETRY_BUFFER_ID::SPRITE
 	});
+
+	createHealthBar(entity, vec3(1.0f, 0.0f, 0.0f));
+
 	return entity;
 };
 
@@ -192,7 +197,7 @@ Entity createJeff(RenderSystem* renderer, vec2 position)
 			GEOMETRY_BUFFER_ID::SPRITE
 		});
 
-	createHealthBar(entity);
+	createHealthBar(entity, vec3(0.0f, 1.0f, 0.0f));
 	
 	return entity;
 }
@@ -236,7 +241,7 @@ Entity createGameOver(RenderSystem* renderer, vec2 pos)
 	return entity;
 };
 
-void createHealthBar(Entity characterEntity) {
+void createHealthBar(Entity characterEntity, vec3 color) {
 	auto meshEntity = Entity();
 
 	Motion& characterMotion = registry.motions.get(characterEntity);
@@ -246,7 +251,7 @@ void createHealthBar(Entity characterEntity) {
 	staticMotion.angle = 0.f;
 	staticMotion.scale = { 1.0f, 1.0f };
 
-	registry.colours.insert(meshEntity, vec3(0.0f, 1.0f, 0.0f));
+	registry.colours.insert(meshEntity, color);
 
 	registry.renderRequests.insert(
 		meshEntity,

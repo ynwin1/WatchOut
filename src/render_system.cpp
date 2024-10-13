@@ -179,19 +179,65 @@ void RenderSystem::turn_damaged_red(std::vector<Entity>& was_damaged)
 	}
 }
 
-void RenderSystem::update_hpbars() {
+void handleHpBarBoundsCheck() {
+	ComponentContainer<HealthBar> &hpbars = registry.healthBars;
+
+	for(uint i = 0; i < hpbars.components.size(); i++) {
+		HealthBar& hpbar = hpbars.components[i];
+		StaticMotion& motion = registry.staticMotions.get(hpbar.meshEntity);
+		float halfScaleX = motion.scale.x / 2;
+		float halfScaleY = motion.scale.y / 2;
+
+		if(motion.position.x - halfScaleX  < 0) {
+			motion.position.x = halfScaleX;
+		} else if(motion.position.x + halfScaleX > world_size_x) {
+			motion.position.x = world_size_x - halfScaleX;
+		}
+
+		if(motion.position.y - halfScaleY < 0) {
+			motion.position.y = halfScaleY;
+		} else if(motion.position.y + halfScaleY > world_size_y) {
+			motion.position.y = world_size_y - halfScaleY;
+		}
+	}
+}
+
+void updateHpBarPositionHelper(const std::vector<Entity>& entities) {
+    for (Entity entity : entities) {
+	    HealthBar& healthBar = registry.healthBars.get(entity);
+        Motion& motion = registry.motions.get(entity);
+        StaticMotion& healthBarMotion =  registry.staticMotions.get(healthBar.meshEntity);
+         // place above character
+        float topOffset = 15;
+        healthBarMotion.position.y = motion.position.y - (motion.scale.y / 2.f) - topOffset;
+        healthBarMotion.position.x = motion.position.x;
+    }   
+}
+
+void updateHpBarMeter() {
 	for (Entity entity : registry.players.entities) {
 		Player& player = registry.players.get(entity);
 		HealthBar& hpbar = registry.healthBars.get(entity);
 		StaticMotion& motion = registry.staticMotions.get(hpbar.meshEntity);
-		motion.scale.x = player.health/100.f;
+		motion.scale.x = hpbar.width * player.health/100.f;
 	}
 	for (Entity entity : registry.enemies.entities) {
 		Enemy& enemy = registry.enemies.get(entity);
 		HealthBar& hpbar = registry.healthBars.get(entity);
 		StaticMotion& motion = registry.staticMotions.get(hpbar.meshEntity);
-		motion.scale.x = enemy.health/100.f;
+		motion.scale.x = hpbar.width * enemy.health/100.f;
 	}
+}
+
+void updateHpBarPosition() {
+    updateHpBarPositionHelper(registry.players.entities);
+    updateHpBarPositionHelper(registry.enemies.entities);
+}
+
+void RenderSystem::update_hpbars() {
+	updateHpBarMeter();
+	updateHpBarPosition();
+	handleHpBarBoundsCheck();
 }
 
 mat3 RenderSystem::createProjectionMatrix() 

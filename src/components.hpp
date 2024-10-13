@@ -38,6 +38,8 @@ struct Enemy
 
 struct HealthBar {
 	Entity meshEntity;
+	float width;
+	float height;
 	HealthBar(Entity& meshEntity) { this->meshEntity = meshEntity; };
 };
 

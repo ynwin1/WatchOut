@@ -23,6 +23,8 @@ const float TRAP_BB_WIDTH = 32.f * SPRITE_SCALE;
 const float TRAP_BB_HEIGHT = 9.f * SPRITE_SCALE;
 const float TRAP_COLLECTABLE_BB_WIDTH = 11.f * SPRITE_SCALE;
 const float TRAP_COLLECTABLE_BB_HEIGHT = 15.f * SPRITE_SCALE;
+const float HEART_BB_WIDTH = 17. * SPRITE_SCALE;
+const float HEART_BB_HEIGHT = 15. * SPRITE_SCALE;
 
 const std::unordered_map<std::string, vec2> entity_sizes = {
 	{"boar", { BOAR_BB_WIDTH, BOAR_BB_HEIGHT }},

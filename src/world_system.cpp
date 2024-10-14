@@ -66,6 +66,9 @@ void WorldSystem::restart_game()
     game_over = false;
     is_paused = false;
 
+    createCollectibleTrap(renderer, vec2(300, 300));
+    createDamageTrap(renderer, vec2(350, 350));
+
     next_spawns = spawn_delays;
 }
 
@@ -582,7 +585,7 @@ void hpBarPositionHelper(const std::vector<Entity>& entities) {
     for (Entity entity : entities) {
 	    HealthBar& healthBar = registry.healthBars.get(entity);
         Motion& motion = registry.motions.get(entity);
-        StaticMotion& healthBarMotion =  registry.staticMotions.get(healthBar.meshEntity);
+        Static& healthBarMotion =  registry.statics.get(healthBar.meshEntity);
         float halfScaleX = motion.scale.x / 2;
         float halfScaleY = motion.scale.y / 2;
 

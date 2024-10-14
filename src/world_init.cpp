@@ -122,15 +122,52 @@ Entity createCollectibleTrap(RenderSystem* renderer, vec2 pos)
 	motion.position = pos;
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
-	motion.scale = { TRAP_BB_WIDTH, TRAP_BB_HEIGHT };
+	motion.scale = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT };
 
 	// Setting initial hitbox values
 	Hitbox& hitbox = registry.hitboxes.emplace(entity);
 	hitbox.position = pos;
 	hitbox.dimension = { TRAP_BB_WIDTH, TRAP_BB_HEIGHT };
 
-	// TODO LATER - A1 has this entity inserted into renderRequest container
 	registry.collectibles.emplace(entity);
+
+	registry.renderRequests.insert(
+	entity,
+	{
+		TEXTURE_ASSET_ID::TRAPCOLLECTABLE,
+		EFFECT_ASSET_ID::TEXTURED,
+		GEOMETRY_BUFFER_ID::SPRITE
+	});
+
+	return entity;
+};
+
+// Heart creation
+Entity createHeart(RenderSystem* renderer, vec2 pos)
+{
+	auto entity = Entity();
+
+	// Setting intial motion values
+	Static& fixed = registry.statics.emplace(entity);
+	fixed.position = pos;
+	fixed.angle = 0.f;
+	fixed.scale = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT };
+
+	// Setting initial hitbox values
+	Hitbox& hitbox = registry.hitboxes.emplace(entity);
+	hitbox.position = pos;
+	hitbox.dimension = { TRAP_BB_WIDTH, TRAP_BB_HEIGHT };
+
+	registry.collectibles.emplace(entity);
+
+	registry.renderRequests.insert(
+	entity,
+	{
+		TEXTURE_ASSET_ID::TRAPCOLLECTABLE,
+		EFFECT_ASSET_ID::TEXTURED,
+		GEOMETRY_BUFFER_ID::SPRITE
+	});
+
 	return entity;
 };
 
@@ -153,7 +190,14 @@ Entity createDamageTrap(RenderSystem* renderer, vec2 pos)
 
 	// Setting initial trap values
 	registry.traps.emplace(entity);
-	// TODO LATER - A1 has this entity inserted into renderRequest container
+
+	registry.renderRequests.insert(
+	entity,
+	{
+		TEXTURE_ASSET_ID::TRAP,
+		EFFECT_ASSET_ID::TEXTURED,
+		GEOMETRY_BUFFER_ID::SPRITE
+	});
 	return entity;
 };
 
@@ -248,7 +292,7 @@ void createHealthBar(Entity characterEntity, vec3 color) {
 
 	Motion& characterMotion = registry.motions.get(characterEntity);
 
-	StaticMotion& staticMotion = registry.staticMotions.emplace(meshEntity);
+	Static& staticMotion = registry.statics.emplace(meshEntity);
 	staticMotion.position = characterMotion.position;
 	staticMotion.angle = 0.f;
 	staticMotion.scale = { 1.0f, 1.0f };

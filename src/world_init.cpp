@@ -148,10 +148,10 @@ Entity createHeart(RenderSystem* renderer, vec2 pos)
 	auto entity = Entity();
 
 	// Setting intial motion values
-	Static& fixed = registry.statics.emplace(entity);
+	Stationary& fixed = registry.stationarys.emplace(entity);
 	fixed.position = pos;
 	fixed.angle = 0.f;
-	fixed.scale = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT };
+	fixed.scale = { HEART_BB_WIDTH, HEART_BB_HEIGHT };
 
 	// Setting initial hitbox values
 	Hitbox& hitbox = registry.hitboxes.emplace(entity);
@@ -292,7 +292,7 @@ void createHealthBar(Entity characterEntity, vec3 color) {
 
 	Motion& characterMotion = registry.motions.get(characterEntity);
 
-	Static& staticMotion = registry.statics.emplace(meshEntity);
+	Stationary& staticMotion = registry.stationarys.emplace(meshEntity);
 	staticMotion.position = characterMotion.position;
 	staticMotion.angle = 0.f;
 	staticMotion.scale = { 1.0f, 1.0f };

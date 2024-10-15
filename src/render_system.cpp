@@ -16,8 +16,8 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection)
 		transform.rotate(motion.angle);
 		transform.scale(motion.scale);
 	}
-	else if(registry.statics.has(entity)) {
-		Static& motion = registry.statics.get(entity);
+	else if(registry.stationarys.has(entity)) {
+		Stationary& motion = registry.stationarys.get(entity);
 		transform.translate(motion.position);
 		transform.rotate(motion.angle);
 		transform.scale(motion.scale);
@@ -183,13 +183,13 @@ void RenderSystem::update_hpbars() {
 	for (Entity entity : registry.players.entities) {
 		Player& player = registry.players.get(entity);
 		HealthBar& hpbar = registry.healthBars.get(entity);
-		Static& motion = registry.statics.get(hpbar.meshEntity);
+		Stationary& motion = registry.stationarys.get(hpbar.meshEntity);
 		motion.scale.x = player.health/100.f;
 	}
 	for (Entity entity : registry.enemies.entities) {
 		Enemy& enemy = registry.enemies.get(entity);
 		HealthBar& hpbar = registry.healthBars.get(entity);
-		Static& motion = registry.statics.get(hpbar.meshEntity);
+		Stationary& motion = registry.stationarys.get(hpbar.meshEntity);
 		motion.scale.x = enemy.health/100.f;
 	}
 }

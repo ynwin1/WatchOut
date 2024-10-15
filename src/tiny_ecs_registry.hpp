@@ -27,7 +27,7 @@ public:
 	ComponentContainer<Damaged> damageds;
 	ComponentContainer<DeathTimer> deathTimers;
 	ComponentContainer<HealthBar> healthBars;
-	ComponentContainer<Static> statics;
+	ComponentContainer<Stationary> stationarys;
 
 
 	// Spawnable types

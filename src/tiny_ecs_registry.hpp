@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <map>
 
 #include "tiny_ecs.hpp"
 #include "components.hpp"
@@ -28,6 +29,8 @@ public:
 	ComponentContainer<DeathTimer> deathTimers;
 	ComponentContainer<HealthBar> healthBars;
 	ComponentContainer<StaticMotion> staticMotions;
+	ComponentContainer<Text> texts;
+	std::map<char, TextChar> textChars;
 
 
 	// Spawnable types

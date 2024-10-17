@@ -2,7 +2,69 @@
 #include "render_system.hpp"
 #include <SDL.h>
 
+#include <iostream>
+#include <glm/gtc/matrix_transform.hpp>
+
 #include "tiny_ecs_registry.hpp"
+
+void RenderSystem::drawText(Entity entity) {
+	glm::mat4 projection = glm::ortho(0.0f, camera->getWidth(), camera->getHeight(), 0.0f);
+
+	const Text& text = registry.texts.get(entity);
+	const RenderRequest& render_request = registry.renderRequests.get(entity);
+
+	const GLuint used_effect_enum = (GLuint)render_request.used_effect;
+	assert(used_effect_enum != (GLuint)EFFECT_ASSET_ID::EFFECT_COUNT);
+	const GLuint program = (GLuint)effects[used_effect_enum];
+
+	// Setting shaders
+	glUseProgram(program);
+
+    glUniform3f(glGetUniformLocation(program, "textColor"), 1.0f, 1.0f, 1.0f);
+
+	glActiveTexture(GL_TEXTURE0);
+
+	float startX = text.position.x;
+	float startY = text.position.y;
+
+	std::string::const_iterator c;
+    for (c = text.value.begin(); c != text.value.end(); c++)
+    {
+        TextChar ch = registry.textChars[*c];
+
+        float xpos = startX + ch.bearing.x * text.scale;
+		float ypos = startY - (ch.size.y - ch.bearing.y) * text.scale;
+
+        float w = ch.size.x * text.scale;
+        float h = ch.size.y * text.scale;
+        // update VBO for each character
+		float vertices[6][4] = {
+    		{ xpos, ypos - (h - ch.bearing.y), 0.0f, 1.0f },  // top-left
+    		{ xpos, ypos -  ch.bearing.y, 0.0f, 0.0f },  // bottom-left
+    		{ xpos + w, ypos -  ch.bearing.y, 1.0f, 0.0f },  // bottom-right
+   	 		{ xpos, ypos - (h -  ch.bearing.y),   0.0f, 1.0f },  // top-left
+    		{ xpos + w, ypos -  ch.bearing.y,         1.0f, 0.0f },  // bottom-right
+    		{ xpos + w, ypos - (h -  ch.bearing.y),   1.0f, 1.0f }   // top-right
+		};
+
+        // render glyph texture over quad
+        glBindTexture(GL_TEXTURE_2D, ch.textureID);
+        // update content of VBO memory
+        const GLuint vbo = vertex_buffers[(GLuint)render_request.used_geometry];
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices); 
+
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+
+		GLuint projection_loc = glGetUniformLocation(program, "projection");
+		glUniformMatrix4fv(projection_loc, 1, GL_FALSE, (float*)&projection);
+		gl_has_errors();
+
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        startX += (ch.advance >> 6) * text.scale; // bitshift by 6 to get value in pixels (2^6 = 64)
+    }
+}
 
 void RenderSystem::drawMesh(Entity entity, const mat3& projection)
 {
@@ -134,7 +196,12 @@ void RenderSystem::draw()
 	//Draw all textured meshes that have a position and size component
 	for (Entity entity : registry.renderRequests.entities)
 	{
-		drawMesh(entity, projection_2D);
+		if(registry.texts.has(entity)) {
+			drawText(entity);
+		} else {
+			drawMesh(entity, projection_2D);
+		}
+		
 	}
 
 	// flicker-free display with a double buffer

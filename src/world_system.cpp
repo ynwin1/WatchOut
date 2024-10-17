@@ -63,6 +63,7 @@ void WorldSystem::restart_game()
 
     // Create player entity
     playerEntity = createJeff(renderer, vec2(world_size_x / 2.f, world_size_y / 2.f));
+    createFPSText({camera->getWidth() - 45.0f, camera->getHeight() - 35.0f});
     game_over = false;
     is_paused = false;
 

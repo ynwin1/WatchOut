@@ -108,6 +108,19 @@ struct DeathTimer
 	float timer = 3000;
 };
 
+struct Text {
+	std::string value;
+	vec2 position = { 0, 0 };
+	float scale = 1.0f;
+};
+
+struct TextChar {
+    unsigned int textureID;  // ID handle of the glyph texture
+    glm::ivec2   size;       // Size of glyph
+    glm::ivec2   bearing;    // Offset from baseline to left/top of glyph
+    unsigned int advance;    // Offset to advance to next glyph
+};
+
 // Enemy types
 struct Boar {};
 struct Barbarian {};

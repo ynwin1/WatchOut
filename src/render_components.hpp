@@ -56,7 +56,8 @@ const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 enum class EFFECT_ASSET_ID {
 	TEXTURED = 0,
 	UNTEXTURED = 1,
-	EFFECT_COUNT = UNTEXTURED + 1
+	TEXT = UNTEXTURED + 1,
+	EFFECT_COUNT = TEXT + 1
 };
 const int effect_count = (int)EFFECT_ASSET_ID::EFFECT_COUNT;
 
@@ -64,7 +65,8 @@ enum class GEOMETRY_BUFFER_ID {
 	SPRITE = 0,
 	GAME_SPACE = SPRITE + 1,
 	HEALTH_BAR = GAME_SPACE + 1,
-	GEOMETRY_COUNT = HEALTH_BAR + 1
+	TEXT = HEALTH_BAR + 1,
+	GEOMETRY_COUNT = TEXT + 1
 };
 const int geometry_count = (int)GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;
 

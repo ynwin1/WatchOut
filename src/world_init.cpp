@@ -270,3 +270,19 @@ void createHealthBar(Entity characterEntity, vec3 color) {
 	hpbar.width = width;
 	hpbar.height = height;
 }
+
+void createFPSText(vec2 position) {
+	auto entity = Entity();
+
+	Text& text = registry.texts.emplace(entity);
+	text.value = "00";
+	text.position = position;
+
+	registry.renderRequests.insert(
+			entity, 
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::TEXT,
+			GEOMETRY_BUFFER_ID::TEXT
+		});
+}

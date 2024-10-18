@@ -67,7 +67,6 @@ public:
 	void draw();
 
 	void turn_damaged_red(std::vector<Entity>& was_damaged);
-	void update_hpbars();
 
 	void step(float elapsed_ms);
 
@@ -78,6 +77,8 @@ private:
 
 	// Internal drawing functions for each entity type
 	void drawMesh(Entity entity, const mat3& projection);
+
+	void update_hpbars();
 
 	// Window handle
 	GLFWwindow* window;

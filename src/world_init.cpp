@@ -290,12 +290,15 @@ Entity createGameOver(RenderSystem* renderer, vec2 pos)
 void createHealthBar(Entity characterEntity, vec3 color) {
 	auto meshEntity = Entity();
 
+	const float width = 60.0f;
+	const float height = 10.0f;
+
 	Motion& characterMotion = registry.motions.get(characterEntity);
 
 	Stationary& staticMotion = registry.stationarys.emplace(meshEntity);
 	staticMotion.position = characterMotion.position;
 	staticMotion.angle = 0.f;
-	staticMotion.scale = { 1.0f, 1.0f };
+	staticMotion.scale = { width, height };
 
 	registry.colours.insert(meshEntity, color);
 
@@ -307,5 +310,7 @@ void createHealthBar(Entity characterEntity, vec3 color) {
 			GEOMETRY_BUFFER_ID::HEALTH_BAR
 		});
 
-	registry.healthBars.emplace(characterEntity, meshEntity);
+	HealthBar& hpbar = registry.healthBars.emplace(characterEntity, meshEntity);
+	hpbar.width = width;
+	hpbar.height = height;
 }

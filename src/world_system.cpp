@@ -465,10 +465,22 @@ void WorldSystem::entity_collectible_collision(Entity entity, Entity entity_othe
     // destroy the collectible
     registry.remove_all_components_of(entity_other);
 
-    // increase collectible count in player
+    // handle different collectibles
     Player& player = registry.players.get(entity);
-    player.trapsCollected++;
-    printf("Player collected a trap\n");
+	Collectible& collectible = registry.collectibles.get(entity_other);
+
+    if (collectible.type == "trap") {
+        player.trapsCollected++;
+        printf("Player collected a trap\n");
+    }
+    else if (collectible.type == "heart") {
+        unsigned int health_increase = player.health <= 80 ? 20 : 100 - player.health;
+        player.health += health_increase;
+		printf("Player collected a heart\n");
+	}
+	else {
+		printf("Unknown collectible type\n");
+	}
 }
 
 void WorldSystem::entity_trap_collision(Entity entity, Entity entity_other, std::vector<Entity>& was_damaged) {

@@ -47,6 +47,7 @@ struct HealthBar {
 struct Collectible
 {
 	// fixed position and scale once set
+	std::string type = "trap"; // default to trap
 	vec2 position = { 0, 0 };
 	vec2 scale = { 3, 3 };
 };

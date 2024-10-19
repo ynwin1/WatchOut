@@ -158,7 +158,8 @@ Entity createHeart(RenderSystem* renderer, vec2 pos)
 	hitbox.position = pos;
 	hitbox.dimension = { HEART_BB_WIDTH, HEART_BB_HEIGHT };
 
-	registry.collectibles.emplace(entity);
+	Collectible& heart = registry.collectibles.emplace(entity);
+	heart.type = "heart";
 
 	registry.renderRequests.insert(
 	entity,

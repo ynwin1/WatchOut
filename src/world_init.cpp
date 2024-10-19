@@ -156,14 +156,14 @@ Entity createHeart(RenderSystem* renderer, vec2 pos)
 	// Setting initial hitbox values
 	Hitbox& hitbox = registry.hitboxes.emplace(entity);
 	hitbox.position = pos;
-	hitbox.dimension = { TRAP_BB_WIDTH, TRAP_BB_HEIGHT };
+	hitbox.dimension = { HEART_BB_WIDTH, HEART_BB_HEIGHT };
 
 	registry.collectibles.emplace(entity);
 
 	registry.renderRequests.insert(
 	entity,
 	{
-		TEXTURE_ASSET_ID::TRAPCOLLECTABLE,
+		TEXTURE_ASSET_ID::HEART,
 		EFFECT_ASSET_ID::TEXTURED,
 		GEOMETRY_BUFFER_ID::SPRITE
 	});

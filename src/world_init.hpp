@@ -46,7 +46,7 @@ Entity createDamageTrap(RenderSystem* renderer, vec2 pos);
 
 void createBattleGround();
 
-void createFPSText(vec2 position);
+Entity createFPSText(vec2 position);
 
 // GameOver
 Entity createGameOver(RenderSystem* renderer, vec2 pos);

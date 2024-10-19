@@ -271,11 +271,11 @@ void createHealthBar(Entity characterEntity, vec3 color) {
 	hpbar.height = height;
 }
 
-void createFPSText(vec2 position) {
+Entity createFPSText(vec2 position) {
 	auto entity = Entity();
 
 	Text& text = registry.texts.emplace(entity);
-	text.value = "00";
+	text.value = "00 FPS";
 	text.position = position;
 
 	registry.renderRequests.insert(
@@ -285,4 +285,6 @@ void createFPSText(vec2 position) {
 			EFFECT_ASSET_ID::TEXT,
 			GEOMETRY_BUFFER_ID::TEXT
 		});
+
+	return entity;
 }

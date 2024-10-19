@@ -63,11 +63,26 @@ void WorldSystem::restart_game()
 
     // Create player entity
     playerEntity = createJeff(renderer, vec2(world_size_x / 2.f, world_size_y / 2.f));
-    createFPSText({camera->getWidth() - 45.0f, camera->getHeight() - 35.0f});
     game_over = false;
     is_paused = false;
+    
+    fpsTracker.textEntity = createFPSText({camera->getWidth() - 75.0f, 25.0f});
 
     next_spawns = spawn_delays;
+}
+
+void WorldSystem::trackFPS(float elapsed_ms) {
+    fpsTracker.elapsedTime += elapsed_ms;
+    fpsTracker.counter += 1;
+
+    if(fpsTracker.elapsedTime >= 1000) {
+        fpsTracker.fps = fpsTracker.counter;
+        fpsTracker.counter = 0;
+        fpsTracker.elapsedTime = 0;
+
+        Text& text = registry.texts.get(fpsTracker.textEntity);
+        text.value = std::to_string(fpsTracker.fps) + " FPS";
+    }
 }
 
 bool WorldSystem::step(float elapsed_ms)
@@ -76,6 +91,7 @@ bool WorldSystem::step(float elapsed_ms)
     update_positions(elapsed_ms);
     update_cooldown(elapsed_ms);
     handle_deaths(elapsed_ms);
+    trackFPS(elapsed_ms);
 
     if (camera->isToggled()) {
         Motion& playerMotion = registry.motions.get(playerEntity);

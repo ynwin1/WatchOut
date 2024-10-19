@@ -41,6 +41,8 @@ private:
 
 	Camera* camera;
 
+	FPSTracker fpsTracker;
+
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);
 	void on_mouse_move(vec2 mouse_position);
@@ -68,6 +70,7 @@ private:
 	void recoil_entities(Motion& motion1, Motion& motion2);
 	float calculate_x_overlap(Motion& motion1, Motion& motion2);
 	float calculate_y_overlap(Motion& motion1, Motion& motion2);
+	void trackFPS(float elapsed_ms);
 
 	// Collision functions
 	void entity_collectible_collision(Entity entity, Entity collectible);

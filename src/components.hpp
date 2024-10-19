@@ -121,6 +121,13 @@ struct TextChar {
     unsigned int advance;    // Offset to advance to next glyph
 };
 
+struct FPSTracker {
+	int fps = 0;
+	int counter = 0;
+	float elapsedTime = 0;
+	Entity textEntity;
+};
+
 // Enemy types
 struct Boar {};
 struct Barbarian {};

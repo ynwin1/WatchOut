@@ -18,12 +18,12 @@ WorldSystem::WorldSystem() :
         {"boar", 3000},
         {"barbarian", 8000},
         {"archer", 10000},
-		{"heart", 20000},
-		{"collectible_trap", 25000}
+		{"heart", 2000},
+		{"collectible_trap", 3000}
         }),
     max_entities({
-        {"boar", 2},
-        {"barbarian", 2},
+        {"boar", 0},
+        {"barbarian", 0},
         {"archer", 0},
 		{"heart", 1},
 		{"collectible_trap", 1}
@@ -170,19 +170,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
         // Currently, it is placed at the player's position
         // MAYBE - Place it behind the player in the direction they are facin
 
-        // Player position
-        vec2 playerPos = player_motion.position;
-        // Reduce player's trap count
-        if (player_comp.trapsCollected == 0) {
-            printf("Player has no traps to place\n");
-            // TODO LATER - Do something to indicate that player has no traps [Milestone AFTER]
-            return;
-        }
-
-        // Create a trap at player's position
-        createDamageTrap(renderer, playerPos);
-        player_comp.trapsCollected--;
-        printf("Trap placed at (%f, %f)\n", playerPos.x, playerPos.y);
+        place_trap(player_comp, player_motion);
 	}
 
     // Handle ESC key to close the game window
@@ -619,5 +607,22 @@ void WorldSystem::despawn_collectibles(float elapsed_ms) {
 			registry.remove_all_components_of(collectibleEntity);
 		}
 	}
+}
+
+void WorldSystem::place_trap(Player& player, Motion& motion) {
+    // Player position
+    vec2 playerPos = motion.position;
+	// Do not place trap if player has no traps
+    if (player.trapsCollected == 0) {
+        printf("Player has no traps to place\n");
+        return;
+    }
+	// Place trap in front 
+	vec2 toAdd = { (motion.scale.x / 2 + 10.f), 0.0f };
+    vec2 trapPos = playerPos + toAdd;
+	createDamageTrap(renderer, trapPos);
+	player.trapsCollected--;
+	printf("Trap placed at (%f, %f)\n", trapPos.x, trapPos.y);
+	printf("Trap count is now %d\n", player.trapsCollected);
 }
 

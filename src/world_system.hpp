@@ -69,6 +69,7 @@ private:
 	void recoil_entities(Motion& motion1, Motion& motion2);
 	float calculate_x_overlap(Motion& motion1, Motion& motion2);
 	float calculate_y_overlap(Motion& motion1, Motion& motion2);
+	void place_trap(Player& player, Motion& motion);
 
 	// Collision functions
 	void entity_collectible_collision(Entity entity, Entity collectible);

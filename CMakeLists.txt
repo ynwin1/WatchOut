@@ -58,16 +58,18 @@ if (OPENGL_FOUND)
    target_link_libraries(${PROJECT_NAME} PUBLIC ${OPENGL_gl_LIBRARY})
 endif()
 
-find_package(Freetype REQUIRED)
-if (FREETYPE_FOUND)
-    target_include_directories(${PROJECT_NAME} PRIVATE ${FREETYPE_INCLUDE_DIRS})
-    target_link_libraries(${PROJECT_NAME} PRIVATE ${FREETYPE_LIBRARIES})
-else()
-    message(FATAL_ERROR "Freetype not found")
-endif()
-
 set(glm_DIR ${CMAKE_CURRENT_SOURCE_DIR}/ext/glm/cmake/glm) # if necessary
 find_package(glm REQUIRED)
+
+if(IS_OS_MAC)
+  find_package(Freetype REQUIRED)
+  if (FREETYPE_FOUND)
+    target_include_directories(${PROJECT_NAME} PRIVATE ${FREETYPE_INCLUDE_DIRS})
+    target_link_libraries(${PROJECT_NAME} PRIVATE ${FREETYPE_LIBRARIES})
+  else()
+    message(FATAL_ERROR "Freetype not found")
+  endif()
+endif()
 
 # GLFW, SDL2 could be precompiled (on windows) or installed by a package manager (on OSX and Linux)
 if (IS_OS_LINUX OR IS_OS_MAC)
@@ -96,6 +98,9 @@ elseif (IS_OS_WINDOWS)
 
     set(GLFW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/ext/glfw/include")
     set(SDL2_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/ext/sdl/include/SDL")
+
+    set(FREETYPE_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/ext/freetype/include")
+    set(FREETYPE_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/ext/freetype/lib/freetype.a")
 
     if (${CMAKE_SIZEOF_VOID_P} MATCHES "8")
         set(GLFW_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/ext/glfw/lib/glfw3dll-x64.lib")
@@ -158,8 +163,9 @@ endif()
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${GLFW_INCLUDE_DIRS})
 target_include_directories(${PROJECT_NAME} PUBLIC ${SDL2_INCLUDE_DIRS})
+target_include_directories(${PROJECT_NAME} PUBLIC ${FREETYPE_INCLUDE_DIRS})
 
-target_link_libraries(${PROJECT_NAME} PUBLIC ${GLFW_LIBRARIES} ${SDL2_LIBRARIES} ${SDL2MIXER_LIBRARIES} glm::glm)
+target_link_libraries(${PROJECT_NAME} PUBLIC ${GLFW_LIBRARIES} ${SDL2_LIBRARIES} ${SDL2MIXER_LIBRARIES} ${FREETYPE_LIBRARIES} glm::glm)
 
 # Needed to add this
 if(IS_OS_LINUX)

@@ -18,12 +18,12 @@ WorldSystem::WorldSystem() :
         {"boar", 3000},
         {"barbarian", 8000},
         {"archer", 10000},
-		{"heart", 2000},
-		{"collectible_trap", 3000}
+		{"heart", 6000},
+		{"collectible_trap", 8000}
         }),
     max_entities({
-        {"boar", 0},
-        {"barbarian", 0},
+        {"boar", 2},
+        {"barbarian", 2},
         {"archer", 0},
 		{"heart", 1},
 		{"collectible_trap", 1}
@@ -617,12 +617,15 @@ void WorldSystem::place_trap(Player& player, Motion& motion) {
         printf("Player has no traps to place\n");
         return;
     }
-	// Place trap in front 
-	vec2 toAdd = { (motion.scale.x / 2 + 10.f), 0.0f };
-    vec2 trapPos = playerPos + toAdd;
+	// Place trap in front only if trap position is within the world bounds
+	vec2 gap = { (motion.scale.x / 2 + 70.f), 0.0f };
+	if (gap.x + playerPos.x > world_size_x) {
+		printf("Trap position is out of bounds\n");
+		return;
+	}
+    vec2 trapPos = playerPos + gap;
 	createDamageTrap(renderer, trapPos);
 	player.trapsCollected--;
-	printf("Trap placed at (%f, %f)\n", trapPos.x, trapPos.y);
 	printf("Trap count is now %d\n", player.trapsCollected);
 }
 

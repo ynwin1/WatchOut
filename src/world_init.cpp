@@ -252,7 +252,7 @@ void createHealthBar(Entity characterEntity, vec3 color) {
 	Motion& characterMotion = registry.motions.get(characterEntity);
 
 	StaticMotion& staticMotion = registry.staticMotions.emplace(meshEntity);
-	staticMotion.position = vec3(vec2(characterMotion.position), 60.0f);
+	// position does not need to be initialized as it will always be set to match the associated entity
 	staticMotion.angle = 0.f;
 	staticMotion.scale = { width, height };
 

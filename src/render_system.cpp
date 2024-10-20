@@ -188,7 +188,7 @@ void handleHpBarBoundsCheck() {
 		HealthBar& hpbar = hpbars.components[i];
 		StaticMotion& motion = registry.staticMotions.get(hpbar.meshEntity);
 		float halfScaleX = motion.scale.x / 2;
-		float halfScaleY = motion.scale.y / 2;
+		float halfScaleY = getWorldYPosition(motion.scale.y) / 2;
 
 		if(motion.position.x - halfScaleX  < 0) {
 			motion.position.x = halfScaleX;
@@ -211,7 +211,7 @@ void updateHpBarPositionHelper(const std::vector<Entity>& entities) {
         StaticMotion& healthBarMotion =  registry.staticMotions.get(healthBar.meshEntity);
          // place above character
         float topOffset = 15;
-        healthBarMotion.position.y = motion.position.y - (motion.scale.y / 2.f) - topOffset;
+        healthBarMotion.position.y = motion.position.y - (getWorldYPosition(motion.scale.y) / 2.f) - topOffset;
         healthBarMotion.position.x = motion.position.x;
     }   
 }
@@ -272,7 +272,8 @@ mat3 RenderSystem::createProjectionMatrix()
 	return { {sx, 0.f, 0.f}, {0.f, sy, 0.f}, {tx, ty, 1.f} };
 }
 
-float getVisualYPosition(float y, float z) {
+float getVisualYPosition(float y, float z) 
+{
 	return y / sqrt(2) - z / sqrt(2);
 }
 
@@ -281,6 +282,7 @@ float getWorldYPosition(float y)
 	return y * sqrt(2);
 }
 
-vec2 getVisualPosition(vec3 pos) {
+vec2 getVisualPosition(vec3 pos) 
+{
 	return vec2(pos.x, getVisualYPosition(pos.y, pos.z));
 }

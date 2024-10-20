@@ -10,17 +10,20 @@ WorldSystem::WorldSystem() :
     spawn_functions({
         {"boar", createBoar},
         {"barbarian", createBarbarian},
-        {"archer", createArcher}
+        {"archer", createArcher},
+        {"heart", createHeart}
         }),
     spawn_delays({
         {"boar", 3000},
         {"barbarian", 8000},
-        {"archer", 10000}
+        {"archer", 10000},
+		{"heart", 10000}
         }),
     max_entities({
         {"boar", 2},
         {"barbarian", 2},
-        {"archer", 0}
+        {"archer", 0},
+		{"heart", 1}
         })
 {
     // Seeding rng with random device
@@ -58,7 +61,8 @@ void WorldSystem::restart_game()
     entity_types = {
         "barbarian",
         "boar",
-        "archer"
+        "archer",
+        "heart"
     };
 
     // Create player entity
@@ -106,6 +110,7 @@ void WorldSystem::handle_collisions()
         if (registry.players.has(entity)) {
             // If the entity is colliding with a collectible
             if (registry.collectibles.has(entity_other)) {
+				printf("Player collided with collectible\n");
 				entity_collectible_collision(entity, entity_other);
             }
             else if (registry.traps.has(entity_other)) {
@@ -354,25 +359,39 @@ vec2 WorldSystem::get_spawn_location(const std::string& entity_type)
     float loc = uniform_dist(rng);
     vec2 size = entity_sizes.at(entity_type);
     vec2 spawn_location{};
-    if (side == 0) {
-        // Spawn north
-        spawn_location.x = size.x / 2.f + (world_size_x - size.x / 2.f) * loc;
-        spawn_location.y = size.y / 2.f;
+
+    printf("Spawning entity\n");
+
+    // spawn heart
+	if (entity_type == "heart") {
+		// spawn at random location on the map
+        printf("Spawning heart\n");
+		spawn_location.x = loc * world_size_x;
+		spawn_location.y = loc * world_size_y;
     }
-    else if (side == 1) {
-        // Spawn south
-        spawn_location.x = size.x / 2.f + (world_size_x - size.x / 2.f) * loc;
-        spawn_location.y = world_size_y - (size.y / 2.f);
-    }
-    else if (side == 2) {
-        // Spawn west
-        spawn_location.x = size.x / 2.f;
-        spawn_location.y = size.y / 2.f + (world_size_y - size.y / 2.f) * loc;
-    }
-    else {
-        // Spawn east
-        spawn_location.x = world_size_x - (size.x / 2.f);
-        spawn_location.y = size.y / 2.f + (world_size_y - size.y / 2.f) * loc;
+    else 
+	// spawn enemies
+    {
+        if (side == 0) {
+            // Spawn north
+            spawn_location.x = size.x / 2.f + (world_size_x - size.x / 2.f) * loc;
+            spawn_location.y = size.y / 2.f;
+        }
+        else if (side == 1) {
+            // Spawn south
+            spawn_location.x = size.x / 2.f + (world_size_x - size.x / 2.f) * loc;
+            spawn_location.y = world_size_y - (size.y / 2.f);
+        }
+        else if (side == 2) {
+            // Spawn west
+            spawn_location.x = size.x / 2.f;
+            spawn_location.y = size.y / 2.f + (world_size_y - size.y / 2.f) * loc;
+        }
+        else {
+            // Spawn east
+            spawn_location.x = world_size_x - (size.x / 2.f);
+            spawn_location.y = size.y / 2.f + (world_size_y - size.y / 2.f) * loc;
+        }
     }
     return spawn_location;
 }
@@ -461,9 +480,6 @@ float WorldSystem::calculate_y_overlap(Motion& motion1, Motion& motion2) {
 // Collision functions
 void WorldSystem::entity_collectible_collision(Entity entity, Entity entity_other) {
     // ONLY PLAYER CAN COLLECT COLLECTIBLES
-    
-    // destroy the collectible
-    registry.remove_all_components_of(entity_other);
 
     // handle different collectibles
     Player& player = registry.players.get(entity);
@@ -481,6 +497,9 @@ void WorldSystem::entity_collectible_collision(Entity entity, Entity entity_othe
 	else {
 		printf("Unknown collectible type\n");
 	}
+
+    // destroy the collectible
+    registry.remove_all_components_of(entity_other);
 }
 
 void WorldSystem::entity_trap_collision(Entity entity, Entity entity_other, std::vector<Entity>& was_damaged) {

@@ -146,6 +146,7 @@ Entity createCollectibleTrap(RenderSystem* renderer, vec2 pos)
 Entity createHeart(RenderSystem* renderer, vec2 pos)
 {
 	auto entity = Entity();
+	registry.hearts.emplace(entity);
 
 	// Setting intial motion values
 	Stationary& fixed = registry.stationarys.emplace(entity);

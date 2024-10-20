@@ -113,3 +113,4 @@ struct DeathTimer
 struct Boar {};
 struct Barbarian {};
 struct Archer {};
+struct Heart {};

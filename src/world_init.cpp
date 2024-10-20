@@ -130,8 +130,7 @@ Entity createCollectibleTrap(RenderSystem* renderer, vec2 pos)
 	hitbox.position = pos;
 	hitbox.dimension = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT };
 
-	Collectible& collectible_trap = registry.collectibles.emplace(entity);
-	collectible_trap.type = "collectible_trap";
+	registry.collectibles.emplace(entity);
 
 	registry.renderRequests.insert(
 	entity,
@@ -161,8 +160,7 @@ Entity createHeart(RenderSystem* renderer, vec2 pos)
 	hitbox.position = pos;
 	hitbox.dimension = { HEART_BB_WIDTH, HEART_BB_HEIGHT };
 
-	Collectible& heart = registry.collectibles.emplace(entity);
-	heart.type = "heart";
+	registry.collectibles.emplace(entity);
 
 	registry.renderRequests.insert(
 	entity,

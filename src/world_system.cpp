@@ -18,8 +18,8 @@ WorldSystem::WorldSystem() :
         {"boar", 3000},
         {"barbarian", 8000},
         {"archer", 10000},
-		{"heart", 10000},
-		{"collectible_trap", 3000}
+		{"heart", 20000},
+		{"collectible_trap", 25000}
         }),
     max_entities({
         {"boar", 2},
@@ -488,7 +488,7 @@ void WorldSystem::entity_collectible_collision(Entity entity, Entity entity_othe
 
     if (registry.collectibleTraps.has(entity_other)) {
         player.trapsCollected++;
-        printf("Player collected a trap\n");
+        printf("Player collected a trap. Trap count is now %d\n", player.trapsCollected);
     }
     else if (registry.hearts.has(entity_other)) {
         unsigned int health = registry.hearts.get(entity_other).health;
@@ -500,28 +500,8 @@ void WorldSystem::entity_collectible_collision(Entity entity, Entity entity_othe
 		printf("Unknown collectible type\n");
 	}
 
-
-    // TODO - DELETE
-	const bool isCollectibleTrap = registry.collectibleTraps.has(entity_other);
-    if (isCollectibleTrap) {
-        printf("About to destroy collectible trap\n");
-    }
-
-	const bool isHeart = registry.hearts.has(entity_other);
-	if (isHeart) {
-		printf("About to destroy heart\n");
-	}
-
     // destroy the collectible
     registry.remove_all_components_of(entity_other);
-
-	if (isHeart) {
-		printf("Heart container size = %zu\n", registry.hearts.size());
-	}
-
-    if (isCollectibleTrap) {
-        printf("Collectible trap container size = %zu\n", registry.collectibleTraps.size());
-	}
 }
 
 void WorldSystem::entity_trap_collision(Entity entity, Entity entity_other, std::vector<Entity>& was_damaged) {
@@ -639,6 +619,5 @@ void WorldSystem::despawn_collectibles(float elapsed_ms) {
 			registry.remove_all_components_of(collectibleEntity);
 		}
 	}
-    printf("Collectible trap container size = %zu\n", registry.collectibleTraps.size());
 }
 

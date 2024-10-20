@@ -58,6 +58,7 @@ public:
 		registry_list.push_back(&barbarians);
 		registry_list.push_back(&archers);
 		registry_list.push_back(&hearts);
+		registry_list.push_back(&collectibleTraps);
 
 		spawnable_lists["boar"] = &boars;
 		spawnable_lists["barbarian"] = &barbarians;

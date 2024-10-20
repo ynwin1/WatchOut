@@ -1,5 +1,6 @@
 #include "physics_system.hpp"
 #include "world_init.hpp"
+#include "render_system.hpp"
 #include <iostream>
 
 bool collides(const Hitbox& a, const Hitbox& b)
@@ -29,7 +30,7 @@ void handleBoundsCheck() {
 	for (uint i = 0; i < motion_container.components.size(); i++) {
 		Motion& motion = motion_container.components[i];
 		float halfScaleX = motion.scale.x / 2;
-		float halfScaleY = motion.scale.y / 2;
+		float halfScaleY = getWorldYPosition(motion.scale.y) / 2;
 
 		if(motion.position.x - halfScaleX < 0) {
 			motion.position.x = halfScaleX;

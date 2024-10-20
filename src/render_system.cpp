@@ -276,6 +276,11 @@ float getVisualYPosition(float y, float z) {
 	return y / sqrt(2) - z / sqrt(2);
 }
 
+float getWorldYPosition(float y)
+{
+	return y * sqrt(2);
+}
+
 vec2 getVisualPosition(vec3 pos) {
 	return vec2(pos.x, getVisualYPosition(pos.y, pos.z));
 }

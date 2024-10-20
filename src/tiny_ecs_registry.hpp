@@ -22,12 +22,17 @@ public:
 	ComponentContainer<Collectible> collectibles;
 	ComponentContainer<Hitbox> hitboxes;
 	ComponentContainer<Trap> traps;
-	ComponentContainer<RenderRequest> renderRequests;
-	ComponentContainer<vec3> colours;
 	ComponentContainer<Damaged> damageds;
 	ComponentContainer<DeathTimer> deathTimers;
 	ComponentContainer<HealthBar> healthBars;
 	ComponentContainer<StaticMotion> staticMotions;
+
+	// Render component containers
+	ComponentContainer<RenderRequest> renderRequests;
+	ComponentContainer<Background> backgrounds;
+	ComponentContainer<Midground> midgrounds;
+	ComponentContainer<Foreground> foregrounds;
+	ComponentContainer<vec3> colours;
 
 
 	// Spawnable types
@@ -47,10 +52,14 @@ public:
 		registry_list.push_back(&collectibles);
 		registry_list.push_back(&hitboxes);
 		registry_list.push_back(&traps);
-		registry_list.push_back(&renderRequests);
-		registry_list.push_back(&colours);
 		registry_list.push_back(&damageds);
 		registry_list.push_back(&deathTimers);
+
+		registry_list.push_back(&renderRequests);
+		registry_list.push_back(&backgrounds);
+		registry_list.push_back(&midgrounds);
+		registry_list.push_back(&foregrounds);
+		registry_list.push_back(&colours);
 
 		registry_list.push_back(&boars);
 		registry_list.push_back(&barbarians);

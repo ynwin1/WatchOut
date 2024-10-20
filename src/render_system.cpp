@@ -1,8 +1,12 @@
 // internal
 #include "render_system.hpp"
+#include "tiny_ecs_registry.hpp"
+
+// external
 #include <SDL.h>
 
-#include "tiny_ecs_registry.hpp"
+// STD
+#include <algorithm>
 
 void RenderSystem::drawMesh(Entity entity, const mat3& projection)
 {
@@ -109,6 +113,33 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection)
 	gl_has_errors();
 }
 
+// Returns true if entity a is further from the camera
+bool renderComparison(Entity a, Entity b)
+{
+	if (!registry.motions.has(a) && !registry.staticMotions.has(a)) {
+		return false;
+	}
+	if (!registry.motions.has(b) && !registry.staticMotions.has(b)) {
+		return true;
+	}
+	float positionA = 0;
+	float positionB = 0;
+	if (registry.motions.has(a)) {
+		positionA = registry.motions.get(a).position.y;
+	}
+	else if (registry.staticMotions.has(a)) {
+		positionA = registry.staticMotions.get(a).position.y;
+	}
+	if (registry.motions.has(b)) {
+		positionB = registry.motions.get(b).position.y;
+	}
+	else if (registry.staticMotions.has(b)) {
+		positionB = registry.staticMotions.get(b).position.y;
+	}
+
+	return positionA < positionB;
+}
+
 // Render our game world
 // http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/
 void RenderSystem::draw()
@@ -133,9 +164,22 @@ void RenderSystem::draw()
 	// sprites back to front
 	gl_has_errors();
 	mat3 projection_2D = createProjectionMatrix();
-	//Draw all textured meshes that have a position and size component
-	for (Entity entity : registry.renderRequests.entities)
-	{
+
+	// Draw all background textures
+	for (Entity entity : registry.backgrounds.entities) {
+		drawMesh(entity, projection_2D);
+	}
+	
+	// Copy entities and sort
+	std::vector<Entity> renderOrder = registry.midgrounds.entities;
+	std::sort(renderOrder.begin(), renderOrder.end(), renderComparison);
+	// Draw all midground textured meshes that have a position and size component
+	for (Entity entity : renderOrder) {
+		drawMesh(entity, projection_2D);
+	}
+
+	// Draw all foreground textures
+	for (Entity entity : registry.foregrounds.entities) {
 		drawMesh(entity, projection_2D);
 	}
 
@@ -196,8 +240,9 @@ void handleHpBarBoundsCheck() {
 			motion.position.x = world_size_x - halfScaleX;
 		}
 
-		if(motion.position.y - halfScaleY < 0) {
+		if(motion.position.y - halfScaleY - motion.position.z < 0) {
 			motion.position.y = halfScaleY;
+			motion.position.z = 0;
 		} else if(motion.position.y + halfScaleY > world_size_y) {
 			motion.position.y = world_size_y - halfScaleY;
 		}
@@ -211,8 +256,9 @@ void updateHpBarPositionHelper(const std::vector<Entity>& entities) {
         StaticMotion& healthBarMotion =  registry.staticMotions.get(healthBar.meshEntity);
          // place above character
         float topOffset = 15;
-        healthBarMotion.position.y = motion.position.y - (getWorldYPosition(motion.scale.y) / 2.f) - topOffset;
-        healthBarMotion.position.x = motion.position.x;
+		healthBarMotion.position.x = motion.position.x;
+        healthBarMotion.position.y = motion.position.y;
+		healthBarMotion.position.z = (getWorldYPosition(motion.scale.y) / 2.f) + topOffset;
     }   
 }
 

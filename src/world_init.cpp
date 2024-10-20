@@ -32,6 +32,7 @@ Entity createBoar(RenderSystem* renderer, vec2 pos)
 		EFFECT_ASSET_ID::TEXTURED,
 		GEOMETRY_BUFFER_ID::SPRITE
 	});
+	registry.midgrounds.emplace(entity);
 
 	createHealthBar(entity, vec3(1.0f, 0.0f, 0.0f));
 	
@@ -69,6 +70,7 @@ Entity createBarbarian(RenderSystem* renderer, vec2 pos)
 		EFFECT_ASSET_ID::TEXTURED,
 		GEOMETRY_BUFFER_ID::SPRITE
 	});
+	registry.midgrounds.emplace(entity);
 
 	createHealthBar(entity, vec3(1.0f, 0.0f, 0.0f));
 
@@ -106,6 +108,7 @@ Entity createArcher(RenderSystem* renderer, vec2 pos)
 		EFFECT_ASSET_ID::TEXTURED,
 		GEOMETRY_BUFFER_ID::SPRITE
 	});
+	registry.midgrounds.emplace(entity);
 
 	createHealthBar(entity, vec3(1.0f, 0.0f, 0.0f));
 	
@@ -198,6 +201,7 @@ Entity createJeff(RenderSystem* renderer, vec2 position)
 			EFFECT_ASSET_ID::TEXTURED,
 			GEOMETRY_BUFFER_ID::SPRITE
 		});
+	registry.midgrounds.emplace(entity);
 
 	createHealthBar(entity, vec3(0.0f, 1.0f, 0.0f));
 	
@@ -214,6 +218,7 @@ void createBattleGround() {
 			EFFECT_ASSET_ID::TEXTURED,
 			GEOMETRY_BUFFER_ID::GAME_SPACE
 		});
+	registry.backgrounds.emplace(entity);
 }
 
 // gameover
@@ -239,6 +244,7 @@ Entity createGameOver(RenderSystem* renderer, vec2 pos)
 		EFFECT_ASSET_ID::TEXTURED,
 		GEOMETRY_BUFFER_ID::SPRITE
 	});
+	registry.foregrounds.emplace(entity);
 	
 	return entity;
 };
@@ -265,6 +271,7 @@ void createHealthBar(Entity characterEntity, vec3 color) {
 			EFFECT_ASSET_ID::UNTEXTURED,
 			GEOMETRY_BUFFER_ID::HEALTH_BAR
 		});
+	registry.midgrounds.emplace(meshEntity);
 
 	HealthBar& hpbar = registry.healthBars.emplace(characterEntity, meshEntity);
 	hpbar.width = width;

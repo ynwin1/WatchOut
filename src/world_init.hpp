@@ -30,7 +30,8 @@ const std::unordered_map<std::string, vec2> entity_sizes = {
 	{"boar", { BOAR_BB_WIDTH, BOAR_BB_HEIGHT }},
 	{"barbarian", { BARBARIAN_BB_WIDTH, BARBARIAN_BB_HEIGHT }},
 	{"archer", { ARCHER_BB_WIDTH, ARCHER_BB_HEIGHT }},
-	{"heart", { HEART_BB_WIDTH, HEART_BB_HEIGHT }}
+	{"heart", { HEART_BB_WIDTH, HEART_BB_HEIGHT }},
+	{"collectible_trap", {TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT}}
 };
 
 // Jeff the Player

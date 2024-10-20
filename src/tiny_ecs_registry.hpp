@@ -36,6 +36,7 @@ public:
 	ComponentContainer<Barbarian> barbarians;
 	ComponentContainer<Archer> archers;
 	ComponentContainer<Heart> hearts;
+	ComponentContainer<CollectibleTrap> collectibleTraps;
 
 	ECSRegistry()
 	{
@@ -62,6 +63,7 @@ public:
 		spawnable_lists["barbarian"] = &barbarians;
 		spawnable_lists["archer"] = &archers;
 		spawnable_lists["heart"] = &hearts;
+		spawnable_lists["collectible_trap"] = &collectibleTraps;
 	}
 
 	void clear_all_components() {

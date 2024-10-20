@@ -113,4 +113,7 @@ struct DeathTimer
 struct Boar {};
 struct Barbarian {};
 struct Archer {};
+
+// Collectible types
 struct Heart { unsigned int health = 20; };
+struct CollectibleTrap {};

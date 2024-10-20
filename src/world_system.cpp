@@ -11,19 +11,22 @@ WorldSystem::WorldSystem() :
         {"boar", createBoar},
         {"barbarian", createBarbarian},
         {"archer", createArcher},
-        {"heart", createHeart}
+        {"heart", createHeart},
+		{"collectible_trap", createCollectibleTrap}
         }),
     spawn_delays({
         {"boar", 3000},
         {"barbarian", 8000},
         {"archer", 10000},
-		{"heart", 10000}
+		{"heart", 10000},
+		{"collectible_trap", 3000}
         }),
     max_entities({
         {"boar", 2},
         {"barbarian", 2},
         {"archer", 0},
-		{"heart", 1}
+		{"heart", 1},
+		{"collectible_trap", 1}
         })
 {
     // Seeding rng with random device
@@ -62,7 +65,8 @@ void WorldSystem::restart_game()
         "barbarian",
         "boar",
         "archer",
-        "heart"
+        "heart",
+        "collectible_trap"
     };
 
     // Create player entity
@@ -111,7 +115,6 @@ void WorldSystem::handle_collisions()
         if (registry.players.has(entity)) {
             // If the entity is colliding with a collectible
             if (registry.collectibles.has(entity_other)) {
-				printf("Player collided with collectible\n");
 				entity_collectible_collision(entity, entity_other);
             }
             else if (registry.traps.has(entity_other)) {
@@ -361,14 +364,11 @@ vec2 WorldSystem::get_spawn_location(const std::string& entity_type)
     vec2 size = entity_sizes.at(entity_type);
     vec2 spawn_location{};
 
-    printf("Spawning entity\n");
-
     // spawn heart
-	if (entity_type == "heart") {
+	if (entity_type == "heart" || entity_type == "collectible_trap") {
 		// spawn at random location on the map
-        printf("Spawning heart\n");
-		spawn_location.x = loc * (world_size_x - size.x / 2.f);
-		spawn_location.y = loc * (world_size_y - size.y / 2.f);
+		spawn_location.x = loc * (world_size_x - (size.x + 10.0f) / 2.f);
+		spawn_location.y = loc * (world_size_y - (size.y + 10.0f) / 2.f);
     }
     else 
 	// spawn enemies
@@ -486,7 +486,7 @@ void WorldSystem::entity_collectible_collision(Entity entity, Entity entity_othe
     Player& player = registry.players.get(entity);
 	Collectible& collectible = registry.collectibles.get(entity_other);
 
-    if (collectible.type == "trap") {
+    if (collectible.type == "collectible_trap") {
         player.trapsCollected++;
         printf("Player collected a trap\n");
     }

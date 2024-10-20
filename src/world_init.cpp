@@ -116,6 +116,7 @@ Entity createArcher(RenderSystem* renderer, vec2 pos)
 Entity createCollectibleTrap(RenderSystem* renderer, vec2 pos)
 {
 	auto entity = Entity();
+	registry.collectibleTraps.emplace(entity);
 
 	// Setting intial motion values
 	Motion& motion = registry.motions.emplace(entity);
@@ -127,9 +128,10 @@ Entity createCollectibleTrap(RenderSystem* renderer, vec2 pos)
 	// Setting initial hitbox values
 	Hitbox& hitbox = registry.hitboxes.emplace(entity);
 	hitbox.position = pos;
-	hitbox.dimension = { TRAP_BB_WIDTH, TRAP_BB_HEIGHT };
+	hitbox.dimension = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT };
 
-	registry.collectibles.emplace(entity);
+	Collectible& collectible_trap = registry.collectibles.emplace(entity);
+	collectible_trap.type = "collectible_trap";
 
 	registry.renderRequests.insert(
 	entity,

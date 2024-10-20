@@ -119,11 +119,10 @@ Entity createCollectibleTrap(RenderSystem* renderer, vec2 pos)
 	registry.collectibleTraps.emplace(entity);
 
 	// Setting intial motion values
-	Motion& motion = registry.motions.emplace(entity);
-	motion.position = pos;
-	motion.angle = 0.f;
-	motion.velocity = { 0.f, 0.f };
-	motion.scale = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT };
+	Stationary& fixed = registry.stationarys.emplace(entity);
+	fixed.position = pos;
+	fixed.angle = 0.f;
+	fixed.scale = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT };
 
 	// Setting initial hitbox values
 	Hitbox& hitbox = registry.hitboxes.emplace(entity);
@@ -139,6 +138,8 @@ Entity createCollectibleTrap(RenderSystem* renderer, vec2 pos)
 		EFFECT_ASSET_ID::TEXTURED,
 		GEOMETRY_BUFFER_ID::SPRITE
 	});
+
+	printf("Collectible trap created\n");
 
 	return entity;
 };

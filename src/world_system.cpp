@@ -78,7 +78,7 @@ bool WorldSystem::step(float elapsed_ms)
 
     if (camera->isToggled()) {
         Motion& playerMotion = registry.motions.get(playerEntity);
-        camera->followPosition(playerMotion.position);
+        camera->followPosition(getVisualPosition(playerMotion.position));
     }
 
     Player& player = registry.players.get(playerEntity);
@@ -228,8 +228,8 @@ void WorldSystem::on_key(int key, int, int action, int mod)
                     const float dashDistance = 300;
                     // Start dashing if player is moving
                     player_dash.isDashing = true;
-                    player_dash.dashStartPosition = player_motion.position;
-                    player_dash.dashTargetPosition = player_motion.position + player_comp.facing * dashDistance;
+                    player_dash.dashStartPosition = vec2(player_motion.position);
+                    player_dash.dashTargetPosition = player_dash.dashStartPosition + player_comp.facing * dashDistance;
                     player_dash.dashTimer = 0.0f; // Reset timer
                 }
                 break;
@@ -304,9 +304,9 @@ void WorldSystem::update_positions(float elapsed_ms)
                     // Interpolate between start and target positions
                     //player_motion.position is the target_position for the linear interpolation formula L(t)=(1−t)⋅A+t⋅B
 		            // L(t) = interpolated position, A = original position, B = target position, and t is the interpolation factor
-                    motion.position = glm::mix(dashing.dashStartPosition, dashing.dashTargetPosition, t);
+                    motion.position = vec3(glm::mix(dashing.dashStartPosition, dashing.dashTargetPosition, t), motion.position.z);
                 } else {
-                    motion.position = dashing.dashTargetPosition;
+                    motion.position = vec3(dashing.dashTargetPosition, motion.position.z);
                     dashing.isDashing = false; // Reset isDashing
                 }
             }  

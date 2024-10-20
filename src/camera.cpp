@@ -1,4 +1,5 @@
 #include "camera.hpp"
+#include "render_system.hpp"
 
 Camera::Camera() 
 {
@@ -8,7 +9,7 @@ Camera::Camera()
     boundsMin.x = halfWidth;
     boundsMax.x = world_size_x - halfWidth;
     boundsMin.y = halfHeight;
-    boundsMax.y = world_size_y - halfHeight;
+    boundsMax.y = getVisualYPosition(world_size_y, 0) - halfHeight;
 }
 
 void Camera::followPosition(vec2 newPosition) {

@@ -83,3 +83,6 @@ private:
 
 bool loadEffectFromFile(
 	const std::string& vs_path, const std::string& fs_path, GLuint& out_program);
+
+float getVisualYPosition(float y, float z);
+vec2 getVisualPosition(vec3 pos);

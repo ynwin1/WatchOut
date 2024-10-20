@@ -12,13 +12,15 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection)
 	Transform transform;
 	if(registry.motions.has(entity)) {
 		Motion& motion = registry.motions.get(entity);
-		transform.translate(motion.position);
+		vec2 visualPos = getVisualPosition(motion.position);
+		transform.translate(visualPos);
 		transform.rotate(motion.angle);
 		transform.scale(motion.scale);
 	}
 	else if(registry.staticMotions.has(entity)) {
 		StaticMotion& motion = registry.staticMotions.get(entity);
-		transform.translate(motion.position);
+		vec2 visualPos = getVisualPosition(motion.position);
+		transform.translate(visualPos);
 		transform.rotate(motion.angle);
 		transform.scale(motion.scale);
 	}
@@ -258,7 +260,7 @@ mat3 RenderSystem::createProjectionMatrix()
 		top = 0;
 		left = 0;
 		right = world_size_x;
-		bottom = world_size_y;
+		bottom = getVisualYPosition(world_size_y, 0);
 	}
 
 	gl_has_errors();
@@ -268,4 +270,12 @@ mat3 RenderSystem::createProjectionMatrix()
 	float tx = -(right + left) / (right - left);
 	float ty = -(top + bottom) / (top - bottom);
 	return { {sx, 0.f, 0.f}, {0.f, sy, 0.f}, {tx, ty, 1.f} };
+}
+
+float getVisualYPosition(float y, float z) {
+	return y / sqrt(2) - z / sqrt(2);
+}
+
+vec2 getVisualPosition(vec3 pos) {
+	return vec2(pos.x, getVisualYPosition(pos.y, pos.z));
 }

@@ -8,14 +8,14 @@ Entity createBoar(RenderSystem* renderer, vec2 pos)
 
 	// Setting intial motion values
 	Motion& motion = registry.motions.emplace(entity);
-	motion.position = pos;
+	motion.position = vec3(pos, 0);
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = { BOAR_BB_WIDTH, BOAR_BB_HEIGHT };
 
 	// Setting initial hitbox values
 	Hitbox& hitbox = registry.hitboxes.emplace(entity);
-	hitbox.position = pos;
+	hitbox.position = motion.position;
 	hitbox.dimension = { BOAR_BB_WIDTH, BOAR_BB_HEIGHT };
 
 	Enemy& enemy = registry.enemies.emplace(entity);
@@ -45,14 +45,14 @@ Entity createBarbarian(RenderSystem* renderer, vec2 pos)
 
 	// Setting intial motion values
 	Motion& motion = registry.motions.emplace(entity);
-	motion.position = pos;
+	motion.position = vec3(pos, 0);
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = { BARBARIAN_BB_WIDTH, BARBARIAN_BB_HEIGHT };
 
 	// Setting initial hitbox values
 	Hitbox& hitbox = registry.hitboxes.emplace(entity);
-	hitbox.position = pos;
+	hitbox.position = motion.position;
 	hitbox.dimension = { BARBARIAN_BB_WIDTH, BARBARIAN_BB_HEIGHT };
 	
 	Enemy& enemy = registry.enemies.emplace(entity);
@@ -82,14 +82,14 @@ Entity createArcher(RenderSystem* renderer, vec2 pos)
 
 	// Setting intial motion values
 	Motion& motion = registry.motions.emplace(entity);
-	motion.position = pos;
+	motion.position = vec3(pos, 0);
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = { ARCHER_BB_WIDTH, ARCHER_BB_HEIGHT };
 
 	// Setting initial hitbox values
 	Hitbox& hitbox = registry.hitboxes.emplace(entity);
-	hitbox.position = pos;
+	hitbox.position = motion.position;
 	hitbox.dimension = { ARCHER_BB_WIDTH, ARCHER_BB_HEIGHT };
 
 	// Add Render Request for drawing sprite
@@ -119,14 +119,14 @@ Entity createCollectibleTrap(RenderSystem* renderer, vec2 pos)
 
 	// Setting intial motion values
 	Motion& motion = registry.motions.emplace(entity);
-	motion.position = pos;
+	motion.position = vec3(pos, 0);
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = { TRAP_BB_WIDTH, TRAP_BB_HEIGHT };
 
 	// Setting initial hitbox values
 	Hitbox& hitbox = registry.hitboxes.emplace(entity);
-	hitbox.position = pos;
+	hitbox.position = motion.position;
 	hitbox.dimension = { TRAP_BB_WIDTH, TRAP_BB_HEIGHT };
 
 	// TODO LATER - A1 has this entity inserted into renderRequest container
@@ -141,14 +141,14 @@ Entity createDamageTrap(RenderSystem* renderer, vec2 pos)
 
 	// Setting intial motion values
 	Motion& motion = registry.motions.emplace(entity);
-	motion.position = pos;
+	motion.position = vec3(pos, 0);
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = { TRAP_BB_WIDTH, TRAP_BB_HEIGHT };
 
 	// Setting initial hitbox values
 	Hitbox& hitbox = registry.hitboxes.emplace(entity);
-	hitbox.position = pos;
+	hitbox.position = motion.position;
 	hitbox.dimension = { TRAP_BB_WIDTH, TRAP_BB_HEIGHT };
 
 	// Setting initial trap values
@@ -166,7 +166,7 @@ Entity createJeff(RenderSystem* renderer, vec2 position)
 	auto& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
 	motion.velocity = { 0, 0.f };
-	motion.position = position;
+	motion.position = vec3(position, 0);
 
 	//Initialize movement
 	auto& player = registry.players.emplace(entity);
@@ -187,7 +187,7 @@ Entity createJeff(RenderSystem* renderer, vec2 position)
 
 	// Setting initial hitbox values
 	Hitbox& hitbox = registry.hitboxes.emplace(entity);
-	hitbox.position = position;
+	hitbox.position = motion.position;
 	hitbox.dimension = { JEFF_BB_WIDTH, JEFF_BB_HEIGHT };
 
 	// Jeff Render Request
@@ -223,7 +223,7 @@ Entity createGameOver(RenderSystem* renderer, vec2 pos)
 
 	// Setting intial motion values
 	Motion& motion = registry.motions.emplace(entity);
-	motion.position = pos;
+	motion.position = vec3(pos, 0);
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = { GO_BB_WIDTH, GO_BB_HEIGHT };
@@ -252,7 +252,7 @@ void createHealthBar(Entity characterEntity, vec3 color) {
 	Motion& characterMotion = registry.motions.get(characterEntity);
 
 	StaticMotion& staticMotion = registry.staticMotions.emplace(meshEntity);
-	staticMotion.position = characterMotion.position;
+	staticMotion.position = vec3(vec2(characterMotion.position), 60.0f);
 	staticMotion.angle = 0.f;
 	staticMotion.scale = { width, height };
 

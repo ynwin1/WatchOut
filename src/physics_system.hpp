@@ -13,8 +13,4 @@ public:
 
 	// Array to store collision pairs
 	std::vector<std::pair<Entity, Entity>> collisions;
-
-	PhysicsSystem()
-	{
-	}
 };

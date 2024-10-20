@@ -62,14 +62,14 @@ struct Trap
 
 // All data relevant to the shape and motion of entities
 struct Motion {
-	vec2 position = { 0, 0 };
+	vec3 position = { 0, 0, 0 };
 	float angle = 0;
 	vec2 velocity = { 0, 0 };
 	vec2 scale = { 10, 10 };
 };
 
 struct StaticMotion {
-	vec2 position = { 0, 0 };
+	vec3 position = { 0, 0, 0 };
 	float angle = 0;
 	vec2 scale = { 10, 10 };
 };
@@ -85,7 +85,7 @@ struct Collision
 // Structure to store hitbox information
 struct Hitbox
 {
-	vec2 position = { 0, 0 };
+	vec3 position = { 0, 0, 0 };
 	vec2 dimension = { 0, 0 };
 };
 

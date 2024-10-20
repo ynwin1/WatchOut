@@ -113,4 +113,4 @@ struct DeathTimer
 struct Boar {};
 struct Barbarian {};
 struct Archer {};
-struct Heart {};
+struct Heart { unsigned int health = 20; };

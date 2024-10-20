@@ -367,8 +367,8 @@ vec2 WorldSystem::get_spawn_location(const std::string& entity_type)
 	if (entity_type == "heart") {
 		// spawn at random location on the map
         printf("Spawning heart\n");
-		spawn_location.x = loc * world_size_x;
-		spawn_location.y = loc * world_size_y;
+		spawn_location.x = loc * (world_size_x - size.x / 2.f);
+		spawn_location.y = loc * (world_size_y - size.y / 2.f);
     }
     else 
 	// spawn enemies
@@ -491,8 +491,9 @@ void WorldSystem::entity_collectible_collision(Entity entity, Entity entity_othe
         printf("Player collected a trap\n");
     }
     else if (collectible.type == "heart") {
-        unsigned int health_increase = player.health <= 80 ? 20 : 100 - player.health;
-        player.health += health_increase;
+        unsigned int health = registry.hearts.get(entity_other).health;
+        unsigned int addOn = player.health <= 80 ? health : 100 - player.health;
+        player.health += addOn;
 		printf("Player collected a heart\n");
 	}
 	else {

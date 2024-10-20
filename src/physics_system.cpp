@@ -54,6 +54,7 @@ void PhysicsSystem::step(float elapsed_ms)
 		Entity entity_i = motion_container.entities[i];
 		Hitbox& hitbox_i = registry.hitboxes.get(entity_i);
 
+		// Moving entities
 		for (uint j = i + 1; j < motion_container.components.size(); j++) {
 			Entity entity_j = motion_container.entities[j];
 			Hitbox& hitbox_j = registry.hitboxes.get(entity_j);
@@ -65,7 +66,7 @@ void PhysicsSystem::step(float elapsed_ms)
 			}
 		}
 
-
+		// Stationary entities
 		for (uint j = 0; j < stationary_container.components.size(); j++) {
 			Entity entity_j = stationary_container.entities[j];
 			if (registry.hitboxes.has(entity_j)) {

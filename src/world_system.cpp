@@ -79,6 +79,7 @@ bool WorldSystem::step(float elapsed_ms)
     update_positions(elapsed_ms);
     update_cooldown(elapsed_ms);
     handle_deaths(elapsed_ms);
+    despawn_collectibles(elapsed_ms);
 
     if (camera->isToggled()) {
         Motion& playerMotion = registry.motions.get(playerEntity);
@@ -607,5 +608,15 @@ void WorldSystem::checkAndHandleEnemyDeath(Entity enemy) {
         registry.enemies.remove(enemy);
         registry.deathTimers.emplace(enemy);
     }
+}
+
+void WorldSystem::despawn_collectibles(float elapsed_ms) {
+	for (auto& collectibleEntity : registry.collectibles.entities) {
+		Collectible& collectible = registry.collectibles.get(collectibleEntity);
+		collectible.timer -= elapsed_ms;
+		if (collectible.timer < 0) {
+			registry.remove_all_components_of(collectibleEntity);
+		}
+	}
 }
 

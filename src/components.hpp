@@ -46,7 +46,7 @@ struct HealthBar {
 // Collectible Component
 struct Collectible
 {
-	// fixed position and scale once set
+	float timer = 5000.f; // 5 seconds until it disappears
 	std::string type = "trap"; // default to trap
 	vec2 position = { 0, 0 };
 	vec2 scale = { 3, 3 };

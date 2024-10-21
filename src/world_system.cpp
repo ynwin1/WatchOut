@@ -199,19 +199,15 @@ void WorldSystem::on_key(int key, int, int action, int mod)
         // Set movement states based on key input
         switch (key)
         {
-            case GLFW_KEY_W:
             case GLFW_KEY_UP:
                 player_comp.goingUp = pressed;
                 break;
-            case GLFW_KEY_S:
             case GLFW_KEY_DOWN:
                 player_comp.goingDown = pressed;
                 break;
-            case GLFW_KEY_A:
             case GLFW_KEY_LEFT:
                 player_comp.goingLeft = pressed;
                 break;
-            case GLFW_KEY_D:
             case GLFW_KEY_RIGHT:
                 player_comp.goingRight = pressed;
                 break;
@@ -223,7 +219,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
                 // Roll
                 player_comp.isRolling = pressed;
                 break;
-            case GLFW_KEY_F:
+            case GLFW_KEY_D:
                 if (pressed) {
                     const float dashDistance = 300;
                     // Start dashing if player is moving

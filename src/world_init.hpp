@@ -50,6 +50,9 @@ Entity createCollectibleTrap(RenderSystem* renderer, vec2 pos);
 // The damage trap
 Entity createDamageTrap(RenderSystem* renderer, vec2 pos);
 
+// The health collectable
+Entity createHeart(RenderSystem* renderer, vec2 pos);
+
 void createBattleGround();
 
 // GameOver

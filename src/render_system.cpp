@@ -184,7 +184,7 @@ void handleHpBarBoundsCheck() {
 
 	for(uint i = 0; i < hpbars.components.size(); i++) {
 		HealthBar& hpbar = hpbars.components[i];
-		StaticMotion& motion = registry.staticMotions.get(hpbar.meshEntity);
+		Stationary& motion = registry.stationarys.get(hpbar.meshEntity);
 		float halfScaleX = motion.scale.x / 2;
 		float halfScaleY = motion.scale.y / 2;
 
@@ -206,7 +206,7 @@ void updateHpBarPositionHelper(const std::vector<Entity>& entities) {
     for (Entity entity : entities) {
 	    HealthBar& healthBar = registry.healthBars.get(entity);
         Motion& motion = registry.motions.get(entity);
-        StaticMotion& healthBarMotion =  registry.staticMotions.get(healthBar.meshEntity);
+        Stationary& healthBarMotion =  registry.stationarys.get(healthBar.meshEntity);
          // place above character
         float topOffset = 15;
         healthBarMotion.position.y = motion.position.y - (motion.scale.y / 2.f) - topOffset;
@@ -227,17 +227,6 @@ void updateHpBarMeter() {
 		Stationary& motion = registry.stationarys.get(hpbar.meshEntity);
 		motion.scale.x = hpbar.width * enemy.health/100.f;
 	}
-}
-
-void updateHpBarPosition() {
-    updateHpBarPositionHelper(registry.players.entities);
-    updateHpBarPositionHelper(registry.enemies.entities);
-}
-
-void RenderSystem::update_hpbars() {
-	updateHpBarMeter();
-	updateHpBarPosition();
-	handleHpBarBoundsCheck();
 }
 
 void updateHpBarPosition() {

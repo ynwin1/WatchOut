@@ -154,12 +154,12 @@ Entity createHeart(RenderSystem* renderer, vec2 pos)
 	Stationary& fixed = registry.stationarys.emplace(entity);
 	fixed.position = pos;
 	fixed.angle = 0.f;
-	fixed.scale = { HEART_BB_WIDTH, HEART_BB_HEIGHT };
+	fixed.scale = { HEART_BB_WIDTH, HEART_BB_WIDTH };
 
 	// Setting initial hitbox values
 	Hitbox& hitbox = registry.hitboxes.emplace(entity);
 	hitbox.position = pos;
-	hitbox.dimension = { HEART_BB_WIDTH, HEART_BB_HEIGHT };
+	hitbox.dimension = { HEART_BB_WIDTH, HEART_BB_WIDTH };
 
 	registry.collectibles.emplace(entity);
 

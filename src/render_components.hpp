@@ -4,7 +4,6 @@
 #include <unordered_map>
 #include "../ext/stb_image/stb_image.h"
 
-
 // Single Vertex Buffer element for textured sprites (textured.vs.glsl)
 struct TexturedVertex
 {
@@ -15,6 +14,25 @@ struct TexturedVertex
 struct UntexturedVertex
 {
 	vec3 position;
+};
+
+struct Animation
+{
+	int currentFrame = 0;
+	float elapsedTime = 0.0f;
+	float frameTime;
+	int numFrames;
+
+	// Update frame based on time in ms
+	void update(float deltaTime)
+	{
+		elapsedTime += deltaTime;
+		if (elapsedTime >= frameTime)
+		{
+			currentFrame = (currentFrame + 1) % numFrames;
+			elapsedTime = 0.0f;
+		}
+	}
 };
 
 /**
@@ -41,7 +59,8 @@ struct UntexturedVertex
  * enums there are, and as a default value to represent uninitialized fields.
  */
 
-enum class TEXTURE_ASSET_ID {
+enum class TEXTURE_ASSET_ID
+{
 	NONE = -1,
 	JEFF = 0,
 	BARBARIAN = JEFF + 1,
@@ -53,14 +72,17 @@ enum class TEXTURE_ASSET_ID {
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
-enum class EFFECT_ASSET_ID {
+enum class EFFECT_ASSET_ID
+{
 	TEXTURED = 0,
 	UNTEXTURED = 1,
-	EFFECT_COUNT = UNTEXTURED + 1
+	ANIMATED = 2,
+	EFFECT_COUNT = ANIMATED + 1
 };
 const int effect_count = (int)EFFECT_ASSET_ID::EFFECT_COUNT;
 
-enum class GEOMETRY_BUFFER_ID {
+enum class GEOMETRY_BUFFER_ID
+{
 	SPRITE = 0,
 	GAME_SPACE = SPRITE + 1,
 	HEALTH_BAR = GAME_SPACE + 1,
@@ -68,7 +90,8 @@ enum class GEOMETRY_BUFFER_ID {
 };
 const int geometry_count = (int)GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;
 
-struct RenderRequest {
+struct RenderRequest
+{
 	TEXTURE_ASSET_ID used_texture = TEXTURE_ASSET_ID::TEXTURE_COUNT;
 	EFFECT_ASSET_ID used_effect = EFFECT_ASSET_ID::EFFECT_COUNT;
 	GEOMETRY_BUFFER_ID used_geometry = GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;

@@ -68,8 +68,8 @@ struct Motion {
 	vec2 scale = { 10, 10 };
 };
 
-struct StaticMotion {
-	vec3 position = { 0, 0, 0 };
+struct Stationary {
+	vec2 position = { 0, 0 };
 	float angle = 0;
 	vec2 scale = { 10, 10 };
 };

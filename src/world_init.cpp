@@ -125,15 +125,52 @@ Entity createCollectibleTrap(RenderSystem* renderer, vec2 pos)
 	motion.position = vec3(pos, 0);
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
-	motion.scale = { TRAP_BB_WIDTH, TRAP_BB_HEIGHT };
+	motion.scale = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT };
 
 	// Setting initial hitbox values
 	Hitbox& hitbox = registry.hitboxes.emplace(entity);
 	hitbox.position = motion.position;
 	hitbox.dimension = { TRAP_BB_WIDTH, TRAP_BB_HEIGHT };
 
-	// TODO LATER - A1 has this entity inserted into renderRequest container
 	registry.collectibles.emplace(entity);
+
+	registry.renderRequests.insert(
+	entity,
+	{
+		TEXTURE_ASSET_ID::TRAPCOLLECTABLE,
+		EFFECT_ASSET_ID::TEXTURED,
+		GEOMETRY_BUFFER_ID::SPRITE
+	});
+
+	return entity;
+};
+
+// Heart creation
+Entity createHeart(RenderSystem* renderer, vec2 pos)
+{
+	auto entity = Entity();
+
+	// Setting intial motion values
+	Stationary& fixed = registry.stationarys.emplace(entity);
+	fixed.position = pos;
+	fixed.angle = 0.f;
+	fixed.scale = { HEART_BB_WIDTH, HEART_BB_WIDTH };
+
+	// Setting initial hitbox values
+	Hitbox& hitbox = registry.hitboxes.emplace(entity);
+	hitbox.position = pos;
+	hitbox.dimension = { HEART_BB_WIDTH, HEART_BB_WIDTH };
+
+	registry.collectibles.emplace(entity);
+
+	registry.renderRequests.insert(
+	entity,
+	{
+		TEXTURE_ASSET_ID::HEART,
+		EFFECT_ASSET_ID::TEXTURED,
+		GEOMETRY_BUFFER_ID::SPRITE
+	});
+
 	return entity;
 };
 
@@ -156,7 +193,14 @@ Entity createDamageTrap(RenderSystem* renderer, vec2 pos)
 
 	// Setting initial trap values
 	registry.traps.emplace(entity);
-	// TODO LATER - A1 has this entity inserted into renderRequest container
+
+	registry.renderRequests.insert(
+	entity,
+	{
+		TEXTURE_ASSET_ID::TRAP,
+		EFFECT_ASSET_ID::TEXTURED,
+		GEOMETRY_BUFFER_ID::SPRITE
+	});
 	return entity;
 };
 
@@ -257,7 +301,7 @@ void createHealthBar(Entity characterEntity, vec3 color) {
 
 	Motion& characterMotion = registry.motions.get(characterEntity);
 
-	StaticMotion& staticMotion = registry.staticMotions.emplace(meshEntity);
+	Stationary& staticMotion = registry.stationarys.emplace(meshEntity);
 	// position does not need to be initialized as it will always be set to match the associated entity
 	staticMotion.angle = 0.f;
 	staticMotion.scale = { width, height };

@@ -288,3 +288,21 @@ Entity createFPSText(vec2 position) {
 
 	return entity;
 }
+
+Entity createGameTimerText(vec2 position) {
+	auto entity = Entity();
+
+	Text& text = registry.texts.emplace(entity);
+	text.value = "00:00:00";
+	text.position = position;
+
+	registry.renderRequests.insert(
+		entity, 
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::TEXT,
+			GEOMETRY_BUFFER_ID::TEXT
+		});
+
+	return entity;
+}

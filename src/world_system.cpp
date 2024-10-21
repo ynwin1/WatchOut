@@ -4,7 +4,8 @@
 #include "world_init.hpp"
 #include "physics_system.hpp"
 #include <iostream>
-
+#include <iomanip> 
+#include <sstream>
 
 WorldSystem::WorldSystem() :
     spawn_functions({
@@ -67,8 +68,32 @@ void WorldSystem::restart_game()
     is_paused = false;
     
     fpsTracker.textEntity = createFPSText({camera->getWidth() - 75.0f, 25.0f});
+    gameTimer.textEntity = createGameTimerText({camera->getWidth() / 2, 25.0f});
 
     next_spawns = spawn_delays;
+}
+
+void WorldSystem::updateGameTimer(float elapsed_ms) {
+    gameTimer.ms += elapsed_ms;
+    if(gameTimer.ms >= 1000.f) {
+        gameTimer.seconds += 1;
+        gameTimer.ms = 0;
+    }
+    if(gameTimer.seconds >= 60) {
+        gameTimer.seconds = 0;
+        gameTimer.minutes += 1;
+    }
+    if(gameTimer.minutes >= 60) {
+        gameTimer.minutes = 0;
+        gameTimer.hours += 1;
+    }
+    std::stringstream ss;
+    ss << std::setw(2) << std::setfill('0') << gameTimer.hours << ":"
+       << std::setw(2) << std::setfill('0') << gameTimer.minutes << ":"
+       << std::setw(2) << std::setfill('0') << gameTimer.seconds;
+
+    Text& text = registry.texts.get(gameTimer.textEntity);
+    text.value = ss.str();
 }
 
 void WorldSystem::trackFPS(float elapsed_ms) {
@@ -92,6 +117,7 @@ bool WorldSystem::step(float elapsed_ms)
     update_cooldown(elapsed_ms);
     handle_deaths(elapsed_ms);
     trackFPS(elapsed_ms);
+    updateGameTimer(elapsed_ms);
 
     if (camera->isToggled()) {
         Motion& playerMotion = registry.motions.get(playerEntity);

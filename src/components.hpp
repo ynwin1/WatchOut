@@ -108,6 +108,14 @@ struct DeathTimer
 	float timer = 3000;
 };
 
+struct GameTimer {
+	int hours = 0;
+	int minutes = 0;
+	int seconds = 0;
+	float ms = 0;
+	Entity textEntity;
+};
+
 struct Text {
 	std::string value;
 	vec2 position = { 0, 0 };

@@ -48,6 +48,8 @@ void createBattleGround();
 
 Entity createFPSText(vec2 position);
 
+Entity createGameTimerText(vec2 position);
+
 // GameOver
 Entity createGameOver(RenderSystem* renderer, vec2 pos);
 

@@ -63,6 +63,7 @@ void WorldSystem::restart_game()
 
     // Create player entity
     playerEntity = createJeff(renderer, vec2(world_size_x / 2.f, world_size_y / 2.f));
+    createPlayerHPBar(playerEntity, {50.0f, 50.0f});
     game_over = false;
     is_paused = false;
 

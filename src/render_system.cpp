@@ -180,10 +180,8 @@ void RenderSystem::turn_damaged_red(std::vector<Entity>& was_damaged)
 }
 
 void handleHpBarBoundsCheck() {
-	ComponentContainer<HealthBar> &hpbars = registry.healthBars;
-
-	for(uint i = 0; i < hpbars.components.size(); i++) {
-		HealthBar& hpbar = hpbars.components[i];
+	for(Entity& enemy : registry.enemies.entities) {
+		HealthBar& hpbar = registry.healthBars.get(enemy);	
 		StaticMotion& motion = registry.staticMotions.get(hpbar.meshEntity);
 		float halfScaleX = motion.scale.x / 2;
 		float halfScaleY = motion.scale.y / 2;
@@ -202,18 +200,6 @@ void handleHpBarBoundsCheck() {
 	}
 }
 
-void updateHpBarPositionHelper(const std::vector<Entity>& entities) {
-    for (Entity entity : entities) {
-	    HealthBar& healthBar = registry.healthBars.get(entity);
-        Motion& motion = registry.motions.get(entity);
-        StaticMotion& healthBarMotion =  registry.staticMotions.get(healthBar.meshEntity);
-         // place above character
-        float topOffset = 15;
-        healthBarMotion.position.y = motion.position.y - (motion.scale.y / 2.f) - topOffset;
-        healthBarMotion.position.x = motion.position.x - (motion.scale.x / 2.f);
-    }   
-}
-
 void updateHpBarMeter() {
 	for (Entity entity : registry.players.entities) {
 		Player& player = registry.players.get(entity);
@@ -230,8 +216,15 @@ void updateHpBarMeter() {
 }
 
 void updateHpBarPosition() {
-    updateHpBarPositionHelper(registry.players.entities);
-    updateHpBarPositionHelper(registry.enemies.entities);
+    for (Entity entity : registry.enemies.entities) {
+	    HealthBar& healthBar = registry.healthBars.get(entity);
+        Motion& motion = registry.motions.get(entity);
+        StaticMotion& healthBarMotion =  registry.staticMotions.get(healthBar.meshEntity);
+         // place above character
+        float topOffset = 15;
+        healthBarMotion.position.y = motion.position.y - (motion.scale.y / 2.f) - topOffset;
+        healthBarMotion.position.x = motion.position.x - (motion.scale.x / 2.f);
+    }   
 }
 
 void RenderSystem::update_hpbars() {

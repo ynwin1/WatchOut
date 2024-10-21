@@ -50,3 +50,5 @@ void createBattleGround();
 Entity createGameOver(RenderSystem* renderer, vec2 pos);
 
 void createHealthBar(Entity characterEntity, vec3 color);
+
+void createPlayerHPBar(Entity player, vec2 position);

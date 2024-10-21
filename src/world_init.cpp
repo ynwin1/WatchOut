@@ -198,8 +198,6 @@ Entity createJeff(RenderSystem* renderer, vec2 position)
 			EFFECT_ASSET_ID::TEXTURED,
 			GEOMETRY_BUFFER_ID::SPRITE
 		});
-
-	createHealthBar(entity, vec3(0.0f, 1.0f, 0.0f));
 	
 	return entity;
 }
@@ -267,6 +265,31 @@ void createHealthBar(Entity characterEntity, vec3 color) {
 		});
 
 	HealthBar& hpbar = registry.healthBars.emplace(characterEntity, meshEntity);
+	hpbar.width = width;
+	hpbar.height = height;
+}
+
+void createPlayerHPBar(Entity player, vec2 position) {
+	auto meshEntity = Entity();
+
+	const float width = 60.0f;
+	const float height = 10.0f;
+
+	StaticMotion& staticMotion = registry.staticMotions.emplace(meshEntity);
+	staticMotion.position = position;
+	staticMotion.scale = { width, height };
+
+	registry.colours.insert(meshEntity, {0.0f, 1.0f, 0.0f});
+
+	registry.renderRequests.insert(
+		meshEntity,
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::UNTEXTURED,
+			GEOMETRY_BUFFER_ID::HEALTH_BAR
+		});
+
+	HealthBar& hpbar = registry.healthBars.emplace(player, meshEntity);
 	hpbar.width = width;
 	hpbar.height = height;
 }

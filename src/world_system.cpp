@@ -66,10 +66,6 @@ void WorldSystem::restart_game()
     game_over = false;
     is_paused = false;
 
-    createHeart(renderer, vec2(100,100));
-    createCollectibleTrap(renderer, vec2(70,70));
-    createDamageTrap(renderer, vec2(30,30));
-
     next_spawns = spawn_delays;
 }
 

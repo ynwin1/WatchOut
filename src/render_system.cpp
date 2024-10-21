@@ -16,8 +16,8 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection)
 		transform.rotate(motion.angle);
 		transform.scale(motion.scale);
 	}
-	else if(registry.staticMotions.has(entity)) {
-		StaticMotion& motion = registry.staticMotions.get(entity);
+	else if(registry.stationarys.has(entity)) {
+		Stationary& motion = registry.stationarys.get(entity);
 		transform.translate(motion.position);
 		transform.rotate(motion.angle);
 		transform.scale(motion.scale);
@@ -184,7 +184,7 @@ void handleHpBarBoundsCheck() {
 
 	for(uint i = 0; i < hpbars.components.size(); i++) {
 		HealthBar& hpbar = hpbars.components[i];
-		StaticMotion& motion = registry.staticMotions.get(hpbar.meshEntity);
+		Stationary& motion = registry.stationarys.get(hpbar.meshEntity);
 		float halfScaleX = motion.scale.x / 2;
 		float halfScaleY = motion.scale.y / 2;
 
@@ -206,7 +206,7 @@ void updateHpBarPositionHelper(const std::vector<Entity>& entities) {
     for (Entity entity : entities) {
 	    HealthBar& healthBar = registry.healthBars.get(entity);
         Motion& motion = registry.motions.get(entity);
-        StaticMotion& healthBarMotion =  registry.staticMotions.get(healthBar.meshEntity);
+        Stationary& healthBarMotion =  registry.stationarys.get(healthBar.meshEntity);
          // place above character
         float topOffset = 15;
         healthBarMotion.position.y = motion.position.y - (motion.scale.y / 2.f) - topOffset;
@@ -218,13 +218,13 @@ void updateHpBarMeter() {
 	for (Entity entity : registry.players.entities) {
 		Player& player = registry.players.get(entity);
 		HealthBar& hpbar = registry.healthBars.get(entity);
-		StaticMotion& motion = registry.staticMotions.get(hpbar.meshEntity);
+		Stationary& motion = registry.stationarys.get(hpbar.meshEntity);
 		motion.scale.x = hpbar.width * player.health/100.f;
 	}
 	for (Entity entity : registry.enemies.entities) {
 		Enemy& enemy = registry.enemies.get(entity);
 		HealthBar& hpbar = registry.healthBars.get(entity);
-		StaticMotion& motion = registry.staticMotions.get(hpbar.meshEntity);
+		Stationary& motion = registry.stationarys.get(hpbar.meshEntity);
 		motion.scale.x = hpbar.width * enemy.health/100.f;
 	}
 }

@@ -183,10 +183,10 @@ void RenderSystem::initializeGlGeometryBuffers()
 
 void RenderSystem::initHealthBarBuffer() {
     std::vector<UntexturedVertex> health_bar_vertices(4);
-    health_bar_vertices[0].position = { -0.5f, -0.5f, 0.0f };
-    health_bar_vertices[1].position = {  0.5f, -0.5f, 0.0f };
-    health_bar_vertices[2].position = { -0.5f,  0.5f, 0.0f };
-    health_bar_vertices[3].position = {  0.5f,  0.5f, 0.0f };
+    health_bar_vertices[0].position = { 0.0f, 0.0f, 0.0f };
+    health_bar_vertices[1].position = { 1.0f, 0.0f, 0.0f };
+    health_bar_vertices[2].position = { 0.0f, 1.0f, 0.0f };
+    health_bar_vertices[3].position = { 1.0f, 1.0f, 0.0f };
 
     const std::vector<uint16_t> health_bar_indices = { 0, 1, 2, 1, 2, 3 };
     bindVBOandIBO(GEOMETRY_BUFFER_ID::HEALTH_BAR, health_bar_vertices, health_bar_indices);

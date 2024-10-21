@@ -210,7 +210,7 @@ void updateHpBarPositionHelper(const std::vector<Entity>& entities) {
          // place above character
         float topOffset = 15;
         healthBarMotion.position.y = motion.position.y - (motion.scale.y / 2.f) - topOffset;
-        healthBarMotion.position.x = motion.position.x;
+        healthBarMotion.position.x = motion.position.x - (motion.scale.x / 2.f);
     }   
 }
 

@@ -170,6 +170,7 @@ Entity createJeff(RenderSystem* renderer, vec2 position)
 
 	//Initialize stamina
 	auto& stamina = registry.staminas.emplace(entity);
+	stamina.stamina = 100;
 
 	//Initialize movement
 	auto& player = registry.players.emplace(entity);

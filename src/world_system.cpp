@@ -601,14 +601,13 @@ void WorldSystem::handle_stamina(float elapsed_ms) {
             }
         }
         if (stamina.stamina == 0) {
-            printf("Your Stamina has been depleted! You need to wait 3 seconds to dash or sprint again");
             player_comp.isRunning = false;
             stamina.timer -= elapsed_ms; // Countdown
             
             if (stamina.timer <= 0) {
                 stamina.stamina = 100;
                 stamina.timer = 3000; // Reset 
-                printf("Stamina has been restored!");
+                printf("Stamina has been restored! \n");
             }
         }
     }

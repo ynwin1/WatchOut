@@ -28,6 +28,7 @@ public:
 	ComponentContainer<DeathTimer> deathTimers;
 	ComponentContainer<HealthBar> healthBars;
 	ComponentContainer<StaticMotion> staticMotions;
+	ComponentContainer<Stamina> staminas;
 
 
 	// Spawnable types
@@ -51,6 +52,7 @@ public:
 		registry_list.push_back(&colours);
 		registry_list.push_back(&damageds);
 		registry_list.push_back(&deathTimers);
+		registry_list.push_back(&staminas);
 
 		registry_list.push_back(&boars);
 		registry_list.push_back(&barbarians);

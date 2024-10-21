@@ -168,6 +168,9 @@ Entity createJeff(RenderSystem* renderer, vec2 position)
 	motion.velocity = { 0, 0.f };
 	motion.position = position;
 
+	//Initialize stamina
+	auto& stamina = registry.staminas.emplace(entity);
+
 	//Initialize movement
 	auto& player = registry.players.emplace(entity);
 	player.isJumping = false;

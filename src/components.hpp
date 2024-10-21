@@ -19,6 +19,15 @@ struct Player {
 	vec2 facing;		// Direction the player is facing
 };
 
+//Stamina
+struct Stamina {
+	unsigned int stamina = 100;
+	unsigned int max_stamina = 100;     
+    float stamina_recovery_rate = 10;
+	float timer = 2000;
+
+};
+
 //Dashing
 struct Dash {
     bool isDashing;				// Indicates if the entity is currently dashing

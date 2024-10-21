@@ -75,11 +75,13 @@ bool WorldSystem::step(float elapsed_ms)
     update_positions(elapsed_ms);
     update_cooldown(elapsed_ms);
     handle_deaths(elapsed_ms);
+    handle_stamina(elapsed_ms);
 
     if (camera->isToggled()) {
         Motion& playerMotion = registry.motions.get(playerEntity);
         camera->followPosition(playerMotion.position);
     }
+
 
     Player& player = registry.players.get(playerEntity);
     if(player.health == 0) {
@@ -148,6 +150,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     Player& player_comp = registry.players.get(playerEntity);
     Motion& player_motion = registry.motions.get(playerEntity);
     Dash& player_dash = registry.dashers.get(playerEntity);
+    Stamina& player_stamina = registry.staminas.get(playerEntity);
 
     if (game_over) {
         if (action == GLFW_PRESS && key == GLFW_KEY_ENTER){
@@ -213,7 +216,11 @@ void WorldSystem::on_key(int key, int, int action, int mod)
                 break;
             case GLFW_KEY_LEFT_SHIFT:
                 // Sprint
-                player_comp.isRunning = pressed;
+                if (player_stamina.stamina > 0) { 
+                    player_comp.isRunning = pressed;
+                } else{
+                    player_comp.isRunning = false;
+                }
                 break;
             case GLFW_KEY_R:
                 // Roll
@@ -221,12 +228,14 @@ void WorldSystem::on_key(int key, int, int action, int mod)
                 break;
             case GLFW_KEY_D:
                 if (pressed) {
-                    const float dashDistance = 300;
-                    // Start dashing if player is moving
-                    player_dash.isDashing = true;
-                    player_dash.dashStartPosition = player_motion.position;
-                    player_dash.dashTargetPosition = player_motion.position + player_comp.facing * dashDistance;
-                    player_dash.dashTimer = 0.0f; // Reset timer
+                    if (player_stamina.stamina > 0) { // Only allow dash if stamina > 0
+                        const float dashDistance = 300;
+                        // Start dashing if player is moving
+                        player_dash.isDashing = true;
+                        player_dash.dashStartPosition = player_motion.position;
+                        player_dash.dashTargetPosition = player_motion.position + player_comp.facing * dashDistance;
+                        player_dash.dashTimer = 0.0f; // Reset timer
+                    }
                 }
                 break;
 		    case GLFW_KEY_SPACE:
@@ -274,7 +283,6 @@ void WorldSystem::update_positions(float elapsed_ms)
 
         if(registry.players.has(entity)){
             Player& player_comp = registry.players.get(entity);
-
             float player_speed = 0.5;
             if (!player_comp.isMoving) player_speed = 0;
             else if (player_comp.isRunning) player_speed *= 2;
@@ -575,6 +583,34 @@ void WorldSystem::checkAndHandleEnemyDeath(Entity enemy) {
         registry.remove_all_components_of(hpbar.meshEntity);
         registry.enemies.remove(enemy);
         registry.deathTimers.emplace(enemy);
+    }
+}
+
+//Update player stamina on dashing, sprinting, rolling andnd jumping
+void WorldSystem::handle_stamina(float elapsed_ms) {
+    for (auto& staminaEntity : registry.staminas.entities) {
+        Stamina& stamina = registry.staminas.get(staminaEntity);
+        Player& player_comp = registry.players.get(staminaEntity);
+        Dash& dash_comp = registry.dashers.get(staminaEntity);
+
+        if ((player_comp.isRunning || dash_comp.isDashing || player_comp.isRolling || player_comp.isJumping) && stamina.stamina > 0) {
+            stamina.stamina -= elapsed_ms / 1000.0f * stamina.stamina_recovery_rate;
+
+            if (stamina.stamina < 0) {
+                stamina.stamina = 0;
+            }
+        }
+        if (stamina.stamina == 0) {
+            printf("Your Stamina has been depleted! You need to wait 3 seconds to dash or sprint again");
+            player_comp.isRunning = false;
+            stamina.timer -= elapsed_ms; // Countdown
+            
+            if (stamina.timer <= 0) {
+                stamina.stamina = 100;
+                stamina.timer = 3000; // Reset 
+                printf("Stamina has been restored!");
+            }
+        }
     }
 }
 

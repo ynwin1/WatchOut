@@ -203,8 +203,8 @@ void RenderSystem::initText() {
     FT_Init_FreeType(&ft);
     
     FT_Face face;
-    FT_New_Face(ft, "data/fonts/PressStart2P.ttf", 0, &face);
-    FT_Set_Pixel_Sizes(face, 0, 10);
+    FT_New_Face(ft, "data/fonts/megamax.ttf", 0, &face);
+    FT_Set_Pixel_Sizes(face, 0, 15);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 

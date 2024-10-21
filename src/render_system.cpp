@@ -8,7 +8,7 @@
 #include "tiny_ecs_registry.hpp"
 
 void RenderSystem::drawText(Entity entity) {
-	glm::mat4 projection = glm::ortho(0.0f, camera->getWidth(), camera->getHeight(), 0.0f);
+	glm::mat4 projection = glm::ortho(0.0f, camera->getWidth(), 0.0f, camera->getHeight());
 
 	const Text& text = registry.texts.get(entity);
 	const RenderRequest& render_request = registry.renderRequests.get(entity);
@@ -38,14 +38,15 @@ void RenderSystem::drawText(Entity entity) {
         float w = ch.size.x * text.scale;
         float h = ch.size.y * text.scale;
         // update VBO for each character
-		float vertices[6][4] = {
-    		{ xpos, ypos - (h - ch.bearing.y), 0.0f, 1.0f },  // top-left
-    		{ xpos, ypos -  ch.bearing.y, 0.0f, 0.0f },  // bottom-left
-    		{ xpos + w, ypos -  ch.bearing.y, 1.0f, 0.0f },  // bottom-right
-   	 		{ xpos, ypos - (h -  ch.bearing.y),   0.0f, 1.0f },  // top-left
-    		{ xpos + w, ypos -  ch.bearing.y,         1.0f, 0.0f },  // bottom-right
-    		{ xpos + w, ypos - (h -  ch.bearing.y),   1.0f, 1.0f }   // top-right
-		};
+	  	float vertices[6][4] = {
+            	{ xpos,     ypos + h,   0.0f, 0.0f },            
+            	{ xpos,     ypos,       0.0f, 1.0f },
+            	{ xpos + w, ypos,       1.0f, 1.0f },
+
+            	{ xpos,     ypos + h,   0.0f, 0.0f },
+            	{ xpos + w, ypos,       1.0f, 1.0f },
+            	{ xpos + w, ypos + h,   1.0f, 0.0f }           
+        	};
 
         // render glyph texture over quad
         glBindTexture(GL_TEXTURE_2D, ch.textureID);

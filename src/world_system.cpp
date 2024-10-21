@@ -66,7 +66,7 @@ void WorldSystem::restart_game()
     game_over = false;
     is_paused = false;
     
-    fpsTracker.textEntity = createFPSText({camera->getWidth() - 75.0f, 25.0f});
+    fpsTracker.textEntity = createFPSText({camera->getWidth() - 75.0f, camera->getHeight() - 25.0f});
 
     next_spawns = spawn_delays;
 }
@@ -81,7 +81,7 @@ void WorldSystem::trackFPS(float elapsed_ms) {
         fpsTracker.elapsedTime = 0;
 
         Text& text = registry.texts.get(fpsTracker.textEntity);
-        text.value = std::to_string(fpsTracker.fps) + " FPS";
+        text.value = std::to_string(fpsTracker.fps) + " fps";
     }
 }
 

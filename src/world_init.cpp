@@ -275,7 +275,7 @@ Entity createFPSText(vec2 position) {
 	auto entity = Entity();
 
 	Text& text = registry.texts.emplace(entity);
-	text.value = "00 FPS";
+	text.value = "00 fps";
 	text.position = position;
 
 	registry.renderRequests.insert(

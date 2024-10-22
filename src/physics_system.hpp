@@ -13,4 +13,8 @@ public:
 
 	// Array to store collision pairs
 	std::vector<std::pair<Entity, Entity>> collisions;
+
+private:
+	void updatePositions(float elapsed_ms);
+	void checkCollisions();
 };

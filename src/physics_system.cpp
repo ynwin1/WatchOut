@@ -1,4 +1,4 @@
-#include "physics_system.hpp"
+﻿#include "physics_system.hpp"
 #include "world_init.hpp"
 #include "render_system.hpp"
 #include <iostream>
@@ -50,7 +50,7 @@ void handleBoundsCheck() {
 	}
 }
 
-void PhysicsSystem::step(float elapsed_ms)
+void PhysicsSystem::checkCollisions() 
 {
 	// Check for collisions between moving entities
 	ComponentContainer<Hitbox> &hitboxes = registry.hitboxes;
@@ -66,6 +66,58 @@ void PhysicsSystem::step(float elapsed_ms)
 			}
 		}
 	}
+}
 
+
+void PhysicsSystem::updatePositions(float elapsed_ms)
+{
+	for (Entity entity : registry.motions.entities) {
+		float Running_Speed = 1.0f;
+		// Get the Motion component of the entity
+		Motion& motion = registry.motions.get(entity);
+
+		if (registry.players.has(entity)) {
+			Player& player_comp = registry.players.get(entity);
+
+			float player_speed = 0.5;
+			if (!player_comp.isMoving) player_speed = 0;
+			else if (player_comp.isRunning) player_speed *= 2;
+
+			motion.velocity = player_speed * player_comp.facing;
+		}
+
+		// Update the entity's position based on its velocity and elapsed time
+		motion.position.x += motion.velocity.x * elapsed_ms;
+		motion.position.y += motion.velocity.y * elapsed_ms;
+
+
+		// Dashing overwrites normal movement
+		if (registry.dashers.has(entity)) {
+			Dash& dashing = registry.dashers.get(entity);
+			if (dashing.isDashing) {
+				dashing.dashTimer += elapsed_ms / 1000.0f; // Converting ms to seconds
+
+				if (dashing.dashTimer < dashing.dashDuration) {
+					// Interpolation factor
+					float t = dashing.dashTimer / dashing.dashDuration;
+
+					// Interpolate between start and target positions
+					//player_motion.position is the target_position for the linear interpolation formula L(t)=(1−t)⋅A+t⋅B
+					// L(t) = interpolated position, A = original position, B = target position, and t is the interpolation factor
+					motion.position = vec3(glm::mix(dashing.dashStartPosition, dashing.dashTargetPosition, t), motion.position.z);
+				}
+				else {
+					motion.position = vec3(dashing.dashTargetPosition, motion.position.z);
+					dashing.isDashing = false; // Reset isDashing
+				}
+			}
+		}
+	}
+}
+
+void PhysicsSystem::step(float elapsed_ms)
+{
+	updatePositions(elapsed_ms);
+	checkCollisions();
 	handleBoundsCheck();
 };

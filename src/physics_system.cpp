@@ -72,11 +72,13 @@ void PhysicsSystem::checkCollisions()
 void PhysicsSystem::updatePositions(float elapsed_ms)
 {
 	for (Entity entity : registry.motions.entities) {
-		float Running_Speed = 1.0f;
-		// Get the Motion component of the entity
 		Motion& motion = registry.motions.get(entity);
 
-		if (registry.players.has(entity)) {
+		// Z-position of entity when it is on the ground
+		float groundZ = getElevation(vec2(motion.position)) + motion.scale.y / 2;
+
+		// Set player velocity
+		if (registry.players.has(entity) && motion.position.z <= groundZ) {
 			Player& player_comp = registry.players.get(entity);
 
 			float player_speed = 0.5;
@@ -92,6 +94,20 @@ void PhysicsSystem::updatePositions(float elapsed_ms)
 		motion.position.y += motion.velocity.y * elapsed_ms;
 		motion.position.z += motion.velocity.z * elapsed_ms;
 
+		// Apply gravity
+		const float GRAVITATIONAL_CONSTANT = 0.01;
+		if (motion.position.z > groundZ) {
+			motion.velocity.z -= GRAVITATIONAL_CONSTANT * elapsed_ms;
+		}
+
+		// Hit the ground
+		if (motion.position.z < groundZ) {
+			motion.position.z = groundZ;
+			motion.velocity.z = 0;
+			if (registry.players.has(entity)) {
+				registry.players.get(entity).isJumping = false;
+			}
+		}
 
 		// Dashing overwrites normal movement
 		if (registry.dashers.has(entity)) {

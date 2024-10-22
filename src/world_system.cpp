@@ -18,12 +18,12 @@ WorldSystem::WorldSystem() :
         {"boar", 3000},
         {"barbarian", 8000},
         {"archer", 10000},
-		{"heart", 6000},
-		{"collectible_trap", 8000}
+		{"heart", 3000},
+		{"collectible_trap", 3000}
         }),
     max_entities({
-        {"boar", 2},
-        {"barbarian", 2},
+        {"boar", 0},
+        {"barbarian", 0},
         {"archer", 0},
 		{"heart", 1},
 		{"collectible_trap", 1}
@@ -165,13 +165,13 @@ void WorldSystem::on_key(int key, int, int action, int mod)
         }
     }
 
-	if (action == GLFW_PRESS && key == GLFW_KEY_ENTER) {
-        // TODO LATER - Think about where exactly to place the trap
-        // Currently, it is placed at the player's position
-        // MAYBE - Place it behind the player in the direction they are facin
-
-        place_trap(player_comp, player_motion);
+	if (action == GLFW_PRESS && key == GLFW_KEY_W) {
+        place_trap(player_comp, player_motion, true);
 	}
+
+    if (action == GLFW_PRESS && key == GLFW_KEY_Q) {
+        place_trap(player_comp, player_motion, false);
+    }
 
     // Handle ESC key to close the game window
     if (action == GLFW_PRESS && key == GLFW_KEY_ESCAPE) {
@@ -504,6 +504,7 @@ void WorldSystem::entity_trap_collision(Entity entity, Entity entity_other, std:
         player.health = new_health < 0 ? 0 : new_health;
 		was_damaged.push_back(entity);
         printf("Player health reduced by trap from %d to %d\n", player.health + trap.damage, player.health);
+        checkAndHandlePlayerDeath(entity);
 	}
 	else if (registry.enemies.has(entity)) {
         printf("Enemy hit a trap\n");
@@ -514,6 +515,7 @@ void WorldSystem::entity_trap_collision(Entity entity, Entity entity_other, std:
         enemy.health = new_health < 0 ? 0 : new_health;
         was_damaged.push_back(entity);
         printf("Enemy health reduced from %d to %d\n", enemy.health + trap.damage, enemy.health);
+		checkAndHandleEnemyDeath(entity);
 	}
 	else {
 		printf("Entity is not a player or enemy\n");
@@ -550,10 +552,7 @@ void WorldSystem::processPlayerEnemyCollision(Entity player, Entity enemy, std::
         Cooldown& cooldown = registry.cooldowns.emplace(enemy);
         cooldown.remaining = enemyData.cooldown;
 
-        if (playerData.health == 0) {
-            playerMotion.angle = 1.57f; // Rotate player 90 degrees
-            printf("Player died\n");
-        }
+		checkAndHandlePlayerDeath(player);
     }
 }
 
@@ -609,7 +608,15 @@ void WorldSystem::despawn_collectibles(float elapsed_ms) {
 	}
 }
 
-void WorldSystem::place_trap(Player& player, Motion& motion) {
+void WorldSystem::checkAndHandlePlayerDeath(Entity& entity) {
+	if (registry.players.get(entity).health == 0) {
+		Motion& motion = registry.motions.get(entity);
+		motion.angle = 1.57f; // Rotate player 90 degrees
+		printf("Player died\n");
+	}
+}
+
+void WorldSystem::place_trap(Player& player, Motion& motion, bool forward) {
     // Player position
     vec2 playerPos = motion.position;
 	// Do not place trap if player has no traps
@@ -617,12 +624,21 @@ void WorldSystem::place_trap(Player& player, Motion& motion) {
         printf("Player has no traps to place\n");
         return;
     }
-	// Place trap in front only if trap position is within the world bounds
-	vec2 gap = { (motion.scale.x / 2 + 70.f), 0.0f };
-	if (gap.x + playerPos.x > world_size_x) {
-		printf("Trap position is out of bounds\n");
+	// Place trap based on player direction
+    vec2 gap = { 0.0f, 0.0f };
+    if (forward) {
+        gap.x = (motion.scale.x / 2 + 70.f);
+    }
+    else {
+		gap.x = -(motion.scale.x / 2 + 70.f);
+    }
+
+    // Cannot place trap beyond the map
+	if (playerPos.x + gap.x < 0 || playerPos.x + gap.x > world_size_x) {
+		printf("Cannot place trap beyond the map\n");
 		return;
 	}
+
     vec2 trapPos = playerPos + gap;
 	createDamageTrap(renderer, trapPos);
 	player.trapsCollected--;

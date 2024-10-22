@@ -14,10 +14,15 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection)
 	// specification for more info Incrementally updates transformation matrix,
 	// thus ORDER IS IMPORTANT
 	Transform transform;
-	if(registry.motions.has(entity)) {
+	if (registry.motions.has(entity)) {
 		Motion& motion = registry.motions.get(entity);
-		vec2 visualPos = getVisualPosition(motion.position);
-		transform.translate(visualPos);
+		if (registry.midgrounds.has(entity)) {
+			vec2 visualPos = getVisualPosition(motion.position);
+			transform.translate(visualPos);
+		}
+		else {
+			transform.translate(motion.position);
+		}
 		transform.rotate(motion.angle);
 		transform.scale(motion.scale);
 	}

@@ -47,24 +47,37 @@ void handleBoundsCheck() {
 
 void PhysicsSystem::step(float elapsed_ms)
 {
-	// Check for collisions between moving entities
+	// Check for collisions between moving entities & stationarys (collectibles/obstacles)
 	ComponentContainer<Motion> &motion_container = registry.motions;
+	ComponentContainer<Stationary>& stationary_container = registry.stationarys;
 	for (uint i = 0; i < motion_container.components.size(); i++) {
 		Entity entity_i = motion_container.entities[i];
 		Hitbox& hitbox_i = registry.hitboxes.get(entity_i);
 
+		// Moving entities
 		for (uint j = i + 1; j < motion_container.components.size(); j++) {
 			Entity entity_j = motion_container.entities[j];
 			Hitbox& hitbox_j = registry.hitboxes.get(entity_j);
 
 			if (collides(hitbox_i, hitbox_j)) {
 				// Collision detected
-				// std::cout << "Collision detected between entities " << entity_i << " and " << entity_j << std::endl;
 				collisions.push_back(std::make_pair(entity_i, entity_j));
 				collisions.push_back(std::make_pair(entity_j, entity_i));
 			}
 		}
-	}
 
+		// Stationary entities
+		for (uint j = 0; j < stationary_container.components.size(); j++) {
+			Entity entity_j = stationary_container.entities[j];
+			if (registry.hitboxes.has(entity_j)) {
+				Hitbox& hitbox_j = registry.hitboxes.get(entity_j);
+				if (collides(hitbox_i, hitbox_j)) {
+					// Collision detected
+					collisions.push_back(std::make_pair(entity_i, entity_j));
+					collisions.push_back(std::make_pair(entity_j, entity_i));
+				}
+			}
+		}
+	}
 	handleBoundsCheck();
-};
+	};

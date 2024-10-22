@@ -62,12 +62,15 @@ private:
 	void update_player_facing(Player& player);
 	void update_cooldown(float elapsed_ms);
 	void handle_deaths(float elapsed_ms);
+	void despawn_collectibles(float elapsed_ms);
 	void spawn(float elapsed_ms);
 	vec2 get_spawn_location(const std::string& entity_type);
 	void think();
 	void recoil_entities(Motion& motion1, Motion& motion2);
 	float calculate_x_overlap(Motion& motion1, Motion& motion2);
 	float calculate_y_overlap(Motion& motion1, Motion& motion2);
+	void place_trap(Player& player, Motion& motion, bool forward);
+	void checkAndHandlePlayerDeath(Entity& entity);
 
 	// Collision functions
 	void entity_collectible_collision(Entity entity, Entity collectible);

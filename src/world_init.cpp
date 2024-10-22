@@ -116,18 +116,18 @@ Entity createArcher(RenderSystem* renderer, vec2 pos)
 Entity createCollectibleTrap(RenderSystem* renderer, vec2 pos)
 {
 	auto entity = Entity();
+	registry.collectibleTraps.emplace(entity);
 
 	// Setting intial motion values
-	Motion& motion = registry.motions.emplace(entity);
-	motion.position = pos;
-	motion.angle = 0.f;
-	motion.velocity = { 0.f, 0.f };
-	motion.scale = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT };
+	Stationary& fixed = registry.stationarys.emplace(entity);
+	fixed.position = pos;
+	fixed.angle = 0.f;
+	fixed.scale = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT };
 
 	// Setting initial hitbox values
 	Hitbox& hitbox = registry.hitboxes.emplace(entity);
 	hitbox.position = pos;
-	hitbox.dimension = { TRAP_BB_WIDTH, TRAP_BB_HEIGHT };
+	hitbox.dimension = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT };
 
 	registry.collectibles.emplace(entity);
 
@@ -139,6 +139,8 @@ Entity createCollectibleTrap(RenderSystem* renderer, vec2 pos)
 		GEOMETRY_BUFFER_ID::SPRITE
 	});
 
+	printf("Collectible trap created\n");
+
 	return entity;
 };
 
@@ -146,6 +148,7 @@ Entity createCollectibleTrap(RenderSystem* renderer, vec2 pos)
 Entity createHeart(RenderSystem* renderer, vec2 pos)
 {
 	auto entity = Entity();
+	registry.hearts.emplace(entity);
 
 	// Setting intial motion values
 	Stationary& fixed = registry.stationarys.emplace(entity);
@@ -177,11 +180,10 @@ Entity createDamageTrap(RenderSystem* renderer, vec2 pos)
 	auto entity = Entity();
 
 	// Setting intial motion values
-	Motion& motion = registry.motions.emplace(entity);
-	motion.position = pos;
-	motion.angle = 0.f;
-	motion.velocity = { 0.f, 0.f };
-	motion.scale = { TRAP_BB_WIDTH, TRAP_BB_HEIGHT };
+	Stationary& fixed = registry.stationarys.emplace(entity);
+	fixed.position = pos;
+	fixed.angle = 0.f;
+	fixed.scale = { TRAP_BB_WIDTH, TRAP_BB_HEIGHT };
 
 	// Setting initial hitbox values
 	Hitbox& hitbox = registry.hitboxes.emplace(entity);

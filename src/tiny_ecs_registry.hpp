@@ -35,6 +35,8 @@ public:
 	ComponentContainer<Boar> boars;
 	ComponentContainer<Barbarian> barbarians;
 	ComponentContainer<Archer> archers;
+	ComponentContainer<Heart> hearts;
+	ComponentContainer<CollectibleTrap> collectibleTraps;
 
 	ECSRegistry()
 	{
@@ -55,10 +57,14 @@ public:
 		registry_list.push_back(&boars);
 		registry_list.push_back(&barbarians);
 		registry_list.push_back(&archers);
+		registry_list.push_back(&hearts);
+		registry_list.push_back(&collectibleTraps);
 
 		spawnable_lists["boar"] = &boars;
 		spawnable_lists["barbarian"] = &barbarians;
 		spawnable_lists["archer"] = &archers;
+		spawnable_lists["heart"] = &hearts;
+		spawnable_lists["collectible_trap"] = &collectibleTraps;
 	}
 
 	void clear_all_components() {

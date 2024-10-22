@@ -206,8 +206,8 @@ void updateHpBarPositionHelper(const std::vector<Entity>& entities) {
     for (Entity entity : entities) {
 	    HealthBar& healthBar = registry.healthBars.get(entity);
         Motion& motion = registry.motions.get(entity);
-        Stationary& healthBarMotion =  registry.stationarys.get(healthBar.meshEntity);
-         // place above character
+        Stationary& healthBarMotion = registry.stationarys.get(healthBar.meshEntity);
+        // place above character
         float topOffset = 15;
         healthBarMotion.position.y = motion.position.y - (motion.scale.y / 2.f) - topOffset;
         healthBarMotion.position.x = motion.position.x;

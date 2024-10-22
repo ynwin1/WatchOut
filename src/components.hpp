@@ -46,7 +46,7 @@ struct HealthBar {
 // Collectible Component
 struct Collectible
 {
-	// fixed position and scale once set
+	float timer = 5000.f; // 5 seconds until it disappears
 	vec2 position = { 0, 0 };
 	vec2 scale = { 3, 3 };
 };
@@ -57,7 +57,7 @@ struct Trap
 	// fixed position and scale once set
 	vec2 position = { 0, 0 };
 	vec2 scale = { 3, 3 };
-	unsigned int damage = 5.0;
+	unsigned int damage = 15.0;
 };
 
 // All data relevant to the shape and motion of entities
@@ -112,3 +112,7 @@ struct DeathTimer
 struct Boar {};
 struct Barbarian {};
 struct Archer {};
+
+// Collectible types
+struct Heart { unsigned int health = 20; };
+struct CollectibleTrap {};

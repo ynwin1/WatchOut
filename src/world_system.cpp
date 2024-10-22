@@ -404,11 +404,14 @@ void WorldSystem::think()
     }
 }
 
-void WorldSystem::recoil_entities(Motion& motion1, Motion& motion2) {
+void WorldSystem::recoil_entities(Entity entity1, Entity entity2) {
     // Calculate x overlap
-    float x_overlap = calculate_x_overlap(motion1, motion2);
+    float x_overlap = calculate_x_overlap(entity1, entity2);
 	// Calculate y overlap
-	float y_overlap = calculate_y_overlap(motion1, motion2);
+	float y_overlap = calculate_y_overlap(entity1, entity2);
+
+    Motion& motion1 = registry.motions.get(entity1);
+    Motion& motion2 = registry.motions.get(entity2);
 
     // Calculate the direction of the collision
     float x_direction = motion1.position.x < motion2.position.x ? -1 : 1;
@@ -427,9 +430,14 @@ void WorldSystem::recoil_entities(Motion& motion1, Motion& motion2) {
     
 }
 
-float WorldSystem::calculate_x_overlap(Motion& motion1, Motion& motion2) {
-	float x1_half_scale = motion1.scale.x / 2;
-	float x2_half_scale = motion2.scale.x / 2;
+float WorldSystem::calculate_x_overlap(Entity entity1, Entity entity2) {
+    Hitbox& hitbox1 = registry.hitboxes.get(entity1);
+    Hitbox& hitbox2 = registry.hitboxes.get(entity2);
+    Motion& motion1 = registry.motions.get(entity1);
+    Motion& motion2 = registry.motions.get(entity2);
+
+	float x1_half_scale = hitbox1.dimension.x / 2;
+	float x2_half_scale = hitbox2.dimension.x / 2;
 
 	// Determine the edges of the hitboxes for x
 	float left1 = motion1.position.x - x1_half_scale;
@@ -441,9 +449,14 @@ float WorldSystem::calculate_x_overlap(Motion& motion1, Motion& motion2) {
 	return max(0.f, min(right1, right2) - max(left1, left2));
 }
 
-float WorldSystem::calculate_y_overlap(Motion& motion1, Motion& motion2) {
-	float y1_half_scale = motion1.scale.y / 2;
-	float y2_half_scale = motion2.scale.y / 2;
+float WorldSystem::calculate_y_overlap(Entity entity1, Entity entity2) {
+    Hitbox& hitbox1 = registry.hitboxes.get(entity1);
+    Hitbox& hitbox2 = registry.hitboxes.get(entity2);
+    Motion& motion1 = registry.motions.get(entity1);
+    Motion& motion2 = registry.motions.get(entity2);
+
+	float y1_half_scale = hitbox1.dimension.y / 2;
+	float y2_half_scale = hitbox2.dimension.y / 2;
 
 	// Determine the edges of the hitboxes for y
 	float top1 = motion1.position.y - y1_half_scale;
@@ -510,9 +523,7 @@ void WorldSystem::moving_entities_collision(Entity entity, Entity entityOther, s
 }
 
 void WorldSystem::processPlayerEnemyCollision(Entity player, Entity enemy, std::vector<Entity>& was_damaged) {
-    Motion& playerMotion = registry.motions.get(player);
-    Motion& enemyMotion = registry.motions.get(enemy);
-    recoil_entities(playerMotion, enemyMotion);
+    recoil_entities(player, enemy);
 
     if (!registry.cooldowns.has(enemy)) {
         Player& playerData = registry.players.get(player);
@@ -527,16 +538,14 @@ void WorldSystem::processPlayerEnemyCollision(Entity player, Entity enemy, std::
         cooldown.remaining = enemyData.cooldown;
 
         if (playerData.health == 0) {
-            playerMotion.angle = 1.57f; // Rotate player 90 degrees
+            registry.motions.get(player).angle = 1.57f; // Rotate player 90 degrees
             printf("Player died\n");
         }
     }
 }
 
 void WorldSystem::processEnemyEnemyCollision(Entity enemy1, Entity enemy2, std::vector<Entity>& was_damaged) {
-    Motion& motion1 = registry.motions.get(enemy1);
-    Motion& motion2 = registry.motions.get(enemy2);
-    recoil_entities(motion1, motion2);
+    recoil_entities(enemy1, enemy2);
 
     handleEnemyCollision(enemy1, enemy2, was_damaged);
     handleEnemyCollision(enemy2, enemy1, was_damaged);

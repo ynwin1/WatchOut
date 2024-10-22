@@ -18,6 +18,9 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection)
 		Motion& motion = registry.motions.get(entity);
 		if (registry.midgrounds.has(entity)) {
 			vec2 visualPos = getVisualPosition(motion.position);
+			if (registry.hitboxes.has(entity)) {
+				visualPos.y += registry.hitboxes.get(entity).dimension.y / 2;
+			}
 			transform.translate(visualPos);
 		}
 		else {
@@ -247,7 +250,7 @@ void updateHpBarPositionHelper(const std::vector<Entity>& entities) {
         Motion& motion = registry.motions.get(entity);
         Motion& healthBarMotion =  registry.motions.get(healthBar.meshEntity);
          // place above character
-        float topOffset = 15;
+        float topOffset = 0;
 		healthBarMotion.position.x = motion.position.x;
         healthBarMotion.position.y = motion.position.y;
 		healthBarMotion.position.z = motion.position.z + getWorldYPosition(motion.scale.y) / 2 + topOffset;

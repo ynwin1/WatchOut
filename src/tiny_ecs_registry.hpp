@@ -53,6 +53,7 @@ public:
 		registry_list.push_back(&traps);
 		registry_list.push_back(&damageds);
 		registry_list.push_back(&deathTimers);
+		registry_list.push_back(&healthBars);
 
 		registry_list.push_back(&renderRequests);
 		registry_list.push_back(&backgrounds);

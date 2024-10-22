@@ -113,6 +113,7 @@ Entity createArcher(RenderSystem* renderer, vec2 pos)
 Entity createCollectibleTrap(RenderSystem* renderer, vec2 pos)
 {
 	auto entity = Entity();
+	registry.collectibleTraps.emplace(entity);
 
 	// Setting intial motion values
 	Motion& motion = registry.motions.emplace(entity);
@@ -134,6 +135,8 @@ Entity createCollectibleTrap(RenderSystem* renderer, vec2 pos)
 		GEOMETRY_BUFFER_ID::SPRITE
 	});
 
+	printf("Collectible trap created\n");
+
 	return entity;
 };
 
@@ -141,6 +144,7 @@ Entity createCollectibleTrap(RenderSystem* renderer, vec2 pos)
 Entity createHeart(RenderSystem* renderer, vec2 pos)
 {
 	auto entity = Entity();
+	registry.hearts.emplace(entity);
 
 	// Setting intial motion values
 	Motion& fixed = registry.motions.emplace(entity);

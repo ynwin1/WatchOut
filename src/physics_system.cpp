@@ -60,7 +60,6 @@ void PhysicsSystem::checkCollisions()
 			Entity entity_j = hitboxes.entities[j];
 			if (collides(entity_i, entity_j)) {
 				// Collision detected
-				// std::cout << "Collision detected between entities " << entity_i << " and " << entity_j << std::endl;
 				collisions.push_back(std::make_pair(entity_i, entity_j));
 				collisions.push_back(std::make_pair(entity_j, entity_i));
 			}

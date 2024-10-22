@@ -10,17 +10,23 @@ WorldSystem::WorldSystem() :
     spawn_functions({
         {"boar", createBoar},
         {"barbarian", createBarbarian},
-        {"archer", createArcher}
+        {"archer", createArcher},
+        {"heart", createHeart},
+		{"collectible_trap", createCollectibleTrap}
         }),
     spawn_delays({
         {"boar", 3000},
         {"barbarian", 8000},
-        {"archer", 10000}
+        {"archer", 10000},
+		{"heart", 15000},
+		{"collectible_trap", 6000}
         }),
     max_entities({
         {"boar", 2},
         {"barbarian", 2},
-        {"archer", 0}
+        {"archer", 0},
+		{"heart", 1},
+		{"collectible_trap", 1}
         })
 {
     // Seeding rng with random device
@@ -58,7 +64,9 @@ void WorldSystem::restart_game()
     entity_types = {
         "barbarian",
         "boar",
-        "archer"
+        "archer",
+        "heart",
+        "collectible_trap"
     };
 
     // Create player entity
@@ -74,6 +82,7 @@ bool WorldSystem::step(float elapsed_ms)
     spawn(elapsed_ms);
     update_cooldown(elapsed_ms);
     handle_deaths(elapsed_ms);
+    despawn_collectibles(elapsed_ms);
 
     if (camera->isToggled()) {
         Motion& playerMotion = registry.motions.get(playerEntity);
@@ -155,25 +164,13 @@ void WorldSystem::on_key(int key, int, int action, int mod)
         }
     }
 
-	if (action == GLFW_PRESS && key == GLFW_KEY_ENTER) {
-        // TODO LATER - Think about where exactly to place the trap
-        // Currently, it is placed at the player's position
-        // MAYBE - Place it behind the player in the direction they are facin
-
-        // Player position
-        vec2 playerPos = player_motion.position;
-        // Reduce player's trap count
-        if (player_comp.trapsCollected == 0) {
-            printf("Player has no traps to place\n");
-            // TODO LATER - Do something to indicate that player has no traps [Milestone AFTER]
-            return;
-        }
-
-        // Create a trap at player's position
-        createDamageTrap(renderer, playerPos);
-        player_comp.trapsCollected--;
-        printf("Trap placed at (%f, %f)\n", playerPos.x, playerPos.y);
+	if (action == GLFW_PRESS && key == GLFW_KEY_W) {
+        place_trap(player_comp, player_motion, true);
 	}
+
+    if (action == GLFW_PRESS && key == GLFW_KEY_Q) {
+        place_trap(player_comp, player_motion, false);
+    }
 
     // Handle ESC key to close the game window
     if (action == GLFW_PRESS && key == GLFW_KEY_ESCAPE) {
@@ -307,25 +304,36 @@ vec2 WorldSystem::get_spawn_location(const std::string& entity_type)
     float loc = uniform_dist(rng);
     vec2 size = entity_sizes.at(entity_type);
     vec2 spawn_location{};
-    if (side == 0) {
-        // Spawn north
-        spawn_location.x = size.x / 2.f + (world_size_x - size.x / 2.f) * loc;
-        spawn_location.y = size.y / 2.f;
+
+    // spawn heart
+	if (entity_type == "heart" || entity_type == "collectible_trap") {
+		// spawn at random location on the map
+		spawn_location.x = loc * (world_size_x - (size.x + 10.0f) / 2.f);
+		spawn_location.y = loc * (world_size_y - (size.y + 10.0f) / 2.f);
     }
-    else if (side == 1) {
-        // Spawn south
-        spawn_location.x = size.x / 2.f + (world_size_x - size.x / 2.f) * loc;
-        spawn_location.y = world_size_y - (size.y / 2.f);
-    }
-    else if (side == 2) {
-        // Spawn west
-        spawn_location.x = size.x / 2.f;
-        spawn_location.y = size.y / 2.f + (world_size_y - size.y / 2.f) * loc;
-    }
-    else {
-        // Spawn east
-        spawn_location.x = world_size_x - (size.x / 2.f);
-        spawn_location.y = size.y / 2.f + (world_size_y - size.y / 2.f) * loc;
+    else 
+	// spawn enemies
+    {
+        if (side == 0) {
+            // Spawn north
+            spawn_location.x = size.x / 2.f + (world_size_x - size.x / 2.f) * loc;
+            spawn_location.y = size.y / 2.f;
+        }
+        else if (side == 1) {
+            // Spawn south
+            spawn_location.x = size.x / 2.f + (world_size_x - size.x / 2.f) * loc;
+            spawn_location.y = world_size_y - (size.y / 2.f);
+        }
+        else if (side == 2) {
+            // Spawn west
+            spawn_location.x = size.x / 2.f;
+            spawn_location.y = size.y / 2.f + (world_size_y - size.y / 2.f) * loc;
+        }
+        else {
+            // Spawn east
+            spawn_location.x = world_size_x - (size.x / 2.f);
+            spawn_location.y = size.y / 2.f + (world_size_y - size.y / 2.f) * loc;
+        }
     }
     return spawn_location;
 }
@@ -427,14 +435,27 @@ float WorldSystem::calculate_y_overlap(Entity entity1, Entity entity2) {
 // Collision functions
 void WorldSystem::entity_collectible_collision(Entity entity, Entity entity_other) {
     // ONLY PLAYER CAN COLLECT COLLECTIBLES
-    
+
+    // handle different collectibles
+    Player& player = registry.players.get(entity);
+	Collectible& collectible = registry.collectibles.get(entity_other);
+
+    if (registry.collectibleTraps.has(entity_other)) {
+        player.trapsCollected++;
+        printf("Player collected a trap. Trap count is now %d\n", player.trapsCollected);
+    }
+    else if (registry.hearts.has(entity_other)) {
+        unsigned int health = registry.hearts.get(entity_other).health;
+        unsigned int addOn = player.health <= 80 ? health : 100 - player.health;
+        player.health += addOn;
+		printf("Player collected a heart\n");
+	}
+	else {
+		printf("Unknown collectible type\n");
+	}
+
     // destroy the collectible
     registry.remove_all_components_of(entity_other);
-
-    // increase collectible count in player
-    Player& player = registry.players.get(entity);
-    player.trapsCollected++;
-    printf("Player collected a trap\n");
 }
 
 void WorldSystem::entity_trap_collision(Entity entity, Entity entity_other, std::vector<Entity>& was_damaged) {
@@ -449,6 +470,7 @@ void WorldSystem::entity_trap_collision(Entity entity, Entity entity_other, std:
         player.health = new_health < 0 ? 0 : new_health;
 		was_damaged.push_back(entity);
         printf("Player health reduced by trap from %d to %d\n", player.health + trap.damage, player.health);
+        checkAndHandlePlayerDeath(entity);
 	}
 	else if (registry.enemies.has(entity)) {
         printf("Enemy hit a trap\n");
@@ -459,6 +481,7 @@ void WorldSystem::entity_trap_collision(Entity entity, Entity entity_other, std:
         enemy.health = new_health < 0 ? 0 : new_health;
         was_damaged.push_back(entity);
         printf("Enemy health reduced from %d to %d\n", enemy.health + trap.damage, enemy.health);
+		checkAndHandleEnemyDeath(entity);
 	}
 	else {
 		printf("Entity is not a player or enemy\n");
@@ -493,10 +516,7 @@ void WorldSystem::processPlayerEnemyCollision(Entity player, Entity enemy, std::
         Cooldown& cooldown = registry.cooldowns.emplace(enemy);
         cooldown.remaining = enemyData.cooldown;
 
-        if (playerData.health == 0) {
-            registry.motions.get(player).angle = 1.57f; // Rotate player 90 degrees
-            printf("Player died\n");
-        }
+		checkAndHandlePlayerDeath(player);
     }
 }
 
@@ -539,5 +559,52 @@ void WorldSystem::checkAndHandleEnemyDeath(Entity enemy) {
         registry.enemies.remove(enemy);
         registry.deathTimers.emplace(enemy);
     }
+}
+
+void WorldSystem::despawn_collectibles(float elapsed_ms) {
+	for (auto& collectibleEntity : registry.collectibles.entities) {
+		Collectible& collectible = registry.collectibles.get(collectibleEntity);
+		collectible.timer -= elapsed_ms;
+		if (collectible.timer < 0) {
+			registry.remove_all_components_of(collectibleEntity);
+		}
+	}
+}
+
+void WorldSystem::checkAndHandlePlayerDeath(Entity& entity) {
+	if (registry.players.get(entity).health == 0) {
+		Motion& motion = registry.motions.get(entity);
+		motion.angle = 1.57f; // Rotate player 90 degrees
+		printf("Player died\n");
+	}
+}
+
+void WorldSystem::place_trap(Player& player, Motion& motion, bool forward) {
+    // Player position
+    vec2 playerPos = motion.position;
+	// Do not place trap if player has no traps
+    if (player.trapsCollected == 0) {
+        printf("Player has no traps to place\n");
+        return;
+    }
+	// Place trap based on player direction
+    vec2 gap = { 0.0f, 0.0f };
+    if (forward) {
+        gap.x = (motion.scale.x / 2 + 70.f);
+    }
+    else {
+		gap.x = -(motion.scale.x / 2 + 70.f);
+    }
+
+    // Cannot place trap beyond the map
+	if (playerPos.x + gap.x < 0 || playerPos.x + gap.x > world_size_x) {
+		printf("Cannot place trap beyond the map\n");
+		return;
+	}
+
+    vec2 trapPos = playerPos + gap;
+	createDamageTrap(renderer, trapPos);
+	player.trapsCollected--;
+	printf("Trap count is now %d\n", player.trapsCollected);
 }
 

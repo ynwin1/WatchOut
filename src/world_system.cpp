@@ -18,12 +18,12 @@ WorldSystem::WorldSystem() :
         {"boar", 3000},
         {"barbarian", 8000},
         {"archer", 10000},
-		{"heart", 3000},
-		{"collectible_trap", 3000}
+		{"heart", 15000},
+		{"collectible_trap", 6000}
         }),
     max_entities({
-        {"boar", 0},
-        {"barbarian", 0},
+        {"boar", 2},
+        {"barbarian", 2},
         {"archer", 0},
 		{"heart", 1},
 		{"collectible_trap", 1}

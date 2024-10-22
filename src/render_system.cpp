@@ -21,12 +21,6 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection)
 		transform.rotate(motion.angle);
 		transform.scale(motion.scale);
 	}
-	else if(registry.stationarys.has(entity)) {
-		Stationary& motion = registry.stationarys.get(entity);
-		transform.translate(motion.position);
-		transform.rotate(motion.angle);
-		transform.scale(motion.scale);
-	}
 
 	assert(registry.renderRequests.has(entity));
 	const RenderRequest& render_request = registry.renderRequests.get(entity);
@@ -115,10 +109,10 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection)
 // Returns true if entity a is further from the camera
 bool renderComparison(Entity a, Entity b)
 {
-	if (!registry.motions.has(a) && !registry.staticMotions.has(a)) {
+	if (!registry.motions.has(a)) {
 		return false;
 	}
-	if (!registry.motions.has(b) && !registry.staticMotions.has(b)) {
+	if (!registry.motions.has(b)) {
 		return true;
 	}
 	float positionA = 0;
@@ -126,14 +120,8 @@ bool renderComparison(Entity a, Entity b)
 	if (registry.motions.has(a)) {
 		positionA = registry.motions.get(a).position.y;
 	}
-	else if (registry.staticMotions.has(a)) {
-		positionA = registry.staticMotions.get(a).position.y;
-	}
 	if (registry.motions.has(b)) {
 		positionB = registry.motions.get(b).position.y;
-	}
-	else if (registry.staticMotions.has(b)) {
-		positionB = registry.staticMotions.get(b).position.y;
 	}
 
 	return positionA < positionB;
@@ -229,7 +217,7 @@ void handleHpBarBoundsCheck() {
 
 	for(uint i = 0; i < hpbars.components.size(); i++) {
 		HealthBar& hpbar = hpbars.components[i];
-		Stationary& motion = registry.stationarys.get(hpbar.meshEntity);
+		Motion& motion = registry.motions.get(hpbar.meshEntity);
 		float halfScaleX = motion.scale.x / 2;
 		float halfScaleY = getWorldYPosition(motion.scale.y) / 2;
 
@@ -252,7 +240,7 @@ void updateHpBarPositionHelper(const std::vector<Entity>& entities) {
     for (Entity entity : entities) {
 	    HealthBar& healthBar = registry.healthBars.get(entity);
         Motion& motion = registry.motions.get(entity);
-        Stationary& healthBarMotion =  registry.stationarys.get(healthBar.meshEntity);
+        Motion& healthBarMotion =  registry.motions.get(healthBar.meshEntity);
          // place above character
         float topOffset = 15;
 		healthBarMotion.position.x = motion.position.x;
@@ -265,13 +253,13 @@ void updateHpBarMeter() {
 	for (Entity entity : registry.players.entities) {
 		Player& player = registry.players.get(entity);
 		HealthBar& hpbar = registry.healthBars.get(entity);
-		Stationary& motion = registry.stationarys.get(hpbar.meshEntity);
+		Motion& motion = registry.motions.get(hpbar.meshEntity);
 		motion.scale.x = hpbar.width * player.health/100.f;
 	}
 	for (Entity entity : registry.enemies.entities) {
 		Enemy& enemy = registry.enemies.get(entity);
 		HealthBar& hpbar = registry.healthBars.get(entity);
-		Stationary& motion = registry.stationarys.get(hpbar.meshEntity);
+		Motion& motion = registry.motions.get(hpbar.meshEntity);
 		motion.scale.x = hpbar.width * enemy.health/100.f;
 	}
 }

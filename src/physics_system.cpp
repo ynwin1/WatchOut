@@ -3,22 +3,26 @@
 #include "render_system.hpp"
 #include <iostream>
 
-bool collides(const Hitbox& a, const Hitbox& b)
+bool collides(const Entity& a, const Entity& b)
 {
 	// position represents the center of the entity
+	vec3 a_position = registry.motions.get(a).position;
+	vec3 b_position = registry.motions.get(b).position;
 	// dimension represents the width and height of entity
+	vec3 a_dimension = registry.hitboxes.get(a).dimension;
+	vec3 b_dimension = registry.hitboxes.get(b).dimension;
 
 	// If a's bottom is higher than b's top
-	if (a.position.y > b.position.y + ((b.dimension.y + a.dimension.y) / 2.0f))
+	if (a_position.y > b_position.y + ((b_dimension.y + a_dimension.y) / 2.0f))
 		return false;
 	// If a's top is lower than b's bottom
-	if (a.position.y + ((a.dimension.y + b.dimension.y) / 2.0f) < b.position.y)
+	if (a_position.y + ((a_dimension.y + b_dimension.y) / 2.0f) < b_position.y)
 		return false;
 	// If a's right is to the left of b's left
-	if (a.position.x > b.position.x + ((b.dimension.x + a.dimension.x) / 2.0f))
+	if (a_position.x > b_position.x + ((b_dimension.x + a_dimension.x) / 2.0f))
 		return false;
 	// Check if a's left is to the right of b's right
-	if (a.position.x + ((a.dimension.x + b.dimension.x) / 2.0f) < b.position.x)
+	if (a_position.x + ((a_dimension.x + b_dimension.x) / 2.0f) < b_position.x)
 		return false;
 
 	return true;
@@ -49,16 +53,12 @@ void handleBoundsCheck() {
 void PhysicsSystem::step(float elapsed_ms)
 {
 	// Check for collisions between moving entities
-	ComponentContainer<Motion> &motion_container = registry.motions;
-	for (uint i = 0; i < motion_container.components.size(); i++) {
-		Entity entity_i = motion_container.entities[i];
-		Hitbox& hitbox_i = registry.hitboxes.get(entity_i);
-
-		for (uint j = i + 1; j < motion_container.components.size(); j++) {
-			Entity entity_j = motion_container.entities[j];
-			Hitbox& hitbox_j = registry.hitboxes.get(entity_j);
-
-			if (collides(hitbox_i, hitbox_j)) {
+	ComponentContainer<Hitbox> &hitboxes = registry.hitboxes;
+	for (uint i = 0; i < hitboxes.components.size(); i++) {
+		Entity entity_i = hitboxes.entities[i];
+		for (uint j = i + 1; j < hitboxes.components.size(); j++) {
+			Entity entity_j = hitboxes.entities[j];
+			if (collides(entity_i, entity_j)) {
 				// Collision detected
 				// std::cout << "Collision detected between entities " << entity_i << " and " << entity_j << std::endl;
 				collisions.push_back(std::make_pair(entity_i, entity_j));

@@ -270,7 +270,6 @@ void WorldSystem::update_positions(float elapsed_ms)
         float Running_Speed = 1.0f;
         // Get the Motion component of the entity
         Motion& motion = registry.motions.get(entity);
-		Hitbox& hitbox = registry.hitboxes.get(entity);
 
         if(registry.players.has(entity)){
             Player& player_comp = registry.players.get(entity);
@@ -306,9 +305,7 @@ void WorldSystem::update_positions(float elapsed_ms)
                     dashing.isDashing = false; // Reset isDashing
                 }
             }  
-        }    
-		// Update the hitbox position
-		hitbox.position = motion.position;
+        }
     }
 }
 

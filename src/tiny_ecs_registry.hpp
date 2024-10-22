@@ -25,7 +25,6 @@ public:
 	ComponentContainer<Damaged> damageds;
 	ComponentContainer<DeathTimer> deathTimers;
 	ComponentContainer<HealthBar> healthBars;
-	ComponentContainer<Stationary> stationarys;
 
 	// Render component containers
 	ComponentContainer<RenderRequest> renderRequests;

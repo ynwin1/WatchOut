@@ -68,12 +68,6 @@ struct Motion {
 	vec2 scale = { 10, 10 };
 };
 
-struct Stationary {
-	vec2 position = { 0, 0 };
-	float angle = 0;
-	vec2 scale = { 10, 10 };
-};
-
 // Stucture to store collision information
 struct Collision
 {
@@ -85,8 +79,7 @@ struct Collision
 // Structure to store hitbox information
 struct Hitbox
 {
-	vec3 position = { 0, 0, 0 };
-	vec2 dimension = { 0, 0 };
+	vec3 dimension = { 0, 0, 0 };
 };
 
 // Collision Cooldown

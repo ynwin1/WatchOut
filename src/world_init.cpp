@@ -15,8 +15,7 @@ Entity createBoar(RenderSystem* renderer, vec2 pos)
 
 	// Setting initial hitbox values
 	Hitbox& hitbox = registry.hitboxes.emplace(entity);
-	hitbox.position = motion.position;
-	hitbox.dimension = { BOAR_BB_WIDTH, BOAR_BB_HEIGHT };
+	hitbox.dimension = { BOAR_BB_WIDTH, BOAR_BB_HEIGHT, BOAR_BB_HEIGHT };
 
 	Enemy& enemy = registry.enemies.emplace(entity);
 	enemy.damage = 20;
@@ -53,8 +52,7 @@ Entity createBarbarian(RenderSystem* renderer, vec2 pos)
 
 	// Setting initial hitbox values
 	Hitbox& hitbox = registry.hitboxes.emplace(entity);
-	hitbox.position = motion.position;
-	hitbox.dimension = { BARBARIAN_BB_WIDTH, BARBARIAN_BB_HEIGHT };
+	hitbox.dimension = { BARBARIAN_BB_WIDTH, BARBARIAN_BB_WIDTH, BARBARIAN_BB_HEIGHT };
 	
 	Enemy& enemy = registry.enemies.emplace(entity);
 	enemy.damage = 30;
@@ -91,8 +89,7 @@ Entity createArcher(RenderSystem* renderer, vec2 pos)
 
 	// Setting initial hitbox values
 	Hitbox& hitbox = registry.hitboxes.emplace(entity);
-	hitbox.position = motion.position;
-	hitbox.dimension = { ARCHER_BB_WIDTH, ARCHER_BB_HEIGHT };
+	hitbox.dimension = { ARCHER_BB_WIDTH, ARCHER_BB_WIDTH, ARCHER_BB_HEIGHT };
 
 	// Add Render Request for drawing sprite
 	Enemy& enemy = registry.enemies.emplace(entity);
@@ -129,8 +126,7 @@ Entity createCollectibleTrap(RenderSystem* renderer, vec2 pos)
 
 	// Setting initial hitbox values
 	Hitbox& hitbox = registry.hitboxes.emplace(entity);
-	hitbox.position = motion.position;
-	hitbox.dimension = { TRAP_BB_WIDTH, TRAP_BB_HEIGHT };
+	hitbox.dimension = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT };
 
 	registry.collectibles.emplace(entity);
 
@@ -151,15 +147,14 @@ Entity createHeart(RenderSystem* renderer, vec2 pos)
 	auto entity = Entity();
 
 	// Setting intial motion values
-	Stationary& fixed = registry.stationarys.emplace(entity);
-	fixed.position = pos;
+	Motion& fixed = registry.motions.emplace(entity);
+	fixed.position = vec3(pos, 0);
 	fixed.angle = 0.f;
 	fixed.scale = { HEART_BB_WIDTH, HEART_BB_WIDTH };
 
 	// Setting initial hitbox values
 	Hitbox& hitbox = registry.hitboxes.emplace(entity);
-	hitbox.position = pos;
-	hitbox.dimension = { HEART_BB_WIDTH, HEART_BB_WIDTH };
+	hitbox.dimension = { HEART_BB_WIDTH, HEART_BB_WIDTH, HEART_BB_WIDTH };
 
 	registry.collectibles.emplace(entity);
 
@@ -188,8 +183,7 @@ Entity createDamageTrap(RenderSystem* renderer, vec2 pos)
 
 	// Setting initial hitbox values
 	Hitbox& hitbox = registry.hitboxes.emplace(entity);
-	hitbox.position = motion.position;
-	hitbox.dimension = { TRAP_BB_WIDTH, TRAP_BB_HEIGHT };
+	hitbox.dimension = { TRAP_BB_WIDTH, TRAP_BB_WIDTH, TRAP_BB_HEIGHT };
 
 	// Setting initial trap values
 	registry.traps.emplace(entity);
@@ -234,8 +228,7 @@ Entity createJeff(RenderSystem* renderer, vec2 position)
 
 	// Setting initial hitbox values
 	Hitbox& hitbox = registry.hitboxes.emplace(entity);
-	hitbox.position = motion.position;
-	hitbox.dimension = { JEFF_BB_WIDTH, JEFF_BB_HEIGHT };
+	hitbox.dimension = { JEFF_BB_WIDTH, JEFF_BB_WIDTH, JEFF_BB_HEIGHT };
 
 	// Jeff Render Request
 	registry.renderRequests.insert(
@@ -301,10 +294,10 @@ void createHealthBar(Entity characterEntity, vec3 color) {
 
 	Motion& characterMotion = registry.motions.get(characterEntity);
 
-	Stationary& staticMotion = registry.stationarys.emplace(meshEntity);
+	Motion& motion = registry.motions.emplace(meshEntity);
 	// position does not need to be initialized as it will always be set to match the associated entity
-	staticMotion.angle = 0.f;
-	staticMotion.scale = { width, height };
+	motion.angle = 0.f;
+	motion.scale = { width, height };
 
 	registry.colours.insert(meshEntity, color);
 

@@ -10,7 +10,6 @@ Entity createBoar(RenderSystem* renderer, vec2 pos)
 	Motion& motion = registry.motions.emplace(entity);
 	motion.position = vec3(pos, getElevation(pos) + BOAR_BB_HEIGHT / 2);
 	motion.angle = 0.f;
-	motion.velocity = { 0.f, 0.f };
 	motion.scale = { BOAR_BB_WIDTH, BOAR_BB_HEIGHT };
 
 	// Setting initial hitbox values
@@ -47,7 +46,6 @@ Entity createBarbarian(RenderSystem* renderer, vec2 pos)
 	Motion& motion = registry.motions.emplace(entity);
 	motion.position = vec3(pos, getElevation(pos) + BARBARIAN_BB_HEIGHT / 2);
 	motion.angle = 0.f;
-	motion.velocity = { 0.f, 0.f };
 	motion.scale = { BARBARIAN_BB_WIDTH, BARBARIAN_BB_HEIGHT };
 
 	// Setting initial hitbox values
@@ -84,7 +82,6 @@ Entity createArcher(RenderSystem* renderer, vec2 pos)
 	Motion& motion = registry.motions.emplace(entity);
 	motion.position = vec3(pos, getElevation(pos) + ARCHER_BB_HEIGHT / 2);
 	motion.angle = 0.f;
-	motion.velocity = { 0.f, 0.f };
 	motion.scale = { ARCHER_BB_WIDTH, ARCHER_BB_HEIGHT };
 
 	// Setting initial hitbox values
@@ -121,7 +118,6 @@ Entity createCollectibleTrap(RenderSystem* renderer, vec2 pos)
 	Motion& motion = registry.motions.emplace(entity);
 	motion.position = vec3(pos, getElevation(pos) + TRAP_COLLECTABLE_BB_HEIGHT / 2);
 	motion.angle = 0.f;
-	motion.velocity = { 0.f, 0.f };
 	motion.scale = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT };
 
 	// Setting initial hitbox values
@@ -178,7 +174,6 @@ Entity createDamageTrap(RenderSystem* renderer, vec2 pos)
 	Motion& motion = registry.motions.emplace(entity);
 	motion.position = vec3(pos, getElevation(pos) + TRAP_BB_HEIGHT / 2);
 	motion.angle = 0.f;
-	motion.velocity = { 0.f, 0.f };
 	motion.scale = { TRAP_BB_WIDTH, TRAP_BB_HEIGHT };
 
 	// Setting initial hitbox values
@@ -206,7 +201,6 @@ Entity createJeff(RenderSystem* renderer, vec2 position)
 	// Initialize the motion
 	auto& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
-	motion.velocity = { 0, 0.f };
 	motion.position = vec3(position, getElevation(position) + JEFF_BB_HEIGHT / 2);
 
 	//Initialize movement
@@ -267,7 +261,6 @@ Entity createGameOver(RenderSystem* renderer, vec2 pos)
 	Motion& motion = registry.motions.emplace(entity);
 	motion.position = vec3(pos, 0);
 	motion.angle = 0.f;
-	motion.velocity = { 0.f, 0.f };
 	motion.scale = { GO_BB_WIDTH, GO_BB_HEIGHT };
 
 	// Setting initial hitbox values

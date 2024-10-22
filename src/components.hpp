@@ -64,7 +64,7 @@ struct Trap
 struct Motion {
 	vec3 position = { 0, 0, 0 };
 	float angle = 0;
-	vec2 velocity = { 0, 0 };
+	vec3 velocity = { 0, 0, 0 };
 	vec2 scale = { 10, 10 };
 };
 

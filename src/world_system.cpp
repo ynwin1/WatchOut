@@ -337,7 +337,7 @@ void WorldSystem::think()
 		if (registry.deathTimers.has(boar)) continue; // Skip dead boars
         Motion& enemyMotion = registry.motions.get(boar);
         vec2 direction = normalize(playerMotion.position - enemyMotion.position);
-        enemyMotion.velocity = direction * BOAR_SPEED;
+        enemyMotion.velocity = vec3(direction * BOAR_SPEED, enemyMotion.velocity.z);
     }
 
     const float BARBARIAN_SPEED = 0.3;
@@ -345,7 +345,7 @@ void WorldSystem::think()
 		if (registry.deathTimers.has(enemy)) continue; // Skip dead barbarians
         Motion& enemyMotion = registry.motions.get(enemy);
         vec2 direction = normalize(playerMotion.position - enemyMotion.position);
-        enemyMotion.velocity = direction * BARBARIAN_SPEED;
+        enemyMotion.velocity = vec3(direction * BARBARIAN_SPEED, enemyMotion.velocity.z);
     }
 
     const float ARCHER_SPEED = 0.2;
@@ -353,7 +353,7 @@ void WorldSystem::think()
 		if (registry.deathTimers.has(archer)) continue; // Skip dead archers
         Motion& enemyMotion = registry.motions.get(archer);
         vec2 direction = normalize(playerMotion.position - enemyMotion.position);
-        enemyMotion.velocity = direction * ARCHER_SPEED;
+        enemyMotion.velocity = vec3(direction * ARCHER_SPEED, enemyMotion.velocity.z);
     }
 }
 
@@ -371,7 +371,7 @@ void WorldSystem::recoil_entities(Entity entity1, Entity entity2) {
     float y_direction = motion1.position.y < motion2.position.y ? -1 : 1;
 
     // Apply the recoil (direction * magnitude)
-    const float RECOIL_STRENGTH = 0.3;
+    const float RECOIL_STRENGTH = 0.25;
     if (y_overlap < x_overlap) {
         motion1.position.y += y_direction * y_overlap * RECOIL_STRENGTH;
         motion2.position.y -= y_direction * y_overlap * RECOIL_STRENGTH;
@@ -526,7 +526,7 @@ void WorldSystem::checkAndHandleEnemyDeath(Entity enemy) {
     Enemy& enemyData = registry.enemies.get(enemy);
     if (enemyData.health == 0 && !registry.deathTimers.has(enemy)) {
         Motion& motion = registry.motions.get(enemy);
-        motion.velocity = { 0, 0 }; // Stop enemy movement
+        motion.velocity = { 0, 0, motion.velocity.z }; // Stop enemy movement
         motion.angle = 1.57f; // Rotate enemy 90 degrees
         printf("Enemy %d died with health %d\n", (unsigned int)enemy, enemyData.health);
 

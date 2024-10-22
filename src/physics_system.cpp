@@ -83,12 +83,14 @@ void PhysicsSystem::updatePositions(float elapsed_ms)
 			if (!player_comp.isMoving) player_speed = 0;
 			else if (player_comp.isRunning) player_speed *= 2;
 
-			motion.velocity = player_speed * player_comp.facing;
+			motion.velocity.x = (player_speed * player_comp.facing).x;
+			motion.velocity.y = (player_speed * player_comp.facing).y;
 		}
 
 		// Update the entity's position based on its velocity and elapsed time
 		motion.position.x += motion.velocity.x * elapsed_ms;
 		motion.position.y += motion.velocity.y * elapsed_ms;
+		motion.position.z += motion.velocity.z * elapsed_ms;
 
 
 		// Dashing overwrites normal movement

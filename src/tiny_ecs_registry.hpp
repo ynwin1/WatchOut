@@ -28,6 +28,7 @@ public:
 	ComponentContainer<DeathTimer> deathTimers;
 	ComponentContainer<HealthBar> healthBars;
 	ComponentContainer<StaticMotion> staticMotions;
+	ComponentContainer<Animation> animations;
 
 
 	// Spawnable types

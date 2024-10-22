@@ -17,6 +17,8 @@ const float TRAP_BB_WIDTH = 0.3f;
 const float TRAP_BB_HEIGHT = 0.2f;
 const float JEFF_BB_WIDTH   = 20.f * SPRITE_SCALE;
 const float JEFF_BB_HEIGHT  = 28.f * SPRITE_SCALE;
+const float JEFF_RUN_BB_WIDTH   = 24.f * SPRITE_SCALE;
+const float JEFF_RUN_BB_HEIGHT  = 32.f * SPRITE_SCALE;
 const float GO_BB_WIDTH   = 100.f * SPRITE_SCALE;
 const float GO_BB_HEIGHT  = 68.f * SPRITE_SCALE;
 
@@ -28,6 +30,9 @@ const std::unordered_map<std::string, vec2> entity_sizes = {
 
 // Jeff the Player
 Entity createJeff(RenderSystem* renderer, vec2 position);
+
+// Running Jeff 
+Entity createRunningJeff(RenderSystem* renderer, vec2 position);
 
 // The boar
 Entity createBoar(RenderSystem* renderer, vec2 pos);

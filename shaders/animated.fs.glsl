@@ -4,17 +4,19 @@
 in vec2 texcoord;
 
 // Application data
-uniform sampler2D sampler0;
+uniform sampler2D sprite_sheet;
 uniform vec3 entity_colour;
 
 // Animation data
-uniform float numFrames; 
-uniform float currentFrame;
+ uniform float num_frames; 
+ uniform float current_frame;
 
 // Output colour
 layout(location = 0) out  vec4 colour;
 
 void main()
 {
-	colour = vec4(entity_colour, 1.0) * texture(sampler0, vec2(texcoord.x, texcoord.y));
+	float frame_width = 1.0 / num_frames;
+	vec2 frame_texcoord = vec2(texcoord.x * frame_width + current_frame*frame_width, texcoord.y);
+	colour = vec4(entity_colour, 1.0) * texture(sprite_sheet, vec2(frame_texcoord.x, frame_texcoord.y));
 }

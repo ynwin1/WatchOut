@@ -3,6 +3,7 @@
 #include <vector>
 #include <unordered_map>
 #include "../ext/stb_image/stb_image.h"
+#include <iostream>
 
 // Single Vertex Buffer element for textured sprites (textured.vs.glsl)
 struct TexturedVertex
@@ -22,6 +23,9 @@ struct Animation
 	float elapsedTime = 0.0f;
 	float frameTime;
 	int numFrames;
+
+	Animation(float frameTime, int numFrames)
+		: currentFrame(0), elapsedTime(0.0f), frameTime(frameTime), numFrames(numFrames) {}
 
 	// Update frame based on time in ms
 	void update(float deltaTime)
@@ -68,7 +72,8 @@ enum class TEXTURE_ASSET_ID
 	ARCHER = BOAR + 1,
 	BATTLEGROUND = ARCHER + 1,
 	GAMEOVER = BATTLEGROUND + 1,
-	TEXTURE_COUNT = GAMEOVER + 1
+	JEFF_RUN = GAMEOVER + 1,
+	TEXTURE_COUNT = JEFF_RUN + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 

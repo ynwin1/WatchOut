@@ -183,19 +183,21 @@ Entity createJeff(RenderSystem* renderer, vec2 position)
 	dasher.dashDuration = 0.2f;
 
 	// Setting initial values, scale is negative to make it face the opposite way
-	motion.scale = vec2({ JEFF_BB_WIDTH, JEFF_BB_HEIGHT });
+	motion.scale = vec2({ JEFF_RUN_BB_WIDTH, JEFF_RUN_BB_HEIGHT });
 
 	// Setting initial hitbox values
 	Hitbox& hitbox = registry.hitboxes.emplace(entity);
 	hitbox.position = position;
 	hitbox.dimension = { JEFF_BB_WIDTH, JEFF_BB_HEIGHT };
 
+	// Animation
+	Animation& animation = registry.animations.emplace(entity, 150.f, 6);
 	// Jeff Render Request
 	registry.renderRequests.insert(
 		entity,
 		{
-			TEXTURE_ASSET_ID::JEFF,
-			EFFECT_ASSET_ID::TEXTURED,
+			TEXTURE_ASSET_ID::JEFF_RUN,
+			EFFECT_ASSET_ID::ANIMATED,
 			GEOMETRY_BUFFER_ID::SPRITE
 		});
 

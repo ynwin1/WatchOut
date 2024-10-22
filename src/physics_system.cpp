@@ -24,6 +24,11 @@ bool collides(const Entity& a, const Entity& b)
 	// Check if a's left is to the right of b's right
 	if (a_position.x + ((a_dimension.x + b_dimension.x) / 2.0f) < b_position.x)
 		return false;
+	// Z dimension checks
+	if (a_position.z > b_position.z + ((b_dimension.z + a_dimension.z) / 2.0f))
+		return false;
+	if (a_position.z + ((a_dimension.z + b_dimension.z) / 2.0f) < b_position.z)
+		return false;
 
 	return true;
 }

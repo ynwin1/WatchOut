@@ -8,7 +8,7 @@ Entity createBoar(RenderSystem* renderer, vec2 pos)
 
 	// Setting intial motion values
 	Motion& motion = registry.motions.emplace(entity);
-	motion.position = vec3(pos, 0);
+	motion.position = vec3(pos, getElevation(pos) + BOAR_BB_HEIGHT / 2);
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = { BOAR_BB_WIDTH, BOAR_BB_HEIGHT };
@@ -45,7 +45,7 @@ Entity createBarbarian(RenderSystem* renderer, vec2 pos)
 
 	// Setting intial motion values
 	Motion& motion = registry.motions.emplace(entity);
-	motion.position = vec3(pos, 0);
+	motion.position = vec3(pos, getElevation(pos) + BARBARIAN_BB_HEIGHT / 2);
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = { BARBARIAN_BB_WIDTH, BARBARIAN_BB_HEIGHT };
@@ -82,7 +82,7 @@ Entity createArcher(RenderSystem* renderer, vec2 pos)
 
 	// Setting intial motion values
 	Motion& motion = registry.motions.emplace(entity);
-	motion.position = vec3(pos, 0);
+	motion.position = vec3(pos, getElevation(pos) + ARCHER_BB_HEIGHT / 2);
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = { ARCHER_BB_WIDTH, ARCHER_BB_HEIGHT };
@@ -119,7 +119,7 @@ Entity createCollectibleTrap(RenderSystem* renderer, vec2 pos)
 
 	// Setting intial motion values
 	Motion& motion = registry.motions.emplace(entity);
-	motion.position = vec3(pos, 0);
+	motion.position = vec3(pos, getElevation(pos) + TRAP_COLLECTABLE_BB_HEIGHT / 2);
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT };
@@ -148,7 +148,7 @@ Entity createHeart(RenderSystem* renderer, vec2 pos)
 
 	// Setting intial motion values
 	Motion& fixed = registry.motions.emplace(entity);
-	fixed.position = vec3(pos, 0);
+	fixed.position = vec3(pos, getElevation(pos) + HEART_BB_WIDTH / 2);
 	fixed.angle = 0.f;
 	fixed.scale = { HEART_BB_WIDTH, HEART_BB_WIDTH };
 
@@ -176,7 +176,7 @@ Entity createDamageTrap(RenderSystem* renderer, vec2 pos)
 
 	// Setting intial motion values
 	Motion& motion = registry.motions.emplace(entity);
-	motion.position = vec3(pos, 0);
+	motion.position = vec3(pos, getElevation(pos) + TRAP_BB_HEIGHT / 2);
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = { TRAP_BB_WIDTH, TRAP_BB_HEIGHT };
@@ -207,7 +207,7 @@ Entity createJeff(RenderSystem* renderer, vec2 position)
 	auto& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
 	motion.velocity = { 0, 0.f };
-	motion.position = vec3(position, 0);
+	motion.position = vec3(position, getElevation(position) + JEFF_BB_HEIGHT / 2);
 
 	//Initialize movement
 	auto& player = registry.players.emplace(entity);
@@ -313,4 +313,9 @@ void createHealthBar(Entity characterEntity, vec3 color) {
 	HealthBar& hpbar = registry.healthBars.emplace(characterEntity, meshEntity);
 	hpbar.width = width;
 	hpbar.height = height;
+}
+
+float getElevation(vec2 xy)
+{
+	return 0.0f;
 }

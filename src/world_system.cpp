@@ -60,9 +60,7 @@ void WorldSystem::restart_game()
         "boar",
         "archer"
     };
-
-    createRunningJeff(renderer, vec2(world_size_x / 2.f + 30.f, world_size_y / 2.f + 30.f));
-
+    
     // Create player entity
     playerEntity = createJeff(renderer, vec2(world_size_x / 2.f, world_size_y / 2.f));
     game_over = false;

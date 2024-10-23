@@ -227,8 +227,8 @@ void WorldSystem::on_key(int key, int, int action, int mod)
                 break;
 		    case GLFW_KEY_SPACE:
                 // Dash
-                if (!player_comp.isJumping) {
-                    player_comp.isJumping = pressed;
+                if (!player_comp.isJumping && pressed) {
+                    player_comp.isJumping = true;
                     player_motion.velocity.z = 2;
                 }
                 break;

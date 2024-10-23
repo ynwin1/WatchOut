@@ -227,9 +227,13 @@ void WorldSystem::on_key(int key, int, int action, int mod)
                 break;
 		    case GLFW_KEY_SPACE:
                 // Dash
-                if (!player_comp.isJumping && pressed) {
-                    player_comp.isJumping = true;
-                    player_motion.velocity.z = 2;
+                player_comp.tryingToJump = pressed;
+                if (registry.jumpers.has(playerEntity)) {
+                    Jumper& jumper = registry.jumpers.get(playerEntity);
+                    if (!jumper.isJumping && pressed) {
+                        jumper.isJumping = true;
+                        player_motion.velocity.z = jumper.speed;
+                    }
                 }
                 break;
             default:

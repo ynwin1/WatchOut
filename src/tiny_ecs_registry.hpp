@@ -25,6 +25,7 @@ public:
 	ComponentContainer<Damaged> damageds;
 	ComponentContainer<DeathTimer> deathTimers;
 	ComponentContainer<HealthBar> healthBars;
+	ComponentContainer<Jumper> jumpers;
 
 	// Render component containers
 	ComponentContainer<RenderRequest> renderRequests;
@@ -56,6 +57,7 @@ public:
 		registry_list.push_back(&damageds);
 		registry_list.push_back(&deathTimers);
 		registry_list.push_back(&healthBars);
+		registry_list.push_back(&jumpers);
 
 		registry_list.push_back(&renderRequests);
 		registry_list.push_back(&backgrounds);

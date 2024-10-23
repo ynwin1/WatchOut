@@ -108,8 +108,14 @@ void PhysicsSystem::updatePositions(float elapsed_ms)
 		if (motion.position.z < groundZ) {
 			motion.position.z = groundZ;
 			motion.velocity.z = 0;
-			if (registry.players.has(entity)) {
-				registry.players.get(entity).isJumping = false;
+			if (registry.jumpers.has(entity)) {
+				Jumper& jumper = registry.jumpers.get(entity);
+				if (registry.players.has(entity) && !registry.players.get(entity).tryingToJump) {
+					jumper.isJumping = false;
+				}
+				else {
+					motion.velocity.z = jumper.speed;
+				}
 			}
 		}
 

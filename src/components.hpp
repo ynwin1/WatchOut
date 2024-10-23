@@ -9,12 +9,12 @@ struct Player {
 	unsigned int health = 100;
 	unsigned int trapsCollected = 0;
 	bool isRunning;     // Indicates if the player is currently running
-	bool isJumping;     // Indicates if the player is currently jumping
 	bool isRolling;     // Indicates if the player is currently rolling
 	bool goingUp;		// Key for going up is held down
 	bool goingDown;		// Key for going down is held down
 	bool goingLeft;		// Key for going left is held down
 	bool goingRight;	// Key for going right is held down
+	bool tryingToJump;	// Key for jumping is held down
 	bool isMoving;		// Indicates if any movement keys are pressed
 	vec2 facing;		// Direction the player is facing
 };
@@ -99,6 +99,13 @@ struct Damaged
 struct DeathTimer
 {
 	float timer = 3000;
+};
+
+// Entity can jump
+struct Jumper
+{
+	float speed = 0;
+	bool isJumping = false;
 };
 
 // Enemy types

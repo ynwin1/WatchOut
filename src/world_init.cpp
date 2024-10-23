@@ -135,6 +135,8 @@ Entity createCollectibleTrap(RenderSystem* renderer, vec2 pos)
 		GEOMETRY_BUFFER_ID::SPRITE
 	});
 
+	registry.midgrounds.emplace(entity);
+
 	printf("Collectible trap created\n");
 
 	return entity;
@@ -166,6 +168,8 @@ Entity createHeart(RenderSystem* renderer, vec2 pos)
 		GEOMETRY_BUFFER_ID::SPRITE
 	});
 
+	registry.midgrounds.emplace(entity);
+
 	return entity;
 };
 
@@ -194,6 +198,9 @@ Entity createDamageTrap(RenderSystem* renderer, vec2 pos)
 		EFFECT_ASSET_ID::TEXTURED,
 		GEOMETRY_BUFFER_ID::SPRITE
 	});
+
+	registry.midgrounds.emplace(entity);
+
 	return entity;
 };
 

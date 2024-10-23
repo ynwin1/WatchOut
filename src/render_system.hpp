@@ -59,6 +59,7 @@ public:
 	void initializeGlGeometryBuffers();
 
 	void initHealthBarBuffer();
+	void initStaminaBarBuffer();
 
 	// Destroy resources associated to one or all entities created by the system
 	~RenderSystem();
@@ -79,6 +80,8 @@ private:
 	void drawMesh(Entity entity, const mat3& projection);
 
 	void update_hpbars();
+
+	void update_staminabars();
 
 	// Window handle
 	GLFWwindow* window;

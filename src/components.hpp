@@ -52,6 +52,13 @@ struct HealthBar {
 	HealthBar(Entity& meshEntity) { this->meshEntity = meshEntity; };
 };
 
+struct StaminaBar {
+	Entity meshEntity;
+	float width;
+	float height;
+	StaminaBar(Entity& meshEntity) { this->meshEntity = meshEntity; };
+};
+
 // Collectible Component
 struct Collectible
 {

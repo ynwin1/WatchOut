@@ -27,6 +27,7 @@ public:
 	ComponentContainer<Damaged> damageds;
 	ComponentContainer<DeathTimer> deathTimers;
 	ComponentContainer<HealthBar> healthBars;
+	ComponentContainer<StaminaBar> staminaBars;
 	ComponentContainer<Stationary> stationarys;
 	ComponentContainer<Stamina> staminas;
 
@@ -55,6 +56,7 @@ public:
 		registry_list.push_back(&damageds);
 		registry_list.push_back(&deathTimers);
 		registry_list.push_back(&staminas);
+		
 
 		registry_list.push_back(&boars);
 		registry_list.push_back(&barbarians);

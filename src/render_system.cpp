@@ -157,6 +157,7 @@ void RenderSystem::step(float elapsed_ms)
 	}
 
 	update_hpbars();
+	update_staminabars();
 }
 
 void RenderSystem::turn_damaged_red(std::vector<Entity>& was_damaged)
@@ -239,6 +240,21 @@ void RenderSystem::update_hpbars() {
 	updateHpBarPosition();
 	handleHpBarBoundsCheck();
 }
+
+void RenderSystem::update_staminabars() {
+	for (Entity entity : registry.players.entities) {
+		Player& player = registry.players.get(entity);
+		Stamina& stamina = registry.staminas.get(entity);
+		StaminaBar& staminabar = registry.staminaBars.get(entity);
+		Motion& motion = registry.motions.get(entity);
+		Stationary& staminaBarMotion = registry.stationarys.get(staminabar.meshEntity);
+		staminaBarMotion.scale.x = staminabar.width * stamina.stamina/100.f;
+		float topOffset = 25;
+        staminaBarMotion.position.y = motion.position.y - (motion.scale.y / 2.f) - topOffset;
+        staminaBarMotion.position.x = motion.position.x;
+	}
+}
+
 
 mat3 RenderSystem::createProjectionMatrix() 
 {

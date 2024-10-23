@@ -71,6 +71,8 @@ void WorldSystem::restart_game()
 
     // Create player entity
     playerEntity = createJeff(renderer, vec2(world_size_x / 2.f, world_size_y / 2.f));
+    createStaminaBar(playerEntity, vec3(0.0f, 0.0f, 1.0f));
+    
     game_over = false;
     is_paused = false;
 
@@ -674,7 +676,7 @@ void WorldSystem::handle_stamina(float elapsed_ms) {
             if (stamina.timer <= 0) {
                 stamina.stamina = 100;
                 stamina.timer = 3000; // Reset 
-                printf("Stamina has been restored!");
+                printf("Stamina has been restored!\n");
             }
         }
     }

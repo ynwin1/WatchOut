@@ -250,6 +250,7 @@ Entity createJeff(RenderSystem* renderer, vec2 position)
 
 	createHealthBar(entity, vec3(0.0f, 1.0f, 0.0f));
 	
+	
 	return entity;
 }
 
@@ -318,4 +319,33 @@ void createHealthBar(Entity characterEntity, vec3 color) {
 	HealthBar& hpbar = registry.healthBars.emplace(characterEntity, meshEntity);
 	hpbar.width = width;
 	hpbar.height = height;
+}
+
+void createStaminaBar(Entity characterEntity, vec3 color) {
+	auto meshEntity = Entity();
+
+	const float width = 60.0f;
+	const float height = 10.0f;
+
+	Motion& characterMotion = registry.motions.get(characterEntity);
+
+	Stationary& staticMotion = registry.stationarys.emplace(meshEntity);
+	staticMotion.position = characterMotion.position;
+	staticMotion.angle = 0.f;
+	staticMotion.scale = { width, height };
+
+
+	registry.colours.insert(meshEntity, color);
+
+	registry.renderRequests.insert(
+		meshEntity,
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::UNTEXTURED,
+			GEOMETRY_BUFFER_ID::STAMINA_BAR
+		});
+
+	StaminaBar& staminabar = registry.staminaBars.emplace(characterEntity, meshEntity);
+	staminabar.width = width;
+	staminabar.height = height;
 }

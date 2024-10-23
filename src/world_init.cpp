@@ -8,15 +8,13 @@ Entity createBoar(RenderSystem* renderer, vec2 pos)
 
 	// Setting intial motion values
 	Motion& motion = registry.motions.emplace(entity);
-	motion.position = pos;
+	motion.position = vec3(pos, getElevation(pos) + BOAR_BB_HEIGHT / 2);
 	motion.angle = 0.f;
-	motion.velocity = { 0.f, 0.f };
 	motion.scale = { BOAR_BB_WIDTH, BOAR_BB_HEIGHT };
 
 	// Setting initial hitbox values
 	Hitbox& hitbox = registry.hitboxes.emplace(entity);
-	hitbox.position = pos;
-	hitbox.dimension = { BOAR_BB_WIDTH, BOAR_BB_HEIGHT };
+	hitbox.dimension = { BOAR_BB_WIDTH, BOAR_BB_HEIGHT, BOAR_BB_HEIGHT };
 
 	Enemy& enemy = registry.enemies.emplace(entity);
 	enemy.damage = 20;
@@ -32,6 +30,7 @@ Entity createBoar(RenderSystem* renderer, vec2 pos)
 		EFFECT_ASSET_ID::TEXTURED,
 		GEOMETRY_BUFFER_ID::SPRITE
 	});
+	registry.midgrounds.emplace(entity);
 
 	createHealthBar(entity, vec3(1.0f, 0.0f, 0.0f));
 	
@@ -45,15 +44,13 @@ Entity createBarbarian(RenderSystem* renderer, vec2 pos)
 
 	// Setting intial motion values
 	Motion& motion = registry.motions.emplace(entity);
-	motion.position = pos;
+	motion.position = vec3(pos, getElevation(pos) + BARBARIAN_BB_HEIGHT / 2);
 	motion.angle = 0.f;
-	motion.velocity = { 0.f, 0.f };
 	motion.scale = { BARBARIAN_BB_WIDTH, BARBARIAN_BB_HEIGHT };
 
 	// Setting initial hitbox values
 	Hitbox& hitbox = registry.hitboxes.emplace(entity);
-	hitbox.position = pos;
-	hitbox.dimension = { BARBARIAN_BB_WIDTH, BARBARIAN_BB_HEIGHT };
+	hitbox.dimension = { BARBARIAN_BB_WIDTH, BARBARIAN_BB_WIDTH, BARBARIAN_BB_HEIGHT };
 	
 	Enemy& enemy = registry.enemies.emplace(entity);
 	enemy.damage = 30;
@@ -69,6 +66,7 @@ Entity createBarbarian(RenderSystem* renderer, vec2 pos)
 		EFFECT_ASSET_ID::TEXTURED,
 		GEOMETRY_BUFFER_ID::SPRITE
 	});
+	registry.midgrounds.emplace(entity);
 
 	createHealthBar(entity, vec3(1.0f, 0.0f, 0.0f));
 
@@ -82,15 +80,13 @@ Entity createArcher(RenderSystem* renderer, vec2 pos)
 
 	// Setting intial motion values
 	Motion& motion = registry.motions.emplace(entity);
-	motion.position = pos;
+	motion.position = vec3(pos, getElevation(pos) + ARCHER_BB_HEIGHT / 2);
 	motion.angle = 0.f;
-	motion.velocity = { 0.f, 0.f };
 	motion.scale = { ARCHER_BB_WIDTH, ARCHER_BB_HEIGHT };
 
 	// Setting initial hitbox values
 	Hitbox& hitbox = registry.hitboxes.emplace(entity);
-	hitbox.position = pos;
-	hitbox.dimension = { ARCHER_BB_WIDTH, ARCHER_BB_HEIGHT };
+	hitbox.dimension = { ARCHER_BB_WIDTH, ARCHER_BB_WIDTH, ARCHER_BB_HEIGHT };
 
 	// Add Render Request for drawing sprite
 	Enemy& enemy = registry.enemies.emplace(entity);
@@ -106,6 +102,7 @@ Entity createArcher(RenderSystem* renderer, vec2 pos)
 		EFFECT_ASSET_ID::TEXTURED,
 		GEOMETRY_BUFFER_ID::SPRITE
 	});
+	registry.midgrounds.emplace(entity);
 
 	createHealthBar(entity, vec3(1.0f, 0.0f, 0.0f));
 	
@@ -119,15 +116,14 @@ Entity createCollectibleTrap(RenderSystem* renderer, vec2 pos)
 	registry.collectibleTraps.emplace(entity);
 
 	// Setting intial motion values
-	Stationary& fixed = registry.stationarys.emplace(entity);
-	fixed.position = pos;
-	fixed.angle = 0.f;
-	fixed.scale = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT };
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = vec3(pos, getElevation(pos) + TRAP_COLLECTABLE_BB_HEIGHT / 2);
+	motion.angle = 0.f;
+	motion.scale = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT };
 
 	// Setting initial hitbox values
 	Hitbox& hitbox = registry.hitboxes.emplace(entity);
-	hitbox.position = pos;
-	hitbox.dimension = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT };
+	hitbox.dimension = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT };
 
 	registry.collectibles.emplace(entity);
 
@@ -138,6 +134,8 @@ Entity createCollectibleTrap(RenderSystem* renderer, vec2 pos)
 		EFFECT_ASSET_ID::TEXTURED,
 		GEOMETRY_BUFFER_ID::SPRITE
 	});
+
+	registry.midgrounds.emplace(entity);
 
 	printf("Collectible trap created\n");
 
@@ -151,15 +149,14 @@ Entity createHeart(RenderSystem* renderer, vec2 pos)
 	registry.hearts.emplace(entity);
 
 	// Setting intial motion values
-	Stationary& fixed = registry.stationarys.emplace(entity);
-	fixed.position = pos;
+	Motion& fixed = registry.motions.emplace(entity);
+	fixed.position = vec3(pos, getElevation(pos) + HEART_BB_WIDTH / 2);
 	fixed.angle = 0.f;
 	fixed.scale = { HEART_BB_WIDTH, HEART_BB_WIDTH };
 
 	// Setting initial hitbox values
 	Hitbox& hitbox = registry.hitboxes.emplace(entity);
-	hitbox.position = pos;
-	hitbox.dimension = { HEART_BB_WIDTH, HEART_BB_WIDTH };
+	hitbox.dimension = { HEART_BB_WIDTH, HEART_BB_WIDTH, HEART_BB_WIDTH };
 
 	registry.collectibles.emplace(entity);
 
@@ -171,6 +168,8 @@ Entity createHeart(RenderSystem* renderer, vec2 pos)
 		GEOMETRY_BUFFER_ID::SPRITE
 	});
 
+	registry.midgrounds.emplace(entity);
+
 	return entity;
 };
 
@@ -180,15 +179,14 @@ Entity createDamageTrap(RenderSystem* renderer, vec2 pos)
 	auto entity = Entity();
 
 	// Setting intial motion values
-	Stationary& fixed = registry.stationarys.emplace(entity);
-	fixed.position = pos;
-	fixed.angle = 0.f;
-	fixed.scale = { TRAP_BB_WIDTH, TRAP_BB_HEIGHT };
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = vec3(pos, getElevation(pos) + TRAP_BB_HEIGHT / 2);
+	motion.angle = 0.f;
+	motion.scale = { TRAP_BB_WIDTH, TRAP_BB_HEIGHT };
 
 	// Setting initial hitbox values
 	Hitbox& hitbox = registry.hitboxes.emplace(entity);
-	hitbox.position = pos;
-	hitbox.dimension = { TRAP_BB_WIDTH, TRAP_BB_HEIGHT };
+	hitbox.dimension = { TRAP_BB_WIDTH, TRAP_BB_WIDTH, TRAP_BB_HEIGHT };
 
 	// Setting initial trap values
 	registry.traps.emplace(entity);
@@ -200,6 +198,9 @@ Entity createDamageTrap(RenderSystem* renderer, vec2 pos)
 		EFFECT_ASSET_ID::TEXTURED,
 		GEOMETRY_BUFFER_ID::SPRITE
 	});
+
+	registry.midgrounds.emplace(entity);
+
 	return entity;
 };
 
@@ -211,12 +212,10 @@ Entity createJeff(RenderSystem* renderer, vec2 position)
 	// Initialize the motion
 	auto& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
-	motion.velocity = { 0, 0.f };
-	motion.position = position;
+	motion.position = vec3(position, getElevation(position) + JEFF_BB_HEIGHT / 2);
 
 	//Initialize movement
 	auto& player = registry.players.emplace(entity);
-	player.isJumping = false;
 	player.isRolling = false;
 	player.isRunning = false;
 	player.facing = { 1, 0 };
@@ -228,13 +227,15 @@ Entity createJeff(RenderSystem* renderer, vec2 position)
 	dasher.dashTimer = 0.0f;
 	dasher.dashDuration = 0.2f;
 
+	auto& jumper = registry.jumpers.emplace(entity);
+	jumper.speed = 2;
+
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ JEFF_BB_WIDTH, JEFF_BB_HEIGHT });
 
 	// Setting initial hitbox values
 	Hitbox& hitbox = registry.hitboxes.emplace(entity);
-	hitbox.position = position;
-	hitbox.dimension = { JEFF_BB_WIDTH, JEFF_BB_HEIGHT };
+	hitbox.dimension = { JEFF_BB_WIDTH, JEFF_BB_WIDTH, JEFF_BB_HEIGHT };
 
 	// Jeff Render Request
 	registry.renderRequests.insert(
@@ -244,6 +245,7 @@ Entity createJeff(RenderSystem* renderer, vec2 position)
 			EFFECT_ASSET_ID::TEXTURED,
 			GEOMETRY_BUFFER_ID::SPRITE
 		});
+	registry.midgrounds.emplace(entity);
 
 	createHealthBar(entity, vec3(0.0f, 1.0f, 0.0f));
 	
@@ -260,6 +262,7 @@ void createBattleGround() {
 			EFFECT_ASSET_ID::TEXTURED,
 			GEOMETRY_BUFFER_ID::GAME_SPACE
 		});
+	registry.backgrounds.emplace(entity);
 }
 
 // gameover
@@ -269,9 +272,8 @@ Entity createGameOver(RenderSystem* renderer, vec2 pos)
 
 	// Setting intial motion values
 	Motion& motion = registry.motions.emplace(entity);
-	motion.position = pos;
+	motion.position = vec3(pos, 0);
 	motion.angle = 0.f;
-	motion.velocity = { 0.f, 0.f };
 	motion.scale = { GO_BB_WIDTH, GO_BB_HEIGHT };
 
 	// Setting initial hitbox values
@@ -285,6 +287,7 @@ Entity createGameOver(RenderSystem* renderer, vec2 pos)
 		EFFECT_ASSET_ID::TEXTURED,
 		GEOMETRY_BUFFER_ID::SPRITE
 	});
+	registry.foregrounds.emplace(entity);
 	
 	return entity;
 };
@@ -297,10 +300,10 @@ void createHealthBar(Entity characterEntity, vec3 color) {
 
 	Motion& characterMotion = registry.motions.get(characterEntity);
 
-	Stationary& staticMotion = registry.stationarys.emplace(meshEntity);
-	staticMotion.position = characterMotion.position;
-	staticMotion.angle = 0.f;
-	staticMotion.scale = { width, height };
+	Motion& motion = registry.motions.emplace(meshEntity);
+	// position does not need to be initialized as it will always be set to match the associated entity
+	motion.angle = 0.f;
+	motion.scale = { width, height };
 
 	registry.colours.insert(meshEntity, color);
 
@@ -311,8 +314,14 @@ void createHealthBar(Entity characterEntity, vec3 color) {
 			EFFECT_ASSET_ID::UNTEXTURED,
 			GEOMETRY_BUFFER_ID::HEALTH_BAR
 		});
+	registry.midgrounds.emplace(meshEntity);
 
 	HealthBar& hpbar = registry.healthBars.emplace(characterEntity, meshEntity);
 	hpbar.width = width;
 	hpbar.height = height;
+}
+
+float getElevation(vec2 xy)
+{
+	return 0.0f;
 }

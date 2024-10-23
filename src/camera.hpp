@@ -1,5 +1,4 @@
-#ifndef CAMERA_HPP
-#define CAMERA_HPP
+#pragma once
 
 #include "common.hpp" 
 
@@ -21,5 +20,3 @@ public:
     float getWidth() const;   
     float getHeight() const;  
 };
-
-#endif 

@@ -80,14 +80,13 @@ void WorldSystem::restart_game()
 bool WorldSystem::step(float elapsed_ms)
 {
     spawn(elapsed_ms);
-    update_positions(elapsed_ms);
     update_cooldown(elapsed_ms);
     handle_deaths(elapsed_ms);
     despawn_collectibles(elapsed_ms);
 
     if (camera->isToggled()) {
         Motion& playerMotion = registry.motions.get(playerEntity);
-        camera->followPosition(playerMotion.position);
+        camera->followPosition(getVisualPosition(playerMotion.position));
     }
 
     Player& player = registry.players.get(playerEntity);
@@ -221,14 +220,21 @@ void WorldSystem::on_key(int key, int, int action, int mod)
                     const float dashDistance = 300;
                     // Start dashing if player is moving
                     player_dash.isDashing = true;
-                    player_dash.dashStartPosition = player_motion.position;
-                    player_dash.dashTargetPosition = player_motion.position + player_comp.facing * dashDistance;
+                    player_dash.dashStartPosition = vec2(player_motion.position);
+                    player_dash.dashTargetPosition = player_dash.dashStartPosition + player_comp.facing * dashDistance;
                     player_dash.dashTimer = 0.0f; // Reset timer
                 }
                 break;
 		    case GLFW_KEY_SPACE:
                 // Dash
-                player_comp.isJumping = pressed;
+                player_comp.tryingToJump = pressed;
+                if (registry.jumpers.has(playerEntity)) {
+                    Jumper& jumper = registry.jumpers.get(playerEntity);
+                    if (!jumper.isJumping && pressed) {
+                        jumper.isJumping = true;
+                        player_motion.velocity.z = jumper.speed;
+                    }
+                }
                 break;
             default:
                 break;
@@ -257,55 +263,6 @@ void WorldSystem::update_player_facing(Player& player)
     else {
         player.isMoving = true;
         player.facing = normalize(player_facing);
-    }
-}
-
-void WorldSystem::update_positions(float elapsed_ms)
-{
-
-    for (Entity entity : registry.motions.entities) {
-        float Running_Speed = 1.0f;
-        // Get the Motion component of the entity
-        Motion& motion = registry.motions.get(entity);
-		Hitbox& hitbox = registry.hitboxes.get(entity);
-
-        if(registry.players.has(entity)){
-            Player& player_comp = registry.players.get(entity);
-
-            float player_speed = 0.5;
-            if (!player_comp.isMoving) player_speed = 0;
-            else if (player_comp.isRunning) player_speed *= 2;
-
-            motion.velocity = player_speed * player_comp.facing;
-        }
-
-        // Update the entity's position based on its velocity and elapsed time
-        motion.position.x += motion.velocity.x * elapsed_ms;
-        motion.position.y += motion.velocity.y * elapsed_ms;
-
-
-        // Dashing overwrites normal movement
-        if (registry.dashers.has(entity)){
-            Dash& dashing = registry.dashers.get(entity);
-            if (dashing.isDashing) {
-                dashing.dashTimer += elapsed_ms / 1000.0f; // Converting ms to seconds
-
-                if (dashing.dashTimer < dashing.dashDuration) {
-                    // Interpolation factor
-                    float t = dashing.dashTimer / dashing.dashDuration;
-
-                    // Interpolate between start and target positions
-                    //player_motion.position is the target_position for the linear interpolation formula L(t)=(1−t)⋅A+t⋅B
-		            // L(t) = interpolated position, A = original position, B = target position, and t is the interpolation factor
-                    motion.position = glm::mix(dashing.dashStartPosition, dashing.dashTargetPosition, t);
-                } else {
-                    motion.position = dashing.dashTargetPosition;
-                    dashing.isDashing = false; // Reset isDashing
-                }
-            }  
-        }    
-		// Update the hitbox position
-		hitbox.position = motion.position;
     }
 }
 
@@ -395,7 +352,7 @@ void WorldSystem::think()
 		if (registry.deathTimers.has(boar)) continue; // Skip dead boars
         Motion& enemyMotion = registry.motions.get(boar);
         vec2 direction = normalize(playerMotion.position - enemyMotion.position);
-        enemyMotion.velocity = direction * BOAR_SPEED;
+        enemyMotion.velocity = vec3(direction * BOAR_SPEED, enemyMotion.velocity.z);
     }
 
     const float BARBARIAN_SPEED = 0.3;
@@ -403,7 +360,7 @@ void WorldSystem::think()
 		if (registry.deathTimers.has(enemy)) continue; // Skip dead barbarians
         Motion& enemyMotion = registry.motions.get(enemy);
         vec2 direction = normalize(playerMotion.position - enemyMotion.position);
-        enemyMotion.velocity = direction * BARBARIAN_SPEED;
+        enemyMotion.velocity = vec3(direction * BARBARIAN_SPEED, enemyMotion.velocity.z);
     }
 
     const float ARCHER_SPEED = 0.2;
@@ -411,22 +368,25 @@ void WorldSystem::think()
 		if (registry.deathTimers.has(archer)) continue; // Skip dead archers
         Motion& enemyMotion = registry.motions.get(archer);
         vec2 direction = normalize(playerMotion.position - enemyMotion.position);
-        enemyMotion.velocity = direction * ARCHER_SPEED;
+        enemyMotion.velocity = vec3(direction * ARCHER_SPEED, enemyMotion.velocity.z);
     }
 }
 
-void WorldSystem::recoil_entities(Motion& motion1, Motion& motion2) {
+void WorldSystem::recoil_entities(Entity entity1, Entity entity2) {
     // Calculate x overlap
-    float x_overlap = calculate_x_overlap(motion1, motion2);
+    float x_overlap = calculate_x_overlap(entity1, entity2);
 	// Calculate y overlap
-	float y_overlap = calculate_y_overlap(motion1, motion2);
+	float y_overlap = calculate_y_overlap(entity1, entity2);
+
+    Motion& motion1 = registry.motions.get(entity1);
+    Motion& motion2 = registry.motions.get(entity2);
 
     // Calculate the direction of the collision
     float x_direction = motion1.position.x < motion2.position.x ? -1 : 1;
     float y_direction = motion1.position.y < motion2.position.y ? -1 : 1;
 
     // Apply the recoil (direction * magnitude)
-    const float RECOIL_STRENGTH = 0.3;
+    const float RECOIL_STRENGTH = 0.25;
     if (y_overlap < x_overlap) {
         motion1.position.y += y_direction * y_overlap * RECOIL_STRENGTH;
         motion2.position.y -= y_direction * y_overlap * RECOIL_STRENGTH;
@@ -438,9 +398,14 @@ void WorldSystem::recoil_entities(Motion& motion1, Motion& motion2) {
     
 }
 
-float WorldSystem::calculate_x_overlap(Motion& motion1, Motion& motion2) {
-	float x1_half_scale = motion1.scale.x / 2;
-	float x2_half_scale = motion2.scale.x / 2;
+float WorldSystem::calculate_x_overlap(Entity entity1, Entity entity2) {
+    Hitbox& hitbox1 = registry.hitboxes.get(entity1);
+    Hitbox& hitbox2 = registry.hitboxes.get(entity2);
+    Motion& motion1 = registry.motions.get(entity1);
+    Motion& motion2 = registry.motions.get(entity2);
+
+	float x1_half_scale = hitbox1.dimension.x / 2;
+	float x2_half_scale = hitbox2.dimension.x / 2;
 
 	// Determine the edges of the hitboxes for x
 	float left1 = motion1.position.x - x1_half_scale;
@@ -452,9 +417,14 @@ float WorldSystem::calculate_x_overlap(Motion& motion1, Motion& motion2) {
 	return max(0.f, min(right1, right2) - max(left1, left2));
 }
 
-float WorldSystem::calculate_y_overlap(Motion& motion1, Motion& motion2) {
-	float y1_half_scale = motion1.scale.y / 2;
-	float y2_half_scale = motion2.scale.y / 2;
+float WorldSystem::calculate_y_overlap(Entity entity1, Entity entity2) {
+    Hitbox& hitbox1 = registry.hitboxes.get(entity1);
+    Hitbox& hitbox2 = registry.hitboxes.get(entity2);
+    Motion& motion1 = registry.motions.get(entity1);
+    Motion& motion2 = registry.motions.get(entity2);
+
+	float y1_half_scale = hitbox1.dimension.y / 2;
+	float y2_half_scale = hitbox2.dimension.y / 2;
 
 	// Determine the edges of the hitboxes for y
 	float top1 = motion1.position.y - y1_half_scale;
@@ -536,9 +506,7 @@ void WorldSystem::moving_entities_collision(Entity entity, Entity entityOther, s
 }
 
 void WorldSystem::processPlayerEnemyCollision(Entity player, Entity enemy, std::vector<Entity>& was_damaged) {
-    Motion& playerMotion = registry.motions.get(player);
-    Motion& enemyMotion = registry.motions.get(enemy);
-    recoil_entities(playerMotion, enemyMotion);
+    recoil_entities(player, enemy);
 
     if (!registry.cooldowns.has(enemy)) {
         Player& playerData = registry.players.get(player);
@@ -557,9 +525,7 @@ void WorldSystem::processPlayerEnemyCollision(Entity player, Entity enemy, std::
 }
 
 void WorldSystem::processEnemyEnemyCollision(Entity enemy1, Entity enemy2, std::vector<Entity>& was_damaged) {
-    Motion& motion1 = registry.motions.get(enemy1);
-    Motion& motion2 = registry.motions.get(enemy2);
-    recoil_entities(motion1, motion2);
+    recoil_entities(enemy1, enemy2);
 
     handleEnemyCollision(enemy1, enemy2, was_damaged);
     handleEnemyCollision(enemy2, enemy1, was_damaged);
@@ -587,12 +553,13 @@ void WorldSystem::checkAndHandleEnemyDeath(Entity enemy) {
     Enemy& enemyData = registry.enemies.get(enemy);
     if (enemyData.health == 0 && !registry.deathTimers.has(enemy)) {
         Motion& motion = registry.motions.get(enemy);
-        motion.velocity = { 0, 0 }; // Stop enemy movement
+        motion.velocity = { 0, 0, motion.velocity.z }; // Stop enemy movement
         motion.angle = 1.57f; // Rotate enemy 90 degrees
         printf("Enemy %d died with health %d\n", (unsigned int)enemy, enemyData.health);
 
         HealthBar& hpbar = registry.healthBars.get(enemy);
         registry.remove_all_components_of(hpbar.meshEntity);
+        registry.healthBars.remove(enemy);
         registry.enemies.remove(enemy);
         registry.deathTimers.emplace(enemy);
     }

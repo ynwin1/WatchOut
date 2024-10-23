@@ -44,10 +44,10 @@ int main()
 		t = now;
 
 		if (!world.game_over && !world.is_paused) {
-            world.step(elapsed_ms);
-            physics.step(elapsed_ms);
-			renderer.step(elapsed_ms);
+			physics.step(elapsed_ms);
+			world.step(elapsed_ms);
             world.handle_collisions();
+			renderer.step(elapsed_ms);
         } 
 
 		renderer.draw();

@@ -9,12 +9,12 @@ struct Player {
 	unsigned int health = 100;
 	unsigned int trapsCollected = 0;
 	bool isRunning;     // Indicates if the player is currently running
-	bool isJumping;     // Indicates if the player is currently jumping
 	bool isRolling;     // Indicates if the player is currently rolling
 	bool goingUp;		// Key for going up is held down
 	bool goingDown;		// Key for going down is held down
 	bool goingLeft;		// Key for going left is held down
 	bool goingRight;	// Key for going right is held down
+	bool tryingToJump;	// Key for jumping is held down
 	bool isMoving;		// Indicates if any movement keys are pressed
 	vec2 facing;		// Direction the player is facing
 };
@@ -46,7 +46,7 @@ struct HealthBar {
 // Collectible Component
 struct Collectible
 {
-	// fixed position and scale once set
+	float timer = 5000.f; // 5 seconds until it disappears
 	vec2 position = { 0, 0 };
 	vec2 scale = { 3, 3 };
 };
@@ -57,20 +57,14 @@ struct Trap
 	// fixed position and scale once set
 	vec2 position = { 0, 0 };
 	vec2 scale = { 3, 3 };
-	unsigned int damage = 5.0;
+	unsigned int damage = 15.0;
 };
 
 // All data relevant to the shape and motion of entities
 struct Motion {
-	vec2 position = { 0, 0 };
+	vec3 position = { 0, 0, 0 };
 	float angle = 0;
-	vec2 velocity = { 0, 0 };
-	vec2 scale = { 10, 10 };
-};
-
-struct StaticMotion {
-	vec2 position = { 0, 0 };
-	float angle = 0;
+	vec3 velocity = { 0, 0, 0 };
 	vec2 scale = { 10, 10 };
 };
 
@@ -85,8 +79,7 @@ struct Collision
 // Structure to store hitbox information
 struct Hitbox
 {
-	vec2 position = { 0, 0 };
-	vec2 dimension = { 0, 0 };
+	vec3 dimension = { 0, 0, 0 };
 };
 
 // Collision Cooldown
@@ -128,7 +121,18 @@ struct FPSTracker {
 	Entity textEntity;
 };
 
+// Entity can jump
+struct Jumper
+{
+	float speed = 0;
+	bool isJumping = false;
+};
+
 // Enemy types
 struct Boar {};
 struct Barbarian {};
 struct Archer {};
+
+// Collectible types
+struct Heart { unsigned int health = 20; };
+struct CollectibleTrap {};

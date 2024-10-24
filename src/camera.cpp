@@ -1,11 +1,13 @@
 #include "camera.hpp"
+#include "render_system.hpp"
+
 void Camera::setBounds() {
     float halfWidth = width / 2;
     float halfHeight = height / 2;
     boundsMin.x = halfWidth;
     boundsMax.x = world_size_x - halfWidth;
     boundsMin.y = halfHeight;
-    boundsMax.y = world_size_y - halfHeight;
+    boundsMax.y = getVisualYPosition(world_size_y, 0) - halfHeight;
 }
 
 void Camera::init(GLFWwindow* window) {

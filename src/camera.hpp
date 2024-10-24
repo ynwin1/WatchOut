@@ -1,5 +1,4 @@
-#ifndef CAMERA_HPP
-#define CAMERA_HPP
+#pragma once
 
 #include "common.hpp" 
 
@@ -22,5 +21,3 @@ public:
     void setBounds();
     void init(GLFWwindow* window);
 };
-
-#endif 

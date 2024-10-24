@@ -31,7 +31,10 @@ class RenderSystem {
 	  textures_path("boar/boar.png"),
 	  textures_path("archer/archer.png"),
 	  textures_path("battleground/battleground.png"),
-	  textures_path("game/game_over.png")};
+	  textures_path("game/game_over.png"),
+	  textures_path("collectables/heart.png"),
+	  textures_path("collectables/trapbottle.png"),
+	  textures_path("collectables/trap.png")};
 
 	std::array<GLuint, effect_count> effects;
 	// Make sure these paths remain in sync with the associated enumerators.
@@ -87,3 +90,7 @@ private:
 
 bool loadEffectFromFile(
 	const std::string& vs_path, const std::string& fs_path, GLuint& out_program);
+
+float getVisualYPosition(float y, float z);
+float getWorldYPosition(float y);
+vec2 getVisualPosition(vec3 pos);

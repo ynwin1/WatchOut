@@ -1,14 +1,22 @@
 #include "camera.hpp"
-
-Camera::Camera() 
-{
-    // set bounds vectors
+void Camera::setBounds() {
     float halfWidth = width / 2;
     float halfHeight = height / 2;
     boundsMin.x = halfWidth;
     boundsMax.x = world_size_x - halfWidth;
     boundsMin.y = halfHeight;
     boundsMax.y = world_size_y - halfHeight;
+}
+
+void Camera::init(GLFWwindow* window) {
+    int window_width;
+    int window_height;
+    glfwGetWindowSize(window, &window_width, &window_height);
+
+    this->width = (float)window_width;
+    this->height = (float)window_height;
+
+    setBounds();
 }
 
 void Camera::followPosition(vec2 newPosition) {

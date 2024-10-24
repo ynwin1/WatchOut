@@ -24,9 +24,7 @@ namespace {
 	}
 }
 
-GLFWwindow* RenderSystem::create_window(Camera* camera) {
-	this->camera = camera;
-
+GLFWwindow* RenderSystem::create_window() {
 	///////////////////////////////////////
 	// Initialize GLFW
 	glfwSetErrorCallback(glfw_err_cb);
@@ -64,11 +62,13 @@ GLFWwindow* RenderSystem::create_window(Camera* camera) {
 
 
 // World initialization
-bool RenderSystem::init()
+bool RenderSystem::init(Camera* camera)
 {
 	
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(1); // vsync
+
+	this->camera = camera;
 
 	// Load OpenGL function pointers
 	const int is_fine = gl3w_init();

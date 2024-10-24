@@ -65,10 +65,14 @@ void WorldSystem::restart_game()
     playerEntity = createJeff(renderer, vec2(world_size_x / 2.f, world_size_y / 2.f));
     game_over = false;
     is_paused = false;
-    
-    fpsTracker.textEntity = createFPSText({camera->getWidth() - 75.0f, camera->getHeight() - 25.0f});
+
+    initText();
 
     next_spawns = spawn_delays;
+}
+
+void WorldSystem::initText() {
+    fpsTracker.textEntity = createFPSText({camera->getWidth() - 110.0f, camera->getHeight() - 35.0f});
 }
 
 void WorldSystem::trackFPS(float elapsed_ms) {

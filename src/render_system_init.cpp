@@ -198,7 +198,6 @@ void RenderSystem::initHealthBarBuffer() {
 }
 
 void RenderSystem::initText() {
-
 	FT_Library ft;
     FT_Init_FreeType(&ft);
     
@@ -207,6 +206,9 @@ void RenderSystem::initText() {
     FT_Set_Pixel_Sizes(face, 0, 15);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+	glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	for (unsigned char c = 0; c < 128; c++) {
    	 // load character glyph 

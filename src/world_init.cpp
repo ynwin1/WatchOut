@@ -277,12 +277,13 @@ Entity createFPSText(vec2 position) {
 	Text& text = registry.texts.emplace(entity);
 	text.value = "00 fps";
 	text.position = position;
+	text.scale = 1.5f;
 
 	registry.renderRequests.insert(
 			entity, 
 		{
 			TEXTURE_ASSET_ID::NONE,
-			EFFECT_ASSET_ID::TEXT,
+			EFFECT_ASSET_ID::FONT,
 			GEOMETRY_BUFFER_ID::TEXT
 		});
 

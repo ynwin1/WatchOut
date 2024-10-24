@@ -4,12 +4,11 @@
 
 #include <iostream>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "tiny_ecs_registry.hpp"
 
 void RenderSystem::drawText(Entity entity) {
-	glm::mat4 projection = glm::ortho(0.0f, camera->getWidth(), 0.0f, camera->getHeight());
-
 	const Text& text = registry.texts.get(entity);
 	const RenderRequest& render_request = registry.renderRequests.get(entity);
 
@@ -58,8 +57,14 @@ void RenderSystem::drawText(Entity entity) {
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
 
+		glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(camera->getWidth()), 0.0f, static_cast<float>(camera->getHeight()));
 		GLuint projection_loc = glGetUniformLocation(program, "projection");
-		glUniformMatrix4fv(projection_loc, 1, GL_FALSE, (float*)&projection);
+		glUniformMatrix4fv(projection_loc, 1, GL_FALSE, value_ptr(projection));
+		gl_has_errors();
+
+		glm::mat4 trans = glm::mat4(1.0f);
+		unsigned int transformLoc = glGetUniformLocation(program, "transform");
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, value_ptr(trans));
 		gl_has_errors();
 
         glDrawArrays(GL_TRIANGLES, 0, 6);

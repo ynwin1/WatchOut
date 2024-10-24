@@ -58,6 +58,7 @@ private:
 
 	// restart level
 	void restart_game();
+	void initText();
 
 	// Actions performed for each step
 	void update_positions(float elapsed_ms);

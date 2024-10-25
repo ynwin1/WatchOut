@@ -23,7 +23,7 @@ int main()
 	Camera camera;
 
 	// Initializing window
-	GLFWwindow* window = renderer.create_window(&camera);
+	GLFWwindow* window = renderer.create_window();
 	if (!window) {
 		printf("Press any key to exit");
 		getchar();
@@ -31,7 +31,8 @@ int main()
 	}
 
 	// Initialize the main systems
-	renderer.init();
+	camera.init(window);
+	renderer.init(&camera);
 	world.init(&renderer, window, &camera, &physics);
 
 	auto t = Clock::now();
@@ -44,10 +45,10 @@ int main()
 		t = now;
 
 		if (!world.game_over && !world.is_paused) {
-            world.step(elapsed_ms);
-            physics.step(elapsed_ms);
-			renderer.step(elapsed_ms);
+			physics.step(elapsed_ms);
+			world.step(elapsed_ms);
             world.handle_collisions();
+			renderer.step(elapsed_ms);
         } 
 
 		renderer.draw();

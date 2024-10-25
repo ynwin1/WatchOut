@@ -31,20 +31,23 @@ class RenderSystem {
 	  textures_path("boar/boar.png"),
 	  textures_path("archer/archer.png"),
 	  textures_path("battleground/battleground.png"),
-	  textures_path("game/game_over.png")};
+	  textures_path("game/game_over.png"),
+	  textures_path("collectables/heart.png"),
+	  textures_path("collectables/trapbottle.png"),
+	  textures_path("collectables/trap.png")};
 
 	std::array<GLuint, effect_count> effects;
 	// Make sure these paths remain in sync with the associated enumerators.
-	const std::array<std::string, effect_count> effect_paths = {shader_path("textured"), shader_path("untextured"), shader_path("text") };
+	const std::array<std::string, effect_count> effect_paths = {shader_path("textured"), shader_path("untextured"), shader_path("font") };
 
 	std::array<GLuint, geometry_count> vertex_buffers;
 	std::array<GLuint, geometry_count> index_buffers;
 
 public:
-	GLFWwindow* create_window(Camera* camera);
+	GLFWwindow* create_window();
 
 	// Initialize the window
-	bool init();
+	bool init(Camera* camera);
 
 	template <class T>
 	void bindVBOandIBO(GEOMETRY_BUFFER_ID gid, std::vector<T> vertices, std::vector<uint16_t> indices);
@@ -87,3 +90,7 @@ private:
 
 bool loadEffectFromFile(
 	const std::string& vs_path, const std::string& fs_path, GLuint& out_program);
+
+float getVisualYPosition(float y, float z);
+float getWorldYPosition(float y);
+vec2 getVisualPosition(vec3 pos);

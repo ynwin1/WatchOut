@@ -23,14 +23,20 @@ public:
 	ComponentContainer<Collectible> collectibles;
 	ComponentContainer<Hitbox> hitboxes;
 	ComponentContainer<Trap> traps;
-	ComponentContainer<RenderRequest> renderRequests;
-	ComponentContainer<vec3> colours;
 	ComponentContainer<Damaged> damageds;
 	ComponentContainer<DeathTimer> deathTimers;
 	ComponentContainer<HealthBar> healthBars;
-	ComponentContainer<StaticMotion> staticMotions;
 	ComponentContainer<Text> texts;
-	std::map<char, TextChar> textChars;
+	ComponentContainer<Jumper> jumpers;
+
+	std::map<char, TextChar> textChars; //for initializing text glyphs from freetype
+
+	// Render component containers
+	ComponentContainer<RenderRequest> renderRequests;
+	ComponentContainer<Background> backgrounds;
+	ComponentContainer<Midground> midgrounds;
+	ComponentContainer<Foreground> foregrounds;
+	ComponentContainer<vec3> colours;
 
 
 	// Spawnable types
@@ -38,6 +44,11 @@ public:
 	ComponentContainer<Boar> boars;
 	ComponentContainer<Barbarian> barbarians;
 	ComponentContainer<Archer> archers;
+	ComponentContainer<Heart> hearts;
+	ComponentContainer<CollectibleTrap> collectibleTraps;
+
+	//debugging
+	FPSTracker fpsTracker;
 
 	ECSRegistry()
 	{
@@ -50,18 +61,29 @@ public:
 		registry_list.push_back(&collectibles);
 		registry_list.push_back(&hitboxes);
 		registry_list.push_back(&traps);
-		registry_list.push_back(&renderRequests);
-		registry_list.push_back(&colours);
 		registry_list.push_back(&damageds);
 		registry_list.push_back(&deathTimers);
+		registry_list.push_back(&healthBars);
+		registry_list.push_back(&texts);
+		registry_list.push_back(&jumpers);
+
+		registry_list.push_back(&renderRequests);
+		registry_list.push_back(&backgrounds);
+		registry_list.push_back(&midgrounds);
+		registry_list.push_back(&foregrounds);
+		registry_list.push_back(&colours);
 
 		registry_list.push_back(&boars);
 		registry_list.push_back(&barbarians);
 		registry_list.push_back(&archers);
+		registry_list.push_back(&hearts);
+		registry_list.push_back(&collectibleTraps);
 
 		spawnable_lists["boar"] = &boars;
 		spawnable_lists["barbarian"] = &barbarians;
 		spawnable_lists["archer"] = &archers;
+		spawnable_lists["heart"] = &hearts;
+		spawnable_lists["collectible_trap"] = &collectibleTraps;
 	}
 
 	void clear_all_components() {

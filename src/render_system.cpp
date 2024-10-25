@@ -1,15 +1,17 @@
 // internal
 #include "render_system.hpp"
-#include <SDL.h>
-
-#include <iostream>
-#include <glm/gtc/matrix_transform.hpp>
-
 #include "tiny_ecs_registry.hpp"
 
-void RenderSystem::drawText(Entity entity) {
-	glm::mat4 projection = glm::ortho(0.0f, camera->getWidth(), camera->getHeight(), 0.0f);
+// external
+#include <SDL.h>
 
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+// STD
+#include <algorithm>
+
+void RenderSystem::drawText(Entity entity) {
 	const Text& text = registry.texts.get(entity);
 	const RenderRequest& render_request = registry.renderRequests.get(entity);
 
@@ -43,14 +45,15 @@ void RenderSystem::drawText(Entity entity) {
         float w = ch.size.x * text.scale;
         float h = ch.size.y * text.scale;
         // update VBO for each character
-		float vertices[6][4] = {
-    		{ xpos, ypos - (h - ch.bearing.y), 0.0f, 1.0f },  // top-left
-    		{ xpos, ypos -  ch.bearing.y, 0.0f, 0.0f },  // bottom-left
-    		{ xpos + w, ypos -  ch.bearing.y, 1.0f, 0.0f },  // bottom-right
-   	 		{ xpos, ypos - (h -  ch.bearing.y),   0.0f, 1.0f },  // top-left
-    		{ xpos + w, ypos -  ch.bearing.y,         1.0f, 0.0f },  // bottom-right
-    		{ xpos + w, ypos - (h -  ch.bearing.y),   1.0f, 1.0f }   // top-right
-		};
+	  	float vertices[6][4] = {
+            	{ xpos,     ypos + h,   0.0f, 0.0f },            
+            	{ xpos,     ypos,       0.0f, 1.0f },
+            	{ xpos + w, ypos,       1.0f, 1.0f },
+
+            	{ xpos,     ypos + h,   0.0f, 0.0f },
+            	{ xpos + w, ypos,       1.0f, 1.0f },
+            	{ xpos + w, ypos + h,   1.0f, 0.0f }           
+        	};
 
         // render glyph texture over quad
         glBindTexture(GL_TEXTURE_2D, ch.textureID);
@@ -62,8 +65,14 @@ void RenderSystem::drawText(Entity entity) {
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
 
+		glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(camera->getSize().x), 0.0f, static_cast<float>(camera->getSize().y));
 		GLuint projection_loc = glGetUniformLocation(program, "projection");
-		glUniformMatrix4fv(projection_loc, 1, GL_FALSE, (float*)&projection);
+		glUniformMatrix4fv(projection_loc, 1, GL_FALSE, value_ptr(projection));
+		gl_has_errors();
+
+		glm::mat4 trans = glm::mat4(1.0f);
+		unsigned int transformLoc = glGetUniformLocation(program, "transform");
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, value_ptr(trans));
 		gl_has_errors();
 
         glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -77,15 +86,18 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection)
 	// specification for more info Incrementally updates transformation matrix,
 	// thus ORDER IS IMPORTANT
 	Transform transform;
-	if(registry.motions.has(entity)) {
+	if (registry.motions.has(entity)) {
 		Motion& motion = registry.motions.get(entity);
-		transform.translate(motion.position);
-		transform.rotate(motion.angle);
-		transform.scale(motion.scale);
-	}
-	else if(registry.staticMotions.has(entity)) {
-		StaticMotion& motion = registry.staticMotions.get(entity);
-		transform.translate(motion.position);
+		if (registry.midgrounds.has(entity)) {
+			vec2 visualPos = getVisualPosition(motion.position);
+			if (registry.hitboxes.has(entity)) {
+				visualPos.y += registry.hitboxes.get(entity).dimension.y / 2;
+			}
+			transform.translate(visualPos);
+		}
+		else {
+			transform.translate(motion.position);
+		}
 		transform.rotate(motion.angle);
 		transform.scale(motion.scale);
 	}
@@ -174,6 +186,27 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection)
 	gl_has_errors();
 }
 
+// Returns true if entity a is further from the camera
+bool renderComparison(Entity a, Entity b)
+{
+	if (!registry.motions.has(a)) {
+		return false;
+	}
+	if (!registry.motions.has(b)) {
+		return true;
+	}
+	float positionA = 0;
+	float positionB = 0;
+	if (registry.motions.has(a)) {
+		positionA = registry.motions.get(a).position.y;
+	}
+	if (registry.motions.has(b)) {
+		positionB = registry.motions.get(b).position.y;
+	}
+
+	return positionA < positionB;
+}
+
 // Render our game world
 // http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/
 void RenderSystem::draw()
@@ -198,15 +231,32 @@ void RenderSystem::draw()
 	// sprites back to front
 	gl_has_errors();
 	mat3 projection_2D = createProjectionMatrix();
-	//Draw all textured meshes that have a position and size component
-	for (Entity entity : registry.renderRequests.entities)
-	{
-		if(registry.texts.has(entity)) {
-			drawText(entity);
-		} else {
-			drawMesh(entity, projection_2D);
+
+	// Draw all background textures
+	for (Entity entity : registry.backgrounds.entities) {
+		drawMesh(entity, projection_2D);
+	}
+	
+	// Copy entities and sort
+	std::vector<Entity> renderOrder = registry.midgrounds.entities;
+	std::sort(renderOrder.begin(), renderOrder.end(), renderComparison);
+	// Draw all midground textured meshes that have a position and size component
+	for (Entity entity : renderOrder) {
+		drawMesh(entity, projection_2D);
+	}
+
+	// Draw all foreground textures
+	for (Entity entity : registry.foregrounds.entities) {
+		drawMesh(entity, projection_2D);
+	}
+
+	// Draw all text
+	for (Entity entity : registry.texts.entities) {
+		if(entity == registry.fpsTracker.textEntity && !registry.fpsTracker.toggled) {
+			continue; //skip rendering fps if not toggled
 		}
-		
+
+		drawText(entity);
 	}
 
 	// flicker-free display with a double buffer
@@ -256,9 +306,9 @@ void handleHpBarBoundsCheck() {
 
 	for(uint i = 0; i < hpbars.components.size(); i++) {
 		HealthBar& hpbar = hpbars.components[i];
-		StaticMotion& motion = registry.staticMotions.get(hpbar.meshEntity);
+		Motion& motion = registry.motions.get(hpbar.meshEntity);
 		float halfScaleX = motion.scale.x / 2;
-		float halfScaleY = motion.scale.y / 2;
+		float halfScaleY = getWorldYPosition(motion.scale.y) / 2;
 
 		if(motion.position.x - halfScaleX  < 0) {
 			motion.position.x = halfScaleX;
@@ -266,8 +316,9 @@ void handleHpBarBoundsCheck() {
 			motion.position.x = world_size_x - halfScaleX;
 		}
 
-		if(motion.position.y - halfScaleY < 0) {
+		if(motion.position.y - halfScaleY - motion.position.z < 0) {
 			motion.position.y = halfScaleY;
+			motion.position.z = 0;
 		} else if(motion.position.y + halfScaleY > world_size_y) {
 			motion.position.y = world_size_y - halfScaleY;
 		}
@@ -278,11 +329,12 @@ void updateHpBarPositionHelper(const std::vector<Entity>& entities) {
     for (Entity entity : entities) {
 	    HealthBar& healthBar = registry.healthBars.get(entity);
         Motion& motion = registry.motions.get(entity);
-        StaticMotion& healthBarMotion =  registry.staticMotions.get(healthBar.meshEntity);
+        Motion& healthBarMotion =  registry.motions.get(healthBar.meshEntity);
          // place above character
-        float topOffset = 15;
-        healthBarMotion.position.y = motion.position.y - (motion.scale.y / 2.f) - topOffset;
-        healthBarMotion.position.x = motion.position.x;
+        float topOffset = 0;
+		healthBarMotion.position.x = motion.position.x;
+        healthBarMotion.position.y = motion.position.y;
+		healthBarMotion.position.z = motion.position.z + getWorldYPosition(motion.scale.y) / 2 + topOffset;
     }   
 }
 
@@ -290,13 +342,13 @@ void updateHpBarMeter() {
 	for (Entity entity : registry.players.entities) {
 		Player& player = registry.players.get(entity);
 		HealthBar& hpbar = registry.healthBars.get(entity);
-		StaticMotion& motion = registry.staticMotions.get(hpbar.meshEntity);
+		Motion& motion = registry.motions.get(hpbar.meshEntity);
 		motion.scale.x = hpbar.width * player.health/100.f;
 	}
 	for (Entity entity : registry.enemies.entities) {
 		Enemy& enemy = registry.enemies.get(entity);
 		HealthBar& hpbar = registry.healthBars.get(entity);
-		StaticMotion& motion = registry.staticMotions.get(hpbar.meshEntity);
+		Motion& motion = registry.motions.get(hpbar.meshEntity);
 		motion.scale.x = hpbar.width * enemy.health/100.f;
 	}
 }
@@ -321,16 +373,16 @@ mat3 RenderSystem::createProjectionMatrix()
 
 	if (camera->isToggled()) {
 		// viewing screen is based on camera position and its dimensions
-		left = camera->getPosition().x - (camera->getWidth() / 2);
-		right = camera->getPosition().x + (camera->getWidth() / 2);
-		bottom = camera->getPosition().y + (camera->getHeight() / 2);
-		top = camera->getPosition().y - (camera->getHeight() / 2);
+		left = camera->getPosition().x - (camera->getSize().x / 2);
+		right = camera->getPosition().x + (camera->getSize().x / 2);
+		bottom = camera->getPosition().y + (camera->getSize().y / 2);
+		top = camera->getPosition().y - (camera->getSize().y / 2);
 	}
 	else {
 		top = 0;
 		left = 0;
 		right = world_size_x;
-		bottom = world_size_y;
+		bottom = getVisualYPosition(world_size_y, 0);
 	}
 
 	gl_has_errors();
@@ -340,4 +392,19 @@ mat3 RenderSystem::createProjectionMatrix()
 	float tx = -(right + left) / (right - left);
 	float ty = -(top + bottom) / (top - bottom);
 	return { {sx, 0.f, 0.f}, {0.f, sy, 0.f}, {tx, ty, 1.f} };
+}
+
+float getVisualYPosition(float y, float z) 
+{
+	return y / sqrt(2) - z / sqrt(2);
+}
+
+float getWorldYPosition(float y)
+{
+	return y * sqrt(2);
+}
+
+vec2 getVisualPosition(vec3 pos) 
+{
+	return vec2(pos.x, getVisualYPosition(pos.y, pos.z));
 }

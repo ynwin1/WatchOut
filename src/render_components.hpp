@@ -49,15 +49,18 @@ enum class TEXTURE_ASSET_ID {
 	ARCHER = BOAR + 1,
 	BATTLEGROUND = ARCHER + 1,
 	GAMEOVER = BATTLEGROUND + 1,
-	TEXTURE_COUNT = GAMEOVER + 1
+	HEART = GAMEOVER + 1,
+	TRAPCOLLECTABLE = HEART + 1,
+	TRAP = TRAPCOLLECTABLE + 1,
+	TEXTURE_COUNT = TRAP + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
 enum class EFFECT_ASSET_ID {
 	TEXTURED = 0,
 	UNTEXTURED = 1,
-	TEXT = UNTEXTURED + 1,
-	EFFECT_COUNT = TEXT + 1
+	FONT = UNTEXTURED + 1,
+	EFFECT_COUNT = FONT + 1
 };
 const int effect_count = (int)EFFECT_ASSET_ID::EFFECT_COUNT;
 
@@ -75,3 +78,7 @@ struct RenderRequest {
 	EFFECT_ASSET_ID used_effect = EFFECT_ASSET_ID::EFFECT_COUNT;
 	GEOMETRY_BUFFER_ID used_geometry = GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;
 };
+
+struct Background {};
+struct Midground {};
+struct Foreground {};

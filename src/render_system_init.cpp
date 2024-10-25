@@ -24,9 +24,7 @@ namespace {
 	}
 }
 
-GLFWwindow* RenderSystem::create_window(Camera* camera) {
-	this->camera = camera;
-
+GLFWwindow* RenderSystem::create_window() {
 	///////////////////////////////////////
 	// Initialize GLFW
 	glfwSetErrorCallback(glfw_err_cb);
@@ -64,11 +62,13 @@ GLFWwindow* RenderSystem::create_window(Camera* camera) {
 
 
 // World initialization
-bool RenderSystem::init()
+bool RenderSystem::init(Camera* camera)
 {
 	
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(1); // vsync
+
+	this->camera = camera;
 
 	// Load OpenGL function pointers
 	const int is_fine = gl3w_init();
@@ -198,15 +198,27 @@ void RenderSystem::initHealthBarBuffer() {
 }
 
 void RenderSystem::initText() {
-
 	FT_Library ft;
+	if (FT_Init_FreeType(&ft))
+	{
+		std::cerr << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
+		return;
+	}
     FT_Init_FreeType(&ft);
     
     FT_Face face;
-    FT_New_Face(ft, "data/fonts/PressStart2P.ttf", 0, &face);
-    FT_Set_Pixel_Sizes(face, 0, 10);
+	std::string font_filename = PROJECT_SOURCE_DIR + std::string("data/fonts/Kenney_Pixel.ttf");
+	if (FT_New_Face(ft, font_filename.c_str(), 0, &face))
+	{
+		std::cerr << "ERROR::FREETYPE: Failed to load font: " << "data/fonts/Kenney_Pixel.ttf" << std::endl;
+		return;
+	}
+    FT_Set_Pixel_Sizes(face, 0, 15);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+	glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	for (unsigned char c = 0; c < 128; c++) {
    	 // load character glyph 

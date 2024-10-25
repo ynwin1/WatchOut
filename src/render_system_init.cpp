@@ -204,12 +204,15 @@ void RenderSystem::initText() {
 		std::cerr << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
 		return;
 	}
-	std::cout << "TEXT STEP 1: Init FreeType DONE" << std::endl;
     FT_Init_FreeType(&ft);
     
     FT_Face face;
 	std::string font_filename = PROJECT_SOURCE_DIR + std::string("data/fonts/Kenney_Pixel.ttf");
-    FT_New_Face(ft, font_filename.c_str(), 0, &face);
+	if (FT_New_Face(ft, font_filename.c_str(), 0, &face))
+	{
+		std::cerr << "ERROR::FREETYPE: Failed to load font: " << "data/fonts/Kenney_Pixel.ttf" << std::endl;
+		return;
+	}
     FT_Set_Pixel_Sizes(face, 0, 15);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);

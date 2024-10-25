@@ -199,10 +199,23 @@ void RenderSystem::initHealthBarBuffer() {
 
 void RenderSystem::initText() {
 	FT_Library ft;
+	if (FT_Init_FreeType(&ft))
+	{
+		std::cerr << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
+		return;
+	}
+	std::cout << "TEXT STEP 1: Init FreeType DONE" << std::endl;
     FT_Init_FreeType(&ft);
-    
-    FT_Face face;
-    FT_New_Face(ft, "data/fonts/Kenney_Pixel.ttf", 0, &face);
+
+	FT_Face face;
+	// NOTE - this is a relative path, so the executable must be run from the root of the project
+	// or the path must be changed to an absolute path. Else, it will segfault.
+	if (FT_New_Face(ft, "data/fonts/Kenney_Pixel.ttf", 0, &face))
+	{
+		std::cerr << "ERROR::FREETYPE: Failed to load font: " << "data/fonts/Kenney_Pixel.ttf" << std::endl;
+		return;
+	}
+	std::cout << "TEXT STEP 2: Loading font DONE" << std::endl;
     FT_Set_Pixel_Sizes(face, 0, 15);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);

@@ -56,6 +56,7 @@ private:
 
 	// restart level
 	void restart_game();
+	void initText();
 
 	// Actions performed for each step
 	void update_positions(float elapsed_ms);
@@ -71,6 +72,7 @@ private:
 	float calculate_y_overlap(Entity motion1, Entity motion2);
 	void place_trap(Player& player, Motion& motion, bool forward);
 	void checkAndHandlePlayerDeath(Entity& entity);
+	void trackFPS(float elapsed_ms);
 
 	// Collision functions
 	void entity_collectible_collision(Entity entity, Entity collectible);

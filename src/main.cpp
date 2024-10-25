@@ -23,7 +23,7 @@ int main()
 	Camera camera;
 
 	// Initializing window
-	GLFWwindow* window = renderer.create_window(&camera);
+	GLFWwindow* window = renderer.create_window();
 	if (!window) {
 		printf("Press any key to exit");
 		getchar();
@@ -31,7 +31,8 @@ int main()
 	}
 
 	// Initialize the main systems
-	renderer.init();
+	camera.init(window);
+	renderer.init(&camera);
 	world.init(&renderer, window, &camera, &physics);
 
 	auto t = Clock::now();

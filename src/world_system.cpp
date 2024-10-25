@@ -74,7 +74,29 @@ void WorldSystem::restart_game()
     game_over = false;
     is_paused = false;
 
+    initText();
+
     next_spawns = spawn_delays;
+}
+
+void WorldSystem::initText() {
+    registry.fpsTracker.textEntity = createFPSText(camera->getSize());
+}
+
+void WorldSystem::trackFPS(float elapsed_ms) {
+    FPSTracker& fpsTracker = registry.fpsTracker; 
+
+    fpsTracker.elapsedTime += elapsed_ms;
+    fpsTracker.counter += 1;
+
+    if(fpsTracker.elapsedTime >= 1000) {
+        fpsTracker.fps = fpsTracker.counter;
+        fpsTracker.counter = 0;
+        fpsTracker.elapsedTime = 0;
+
+        Text& text = registry.texts.get(fpsTracker.textEntity);
+        text.value = std::to_string(fpsTracker.fps) + " fps";
+    }
 }
 
 bool WorldSystem::step(float elapsed_ms)
@@ -83,6 +105,7 @@ bool WorldSystem::step(float elapsed_ms)
     update_cooldown(elapsed_ms);
     handle_deaths(elapsed_ms);
     despawn_collectibles(elapsed_ms);
+    trackFPS(elapsed_ms);
 
     if (camera->isToggled()) {
         Motion& playerMotion = registry.motions.get(playerEntity);
@@ -246,6 +269,11 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     // toggle camera on/off for debugging/testing
     if(action == GLFW_PRESS && key == GLFW_KEY_C) {
         camera->toggle();
+    }
+
+    // toggle fps
+    if(action == GLFW_PRESS && key == GLFW_KEY_F) {
+        registry.fpsTracker.toggled = !registry.fpsTracker.toggled;
     }
 }
 

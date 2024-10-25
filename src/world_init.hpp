@@ -60,6 +60,8 @@ Entity createHeart(RenderSystem* renderer, vec2 pos);
 
 void createBattleGround();
 
+Entity createFPSText(vec2 windowSize);
+
 // GameOver
 Entity createGameOver(RenderSystem* renderer, vec2 pos);
 

@@ -21,9 +21,10 @@ struct Player {
 
 //Stamina
 struct Stamina {
-	unsigned int stamina = 100;
-	unsigned int max_stamina = 100;     
-    float stamina_recovery_rate = 10;
+	float stamina = 100;
+	float max_stamina = 100;     
+    float stamina_loss_rate = 50;
+	float stamina_recovery_rate = 10;
 	float timer = 3000;
 
 };

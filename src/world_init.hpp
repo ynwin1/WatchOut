@@ -62,7 +62,7 @@ void createBattleGround();
 
 Entity createFPSText(vec2 windowSize);
 
-Entity createGameTimerText(vec2 position);
+Entity createGameTimerText(vec2 windowSize);
 
 // GameOver
 Entity createGameOver(RenderSystem* renderer, vec2 pos);

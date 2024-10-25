@@ -37,11 +37,6 @@ void RenderSystem::drawText(Entity entity) {
         float xpos = startX + ch.bearing.x * text.scale;
 		float ypos = ypos = startY - (ch.size.y - ch.bearing.y) * text.scale;
 
-		//baseline offsets
-		if(*c == ':') {
-			ypos -= 3.0f;
-		}
-
         float w = ch.size.x * text.scale;
         float h = ch.size.y * text.scale;
         // update VBO for each character

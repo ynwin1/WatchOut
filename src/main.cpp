@@ -11,6 +11,7 @@
 #include <world_system.hpp>
 #include <render_system.hpp>
 #include <physics_system.hpp>
+#include <ai_system.hpp>
 
 using Clock = std::chrono::high_resolution_clock;
 // Entry point
@@ -20,6 +21,7 @@ int main()
 	WorldSystem world;
 	RenderSystem renderer;
 	PhysicsSystem physics;
+	AISystem ai;
 	Camera camera;
 
 	// Initializing window
@@ -47,6 +49,7 @@ int main()
 			physics.step(elapsed_ms);
 			world.step(elapsed_ms);
             world.handle_collisions();
+			ai.step(elapsed_ms);
 			renderer.step(elapsed_ms);
         } 
 

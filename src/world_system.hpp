@@ -64,7 +64,6 @@ private:
 	void update_player_facing(Player& player);
 	void despawn_collectibles(float elapsed_ms);
 	vec2 get_spawn_location(const std::string& entity_type);
-	void think();
 	void place_trap(Player& player, Motion& motion, bool forward);
 	void checkAndHandlePlayerDeath(Entity& entity);
 

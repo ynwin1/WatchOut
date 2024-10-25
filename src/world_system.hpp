@@ -42,6 +42,7 @@ private:
 	Camera* camera;
 	
 	GameTimer gameTimer;
+	TrapsCounter trapsCounter;
 
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);
@@ -76,6 +77,7 @@ private:
 	void checkAndHandlePlayerDeath(Entity& entity);
 	void trackFPS(float elapsed_ms);
 	void updateGameTimer(float elapsed_ms);
+	void updateTrapsCounterText();
 
 	// Collision functions
 	void entity_collectible_collision(Entity entity, Entity collectible);

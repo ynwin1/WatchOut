@@ -7,7 +7,6 @@
 // PlayerComponents 
 struct Player {
 	unsigned int health = 100;
-	unsigned int trapsCollected = 0;
 	bool isRunning;     // Indicates if the player is currently running
 	bool isRolling;     // Indicates if the player is currently rolling
 	bool goingUp;		// Key for going up is held down
@@ -99,6 +98,14 @@ struct Damaged
 struct DeathTimer
 {
 	float timer = 3000;
+};
+
+struct TrapsCounter {
+	int count = 0;
+	Entity textEntity;
+	void reset() {
+		count = 0;
+	}
 };
 
 struct GameTimer {

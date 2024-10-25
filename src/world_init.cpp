@@ -360,6 +360,25 @@ Entity createGameTimerText(vec2 windowSize) {
 	return entity;
 }
 
+Entity createTrapsCounterText(vec2 windowSize) {
+	auto entity = Entity();
+
+	Text& text = registry.texts.emplace(entity);
+	text.value = "Traps: 00";
+	text.position = {windowSize.x / 2 - 200.0f, windowSize.y - 30.0f};
+	text.scale = 2.0f;
+
+	registry.renderRequests.insert(
+		entity, 
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::FONT,
+			GEOMETRY_BUFFER_ID::TEXT
+		});
+	
+	return entity;
+}
+
 float getElevation(vec2 xy)
 {
 	return 0.0f;

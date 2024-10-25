@@ -95,6 +95,8 @@ void WorldSystem::initText() {
     registry.fpsTracker.textEntity = createFPSText(camera->getSize());
     gameTimer.reset();
     gameTimer.textEntity = createGameTimerText(camera->getSize());
+    trapsCounter.reset();
+    trapsCounter.textEntity = createTrapsCounterText(camera->getSize());
 }
 
 void WorldSystem::trackFPS(float elapsed_ms) {
@@ -113,6 +115,13 @@ void WorldSystem::trackFPS(float elapsed_ms) {
     }
 }
 
+void WorldSystem::updateTrapsCounterText() {
+    Text& text = registry.texts.get(trapsCounter.textEntity);
+    std::stringstream ss;
+    ss << std::setw(2) << std::setfill('0') << trapsCounter.count;
+    text.value = "Traps: " + ss.str();
+}
+
 bool WorldSystem::step(float elapsed_ms)
 {
     spawn(elapsed_ms);
@@ -121,6 +130,7 @@ bool WorldSystem::step(float elapsed_ms)
     despawn_collectibles(elapsed_ms);
     trackFPS(elapsed_ms);
     updateGameTimer(elapsed_ms);
+    updateTrapsCounterText();
 
     if (camera->isToggled()) {
         Motion& playerMotion = registry.motions.get(playerEntity);
@@ -488,8 +498,8 @@ void WorldSystem::entity_collectible_collision(Entity entity, Entity entity_othe
 	Collectible& collectible = registry.collectibles.get(entity_other);
 
     if (registry.collectibleTraps.has(entity_other)) {
-        player.trapsCollected++;
-        printf("Player collected a trap. Trap count is now %d\n", player.trapsCollected);
+        trapsCounter.count++;
+        printf("Player collected a trap. Trap count is now %d\n", trapsCounter.count);
     }
     else if (registry.hearts.has(entity_other)) {
         unsigned int health = registry.hearts.get(entity_other).health;
@@ -630,7 +640,7 @@ void WorldSystem::place_trap(Player& player, Motion& motion, bool forward) {
     // Player position
     vec2 playerPos = motion.position;
 	// Do not place trap if player has no traps
-    if (player.trapsCollected == 0) {
+    if (trapsCounter.count == 0) {
         printf("Player has no traps to place\n");
         return;
     }
@@ -651,7 +661,7 @@ void WorldSystem::place_trap(Player& player, Motion& motion, bool forward) {
 
     vec2 trapPos = playerPos + gap;
 	createDamageTrap(renderer, trapPos);
-	player.trapsCollected--;
-	printf("Trap count is now %d\n", player.trapsCollected);
+	trapsCounter.count--;
+	printf("Trap count is now %d\n", trapsCounter.count);
 }
 

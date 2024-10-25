@@ -321,12 +321,13 @@ void createHealthBar(Entity characterEntity, vec3 color) {
 	hpbar.height = height;
 }
 
-Entity createFPSText(vec2 position) {
+Entity createFPSText(vec2 windowSize) {
 	auto entity = Entity();
 
 	Text& text = registry.texts.emplace(entity);
 	text.value = "00 fps";
-	text.position = position;
+	// text position based on screen coordinates
+	text.position = {windowSize.x - 90.0f, windowSize.y - 30.0f};
 	text.scale = 2.0f;
 
 	registry.renderRequests.insert(

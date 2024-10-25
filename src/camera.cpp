@@ -2,8 +2,8 @@
 #include "render_system.hpp"
 
 void Camera::setBounds() {
-    float halfWidth = width / 2;
-    float halfHeight = height / 2;
+    float halfWidth = this->size.x / 2;
+    float halfHeight = this->size.y / 2;
     boundsMin.x = halfWidth;
     boundsMax.x = world_size_x - halfWidth;
     boundsMin.y = halfHeight;
@@ -15,8 +15,8 @@ void Camera::init(GLFWwindow* window) {
     int window_height;
     glfwGetWindowSize(window, &window_width, &window_height);
 
-    this->width = (float)window_width;
-    this->height = (float)window_height;
+    this->size.x = (float)window_width;
+    this->size.y = (float)window_height;
 
     setBounds();
 }
@@ -42,10 +42,6 @@ vec2 Camera::getPosition() const {
     return position;
 }
 
-float Camera::getWidth() const {
-    return width;
-}
-
-float Camera::getHeight() const {
-    return height;
+vec2 Camera::getSize() const {
+    return size;
 }

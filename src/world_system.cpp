@@ -80,7 +80,7 @@ void WorldSystem::restart_game()
 }
 
 void WorldSystem::initText() {
-    fpsTracker.textEntity = createFPSText({camera->getWidth() - 90.0f, camera->getHeight() - 35.0f});
+    fpsTracker.textEntity = createFPSText(camera->getSize());
 }
 
 void WorldSystem::trackFPS(float elapsed_ms) {

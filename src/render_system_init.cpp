@@ -14,6 +14,9 @@
 #include <iostream>
 #include <sstream>
 
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
 // Debugging
 namespace {
 	void glfw_err_cb(int error, const char* desc) {
@@ -21,9 +24,7 @@ namespace {
 	}
 }
 
-GLFWwindow* RenderSystem::create_window(Camera* camera) {
-	this->camera = camera;
-
+GLFWwindow* RenderSystem::create_window() {
 	///////////////////////////////////////
 	// Initialize GLFW
 	glfwSetErrorCallback(glfw_err_cb);
@@ -61,11 +62,13 @@ GLFWwindow* RenderSystem::create_window(Camera* camera) {
 
 
 // World initialization
-bool RenderSystem::init()
+bool RenderSystem::init(Camera* camera)
 {
 	
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(1); // vsync
+
+	this->camera = camera;
 
 	// Load OpenGL function pointers
 	const int is_fine = gl3w_init();
@@ -180,6 +183,8 @@ void RenderSystem::initializeGlGeometryBuffers()
 
 	initHealthBarBuffer();
 	initStaminaBarBuffer();
+
+	initText();
 }
 
 void RenderSystem::initHealthBarBuffer() {
@@ -202,6 +207,72 @@ void RenderSystem::initStaminaBarBuffer() {
 
     const std::vector<uint16_t> health_bar_indices = { 0, 1, 2, 1, 2, 3 };
     bindVBOandIBO(GEOMETRY_BUFFER_ID::STAMINA_BAR, health_bar_vertices, health_bar_indices);
+}
+void RenderSystem::initText() {
+	FT_Library ft;
+	if (FT_Init_FreeType(&ft))
+	{
+		std::cerr << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
+		return;
+	}
+    FT_Init_FreeType(&ft);
+    
+    FT_Face face;
+	std::string font_filename = PROJECT_SOURCE_DIR + std::string("data/fonts/Kenney_Pixel.ttf");
+	if (FT_New_Face(ft, font_filename.c_str(), 0, &face))
+	{
+		std::cerr << "ERROR::FREETYPE: Failed to load font: " << "data/fonts/Kenney_Pixel.ttf" << std::endl;
+		return;
+	}
+    FT_Set_Pixel_Sizes(face, 0, 15);
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+	glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	for (unsigned char c = 0; c < 128; c++) {
+   	 // load character glyph 
+		if (FT_Load_Char(face, c, FT_LOAD_RENDER))
+		{
+			std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
+			continue;
+		}
+		// generate texture
+		unsigned int texture;
+		glGenTextures(1, &texture);
+		glBindTexture(GL_TEXTURE_2D, texture);
+		glTexImage2D(
+			GL_TEXTURE_2D,
+			0,
+			GL_RED,
+			face->glyph->bitmap.width,
+			face->glyph->bitmap.rows,
+			0,
+			GL_RED,
+			GL_UNSIGNED_BYTE,
+			face->glyph->bitmap.buffer
+		);
+		// set texture options
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		// now store character for later use
+		TextChar character = {
+			texture, 
+			glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
+			glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
+			static_cast<unsigned int>(face->glyph->advance.x)
+		};
+		registry.textChars.insert(std::pair<char, TextChar>(c, character));
+	}
+
+	FT_Done_Face(face);
+	FT_Done_FreeType(ft);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffers[(uint)GEOMETRY_BUFFER_ID::TEXT]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW); 
 }
 
 

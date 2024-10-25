@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <map>
 
 #include "tiny_ecs.hpp"
 #include "components.hpp"
@@ -27,7 +28,10 @@ public:
 	ComponentContainer<HealthBar> healthBars;
 	ComponentContainer<StaminaBar> staminaBars;
 	ComponentContainer<Stamina> staminas;
+	ComponentContainer<Text> texts;
 	ComponentContainer<Jumper> jumpers;
+
+	std::map<char, TextChar> textChars; //for initializing text glyphs from freetype
 
 	// Render component containers
 	ComponentContainer<RenderRequest> renderRequests;
@@ -44,6 +48,9 @@ public:
 	ComponentContainer<Archer> archers;
 	ComponentContainer<Heart> hearts;
 	ComponentContainer<CollectibleTrap> collectibleTraps;
+
+	//debugging
+	FPSTracker fpsTracker;
 
 	ECSRegistry()
 	{
@@ -62,6 +69,7 @@ public:
 		
 		registry_list.push_back(&healthBars);
 		registry_list.push_back(&staminaBars);
+		registry_list.push_back(&texts);
 		registry_list.push_back(&jumpers);
 
 		registry_list.push_back(&renderRequests);

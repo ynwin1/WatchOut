@@ -66,3 +66,6 @@ Entity createGameOver(RenderSystem* renderer, vec2 pos);
 void createHealthBar(Entity characterEntity, vec3 color);
 
 void createStaminaBar(Entity characterEntity, vec3 color);
+float getElevation(vec2 xy);
+
+float getElevation(vec2 xy);

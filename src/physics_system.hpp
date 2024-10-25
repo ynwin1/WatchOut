@@ -17,4 +17,5 @@ public:
 private:
 	void updatePositions(float elapsed_ms);
 	void checkCollisions();
+	void recoil_entities(Entity motion1, Entity motion2);
 };

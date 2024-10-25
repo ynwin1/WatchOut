@@ -58,17 +58,13 @@ private:
 	void restart_game();
 
 	// Actions performed for each step
-	void update_positions(float elapsed_ms);
-	void update_player_facing(Player& player);
+	void spawn(float elapsed_ms);
 	void update_cooldown(float elapsed_ms);
 	void handle_deaths(float elapsed_ms);
+	void update_player_facing(Player& player);
 	void despawn_collectibles(float elapsed_ms);
-	void spawn(float elapsed_ms);
 	vec2 get_spawn_location(const std::string& entity_type);
 	void think();
-	void recoil_entities(Entity motion1, Entity motion2);
-	float calculate_x_overlap(Entity motion1, Entity motion2);
-	float calculate_y_overlap(Entity motion1, Entity motion2);
 	void place_trap(Player& player, Motion& motion, bool forward);
 	void checkAndHandlePlayerDeath(Entity& entity);
 

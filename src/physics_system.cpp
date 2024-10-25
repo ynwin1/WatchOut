@@ -67,6 +67,9 @@ void PhysicsSystem::checkCollisions()
 				// Collision detected
 				collisions.push_back(std::make_pair(entity_i, entity_j));
 				collisions.push_back(std::make_pair(entity_j, entity_i));
+
+				// Push each other
+				recoil_entities(entity_i, entity_j);
 			}
 		}
 	}
@@ -140,6 +143,69 @@ void PhysicsSystem::updatePositions(float elapsed_ms)
 				}
 			}
 		}
+	}
+}
+
+float calculate_x_overlap(Entity entity1, Entity entity2) {
+	Hitbox& hitbox1 = registry.hitboxes.get(entity1);
+	Hitbox& hitbox2 = registry.hitboxes.get(entity2);
+	Motion& motion1 = registry.motions.get(entity1);
+	Motion& motion2 = registry.motions.get(entity2);
+
+	float x1_half_scale = hitbox1.dimension.x / 2;
+	float x2_half_scale = hitbox2.dimension.x / 2;
+
+	// Determine the edges of the hitboxes for x
+	float left1 = motion1.position.x - x1_half_scale;
+	float right1 = motion1.position.x + x1_half_scale;
+	float left2 = motion2.position.x - x2_half_scale;
+	float right2 = motion2.position.x + x2_half_scale;
+
+	// Calculate x overlap
+	return max(0.f, min(right1, right2) - max(left1, left2));
+}
+
+float calculate_y_overlap(Entity entity1, Entity entity2) {
+	Hitbox& hitbox1 = registry.hitboxes.get(entity1);
+	Hitbox& hitbox2 = registry.hitboxes.get(entity2);
+	Motion& motion1 = registry.motions.get(entity1);
+	Motion& motion2 = registry.motions.get(entity2);
+
+	float y1_half_scale = hitbox1.dimension.y / 2;
+	float y2_half_scale = hitbox2.dimension.y / 2;
+
+	// Determine the edges of the hitboxes for y
+	float top1 = motion1.position.y - y1_half_scale;
+	float bottom1 = motion1.position.y + y1_half_scale;
+	float top2 = motion2.position.y - y2_half_scale;
+	float bottom2 = motion2.position.y + y2_half_scale;
+
+	// Calculate y overlap
+	return max(0.f, min(bottom1, bottom2) - max(top1, top2));
+}
+
+void PhysicsSystem::recoil_entities(Entity entity1, Entity entity2) {
+	// Calculate x overlap
+	float x_overlap = calculate_x_overlap(entity1, entity2);
+	// Calculate y overlap
+	float y_overlap = calculate_y_overlap(entity1, entity2);
+
+	Motion& motion1 = registry.motions.get(entity1);
+	Motion& motion2 = registry.motions.get(entity2);
+
+	// Calculate the direction of the collision
+	float x_direction = motion1.position.x < motion2.position.x ? -1 : 1;
+	float y_direction = motion1.position.y < motion2.position.y ? -1 : 1;
+
+	// Apply the recoil (direction * magnitude)
+	const float RECOIL_STRENGTH = 0.25;
+	if (y_overlap < x_overlap) {
+		motion1.position.y += y_direction * y_overlap * RECOIL_STRENGTH;
+		motion2.position.y -= y_direction * y_overlap * RECOIL_STRENGTH;
+	}
+	else {
+		motion1.position.x += x_direction * x_overlap * RECOIL_STRENGTH;
+		motion2.position.x -= x_direction * x_overlap * RECOIL_STRENGTH;
 	}
 }
 

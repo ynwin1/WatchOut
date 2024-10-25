@@ -247,6 +247,10 @@ void RenderSystem::draw()
 
 	// Draw all text
 	for (Entity entity : registry.texts.entities) {
+		if(entity == registry.fpsTracker.textEntity && !registry.fpsTracker.toggled) {
+			continue; //skip rendering fps if not toggled
+		}
+
 		drawText(entity);
 	}
 

@@ -47,6 +47,9 @@ public:
 	ComponentContainer<Heart> hearts;
 	ComponentContainer<CollectibleTrap> collectibleTraps;
 
+	//debugging
+	FPSTracker fpsTracker;
+
 	ECSRegistry()
 	{
 		registry_list.push_back(&players);

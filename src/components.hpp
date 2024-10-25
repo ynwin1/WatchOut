@@ -119,6 +119,7 @@ struct FPSTracker {
 	int counter = 0;
 	float elapsedTime = 0;
 	Entity textEntity;
+	bool toggled = false;
 };
 
 // Entity can jump

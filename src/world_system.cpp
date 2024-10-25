@@ -80,10 +80,12 @@ void WorldSystem::restart_game()
 }
 
 void WorldSystem::initText() {
-    fpsTracker.textEntity = createFPSText(camera->getSize());
+    registry.fpsTracker.textEntity = createFPSText(camera->getSize());
 }
 
 void WorldSystem::trackFPS(float elapsed_ms) {
+    FPSTracker& fpsTracker = registry.fpsTracker; 
+
     fpsTracker.elapsedTime += elapsed_ms;
     fpsTracker.counter += 1;
 
@@ -267,6 +269,11 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     // toggle camera on/off for debugging/testing
     if(action == GLFW_PRESS && key == GLFW_KEY_C) {
         camera->toggle();
+    }
+
+    // toggle fps
+    if(action == GLFW_PRESS && key == GLFW_KEY_F) {
+        registry.fpsTracker.toggled = !registry.fpsTracker.toggled;
     }
 }
 

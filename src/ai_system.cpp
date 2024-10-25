@@ -1,30 +1,56 @@
 #include "ai_system.hpp"
 
+void boarBehaviour(Entity boar, vec3 playerPosition)
+{
+    if (registry.deathTimers.has(boar)) {
+        return;
+    }
+    Motion& enemyMotion = registry.motions.get(boar);
+    vec2 direction = normalize(playerPosition - enemyMotion.position);
+    float speed = registry.enemies.get(boar).speed;
+    enemyMotion.velocity = vec3(direction * speed, enemyMotion.velocity.z);
+}
+
+void barbarianBehaviour(Entity barbarian, vec3 playerPosition)
+{
+    if (registry.deathTimers.has(barbarian)) {
+        return;
+    }
+    Motion& enemyMotion = registry.motions.get(barbarian);
+    vec2 direction = normalize(playerPosition - enemyMotion.position);
+    float speed = registry.enemies.get(barbarian).speed;
+    enemyMotion.velocity = vec3(direction * speed, enemyMotion.velocity.z);
+}
+
+void archerBehaviour(Entity archer, vec3 playerPosition)
+{
+    if (registry.deathTimers.has(archer)) {
+        return;
+    }
+    Motion& enemyMotion = registry.motions.get(archer);
+    vec2 direction = normalize(playerPosition - enemyMotion.position);
+    float speed = registry.enemies.get(archer).speed;
+    enemyMotion.velocity = vec3(direction * speed, enemyMotion.velocity.z);
+}
+
+
 void AISystem::step(float elapsed_ms)
 {
-    Motion& playerMotion = registry.motions.get(registry.players.entities.at(0));
-
-    const float BOAR_SPEED = 0.4;
-    for (Entity boar : registry.boars.entities) {
-        if (registry.deathTimers.has(boar)) continue; // Skip dead boars
-        Motion& enemyMotion = registry.motions.get(boar);
-        vec2 direction = normalize(playerMotion.position - enemyMotion.position);
-        enemyMotion.velocity = vec3(direction * BOAR_SPEED, enemyMotion.velocity.z);
+    // Skip if there is no player to pursue
+    if (registry.players.entities.size() < 1) {
+        return;
     }
+    vec3 playerPosition = registry.motions.get(registry.players.entities.at(0)).position;
 
-    const float BARBARIAN_SPEED = 0.3;
-    for (Entity enemy : registry.barbarians.entities) {
-        if (registry.deathTimers.has(enemy)) continue; // Skip dead barbarians
-        Motion& enemyMotion = registry.motions.get(enemy);
-        vec2 direction = normalize(playerMotion.position - enemyMotion.position);
-        enemyMotion.velocity = vec3(direction * BARBARIAN_SPEED, enemyMotion.velocity.z);
-    }
-
-    const float ARCHER_SPEED = 0.2;
-    for (Entity archer : registry.archers.entities) {
-        if (registry.deathTimers.has(archer)) continue; // Skip dead archers
-        Motion& enemyMotion = registry.motions.get(archer);
-        vec2 direction = normalize(playerMotion.position - enemyMotion.position);
-        enemyMotion.velocity = vec3(direction * ARCHER_SPEED, enemyMotion.velocity.z);
+    for (Entity enemy : registry.enemies.entities) {
+        if (registry.boars.has(enemy)) {
+            boarBehaviour(enemy, playerPosition);
+        }
+        else if (registry.barbarians.has(enemy)) {
+            barbarianBehaviour(enemy, playerPosition);
+        }
+        else if (registry.archers.has(enemy)) {
+            archerBehaviour(enemy, playerPosition);
+        }
     }
 }

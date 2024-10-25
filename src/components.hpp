@@ -34,6 +34,7 @@ struct Enemy
 	unsigned int damage = 10;
 	std::string type;
 	unsigned int cooldown = 0;
+	float speed = 0;
 };
 
 struct HealthBar {

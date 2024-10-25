@@ -155,6 +155,16 @@ struct FPSTracker {
 	float elapsedTime = 0;
 	Entity textEntity;
 	bool toggled = false;
+	void update(float elapsed_ms) {
+		elapsedTime += elapsed_ms;
+		counter += 1;
+
+    	if(elapsedTime >= 1000) {
+        	fps = counter;
+        	counter = 0;
+        	elapsedTime = 0;
+    	}
+	}
 };
 
 // Entity can jump

@@ -365,7 +365,7 @@ Entity createTrapsCounterText(vec2 windowSize) {
 
 	Text& text = registry.texts.emplace(entity);
 	text.value = "Traps: 00";
-	text.position = {windowSize.x / 2 - 200.0f, windowSize.y - 30.0f};
+	text.position = {(windowSize.x / 2) - 200.0f, windowSize.y - 30.0f};
 	text.scale = 2.0f;
 
 	registry.renderRequests.insert(

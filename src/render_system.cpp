@@ -35,7 +35,7 @@ void RenderSystem::drawText(Entity entity) {
         TextChar ch = registry.textChars[*c];
 
         float xpos = startX + ch.bearing.x * text.scale;
-		float ypos = ypos = startY - (ch.size.y - ch.bearing.y) * text.scale;
+		float ypos = startY - (ch.size.y - ch.bearing.y) * text.scale;
 
         float w = ch.size.x * text.scale;
         float h = ch.size.y * text.scale;

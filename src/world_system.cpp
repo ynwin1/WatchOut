@@ -101,15 +101,9 @@ void WorldSystem::initText() {
 
 void WorldSystem::trackFPS(float elapsed_ms) {
     FPSTracker& fpsTracker = registry.fpsTracker; 
+    fpsTracker.update(elapsed_ms);
 
-    fpsTracker.elapsedTime += elapsed_ms;
-    fpsTracker.counter += 1;
-
-    if(fpsTracker.elapsedTime >= 1000) {
-        fpsTracker.fps = fpsTracker.counter;
-        fpsTracker.counter = 0;
-        fpsTracker.elapsedTime = 0;
-
+    if(fpsTracker.elapsedTime == 0) {
         Text& text = registry.texts.get(fpsTracker.textEntity);
         text.value = std::to_string(fpsTracker.fps) + " fps";
     }

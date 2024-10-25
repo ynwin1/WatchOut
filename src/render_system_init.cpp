@@ -202,7 +202,8 @@ void RenderSystem::initText() {
     FT_Init_FreeType(&ft);
     
     FT_Face face;
-    FT_New_Face(ft, "data/fonts/Kenney_Pixel.ttf", 0, &face);
+	std::string font_filename = PROJECT_SOURCE_DIR + std::("data/fonts/Kenney_Pixel.ttf");
+    FT_New_Face(ft, font_filename.c_str(), 0, &face);
     FT_Set_Pixel_Sizes(face, 0, 15);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);

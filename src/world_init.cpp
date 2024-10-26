@@ -346,8 +346,8 @@ Entity createGameTimerText(vec2 windowSize) {
 
 	Text& text = registry.texts.emplace(entity);
 	text.value = "00:00:00";
-	text.position = {(windowSize.x / 2) - 50.0f, windowSize.y - 30.0f};
-	text.scale = 2.5f;
+	text.position = {(windowSize.x / 2) + 50.0f, windowSize.y - 80.0f}; 
+	text.scale = 5.5f;
 
 	registry.renderRequests.insert(
 		entity, 
@@ -365,8 +365,8 @@ Entity createTrapsCounterText(vec2 windowSize) {
 
 	Text& text = registry.texts.emplace(entity);
 	text.value = "Traps: 00";
-	text.position = {(windowSize.x / 2) - 200.0f, windowSize.y - 30.0f};
-	text.scale = 2.0f;
+	text.position = {(windowSize.x / 2) - 250.0f, windowSize.y - 80.0f}; 
+	text.scale = 4.0f;
 
 	registry.renderRequests.insert(
 		entity, 

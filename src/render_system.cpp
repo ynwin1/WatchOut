@@ -191,7 +191,7 @@ void RenderSystem::step(float elapsed_ms)
 
 	// Update animations
 	for (auto& animation : registry.animations.components) {
-		animation.update(elapsed_ms);
+		updateAnimation(animation, elapsed_ms);
 	}
 
 	update_hpbars();

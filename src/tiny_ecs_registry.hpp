@@ -4,6 +4,7 @@
 #include "tiny_ecs.hpp"
 #include "components.hpp"
 #include "render_components.hpp"
+#include "animation_system.hpp"
 
 class ECSRegistry
 {

@@ -17,28 +17,6 @@ struct UntexturedVertex
 	vec3 position;
 };
 
-struct Animation
-{
-	int currentFrame = 0;
-	float elapsedTime = 0.0f;
-	float frameTime;
-	int numFrames;
-
-	Animation(float frameTime, int numFrames)
-		: currentFrame(0), elapsedTime(0.0f), frameTime(frameTime), numFrames(numFrames) {}
-
-	// Update frame based on time in ms
-	void update(float deltaTime)
-	{
-		elapsedTime += deltaTime;
-		if (elapsedTime >= frameTime)
-		{
-			currentFrame = (currentFrame + 1) % numFrames;
-			elapsedTime = 0.0f;
-		}
-	}
-};
-
 /**
  * The following enumerators represent global identifiers refering to graphic
  * assets. For example TEXTURE_ASSET_ID are the identifiers of each texture

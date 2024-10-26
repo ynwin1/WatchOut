@@ -275,7 +275,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
                                 jumper.isJumping = true; 
                                 player_comp.tryingToJump = true;
                                 player_motion.velocity.z = jumper.speed; 
-                                player_stamina.stamina -= 15.0f;
+                                player_stamina.stamina -= min_stamina_for_jump;
                                 if (player_stamina.stamina < 0) {
                                     player_stamina.stamina = 0;
                                 }
@@ -702,7 +702,7 @@ void WorldSystem::handle_stamina(float elapsed_ms) {
 
         if (stamina.stamina == 0) {
             player_comp.isRunning = false;
-            player_jump.isJumping = false;
+            player_comp.tryingToJump = false;
             dash_comp.isDashing = false;
             player_comp.isRolling = false;
             

@@ -2,7 +2,7 @@
 #include "tiny_ecs_registry.hpp"
 
 // Boar creation
-Entity createBoar(RenderSystem* renderer, vec2 pos)
+Entity createBoar(vec2 pos)
 {
 	auto entity = Entity();
 
@@ -39,7 +39,7 @@ Entity createBoar(RenderSystem* renderer, vec2 pos)
 };
 
 // Barbarian creation
-Entity createBarbarian(RenderSystem* renderer, vec2 pos)
+Entity createBarbarian(vec2 pos)
 {
 	auto entity = Entity();
 
@@ -76,7 +76,7 @@ Entity createBarbarian(RenderSystem* renderer, vec2 pos)
 };
 
 // Archer creation
-Entity createArcher(RenderSystem* renderer, vec2 pos)
+Entity createArcher(vec2 pos)
 {
 	auto entity = Entity();
 
@@ -113,7 +113,7 @@ Entity createArcher(RenderSystem* renderer, vec2 pos)
 };
 
 // Collectible trap creation
-Entity createCollectibleTrap(RenderSystem* renderer, vec2 pos)
+Entity createCollectibleTrap(vec2 pos)
 {
 	auto entity = Entity();
 	registry.collectibleTraps.emplace(entity);
@@ -146,7 +146,7 @@ Entity createCollectibleTrap(RenderSystem* renderer, vec2 pos)
 };
 
 // Heart creation
-Entity createHeart(RenderSystem* renderer, vec2 pos)
+Entity createHeart(vec2 pos)
 {
 	auto entity = Entity();
 	registry.hearts.emplace(entity);
@@ -177,7 +177,7 @@ Entity createHeart(RenderSystem* renderer, vec2 pos)
 };
 
 // Damage trap creation
-Entity createDamageTrap(RenderSystem* renderer, vec2 pos)
+Entity createDamageTrap(vec2 pos)
 {
 	auto entity = Entity();
 
@@ -208,7 +208,7 @@ Entity createDamageTrap(RenderSystem* renderer, vec2 pos)
 };
 
 // Create Player Jeff
-Entity createJeff(RenderSystem* renderer, vec2 position)
+Entity createJeff(vec2 position)
 {
 	auto entity = Entity();
 
@@ -255,6 +255,11 @@ Entity createJeff(RenderSystem* renderer, vec2 position)
 	return entity;
 }
 
+Entity createArrow(vec3 pos, vec3 velocity)
+{
+	return Entity();
+}
+
 void createBattleGround() {
 	auto entity = Entity();
 
@@ -269,7 +274,7 @@ void createBattleGround() {
 }
 
 // gameover
-Entity createGameOver(RenderSystem* renderer, vec2 pos)
+Entity createGameOver(vec2 pos)
 {
 	auto entity = Entity();
 

@@ -51,7 +51,7 @@ private:
 	const std::unordered_map<std::string, unsigned int> max_entities;
 	std::unordered_map<std::string, float> next_spawns;
 
-	using spawn_func = Entity (*)(RenderSystem*, vec2);
+	using spawn_func = Entity (*)(vec2);
 	const std::unordered_map<std::string, spawn_func> spawn_functions;
 
 	// restart level

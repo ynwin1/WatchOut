@@ -70,7 +70,7 @@ void WorldSystem::restart_game()
     };
 
     // Create player entity
-    playerEntity = createJeff(renderer, vec2(world_size_x / 2.f, world_size_y / 2.f));
+    playerEntity = createJeff(vec2(world_size_x / 2.f, world_size_y / 2.f));
     game_over = false;
     is_paused = false;
 
@@ -93,7 +93,7 @@ bool WorldSystem::step(float elapsed_ms)
     if(player.health == 0) {
         //CREATE GAMEOVER ENTITY
         vec2 camera_pos = camera->getPosition();
-        createGameOver(renderer, camera_pos);
+        createGameOver(camera_pos);
         game_over = true;
     }
 
@@ -295,7 +295,7 @@ void WorldSystem::spawn(float elapsed_ms)
         if (next_spawns.at(entity_type) < 0 && registry.spawnable_lists.at(entity_type)->size() < max_entities.at(entity_type)) {
             vec2 spawnLocation = get_spawn_location(entity_type);
             spawn_func f = spawn_functions.at(entity_type);
-            (*f)(renderer, spawnLocation);
+            (*f)(spawnLocation);
             next_spawns[entity_type] = spawn_delays.at(entity_type);
         }
     }
@@ -509,7 +509,7 @@ void WorldSystem::place_trap(Player& player, Motion& motion, bool forward) {
 	}
 
     vec2 trapPos = playerPos + gap;
-	createDamageTrap(renderer, trapPos);
+	createDamageTrap(trapPos);
 	player.trapsCollected--;
 	printf("Trap count is now %d\n", player.trapsCollected);
 }

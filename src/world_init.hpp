@@ -39,33 +39,33 @@ const std::unordered_map<std::string, vec2> entity_sizes = {
 };
 
 // Jeff the Player
-Entity createJeff(RenderSystem* renderer, vec2 position);
+Entity createJeff(vec2 position);
 
 // The boar
-Entity createBoar(RenderSystem* renderer, vec2 pos);
+Entity createBoar(vec2 pos);
 
 // The barbarian
-Entity createBarbarian(RenderSystem* renderer, vec2 pos);
+Entity createBarbarian(vec2 pos);
 
 // The archer
-Entity createArcher(RenderSystem* renderer, vec2 pos);
+Entity createArcher(vec2 pos);
 
 // The collectible trap
-Entity createCollectibleTrap(RenderSystem* renderer, vec2 pos);
+Entity createCollectibleTrap(vec2 pos);
 
 // The collectible heart
-Entity createHeart(RenderSystem* renderer, vec2 pos);
+Entity createHeart(vec2 pos);
 
 // The damage trap
-Entity createDamageTrap(RenderSystem* renderer, vec2 pos);
+Entity createDamageTrap(vec2 pos);
 
-// The health collectable
-Entity createHeart(RenderSystem* renderer, vec2 pos);
+// Arrows fired by the archer
+Entity createArrow(vec3 pos, vec3 velocity);
 
 void createBattleGround();
 
 // GameOver
-Entity createGameOver(RenderSystem* renderer, vec2 pos);
+Entity createGameOver(vec2 pos);
 
 void createHealthBar(Entity characterEntity, vec3 color);
 

@@ -1,14 +1,20 @@
 #include "ai_system.hpp"
+#include "world_init.hpp"
+
+void moveTowardsPlayer(Entity enemy, vec3 playerPosition)
+{
+    Motion& enemyMotion = registry.motions.get(enemy);
+    vec2 direction = normalize(playerPosition - enemyMotion.position);
+    float speed = registry.enemies.get(enemy).speed;
+    enemyMotion.velocity = vec3(direction * speed, enemyMotion.velocity.z);
+}
 
 void boarBehaviour(Entity boar, vec3 playerPosition)
 {
     if (registry.deathTimers.has(boar)) {
         return;
     }
-    Motion& enemyMotion = registry.motions.get(boar);
-    vec2 direction = normalize(playerPosition - enemyMotion.position);
-    float speed = registry.enemies.get(boar).speed;
-    enemyMotion.velocity = vec3(direction * speed, enemyMotion.velocity.z);
+    moveTowardsPlayer(boar, playerPosition);
 }
 
 void barbarianBehaviour(Entity barbarian, vec3 playerPosition)
@@ -16,21 +22,23 @@ void barbarianBehaviour(Entity barbarian, vec3 playerPosition)
     if (registry.deathTimers.has(barbarian)) {
         return;
     }
-    Motion& enemyMotion = registry.motions.get(barbarian);
-    vec2 direction = normalize(playerPosition - enemyMotion.position);
-    float speed = registry.enemies.get(barbarian).speed;
-    enemyMotion.velocity = vec3(direction * speed, enemyMotion.velocity.z);
+    moveTowardsPlayer(barbarian, playerPosition);
 }
 
 void archerBehaviour(Entity archer, vec3 playerPosition)
 {
+    const float ARCHER_RANGE = 500;
     if (registry.deathTimers.has(archer)) {
         return;
     }
-    Motion& enemyMotion = registry.motions.get(archer);
-    vec2 direction = normalize(playerPosition - enemyMotion.position);
-    float speed = registry.enemies.get(archer).speed;
-    enemyMotion.velocity = vec3(direction * speed, enemyMotion.velocity.z);
+    Motion& motion = registry.motions.get(archer);
+    if (distance(motion.position, playerPosition) < ARCHER_RANGE) {
+        // Shoot arrow
+
+    }
+    else {
+        moveTowardsPlayer(archer, playerPosition);
+    }
 }
 
 

@@ -266,29 +266,27 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		    case GLFW_KEY_SPACE:
                 // Jump
                 if (pressed) {
-                    const float min_stamina_for_jump = 10.0f;  
-        
-                if (player_stamina.stamina >= min_stamina_for_jump) {
-                    player_comp.tryingToJump = true;
-                    if (registry.jumpers.has(playerEntity)) {
-                        Jumper& jumper = registry.jumpers.get(playerEntity);
-                        if (!jumper.isJumping) {  
-                            jumper.isJumping = true;
-                            player_motion.velocity.z = jumper.speed;
-                            player_stamina.stamina -= 15.0f; 
-                            if (player_stamina.stamina < 0) {
-                                player_stamina.stamina = 0; 
+                    const float min_stamina_for_jump = 10.0f;
+                    if (player_stamina.stamina >= min_stamina_for_jump && !player_comp.tryingToJump) {
+                        player_comp.tryingToJump = true;
+                        if (registry.jumpers.has(playerEntity)) {
+                            Jumper& jumper = registry.jumpers.get(playerEntity);
+                            if (!jumper.isJumping) {  
+                                jumper.isJumping = true; 
+                                player_comp.tryingToJump = true;
+                                player_motion.velocity.z = jumper.speed; 
+                                player_stamina.stamina -= 15.0f;
+                                if (player_stamina.stamina < 0) {
+                                    player_stamina.stamina = 0;
                                 }
                             }
                         }
-                    } else {
-                        player_comp.tryingToJump = false;
-                        if (registry.jumpers.has(playerEntity)) {
-                            Jumper& jumper = registry.jumpers.get(playerEntity);
-                            jumper.isJumping = false;
-                        }
                     }
-                } else {
+                } else { 
+                    player_comp.tryingToJump = false;
+                }
+                //Handles player jumping too far up
+                if (player_motion.velocity.z <= 0 && player_comp.tryingToJump) {
                     player_comp.tryingToJump = false;
                     if (registry.jumpers.has(playerEntity)) {
                         Jumper& jumper = registry.jumpers.get(playerEntity);

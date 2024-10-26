@@ -694,8 +694,8 @@ void WorldSystem::handle_stamina(float elapsed_ms) {
         else if (!player_comp.isRunning && !dash_comp.isDashing && !player_comp.isRolling && !player_jump.isJumping) {
             stamina.stamina += elapsed_ms / 1000.0f * stamina.stamina_recovery_rate;
 
-            if (stamina.stamina > 100) {
-                stamina.stamina = 100;
+            if (stamina.stamina > stamina.max_stamina) {
+                stamina.stamina = stamina.max_stamina;
             }
         }
         

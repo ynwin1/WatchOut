@@ -96,6 +96,11 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection)
 		transform.rotate(motion.angle);
 		transform.scale(motion.scale);
 	}
+	else if(registry.mapTiles.has(entity)) {
+		MapTile& tile = registry.mapTiles.get(entity);
+		transform.translate(tile.position);
+		transform.scale(tile.scale);
+	}
 
 	assert(registry.renderRequests.has(entity));
 	const RenderRequest& render_request = registry.renderRequests.get(entity);

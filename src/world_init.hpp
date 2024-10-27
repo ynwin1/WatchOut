@@ -71,6 +71,9 @@ Entity createGameOver(RenderSystem* renderer, vec2 pos);
 
 void createHealthBar(Entity characterEntity, vec3 color);
 
+void createMapTiles(GLFWwindow* window);
+Entity createMapTile(vec2 position, vec2 scale);
+
 void createStaminaBar(Entity characterEntity, vec3 color);
 float getElevation(vec2 xy);
 

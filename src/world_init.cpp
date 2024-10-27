@@ -257,19 +257,6 @@ Entity createJeff(RenderSystem* renderer, vec2 position)
 	return entity;
 }
 
-void createBattleGround() {
-	auto entity = Entity();
-
-	registry.renderRequests.insert(
-		entity,
-		{
-			TEXTURE_ASSET_ID::BATTLEGROUND,
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::GAME_SPACE
-		});
-	registry.backgrounds.emplace(entity);
-}
-
 // gameover
 Entity createGameOver(RenderSystem* renderer, vec2 pos)
 {
@@ -410,6 +397,103 @@ Entity createTrapsCounterText(vec2 windowSize) {
 		});
 	
 	return entity;
+}
+
+Entity createMapTile(vec2 position, vec2 size) {
+    auto entity = Entity();
+
+    MapTile& tile = registry.mapTiles.emplace(entity);
+    tile.position = position;
+    tile.scale = size;
+	
+    registry.renderRequests.insert(
+        entity, 
+        {
+            TEXTURE_ASSET_ID::GRASS_TILE,
+            EFFECT_ASSET_ID::TEXTURED,
+            GEOMETRY_BUFFER_ID::MAP_TILE
+        });
+    registry.backgrounds.emplace(entity);
+	
+    return entity;
+}
+
+// Entity createObstacle(vec2 position, vec2 size, TEXTURE_ASSET_ID assetId) {
+//     auto entity = Entity();
+//     registry.obstacles.emplace(entity);
+//     Motion& motion = registry.motions.emplace(entity);
+//     motion.scale = size;
+//     // motion.scale = {110.0f, 100.f};
+//     // motion.position = vec3(position, getElevation(position) + motion.scale.y / 2);
+//     motion.position = vec3({position.x + motion.scale.x / 2}, {position.y + motion.scale.y / 2}, getElevation(position) + motion.scale.y / 2);
+//     // tile.scale = {110.0f, 100.f};
+//     // tile.position = {position.x + tile.scale.x / 2, position.y + tile.scale.y / 2};
+//     Hitbox& hitbox = registry.hitboxes.emplace(entity);
+//     hitbox.dimension = { motion.scale.x, motion.scale.x, motion.scale.y };
+//     registry.renderRequests.insert(
+//         entity, 
+//         {
+//             assetId,
+//             EFFECT_ASSET_ID::TEXTURED,
+//             GEOMETRY_BUFFER_ID::SPRITE
+//         });
+//     registry.midgrounds.emplace(entity);
+//     return entity;
+// }
+
+#include <random>
+
+void createMapTiles(GLFWwindow* window) {
+    std::default_random_engine rng;
+    std::uniform_real_distribution<float> uniform_dist;
+    rng = std::default_random_engine(std::random_device()());
+
+    int windowWidth;
+    int windowHeight;
+    glfwGetWindowSize(window, &windowWidth, &windowHeight);
+
+    int tilesOnScreenX = 10; 
+    int tilesOnScreenY = 6; 
+    float tileWidth = world_size_x / tilesOnScreenX;
+    float tileHeight = getVisualYPosition(world_size_y, 0) / tilesOnScreenY;
+    int numRows = tilesOnScreenY;
+    int numCols = tilesOnScreenX;
+    registry.mapTilesMatrix = std::vector<std::vector<Entity>>(numRows, std::vector<Entity>(numCols));
+
+    for (int row = 0; row < registry.mapTilesMatrix.size(); row++) { 
+        for (int col = 0; col < registry.mapTilesMatrix[row].size(); col++) { 
+            vec2 position = {col * tileWidth, row * tileHeight};
+            vec2 size = {tileWidth, tileHeight};
+            Entity entity = createMapTile(position, size);
+            registry.mapTilesMatrix[row][col] = entity; 
+        }
+    }
+    // int numObstacles = 10;
+    // int row;
+    // int col;
+    // while(numObstacles != 0) {
+    // row = (uniform_dist(rng) * numRows);
+    // col = (uniform_dist(rng) * numCols);
+    //     Entity& entity = registry.mapTilesMatrix[row][col];
+    //     MapTile& tile = registry.mapTiles.get(entity);
+    //     if(!tile.hasObstacle) {
+    //         createObstacle(tile.position, {165.f, 330.f}, TEXTURE_ASSET_ID::SMALL_TREE);
+    //         tile.hasObstacle = true;
+    //         numObstacles--;
+    //     }
+    // }
+    // numObstacles = 10;
+    // while(numObstacles != 0) {
+    // row = (uniform_dist(rng) * numRows);
+    // col = (uniform_dist(rng) * numCols);
+    //     Entity& entity = registry.mapTilesMatrix[row][col];
+    //     MapTile& tile = registry.mapTiles.get(entity);
+    //     if(!tile.hasObstacle) {
+    //         createObstacle(tile.position, {90.f, 100.f}, TEXTURE_ASSET_ID::SHRUB);
+    //         tile.hasObstacle = true;
+    //         numObstacles--;
+    //     }
+    // }
 }
 
 float getElevation(vec2 xy)

@@ -125,6 +125,11 @@ struct TrapsCounter {
 	}
 };
 
+struct MapTile {
+	vec2 position;
+	vec2 scale;
+};
+
 struct GameTimer {
 	int hours = 0;
 	int minutes = 0;

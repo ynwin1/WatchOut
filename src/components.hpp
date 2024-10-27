@@ -19,6 +19,16 @@ struct Player {
 	vec2 facing;		// Direction the player is facing
 };
 
+//Stamina
+struct Stamina {
+	float stamina = 100;
+	float max_stamina = 100;     
+    float stamina_loss_rate = 50;
+	float stamina_recovery_rate = 10;
+	float timer = 3000;
+
+};
+
 //Dashing
 struct Dash {
     bool isDashing;				// Indicates if the entity is currently dashing
@@ -41,6 +51,13 @@ struct HealthBar {
 	float width;
 	float height;
 	HealthBar(Entity& meshEntity) { this->meshEntity = meshEntity; };
+};
+
+struct StaminaBar {
+	Entity meshEntity;
+	float width;
+	float height;
+	StaminaBar(Entity& meshEntity) { this->meshEntity = meshEntity; };
 };
 
 // Collectible Component

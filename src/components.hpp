@@ -7,7 +7,6 @@
 // PlayerComponents 
 struct Player {
 	unsigned int health = 100;
-	unsigned int trapsCollected = 0;
 	bool isRunning;     // Indicates if the player is currently running
 	bool isRolling;     // Indicates if the player is currently rolling
 	bool goingUp;		// Key for going up is held down
@@ -118,6 +117,42 @@ struct DeathTimer
 	float timer = 3000;
 };
 
+struct TrapsCounter {
+	int count = 0;
+	Entity textEntity;
+	void reset() {
+		count = 0;
+	}
+};
+
+struct GameTimer {
+	int hours = 0;
+	int minutes = 0;
+	int seconds = 0;
+	float ms = 0;
+	Entity textEntity;
+	void update(float elapsedTime) {
+		ms += elapsedTime;
+		if(ms >= 1000.f) {
+        	seconds += 1;
+        	ms = 0;
+    	}
+    	if(seconds >= 60) {
+        	seconds = 0;
+        	minutes += 1;
+    	}
+    	if(minutes >= 60) {
+        	minutes = 0;
+        	hours += 1;
+    	}
+	}
+	void reset() {
+		hours = 0;
+		minutes = 0;
+		seconds = 0;
+	}
+};
+
 struct Text {
 	std::string value;
 	vec2 position = { 0, 0 };
@@ -137,6 +172,16 @@ struct FPSTracker {
 	float elapsedTime = 0;
 	Entity textEntity;
 	bool toggled = false;
+	void update(float elapsed_ms) {
+		elapsedTime += elapsed_ms;
+		counter += 1;
+
+    	if(elapsedTime >= 1000) {
+        	fps = counter;
+        	counter = 0;
+        	elapsedTime = 0;
+    	}
+	}
 };
 
 // Entity can jump

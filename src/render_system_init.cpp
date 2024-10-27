@@ -224,7 +224,7 @@ void RenderSystem::initText() {
 		std::cerr << "ERROR::FREETYPE: Failed to load font: " << "data/fonts/Kenney_Pixel.ttf" << std::endl;
 		return;
 	}
-    FT_Set_Pixel_Sizes(face, 0, 15);
+    FT_Set_Pixel_Sizes(face, 0, 48);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 

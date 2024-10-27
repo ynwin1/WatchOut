@@ -4,7 +4,8 @@
 #include "world_init.hpp"
 #include "physics_system.hpp"
 #include <iostream>
-
+#include <iomanip> 
+#include <sstream>
 
 WorldSystem::WorldSystem() :
     spawn_functions({
@@ -81,24 +82,40 @@ void WorldSystem::restart_game()
     next_spawns = spawn_delays;
 }
 
+void WorldSystem::updateGameTimer(float elapsed_ms) {
+    gameTimer.update(elapsed_ms);
+    std::stringstream ss;
+    ss << std::setw(2) << std::setfill('0') << gameTimer.hours << ":"
+       << std::setw(2) << std::setfill('0') << gameTimer.minutes << ":"
+       << std::setw(2) << std::setfill('0') << gameTimer.seconds;
+
+    Text& text = registry.texts.get(gameTimer.textEntity);
+    text.value = ss.str();
+}
+
 void WorldSystem::initText() {
     registry.fpsTracker.textEntity = createFPSText(camera->getSize());
+    gameTimer.reset();
+    gameTimer.textEntity = createGameTimerText(camera->getSize());
+    trapsCounter.reset();
+    trapsCounter.textEntity = createTrapsCounterText(camera->getSize());
 }
 
 void WorldSystem::trackFPS(float elapsed_ms) {
     FPSTracker& fpsTracker = registry.fpsTracker; 
+    fpsTracker.update(elapsed_ms);
 
-    fpsTracker.elapsedTime += elapsed_ms;
-    fpsTracker.counter += 1;
-
-    if(fpsTracker.elapsedTime >= 1000) {
-        fpsTracker.fps = fpsTracker.counter;
-        fpsTracker.counter = 0;
-        fpsTracker.elapsedTime = 0;
-
+    if(fpsTracker.elapsedTime == 0) {
         Text& text = registry.texts.get(fpsTracker.textEntity);
         text.value = std::to_string(fpsTracker.fps) + " fps";
     }
+}
+
+void WorldSystem::updateTrapsCounterText() {
+    Text& text = registry.texts.get(trapsCounter.textEntity);
+    std::stringstream ss;
+    ss << std::setw(2) << std::setfill('0') << trapsCounter.count;
+    text.value = "Traps: " + ss.str();
 }
 
 bool WorldSystem::step(float elapsed_ms)
@@ -109,6 +126,8 @@ bool WorldSystem::step(float elapsed_ms)
     despawn_collectibles(elapsed_ms);
     handle_stamina(elapsed_ms);
     trackFPS(elapsed_ms);
+    updateGameTimer(elapsed_ms);
+    updateTrapsCounterText();
 
     if (camera->isToggled()) {
         Motion& playerMotion = registry.motions.get(playerEntity);
@@ -508,8 +527,8 @@ void WorldSystem::entity_collectible_collision(Entity entity, Entity entity_othe
 	Collectible& collectible = registry.collectibles.get(entity_other);
 
     if (registry.collectibleTraps.has(entity_other)) {
-        player.trapsCollected++;
-        printf("Player collected a trap. Trap count is now %d\n", player.trapsCollected);
+        trapsCounter.count++;
+        printf("Player collected a trap. Trap count is now %d\n", trapsCounter.count);
     }
     else if (registry.hearts.has(entity_other)) {
         unsigned int health = registry.hearts.get(entity_other).health;
@@ -650,7 +669,7 @@ void WorldSystem::place_trap(Player& player, Motion& motion, bool forward) {
     // Player position
     vec2 playerPos = motion.position;
 	// Do not place trap if player has no traps
-    if (player.trapsCollected == 0) {
+    if (trapsCounter.count == 0) {
         printf("Player has no traps to place\n");
         return;
     }
@@ -671,9 +690,8 @@ void WorldSystem::place_trap(Player& player, Motion& motion, bool forward) {
 
     vec2 trapPos = playerPos + gap;
 	createDamageTrap(renderer, trapPos);
-	player.trapsCollected--;
-	printf("Trap count is now %d\n", player.trapsCollected);
-
+	trapsCounter.count--;
+	printf("Trap count is now %d\n", trapsCounter.count);
 }
 
 //Update player stamina on dashing, sprinting, rolling and jumping

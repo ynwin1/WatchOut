@@ -214,6 +214,9 @@ Entity createJeff(RenderSystem* renderer, vec2 position)
 	motion.angle = 0.f;
 	motion.position = vec3(position, getElevation(position) + JEFF_BB_HEIGHT / 2);
 
+	//Initialize stamina
+	auto& stamina = registry.staminas.emplace(entity);
+
 	//Initialize movement
 	auto& player = registry.players.emplace(entity);
 	player.isRolling = false;
@@ -248,6 +251,8 @@ Entity createJeff(RenderSystem* renderer, vec2 position)
 	registry.midgrounds.emplace(entity);
 
 	createHealthBar(entity, vec3(0.0f, 1.0f, 0.0f));
+	createStaminaBar(entity, vec3(0.0f, 0.0f, 1.0f));
+	
 	
 	return entity;
 }
@@ -321,6 +326,34 @@ void createHealthBar(Entity characterEntity, vec3 color) {
 	hpbar.height = height;
 }
 
+void createStaminaBar(Entity characterEntity, vec3 color) {
+	auto meshEntity = Entity();
+
+	const float width = 60.0f;
+	const float height = 10.0f;
+
+	Motion& characterMotion = registry.motions.get(characterEntity);
+
+	Motion& motion = registry.motions.emplace(meshEntity);
+	motion.angle = 0.f;
+	motion.scale = { width, height };
+
+
+	registry.colours.insert(meshEntity, color);
+
+	registry.renderRequests.insert(
+		meshEntity,
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::UNTEXTURED,
+			GEOMETRY_BUFFER_ID::STAMINA_BAR
+		});
+	registry.midgrounds.emplace(meshEntity);
+
+	StaminaBar& staminabar = registry.staminaBars.emplace(characterEntity, meshEntity);
+	staminabar.width = width;
+	staminabar.height = height;
+}
 Entity createFPSText(vec2 windowSize) {
 	auto entity = Entity();
 

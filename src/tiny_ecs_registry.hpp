@@ -26,6 +26,8 @@ public:
 	ComponentContainer<Damaged> damageds;
 	ComponentContainer<DeathTimer> deathTimers;
 	ComponentContainer<HealthBar> healthBars;
+	ComponentContainer<StaminaBar> staminaBars;
+	ComponentContainer<Stamina> staminas;
 	ComponentContainer<Text> texts;
 	ComponentContainer<Jumper> jumpers;
 
@@ -63,7 +65,10 @@ public:
 		registry_list.push_back(&traps);
 		registry_list.push_back(&damageds);
 		registry_list.push_back(&deathTimers);
+		registry_list.push_back(&staminas);
+		
 		registry_list.push_back(&healthBars);
+		registry_list.push_back(&staminaBars);
 		registry_list.push_back(&texts);
 		registry_list.push_back(&jumpers);
 

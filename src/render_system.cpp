@@ -274,6 +274,7 @@ void RenderSystem::step(float elapsed_ms)
 	}
 
 	update_hpbars();
+	update_staminabars();
 }
 
 void RenderSystem::turn_damaged_red(std::vector<Entity>& was_damaged)
@@ -312,8 +313,8 @@ void handleHpBarBoundsCheck() {
 		}
 
 		if(motion.position.y - halfScaleY - motion.position.z < 0) {
-			motion.position.y = halfScaleY;
-			motion.position.z = 0;
+			motion.position.y = getWorldYPosition(motion.scale.y);
+			motion.position.z = -5;
 		} else if(motion.position.y + halfScaleY > world_size_y) {
 			motion.position.y = world_size_y - halfScaleY;
 		}
@@ -358,6 +359,48 @@ void RenderSystem::update_hpbars() {
 	updateHpBarPosition();
 	handleHpBarBoundsCheck();
 }
+
+void handleStaminaBarBoundsCheck() {
+	ComponentContainer<StaminaBar> &staminabars = registry.staminaBars;
+
+	for(uint i = 0; i < staminabars.components.size(); i++) {
+		StaminaBar& staminabar = staminabars.components[i];
+		Motion& motion = registry.motions.get(staminabar.meshEntity);
+		float halfScaleX = motion.scale.x / 2;
+		float halfScaleY = getWorldYPosition(motion.scale.y) / 2;
+
+		if(motion.position.x - halfScaleX  < 0) {
+			motion.position.x = halfScaleX;
+		} else if(motion.position.x + halfScaleX > world_size_x) {
+			motion.position.x = world_size_x - halfScaleX;
+		}
+
+		if(motion.position.y - halfScaleY - motion.position.z < 0) {
+			motion.position.y = halfScaleY;
+			motion.position.z = 0;
+		} else if(motion.position.y + halfScaleY > world_size_y) {
+			motion.position.y = world_size_y - halfScaleY;
+		}
+	}
+}
+
+void RenderSystem::update_staminabars() {
+	for (Entity entity : registry.players.entities) {
+		Player& player = registry.players.get(entity);
+		Stamina& stamina = registry.staminas.get(entity);
+		StaminaBar& staminabar = registry.staminaBars.get(entity);
+		Motion& motion = registry.motions.get(entity);
+		Motion& staminaBarMotion = registry.motions.get(staminabar.meshEntity);
+		staminaBarMotion.scale.x = staminabar.width * stamina.stamina/100.f;
+		float topOffset = 5;
+		float yOffset = 10;
+		staminaBarMotion.position.x = motion.position.x;
+        staminaBarMotion.position.y = motion.position.y - yOffset;
+		staminaBarMotion.position.z = motion.position.z + getWorldYPosition(motion.scale.y) / 2 + topOffset;
+	}
+	handleStaminaBarBoundsCheck();
+}
+
 
 mat3 RenderSystem::createProjectionMatrix() 
 {

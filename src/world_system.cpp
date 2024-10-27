@@ -72,6 +72,8 @@ void WorldSystem::restart_game()
 
     // Create player entity
     playerEntity = createJeff(renderer, vec2(world_size_x / 2.f, world_size_y / 2.f));
+    
+    
     game_over = false;
     is_paused = false;
 
@@ -122,6 +124,7 @@ bool WorldSystem::step(float elapsed_ms)
     update_cooldown(elapsed_ms);
     handle_deaths(elapsed_ms);
     despawn_collectibles(elapsed_ms);
+    handle_stamina(elapsed_ms);
     trackFPS(elapsed_ms);
     updateGameTimer(elapsed_ms);
     updateTrapsCounterText();
@@ -130,6 +133,7 @@ bool WorldSystem::step(float elapsed_ms)
         Motion& playerMotion = registry.motions.get(playerEntity);
         camera->followPosition(getVisualPosition(playerMotion.position));
     }
+
 
     Player& player = registry.players.get(playerEntity);
     if(player.health == 0) {
@@ -198,6 +202,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     Player& player_comp = registry.players.get(playerEntity);
     Motion& player_motion = registry.motions.get(playerEntity);
     Dash& player_dash = registry.dashers.get(playerEntity);
+    Stamina& player_stamina = registry.staminas.get(playerEntity);
 
     if (game_over) {
         if (action == GLFW_PRESS && key == GLFW_KEY_ENTER){
@@ -251,30 +256,60 @@ void WorldSystem::on_key(int key, int, int action, int mod)
                 break;
             case GLFW_KEY_LEFT_SHIFT:
                 // Sprint
-                player_comp.isRunning = pressed;
+                if (player_stamina.stamina > 0) { 
+                    player_comp.isRunning = pressed;
+                } else{
+                    player_comp.isRunning = false;
+                }
                 break;
             case GLFW_KEY_R:
                 // Roll
-                player_comp.isRolling = pressed;
+                if (player_stamina.stamina > 0) { 
+                    player_comp.isRolling = pressed;
+                } else{
+                    player_comp.isRolling = false;
+                }
                 break;
             case GLFW_KEY_D:
                 if (pressed) {
-                    const float dashDistance = 300;
-                    // Start dashing if player is moving
-                    player_dash.isDashing = true;
-                    player_dash.dashStartPosition = vec2(player_motion.position);
-                    player_dash.dashTargetPosition = player_dash.dashStartPosition + player_comp.facing * dashDistance;
-                    player_dash.dashTimer = 0.0f; // Reset timer
+                    if (player_stamina.stamina > 0) { 
+                        const float dashDistance = 300;
+                        // Start dashing if player is moving
+                        player_dash.isDashing = true;
+                        player_dash.dashStartPosition = vec2(player_motion.position);
+                        player_dash.dashTargetPosition = player_dash.dashStartPosition + player_comp.facing * dashDistance;
+                        player_dash.dashTimer = 0.0f; // Reset timer
+                    }
                 }
                 break;
 		    case GLFW_KEY_SPACE:
-                // Dash
-                player_comp.tryingToJump = pressed;
-                if (registry.jumpers.has(playerEntity)) {
-                    Jumper& jumper = registry.jumpers.get(playerEntity);
-                    if (!jumper.isJumping && pressed) {
-                        jumper.isJumping = true;
-                        player_motion.velocity.z = jumper.speed;
+                // Jump
+                if (pressed) {
+                    const float min_stamina_for_jump = 10.0f;
+                    if (player_stamina.stamina >= min_stamina_for_jump && !player_comp.tryingToJump) {
+                        player_comp.tryingToJump = true;
+                        if (registry.jumpers.has(playerEntity)) {
+                            Jumper& jumper = registry.jumpers.get(playerEntity);
+                            if (!jumper.isJumping) {  
+                                jumper.isJumping = true; 
+                                player_comp.tryingToJump = true;
+                                player_motion.velocity.z = jumper.speed; 
+                                player_stamina.stamina -= min_stamina_for_jump;
+                                if (player_stamina.stamina < 0) {
+                                    player_stamina.stamina = 0;
+                                }
+                            }
+                        }
+                    }
+                } else { 
+                    player_comp.tryingToJump = false;
+                }
+                //Handles player jumping too far up
+                if (player_motion.velocity.z <= 0 && player_comp.tryingToJump) {
+                    player_comp.tryingToJump = false;
+                    if (registry.jumpers.has(playerEntity)) {
+                        Jumper& jumper = registry.jumpers.get(playerEntity);
+                        jumper.isJumping = false;
                     }
                 }
                 break;
@@ -657,5 +692,39 @@ void WorldSystem::place_trap(Player& player, Motion& motion, bool forward) {
 	createDamageTrap(renderer, trapPos);
 	trapsCounter.count--;
 	printf("Trap count is now %d\n", trapsCounter.count);
+}
+
+//Update player stamina on dashing, sprinting, rolling and jumping
+void WorldSystem::handle_stamina(float elapsed_ms) {
+    for (auto& staminaEntity : registry.staminas.entities) {
+        Stamina& stamina = registry.staminas.get(staminaEntity);
+        Player& player_comp = registry.players.get(staminaEntity);
+        Dash& dash_comp = registry.dashers.get(staminaEntity);
+        Jumper& player_jump = registry.jumpers.get(staminaEntity);
+    
+        if ((player_comp.isRunning || dash_comp.isDashing || player_comp.isRolling || player_jump.isJumping) && stamina.stamina > 0) {
+            stamina.stamina -= elapsed_ms / 1000.0f * stamina.stamina_loss_rate;
+
+            if (stamina.stamina < 0) {
+                stamina.stamina = 0;
+            }
+        }
+        else if (!player_comp.isRunning && !dash_comp.isDashing && !player_comp.isRolling && !player_jump.isJumping) {
+            stamina.stamina += elapsed_ms / 1000.0f * stamina.stamina_recovery_rate;
+
+            if (stamina.stamina > stamina.max_stamina) {
+                stamina.stamina = stamina.max_stamina;
+            }
+        }
+        
+
+        if (stamina.stamina == 0) {
+            player_comp.isRunning = false;
+            player_comp.tryingToJump = false;
+            dash_comp.isDashing = false;
+            player_comp.isRolling = false;
+            
+        }
+    }
 }
 

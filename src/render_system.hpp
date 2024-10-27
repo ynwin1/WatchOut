@@ -59,6 +59,7 @@ public:
 	void initializeGlGeometryBuffers();
 
 	void initHealthBarBuffer();
+	void initStaminaBarBuffer();
 
 	void initText();
 
@@ -83,6 +84,8 @@ private:
 	void drawText(Entity entity);
 
 	void update_hpbars();
+
+	void update_staminabars();
 
 	// Window handle
 	GLFWwindow* window;

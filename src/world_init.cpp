@@ -270,7 +270,6 @@ Entity createTree(RenderSystem* renderer, vec2 pos) {
 	// TODO - double check z value with the team
 	motion.position = vec3(pos, getElevation(pos));
 	motion.angle = 0.f;
-	motion.velocity = { 0.f, 0.f };
 	motion.scale = mesh.original_size * 300.f;
 
 	registry.renderRequests.insert(

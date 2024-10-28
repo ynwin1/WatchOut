@@ -10,7 +10,7 @@ Entity createBoar(RenderSystem* renderer, vec2 pos)
 	Motion& motion = registry.motions.emplace(entity);
 	motion.position = vec3(pos, getElevation(pos) + BOAR_BB_HEIGHT / 2);
 	motion.angle = 0.f;
-	motion.scale = { -BOAR_BB_WIDTH, BOAR_BB_HEIGHT };
+	motion.scale = { BOAR_BB_WIDTH, BOAR_BB_HEIGHT };
 
 	// Setting initial hitbox values
 	Hitbox& hitbox = registry.hitboxes.emplace(entity);
@@ -256,6 +256,7 @@ Entity createJeff(RenderSystem* renderer, vec2 position)
 	
 	return entity;
 }
+
 
 void createBattleGround() {
 	auto entity = Entity();

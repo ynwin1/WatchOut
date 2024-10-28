@@ -30,6 +30,7 @@ public:
 	ComponentContainer<Stamina> staminas;
 	ComponentContainer<Text> texts;
 	ComponentContainer<Jumper> jumpers;
+	ComponentContainer<Mesh*> meshPtrs;
 
 	std::map<char, TextChar> textChars; //for initializing text glyphs from freetype
 
@@ -66,6 +67,7 @@ public:
 		registry_list.push_back(&damageds);
 		registry_list.push_back(&deathTimers);
 		registry_list.push_back(&staminas);
+		registry_list.push_back(&meshPtrs);
 		
 		registry_list.push_back(&healthBars);
 		registry_list.push_back(&staminaBars);

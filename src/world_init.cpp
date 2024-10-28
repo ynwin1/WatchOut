@@ -257,6 +257,31 @@ Entity createJeff(RenderSystem* renderer, vec2 position)
 	return entity;
 }
 
+// Create Mesh Tree
+Entity createTree(RenderSystem* renderer, vec2 pos) {
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::MESH);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	// Setting initial motion values
+	Motion& motion = registry.motions.emplace(entity);
+	// TODO - double check z value with the team
+	motion.position = vec3(pos, getElevation(pos));
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.scale = mesh.original_size * 300.f;
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::TEXTURE_COUNT, // TEXTURE_COUNT indicates that no texture is needed
+			EFFECT_ASSET_ID::MESH,
+			GEOMETRY_BUFFER_ID::MESH });
+
+	return entity;
+}
+
 void createBattleGround() {
 	auto entity = Entity();
 
@@ -270,7 +295,7 @@ void createBattleGround() {
 	registry.backgrounds.emplace(entity);
 }
 
-// gameover
+// Gameover
 Entity createGameOver(RenderSystem* renderer, vec2 pos)
 {
 	auto entity = Entity();
@@ -354,6 +379,7 @@ void createStaminaBar(Entity characterEntity, vec3 color) {
 	staminabar.width = width;
 	staminabar.height = height;
 }
+
 Entity createFPSText(vec2 windowSize) {
 	auto entity = Entity();
 

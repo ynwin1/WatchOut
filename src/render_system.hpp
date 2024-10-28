@@ -24,6 +24,11 @@ class RenderSystem {
 		ivec2(20, 34)
 	};
 
+	const std::vector < std::pair<GEOMETRY_BUFFER_ID, std::string>> mesh_paths =
+	{
+		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::MESH, mesh_path("Oak.obj"))
+	};
+
 	// Make sure these paths remain in sync with the associated enumerators.
 	const std::array<std::string, texture_count> texture_paths = 
 	{ textures_path("jeff/jeff.png"),
@@ -42,6 +47,7 @@ class RenderSystem {
 
 	std::array<GLuint, geometry_count> vertex_buffers;
 	std::array<GLuint, geometry_count> index_buffers;
+	std::array<Mesh, geometry_count> meshes;
 
 public:
 	GLFWwindow* create_window();
@@ -62,6 +68,9 @@ public:
 	void initStaminaBarBuffer();
 
 	void initText();
+
+	void initializeGlMeshes();
+	Mesh& getMesh(GEOMETRY_BUFFER_ID id) { return meshes[(int)id]; };
 
 	// Destroy resources associated to one or all entities created by the system
 	~RenderSystem();

@@ -177,7 +177,7 @@ struct DeathTimer
 
 struct Knockable
 {
-
+	bool knocked = false;
 };
 
 struct Knocker

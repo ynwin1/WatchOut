@@ -145,6 +145,7 @@ private:
 	void handleEnemy(Entity& entity, std::map<std::string, nlohmann::json> componentsMap);
 	void handleDasher(Entity& entity, std::map<std::string, nlohmann::json> componentsMap);
 	void handleKnocker(Entity& entity, std::map<std::string, nlohmann::json> componentsMap);
+	void handleKnockable(Entity& entity, std::map < std::string, nlohmann::json> componentsMap);
 	void handleCooldown(Entity& entity, std::map<std::string, nlohmann::json> componentsMap);
 
 	void handleBoar(Entity& entity, std::map<std::string, nlohmann::json> componentsMap);

@@ -367,13 +367,9 @@ void WorldSystem::handle_collisions()
             entity_trap_collision(entity, entity_other, was_damaged);
         }
 
-        float COOLDOWN_TIME = 1000;
         std::pair<int, int> pair = { entity, entity_other };
         if (collisionCooldowns.find(pair) != collisionCooldowns.end()) {
             continue;
-        }
-        else {
-            collisionCooldowns[pair] = COOLDOWN_TIME;
         }
 
         // If the entity is a player
@@ -382,16 +378,13 @@ void WorldSystem::handle_collisions()
             if (registry.collectibles.has(entity_other)) {
 				entity_collectible_collision(entity, entity_other);
             }
-            else if (registry.enemies.has(entity_other)) {
-				// Collision between player and enemy
-                processPlayerEnemyCollision(entity, entity_other, was_damaged);
-            }
-            else if (registry.damagings.has(entity_other)) {
-                entity_damaging_collision(entity, entity_other, was_damaged);
-            }
         }
         else if (registry.enemies.has(entity)) {
-            if (registry.enemies.has(entity_other)) {
+            if (registry.players.has(entity_other)) {
+                // Collision between player and enemy
+                processPlayerEnemyCollision(entity_other, entity, was_damaged);
+            }
+            else if (registry.enemies.has(entity_other)) {
 				// Collision between two enemies
 				handleEnemyCollision(entity, entity_other, was_damaged);
             }
@@ -404,7 +397,10 @@ void WorldSystem::handle_collisions()
         }
         else if (registry.damagings.has(entity)) {
 			Damaging& damaging = registry.damagings.get(entity);
-            if (damaging.type == "fireball" && registry.obstacles.has(entity_other)) {
+            if (registry.players.has(entity_other) || registry.enemies.has(entity_other)) {
+                entity_damaging_collision(entity_other, entity, was_damaged);
+            }
+            else if (damaging.type == "fireball" && registry.obstacles.has(entity_other)) {
 				// Collision between damaging and obstacle
                 damaging_obstacle_collision(entity);
             }
@@ -649,9 +645,25 @@ void WorldSystem::playingControls(int key, int action, int mod)
 {
     Player& player_comp = registry.players.get(playerEntity);
     Motion& player_motion = registry.motions.get(playerEntity);
+    Dash& player_dash = registry.dashers.get(playerEntity);
+    Stamina& player_stamina = registry.staminas.get(playerEntity);
   
     if (action == GLFW_PRESS) {
         switch (key) {
+        case GLFW_KEY_X:
+            if (player_stamina.stamina > DASH_STAMINA) {
+                const float dashDistance = 300;
+                // Start dashing if player is moving
+                player_dash.isDashing = true;
+                player_dash.dashStartPosition = vec2(player_motion.position);
+                player_dash.dashTargetPosition = player_dash.dashStartPosition + player_motion.facing * dashDistance;
+                player_dash.dashTimer = 0.0f; // Reset timer
+                player_stamina.stamina -= DASH_STAMINA;
+
+                // play dash sound
+                sound->playSoundEffect(Sound::DASHING, 0);
+            }
+            break;
         case GLFW_KEY_E:
             place_trap(player_comp, player_motion, true, DAMAGE_TRAP);
             break;
@@ -683,6 +695,8 @@ void WorldSystem::gameOverControls(int key, int action, int mod)
             restart_game();
             break;
         case GLFW_KEY_Q:
+        case GLFW_KEY_ENTER:
+        case GLFW_KEY_ESCAPE:
             gameStateController.setGameState(GAME_STATE::TITLE);
             createTitleScreen();
         }
@@ -733,9 +747,7 @@ void WorldSystem::movementControls(int key, int action, int mod)
 {
     Player& player_comp = registry.players.get(playerEntity);
     Motion& player_motion = registry.motions.get(playerEntity);
-    Dash& player_dash = registry.dashers.get(playerEntity);
     Stamina& player_stamina = registry.staminas.get(playerEntity);
-    Trappable& player_trappable = registry.trappables.get(playerEntity);
 
     if (action != GLFW_PRESS && action != GLFW_RELEASE) {
         return;
@@ -776,46 +788,9 @@ void WorldSystem::movementControls(int key, int action, int mod)
             player_comp.isRolling = false;
         }
         break;
-    case GLFW_KEY_X:
-        if (pressed) {
-            if (player_stamina.stamina > DASH_STAMINA) {
-                const float dashDistance = 300;
-                // Start dashing if player is moving
-                player_dash.isDashing = true;
-                player_dash.dashStartPosition = vec2(player_motion.position);
-                player_dash.dashTargetPosition = player_dash.dashStartPosition + player_motion.facing * dashDistance;
-                player_dash.dashTimer = 0.0f; // Reset timer
-                player_stamina.stamina -= DASH_STAMINA;
-
-                // play dash sound
-                sound->playSoundEffect(Sound::DASHING, 0);
-            }
-        }
-        break;
     case GLFW_KEY_SPACE:
         // Jump
-        if (pressed && !player_trappable.isTrapped) {
-            if (player_stamina.stamina >= JUMP_STAMINA && !player_comp.tryingToJump) {
-                player_comp.tryingToJump = true;
-                if (registry.jumpers.has(playerEntity)) {
-                    Jumper& jumper = registry.jumpers.get(playerEntity);
-                    if (!jumper.isJumping) {
-                        jumper.isJumping = true;
-                        player_comp.tryingToJump = true;
-                        player_motion.velocity.z = jumper.speed;
-                        player_stamina.stamina -= JUMP_STAMINA;
-                        if (player_stamina.stamina < 0) {
-                            player_stamina.stamina = 0;
-                        }
-                        // play jump sound
-                        sound->playSoundEffect(Sound::JUMPING, 0);
-                    }
-                }
-            }
-        }
-        else {
-            player_comp.tryingToJump = false;
-        }
+        player_comp.tryingToJump = pressed;
         break;
     default:
         break;
@@ -939,9 +914,10 @@ void WorldSystem::spawn_particles(float elapsed_ms)
     Motion& playerMotion = registry.motions.get(playerEntity);
 
     // SPAWN SMOKE ------------------------------------------------
-    // TODO: adjust position to match torch
     vec3 position = playerMotion.position;
-    position.z += 60;
+    float direction = (playerMotion.scale.x > 0) ? 1.f : -1.f;
+    position.x += direction * playerMotion.hitbox.x / 2;
+    position.z += playerMotion.hitbox.z / 3;
     vec2 size = { 20, 20 };
     particles->createSmokeParticle(position, size);
     particles->createSmokeParticle(position, size);
@@ -1074,6 +1050,7 @@ void WorldSystem::entity_damaging_collision(Entity entity, Entity entity_other, 
         int new_health = player.health - damaging.damage;
         player.health = new_health < 0 ? 0 : new_health;
         was_damaged.push_back(entity);
+        setCollisionCooldown(entity_other, entity);
         printf("Player health reduced from %d to %d\n", player.health + damaging.damage, player.health);
     }
     else if (registry.enemies.has(entity)) {
@@ -1081,6 +1058,7 @@ void WorldSystem::entity_damaging_collision(Entity entity, Entity entity_other, 
         Enemy& enemy = registry.enemies.get(entity);
         enemy.health -= damaging.damage;
         was_damaged.push_back(entity);
+        setCollisionCooldown(entity_other, entity);
         printf("Enemy health reduced from %d to %d by damaging object\n", enemy.health + damaging.damage, enemy.health);
     }
     else {
@@ -1117,8 +1095,8 @@ void WorldSystem::entity_obstacle_collision(Entity entity, Entity obstacle, std:
 }
 
 void WorldSystem::processPlayerEnemyCollision(Entity player, Entity enemy, std::vector<Entity>& was_damaged) {
-    // Archers/Bombers do not do melee damage
-    if (registry.archers.has(enemy) || registry.bombers.has(enemy)) {
+    // Archers/Bombers/Wizards do not do melee damage
+    if (registry.archers.has(enemy) || registry.bombers.has(enemy) || registry.wizards.has(enemy)) {
         return;
     }
 
@@ -1129,6 +1107,7 @@ void WorldSystem::processPlayerEnemyCollision(Entity player, Entity enemy, std::
         int newHealth = playerData.health - enemyData.damage;
         playerData.health = std::max(newHealth, 0);
         was_damaged.push_back(player);
+        setCollisionCooldown(enemy, player);
         printf("Player health reduced by enemy from %d to %d\n", playerData.health + enemyData.damage, playerData.health);
 
         // Check if enemy can have an attack cooldown
@@ -1169,6 +1148,7 @@ void WorldSystem::handleEnemyCollision(Entity attacker, Entity target, std::vect
 
         targetData.health -= attackerData.damage;
         was_damaged.push_back(target);
+        setCollisionCooldown(attacker, target);
         printf("Enemy %d's health reduced from %d to %d by enemy\n", (unsigned int)target, targetData.health + attackerData.damage, targetData.health);
 
         if (attackerData.cooldown > 0) {
@@ -1221,6 +1201,13 @@ void WorldSystem::knock(Entity knocked, Entity knocker)
     vec3 d = normalize(vec3(horizontal_direction * cos(KNOCK_ANGLE), sin(KNOCK_ANGLE)));
     knockedMotion.velocity = d * strength;
     knockedMotion.position.z += 1; // move a little over ground to prevent being considered "on the ground" for this frame
+    registry.knockables.get(knocked).knocked = true;
+}
+
+void WorldSystem::setCollisionCooldown(Entity damager, Entity victim)
+{
+    float COOLDOWN_TIME = 1000;
+    collisionCooldowns[std::pair<Entity, Entity> {damager, victim}] = COOLDOWN_TIME;
 }
 
 void WorldSystem::despawn_collectibles(float elapsed_ms) {

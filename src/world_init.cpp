@@ -38,7 +38,7 @@ Entity createBoar(vec2 pos)
 	initBoarAnimationController(entity);
 	registry.midgrounds.emplace(entity);
 
-	createHealthBar(entity, vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	createHealthBar(entity);
 
 	registry.knockables.emplace(entity);
 	registry.knockers.emplace(entity);
@@ -74,7 +74,7 @@ Entity createBarbarian(vec2 pos)
 	initBarbarianAnimationController(entity);
 	registry.midgrounds.emplace(entity);
 
-	createHealthBar(entity, vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	createHealthBar(entity);
 
 	registry.knockables.emplace(entity);
 	registry.knockers.emplace(entity);
@@ -109,7 +109,7 @@ Entity createArcher(vec2 pos)
 	initArcherAnimationController(entity);
 	registry.midgrounds.emplace(entity);
 
-	createHealthBar(entity, vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	createHealthBar(entity);
 
 	registry.knockables.emplace(entity);
 	auto& trappable = registry.trappables.emplace(entity);
@@ -160,7 +160,7 @@ Entity createBird(vec2 birdPosition) {
 	initBirdAnimationController(entity);
 	registry.midgrounds.emplace(entity);
 
-	createHealthBar(entity, vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	createHealthBar(entity);
 	registry.knockables.emplace(entity);
 	auto& trappable = registry.trappables.emplace(entity);
 	trappable.originalSpeed = BIRD_SPEED;
@@ -192,7 +192,7 @@ Entity createWizard(vec2 pos) {
 	initWizardAnimationController(entity);
 	registry.midgrounds.emplace(entity);
 
-	createHealthBar(entity, vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	createHealthBar(entity);
 
 	registry.knockables.emplace(entity);
 	auto& trappable = registry.trappables.emplace(entity);
@@ -229,7 +229,7 @@ Entity createTroll(vec2 pos)
 
 	registry.midgrounds.emplace(entity);
 
-	createHealthBar(entity, vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	createHealthBar(entity);
 
 	auto& trappable = registry.trappables.emplace(entity);
 	trappable.originalSpeed = TROLL_SPEED;
@@ -266,7 +266,7 @@ Entity createBomber(vec2 pos)
 	initBomberAnimationController(entity);
 	registry.midgrounds.emplace(entity);
 
-	createHealthBar(entity, vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	createHealthBar(entity);
 
 	registry.knockables.emplace(entity);
 	auto& trappable = registry.trappables.emplace(entity);
@@ -459,12 +459,12 @@ Entity createJeff(vec2 position)
 
 	auto& pointLight = registry.pointLights.emplace(entity);
 	pointLight.position = motion.position;
-	pointLight.ambient = vec4(1.0, .75, 0.25, .2);
+	pointLight.ambient = vec4(1.0, .75, 0.25, 10);
 	pointLight.diffuse = vec4(1.0, .75, 0.25, 1.0);
 	pointLight.max_distance = 3250;
-	pointLight.constant = 1.0;
-	pointLight.linear = .0005;
-	pointLight.quadratic = 0.00003;
+	pointLight.constant = 1.f;
+	pointLight.linear = .005;
+	pointLight.quadratic = 0.f;
 	
 	return entity;
 }
@@ -723,7 +723,7 @@ void createPlayerHealthBar(Entity characterEntity, vec2 windowSize) {
 	hpbar.textEntity = textE;
 }
 
-void createHealthBar(Entity characterEntity, vec4 color) {
+void createHealthBar(Entity characterEntity) {
 	auto meshEntity = Entity();
 
 	const float width = 60.0f;
@@ -736,6 +736,7 @@ void createHealthBar(Entity characterEntity, vec4 color) {
 	motion.angle = 0.f;
 	motion.scale = { width, height };
 
+	vec4 color = vec4(1, 0, 0, 0.4);
 	registry.colours.insert(meshEntity, color);
 
 	registry.renderRequests.insert(

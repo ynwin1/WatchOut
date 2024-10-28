@@ -79,6 +79,7 @@ private:
 	void trackFPS(float elapsed_ms);
 	void updateGameTimer(float elapsed_ms);
 	void updateTrapsCounterText();
+	void updateEntityFacing();
 
 	// Collision functions
 	void entity_collectible_collision(Entity entity, Entity collectible);

@@ -38,7 +38,7 @@ void handleBoundsCheck() {
 
 	for (uint i = 0; i < motion_container.components.size(); i++) {
 		Motion& motion = motion_container.components[i];
-		float halfScaleX = motion.scale.x / 2;
+		float halfScaleX = abs(motion.scale.x) / 2;
 		float halfScaleY = getWorldYPosition(motion.scale.y) / 2;
 
 		if(motion.position.x - halfScaleX < 0) {

@@ -38,6 +38,12 @@ void handleBoundsCheck() {
 
 	for (uint i = 0; i < motion_container.components.size(); i++) {
 		Motion& motion = motion_container.components[i];
+		Entity& entity = motion_container.entities[i];
+
+		if(registry.obstacles.has(entity)) {
+			continue;
+		}
+
 		float halfScaleX = motion.scale.x / 2;
 		float halfScaleY = getWorldYPosition(motion.scale.y) / 2;
 

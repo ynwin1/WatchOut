@@ -35,7 +35,9 @@ class RenderSystem {
 	  textures_path("collectables/heart.png"),
 	  textures_path("collectables/trapbottle.png"),
 	  textures_path("collectables/trap.png"),
-	  textures_path("grass_tile/grass_tile.png")};
+	  textures_path("grass_tile/grass_tile.png"),
+	  textures_path("tree/tree.png"),
+	  textures_path("shrub/shrub.png")};
 
 	std::array<GLuint, effect_count> effects;
 	// Make sure these paths remain in sync with the associated enumerators.
@@ -88,7 +90,7 @@ private:
 
 	void update_staminabars();
 
-	void initBackgroundTiles();
+	void initMapTileBuffer();
 
 	// Window handle
 	GLFWwindow* window;

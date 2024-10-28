@@ -181,14 +181,14 @@ void RenderSystem::initializeGlGeometryBuffers()
 	const std::vector<uint16_t> game_space_indices = { 0, 1, 2, 0, 2, 3 };
 	bindVBOandIBO(GEOMETRY_BUFFER_ID::GAME_SPACE, game_space_vertices, game_space_indices);
 
-	initBackgroundTiles();
+	initMapTileBuffer();
 	initHealthBarBuffer();
 	initStaminaBarBuffer();
 	
 	initText();
 }
 
-void RenderSystem::initBackgroundTiles() {
+void RenderSystem::initMapTileBuffer() {
 	std::vector<TexturedVertex> map_tile_vertices(4);
 	map_tile_vertices[0].position = {0.0f, 0.0f, 0.0f};
 	map_tile_vertices[1].position = {1.f, 0.0f, 0.0f};

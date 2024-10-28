@@ -31,6 +31,7 @@ public:
 	ComponentContainer<Text> texts;
 	ComponentContainer<Jumper> jumpers;
 	ComponentContainer<MapTile> mapTiles;
+	ComponentContainer<Obstacle> obstacles;
 
 	std::map<char, TextChar> textChars; //for initializing text glyphs from freetype
 	std::vector<std::vector<Entity>> mapTilesMatrix;
@@ -69,6 +70,7 @@ public:
 		registry_list.push_back(&deathTimers);
 		registry_list.push_back(&staminas);
 		registry_list.push_back(&mapTiles);
+		registry_list.push_back(&obstacles);
 		
 		registry_list.push_back(&healthBars);
 		registry_list.push_back(&staminaBars);

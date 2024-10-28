@@ -23,8 +23,8 @@ WorldSystem::WorldSystem() :
 		{"collectible_trap", 6000}
         }),
     max_entities({
-        {"boar", 2},
-        {"barbarian", 2},
+        {"boar", 0},
+        {"barbarian", 0},
         {"archer", 0},
 		{"heart", 1},
 		{"collectible_trap", 1}
@@ -169,6 +169,8 @@ void WorldSystem::handle_collisions()
             else if (registry.enemies.has(entity_other)) {
 				// Collision between player and enemy
 				moving_entities_collision(entity, entity_other, was_damaged);
+            } else if(registry.obstacles.has(entity_other)) {
+                entity_obstacle_collision(entity, entity_other);
             }
         }
         else if (registry.enemies.has(entity)) {
@@ -576,6 +578,36 @@ void WorldSystem::entity_trap_collision(Entity entity, Entity entity_other, std:
 
     // destroy the trap
     registry.remove_all_components_of(entity_other);
+}
+
+void WorldSystem::entity_obstacle_collision(Entity entity, Entity obstacle) {
+    // Calculate x overlap
+    float x_overlap = calculate_x_overlap(entity, obstacle);
+	// Calculate y overlap
+	float y_overlap = calculate_y_overlap(entity, obstacle);
+
+    Motion& entityM = registry.motions.get(entity);
+    Motion& obsM = registry.motions.get(obstacle);
+
+    // Calculate the direction of the collision
+    float x_direction = entityM.position.x < obsM.position.x ? -1 : 1;
+    float y_direction = entityM.position.y < obsM.position.y ? -1 : 1;
+
+    // Apply the recoil (direction * magnitude)
+    const float RECOIL_STRENGTH = 0.5;
+    if (y_overlap < x_overlap) {
+        entityM.position.y += y_direction * y_overlap * RECOIL_STRENGTH;
+    }
+    else {
+        entityM.position.x += x_direction * x_overlap * RECOIL_STRENGTH;
+    }
+
+    // cancel dashing momentum when colliding with obstacle
+    if(registry.dashers.has(entity)) {
+        Dash& dash = registry.dashers.get(entity);
+        dash.isDashing = false;
+    }
+
 }
 
 void WorldSystem::moving_entities_collision(Entity entity, Entity entityOther, std::vector<Entity>& was_damaged) {

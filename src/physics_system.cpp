@@ -41,15 +41,17 @@ void handleBoundsCheck() {
 		float halfScaleX = motion.scale.x / 2;
 		float halfScaleY = getWorldYPosition(motion.scale.y) / 2;
 
-		if(motion.position.x - halfScaleX < 0) {
+		if (motion.position.x - halfScaleX < 0) {
 			motion.position.x = halfScaleX;
-		} else if(motion.position.x + halfScaleX > world_size_x) {
+		} 
+		else if (motion.position.x + halfScaleX > world_size_x) {
 			motion.position.x = world_size_x - halfScaleX;
 		}
 
-		if(motion.position.y - halfScaleY < 0) {
+		if (motion.position.y - halfScaleY < 0) {
 			motion.position.y = halfScaleY;
-		} else if(motion.position.y + halfScaleY > world_size_y) {
+		} 
+		else if (motion.position.y + halfScaleY > world_size_y) {
 			motion.position.y = world_size_y - halfScaleY;
 		}
 	}
@@ -69,7 +71,9 @@ void PhysicsSystem::checkCollisions()
 				collisions.push_back(std::make_pair(entity_j, entity_i));
 
 				// Push each other
-				recoil_entities(entity_i, entity_j);
+				if (hitboxes.get(entity_i).solid && hitboxes.get(entity_j).solid) {
+					recoil_entities(entity_i, entity_j);
+				}
 			}
 		}
 	}
@@ -102,7 +106,6 @@ void PhysicsSystem::updatePositions(float elapsed_ms)
 		motion.position.z += motion.velocity.z * elapsed_ms;
 
 		// Apply gravity
-		const float GRAVITATIONAL_CONSTANT = 0.01;
 		if (motion.position.z > groundZ) {
 			motion.velocity.z -= GRAVITATIONAL_CONSTANT * elapsed_ms;
 		}
@@ -118,6 +121,16 @@ void PhysicsSystem::updatePositions(float elapsed_ms)
 				}
 				else {
 					motion.velocity.z = jumper.speed;
+				}
+			}
+			else if (registry.projectiles.has(entity)) {
+				motion.velocity.x = 0;
+				motion.velocity.y = 0;
+				if (registry.damagings.has(entity)) {
+					registry.damagings.remove(entity);
+				}
+				if (registry.hitboxes.has(entity)) {
+					registry.hitboxes.get(entity).solid = false;
 				}
 			}
 		}

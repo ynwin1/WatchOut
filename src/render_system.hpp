@@ -30,6 +30,7 @@ class RenderSystem {
 	  textures_path("barbarian/barbarian.png"),
 	  textures_path("boar/boar.png"),
 	  textures_path("archer/archer.png"),
+	  textures_path("archer/arrow.png"),
 	  textures_path("battleground/battleground.png"),
 	  textures_path("game/game_over.png"),
 	  textures_path("collectables/heart.png"),

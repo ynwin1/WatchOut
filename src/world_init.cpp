@@ -257,7 +257,32 @@ Entity createJeff(vec2 position)
 
 Entity createArrow(vec3 pos, vec3 velocity)
 {
-	return Entity();
+	auto entity = Entity();
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.velocity = velocity;
+	motion.scale = { ARROW_BB_WIDTH, ARROW_BB_HEIGHT };
+	
+	// TODO: set angle based on velocity
+	// TODO: calculate collision using rotated bounding box
+
+	registry.projectiles.emplace(entity);
+	registry.damagings.emplace(entity);
+	registry.midgrounds.emplace(entity);
+
+	Hitbox& hitbox = registry.hitboxes.emplace(entity);
+	hitbox.dimension = { ARROW_BB_WIDTH, ARROW_BB_HEIGHT, ARROW_BB_HEIGHT };
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::ARROW,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	return entity;
 }
 
 void createBattleGround() {

@@ -70,6 +70,7 @@ private:
 	// Collision functions
 	void entity_collectible_collision(Entity entity, Entity collectible);
 	void entity_trap_collision(Entity entity, Entity trap, std::vector<Entity>& was_damaged);
+	void entity_damaging_collision(Entity entity, Entity trap, std::vector<Entity>& was_damaged);
 	void moving_entities_collision(Entity entity, Entity entityOther, std::vector<Entity>& was_damaged);
 	void processPlayerEnemyCollision(Entity player, Entity enemy, std::vector<Entity>& was_damaged);
 	void processEnemyEnemyCollision(Entity enemy1, Entity enemy2, std::vector<Entity>& was_damaged);

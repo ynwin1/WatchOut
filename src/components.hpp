@@ -37,6 +37,14 @@ struct Enemy
 	float speed = 0;
 };
 
+struct Damaging {
+	unsigned int damage = 10;
+};
+
+struct Projectile {
+	float sticksInGround = 3000; // ms it lasts on the ground
+};
+
 struct HealthBar {
 	Entity meshEntity;
 	float width;
@@ -81,6 +89,7 @@ struct Collision
 struct Hitbox
 {
 	vec3 dimension = { 0, 0, 0 };
+	float solid = true;
 };
 
 // Collision Cooldown
@@ -112,7 +121,10 @@ struct Jumper
 // Enemy types
 struct Boar {};
 struct Barbarian {};
-struct Archer {};
+struct Archer {
+	float drawArrowTime = 0;
+	bool aiming = false;
+};
 
 // Collectible types
 struct Heart { unsigned int health = 20; };

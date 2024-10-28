@@ -24,7 +24,7 @@ WorldSystem::WorldSystem() :
     max_entities({
         {"boar", 2},
         {"barbarian", 2},
-        {"archer", 0},
+        {"archer", 1},
 		{"heart", 1},
 		{"collectible_trap", 1}
         })
@@ -123,6 +123,9 @@ void WorldSystem::handle_collisions()
 				// Collision between player and enemy
 				moving_entities_collision(entity, entity_other, was_damaged);
             }
+            else if (registry.damagings.has(entity_other)) {
+                entity_damaging_collision(entity, entity_other, was_damaged);
+            }
         }
         else if (registry.enemies.has(entity)) {
             if (registry.traps.has(entity_other)) {
@@ -132,7 +135,10 @@ void WorldSystem::handle_collisions()
             else if (registry.enemies.has(entity_other)) {
 				// Collision between two enemies
 				moving_entities_collision(entity, entity_other, was_damaged);
-            }   
+            }
+            else if (registry.damagings.has(entity_other)) {
+                entity_damaging_collision(entity, entity_other, was_damaged);
+            }
         }
     }
 
@@ -398,6 +404,36 @@ void WorldSystem::entity_trap_collision(Entity entity, Entity entity_other, std:
 	}
 
     // destroy the trap
+    registry.remove_all_components_of(entity_other);
+}
+
+void WorldSystem::entity_damaging_collision(Entity entity, Entity entity_other, std::vector<Entity>& was_damaged)
+{
+    Damaging& damaging = registry.damagings.get(entity_other);
+
+    if (registry.players.has(entity)) {
+        // reduce player health
+        Player& player = registry.players.get(entity);
+        int new_health = player.health - damaging.damage;
+        player.health = new_health < 0 ? 0 : new_health;
+        was_damaged.push_back(entity);
+        printf("Player health reduced by trap from %d to %d\n", player.health + damaging.damage, player.health);
+        checkAndHandlePlayerDeath(entity);
+    }
+    else if (registry.enemies.has(entity)) {
+        // reduce enemy health
+        Enemy& enemy = registry.enemies.get(entity);
+        int new_health = enemy.health - damaging.damage;
+        enemy.health = new_health < 0 ? 0 : new_health;
+        was_damaged.push_back(entity);
+        printf("Enemy health reduced from %d to %d\n", enemy.health + damaging.damage, enemy.health);
+        checkAndHandleEnemyDeath(entity);
+    }
+    else {
+        printf("Entity is not a player or enemy\n");
+        return;
+    }
+
     registry.remove_all_components_of(entity_other);
 }
 

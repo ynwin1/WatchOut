@@ -23,9 +23,11 @@ public:
 	ComponentContainer<Hitbox> hitboxes;
 	ComponentContainer<Trap> traps;
 	ComponentContainer<Damaged> damageds;
+	ComponentContainer<Damaging> damagings;
 	ComponentContainer<DeathTimer> deathTimers;
 	ComponentContainer<HealthBar> healthBars;
 	ComponentContainer<Jumper> jumpers;
+	ComponentContainer<Projectile> projectiles;
 
 	// Render component containers
 	ComponentContainer<RenderRequest> renderRequests;
@@ -55,9 +57,11 @@ public:
 		registry_list.push_back(&hitboxes);
 		registry_list.push_back(&traps);
 		registry_list.push_back(&damageds);
+		registry_list.push_back(&damagings);
 		registry_list.push_back(&deathTimers);
 		registry_list.push_back(&healthBars);
 		registry_list.push_back(&jumpers);
+		registry_list.push_back(&projectiles);
 
 		registry_list.push_back(&renderRequests);
 		registry_list.push_back(&backgrounds);

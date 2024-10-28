@@ -195,16 +195,17 @@ bool renderComparison(Entity a, Entity b)
 	if (!registry.motions.has(b)) {
 		return true;
 	}
-	float positionA = 0;
-	float positionB = 0;
-	if (registry.motions.has(a)) {
-		positionA = registry.motions.get(a).position.y;
-	}
-	if (registry.motions.has(b)) {
-		positionB = registry.motions.get(b).position.y;
+
+	if (registry.motions.has(a) && registry.motions.has(b)) {
+		Motion& motionA = registry.motions.get(a);
+		Motion& motionB = registry.motions.get(b);
+		float halfScaleA = motionA.scale.y / 2;
+		float halfScaleB = motionB.scale.y / 2;
+
+		return motionA.position.y + halfScaleA < motionB.position.y + halfScaleB;
 	}
 
-	return positionA < positionB;
+	return true;
 }
 
 // Render our game world

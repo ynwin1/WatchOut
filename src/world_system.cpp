@@ -23,8 +23,8 @@ WorldSystem::WorldSystem() :
 		{"collectible_trap", 6000}
         }),
     max_entities({
-        {"boar", 0},
-        {"barbarian", 0},
+        {"boar", 2},
+        {"barbarian", 2},
         {"archer", 0},
 		{"heart", 1},
 		{"collectible_trap", 1}
@@ -181,7 +181,9 @@ void WorldSystem::handle_collisions()
             else if (registry.enemies.has(entity_other)) {
 				// Collision between two enemies
 				moving_entities_collision(entity, entity_other, was_damaged);
-            }   
+            }   else if(registry.obstacles.has(entity_other)) {
+                entity_obstacle_collision(entity, entity_other);
+            }
         }
     }
 

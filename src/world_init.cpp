@@ -421,7 +421,7 @@ Entity createMapTile(vec2 position, vec2 size) {
     return entity;
 }
 
-Entity createObstacle(vec2 position, vec2 size, vec2 tileSize, TEXTURE_ASSET_ID assetId) {
+Entity createObstacle(vec2 position, vec2 size, TEXTURE_ASSET_ID assetId) {
     auto entity = Entity();
     registry.obstacles.emplace(entity);
 
@@ -429,10 +429,11 @@ Entity createObstacle(vec2 position, vec2 size, vec2 tileSize, TEXTURE_ASSET_ID 
     motion.scale = size;
 
 	//spawn at bottom left of tile to prevent bigger obstacles overlapping smaller ones
-	float posX = position.x + (size.x / 2);
-	float posY = position.y + tileSize.y - (size.y / 2);
+	// float posX = position.x + (size.x / 2);
+	// float posY = position.y + tileSize.y - (size.y / 2);
 
-    motion.position = vec3(posX, posY, 0.0f);
+    motion.position = vec3(position.x, position.y, getElevation(position) + motion.scale.y / 2);
+	// motion.position = vec3(posX, posY, 0.0f);
     Hitbox& hitbox = registry.hitboxes.emplace(entity);
     hitbox.dimension = { motion.scale.x, motion.scale.x, motion.scale.y };
 
@@ -475,36 +476,52 @@ void createMapTiles(GLFWwindow* window) {
             registry.mapTilesMatrix[row][col] = entity; 
         }
     }
+
+	int numObstacles = 15;
+	while(numObstacles != 0) {
+    	float posX = (uniform_dist(rng) * world_size_x);
+		float posY = (uniform_dist(rng) * world_size_y);
+		createObstacle({posX, posY}, {150.f, 250.f}, TEXTURE_ASSET_ID::TREE);
+		numObstacles--;
+    }
+	numObstacles = 20;
+	while(numObstacles != 0) {
+    	float posX = (uniform_dist(rng) * world_size_x);
+		float posY = (uniform_dist(rng) * world_size_y);
+		createObstacle({posX, posY}, {90.f, 100.f}, TEXTURE_ASSET_ID::SHRUB);
+		numObstacles--;
+    }
+
 	// Entity& entity = registry.mapTilesMatrix[5][0];
 	// MapTile& tile = registry.mapTiles.get(entity);
 	// createObstacle(tile.position, {165.f, 330.f}, tile.scale, TEXTURE_ASSET_ID::TREE);
 	// createObstacle(tile.position, {90.f, 100.f}, tile.scale, TEXTURE_ASSET_ID::SHRUB);
-    int numObstacles = 20;
-    int row;
-    int col;
-    while(numObstacles != 0) {
-    row = (uniform_dist(rng) * numRows);
-    col = (uniform_dist(rng) * numCols);
-        Entity& entity = registry.mapTilesMatrix[row][col];
-        MapTile& tile = registry.mapTiles.get(entity);
-        if(!tile.hasObstacle) {
-            createObstacle(tile.position, {165.f, 330.f}, tile.scale, TEXTURE_ASSET_ID::TREE);
-            tile.hasObstacle = true;
-            numObstacles--;
-        }
-    }
-    numObstacles = 20;
-    while(numObstacles != 0) {
-    row = (uniform_dist(rng) * numRows);
-    col = (uniform_dist(rng) * numCols);
-        Entity& entity = registry.mapTilesMatrix[row][col];
-        MapTile& tile = registry.mapTiles.get(entity);
-        if(!tile.hasObstacle) {
-            createObstacle(tile.position, {90.f, 100.f}, tile.scale, TEXTURE_ASSET_ID::SHRUB);
-            tile.hasObstacle = true;
-            numObstacles--;
-        }
-    }
+    // int numObstacles = 20;
+    // int row;
+    // int col;
+    // while(numObstacles != 0) {
+    // row = (uniform_dist(rng) * numRows);
+    // col = (uniform_dist(rng) * numCols);
+    //     Entity& entity = registry.mapTilesMatrix[row][col];
+    //     MapTile& tile = registry.mapTiles.get(entity);
+    //     if(!tile.hasObstacle) {
+    //         createObstacle(tile.position, {165.f, 330.f}, tile.scale, TEXTURE_ASSET_ID::TREE);
+    //         tile.hasObstacle = true;
+    //         numObstacles--;
+    //     }
+    // }
+    // numObstacles = 20;
+    // while(numObstacles != 0) {
+    // row = (uniform_dist(rng) * numRows);
+    // col = (uniform_dist(rng) * numCols);
+    //     Entity& entity = registry.mapTilesMatrix[row][col];
+    //     MapTile& tile = registry.mapTiles.get(entity);
+    //     if(!tile.hasObstacle) {
+    //         createObstacle(tile.position, {90.f, 100.f}, tile.scale, TEXTURE_ASSET_ID::SHRUB);
+    //         tile.hasObstacle = true;
+    //         numObstacles--;
+    //     }
+    // }
 }
 
 float getElevation(vec2 xy)

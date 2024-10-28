@@ -184,6 +184,29 @@ struct FPSTracker {
 	}
 };
 
+struct ColoredVertex
+{
+	vec3 position;
+	vec3 color;
+};
+
+struct Mesh
+{
+	static bool loadFromOBJFile(std::string obj_path, std::vector<ColoredVertex>& out_vertices, std::vector<uint16_t>& out_vertex_indices, vec2& out_size);
+	vec2 original_size = { 1,1 };
+	std::vector<ColoredVertex> vertices;
+	std::vector<uint16_t> vertex_indices;
+};
+
+// Data structure for toggling debug mode
+struct Debug {
+	bool in_debug_mode = 0;
+	bool in_freeze_mode = 0;
+};
+extern Debug debugging;
+
+
+
 // Entity can jump
 struct Jumper
 {

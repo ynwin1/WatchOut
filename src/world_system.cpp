@@ -185,6 +185,11 @@ void WorldSystem::handle_collisions()
                 entity_obstacle_collision(entity, entity_other);
             }
         }
+        else if (registry.collectibles.has(entity)) {
+            if (registry.obstacles.has(entity_other)) {
+				entity_obstacle_collision(entity, entity_other);
+            }
+        }
     }
 
     // Clear all collisions

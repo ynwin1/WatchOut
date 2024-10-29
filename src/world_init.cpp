@@ -478,17 +478,24 @@ void createMapTiles(GLFWwindow* window) {
     }
 
 	int numObstacles = 15;
-	while(numObstacles != 0) {
-    	float posX = (uniform_dist(rng) * world_size_x);
-		float posY = (uniform_dist(rng) * world_size_y);
-		createObstacle({posX, posY}, {150.f, 250.f}, TEXTURE_ASSET_ID::TREE);
-		numObstacles--;
-    }
+	// while(numObstacles != 0) {
+    // 	float posX = (uniform_dist(rng) * world_size_x);
+	// 	float posY = (uniform_dist(rng) * world_size_y);
+	// 	createObstacle({posX, posY}, {150.f, 250.f}, TEXTURE_ASSET_ID::TREE);
+	// 	numObstacles--;
+    // }
 	numObstacles = 20;
 	while(numObstacles != 0) {
     	float posX = (uniform_dist(rng) * world_size_x);
 		float posY = (uniform_dist(rng) * world_size_y);
 		createObstacle({posX, posY}, {90.f, 100.f}, TEXTURE_ASSET_ID::SHRUB);
+		numObstacles--;
+    }
+	numObstacles = 15;
+	while(numObstacles != 0) {
+    	float posX = (uniform_dist(rng) * world_size_x);
+		float posY = (uniform_dist(rng) * world_size_y);
+		createObstacle({posX, posY}, {90.f, 100.f}, TEXTURE_ASSET_ID::ROCK);
 		numObstacles--;
     }
 

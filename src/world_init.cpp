@@ -267,11 +267,11 @@ Entity createSalmon(RenderSystem* renderer, vec2 pos)
 
 	// Setting initial motion values
 	Motion& motion = registry.motions.emplace(entity);
-	motion.position = vec3(pos, getElevation(pos));
+	motion.position = vec3(pos, 0);
 	motion.angle = 0.f;
-	motion.scale = mesh.original_size * 200.f;
+	motion.scale = mesh.original_size * 150.f;
 	motion.scale.x *= -1; // point front to the right
-	motion.scale.y *= 1;
+	motion.scale.y *= -1;
 
 	registry.renderRequests.insert(
 		entity,

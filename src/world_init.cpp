@@ -273,6 +273,7 @@ Entity createArrow(vec3 pos, vec3 velocity)
 
 	Hitbox& hitbox = registry.hitboxes.emplace(entity);
 	hitbox.dimension = { ARROW_BB_WIDTH, ARROW_BB_HEIGHT, ARROW_BB_HEIGHT };
+	hitbox.solid = false;
 
 	registry.renderRequests.insert(
 		entity,

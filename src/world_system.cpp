@@ -17,13 +17,13 @@ WorldSystem::WorldSystem() :
     spawn_delays({
         {"boar", 3000},
         {"barbarian", 8000},
-        {"archer", 10000},
+        {"archer", 0},
 		{"heart", 15000},
 		{"collectible_trap", 6000}
         }),
     max_entities({
-        {"boar", 2},
-        {"barbarian", 2},
+        {"boar", 0},
+        {"barbarian", 0},
         {"archer", 1},
 		{"heart", 1},
 		{"collectible_trap", 1}

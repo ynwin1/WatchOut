@@ -17,10 +17,7 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection)
 	if (registry.motions.has(entity)) {
 		Motion& motion = registry.motions.get(entity);
 		if (registry.midgrounds.has(entity)) {
-			vec2 visualPos = getVisualPosition(motion.position);
-			if (registry.hitboxes.has(entity)) {
-				visualPos.y += registry.hitboxes.get(entity).dimension.y / 2;
-			}
+			vec2 visualPos = getVisualPosition(vec3(motion.position.x, motion.position.y, motion.position.z));
 			transform.translate(visualPos);
 		}
 		else {
@@ -126,10 +123,16 @@ bool renderComparison(Entity a, Entity b)
 	float positionA = 0;
 	float positionB = 0;
 	if (registry.motions.has(a)) {
-		positionA = registry.motions.get(a).position.y;
+		positionA += registry.motions.get(a).position.y;
 	}
 	if (registry.motions.has(b)) {
-		positionB = registry.motions.get(b).position.y;
+		positionB += registry.motions.get(b).position.y;
+	}
+	if (registry.hitboxes.has(a)) {
+		positionA += registry.hitboxes.get(a).dimension.y / 2;
+	}
+	if (registry.hitboxes.has(b)) {
+		positionB += registry.hitboxes.get(b).dimension.y / 2;
 	}
 
 	return positionA < positionB;
@@ -250,7 +253,7 @@ void updateHpBarPositionHelper(const std::vector<Entity>& entities) {
         Motion& motion = registry.motions.get(entity);
         Motion& healthBarMotion =  registry.motions.get(healthBar.meshEntity);
          // place above character
-        float topOffset = 0;
+        float topOffset = 30;
 		healthBarMotion.position.x = motion.position.x;
         healthBarMotion.position.y = motion.position.y;
 		healthBarMotion.position.z = motion.position.z + getWorldYPosition(motion.scale.y) / 2 + topOffset;

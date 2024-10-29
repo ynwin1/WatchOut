@@ -6,7 +6,7 @@
 
 // PlayerComponents 
 struct Player {
-	unsigned int health = 100;
+	unsigned int health = 10000;
 	unsigned int trapsCollected = 0;
 	bool isRunning;     // Indicates if the player is currently running
 	bool isRolling;     // Indicates if the player is currently rolling

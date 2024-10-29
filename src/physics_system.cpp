@@ -18,7 +18,6 @@ bool collides(const Entity& a, const Entity& b)
 	}
 	// If a's top is lower than b's bottom
 	if (a_position.y + ((a_dimension.y + b_dimension.y) / 2.0f) < b_position.y) {
-		printf("Problem in y dimension\n");
 		return false;
 	}
 	// If a's right is to the left of b's left

@@ -23,11 +23,11 @@ WorldSystem::WorldSystem() :
 		{"collectible_trap", 6000}
         }),
     max_entities({
-        {"boar", 2},
-        {"barbarian", 2},
+        {"boar", 0},
+        {"barbarian", 0},
         {"archer", 0},
-		{"heart", 1},
-		{"collectible_trap", 1}
+		{"heart", 0},
+		{"collectible_trap", 0}
         })
 {
     // Seeding rng with random device

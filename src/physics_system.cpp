@@ -98,30 +98,95 @@ vec2 tranformVertex(vec2 cvPosition, Motion mesh_motion) {
 	return translated;
 }
 
+bool polygonsCollide(std::vector<vec2> polygon1, std::vector<vec2> polygon2) {
+	// Check if two polygons are intersecting
+	for (int i = 0; i < 2; i++) {
+		std::vector<vec2> polygon = i == 0 ? polygon1 : polygon2;
+		for (int i1 = 0; i1 < polygon.size(); i1++) {
+			int i2 = (i1 + 1) % polygon.size();
+			vec2 p1 = polygon[i1];
+			vec2 p2 = polygon[i2];
+
+			vec2 normal = { p2.y - p1.y, p1.x - p2.x };
+
+			float minA = normal.x * polygon1[0].x + normal.y * polygon1[0].y;
+			float maxA = minA;
+			for (int j = 0; j < polygon1.size(); j++) {
+				float projected = normal.x * polygon1[j].x + normal.y * polygon1[j].y;
+				if (projected < minA) minA = projected;
+				if (projected > maxA) maxA = projected;
+			}
+
+			float minB = normal.x * polygon2[0].x + normal.y * polygon2[0].y;
+			float maxB = minB;
+			for (int j = 0; j < polygon2.size(); j++) {
+				float projected = normal.x * polygon2[j].x + normal.y * polygon2[j].y;
+				if (projected < minB) minB = projected;
+				if (projected > maxB) maxB = projected;
+			}
+
+			if (maxA < minB || maxB < minA) {
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
 bool PhysicsSystem::meshCollides(Entity& mesh_entity, Entity& other_entity) {
 	Mesh& mesh = *(registry.meshPtrs.get(mesh_entity));
 	
 	// Bounding box
 	Motion& other_motion = registry.motions.get(other_entity);
 	vec2 boundingBox = { abs(other_motion.scale.x) / 2, abs(other_motion.scale.y) / 2 };
-	vec2 minBB = vec2(other_motion.position.x, other_motion.position.y) - boundingBox;
-	vec2 maxBB = vec2(other_motion.position.x, other_motion.position.y) + boundingBox;
+	// vec2 minBB = vec2(other_motion.position.x, other_motion.position.y) - boundingBox;
+	// vec2 maxBB = vec2(other_motion.position.x, other_motion.position.y) + boundingBox;
+
+	// Polygon vertices
+	std::vector<vec2> otherPolygon;
+	otherPolygon.push_back(vec2(other_motion.position.x - boundingBox.x, other_motion.position.y - boundingBox.y));
+	otherPolygon.push_back(vec2(other_motion.position.x + boundingBox.x, other_motion.position.y - boundingBox.y));
+	otherPolygon.push_back(vec2(other_motion.position.x + boundingBox.x, other_motion.position.y + boundingBox.y));
+	otherPolygon.push_back(vec2(other_motion.position.x - boundingBox.x, other_motion.position.y + boundingBox.y));
 
 	// Mesh motion
 	Motion& mesh_motion = registry.motions.get(mesh_entity);
 
-	std::vector<ColoredVertex> mVertices = mesh.vertices;
-	for (ColoredVertex cv : mVertices) {
-		vec2 cvPosition = cv.position;
-		cvPosition = tranformVertex(cvPosition, mesh_motion);
+	std::vector<uint16_t> faces = mesh.vertex_indices;
+	for (int i = 0; i < faces.size(); i += 3) {
+		// Get the vertices of the face
+		ColoredVertex v1 = mesh.vertices[faces[i]];
+		ColoredVertex v2 = mesh.vertices[faces[i + 1]];
+		ColoredVertex v3 = mesh.vertices[faces[i + 2]];
 
-		// Check if the transformed vertex is within the bounding box
-		if (cvPosition.x >= minBB.x && cvPosition.x <= maxBB.x &&
-			cvPosition.y >= minBB.y && cvPosition.y <= maxBB.y) {
+		// Transform the vertices
+		vec2 v1Position = tranformVertex(v1.position, mesh_motion);
+		vec2 v2Position = tranformVertex(v2.position, mesh_motion);
+		vec2 v3Position = tranformVertex(v3.position, mesh_motion);
+
+		// Mesh Polygon
+		std::vector<vec2> meshPolygon;
+		meshPolygon.push_back(v1Position);
+		meshPolygon.push_back(v2Position);
+		meshPolygon.push_back(v3Position);
+
+		// Check if the transformed vertices are within the bounding box
+		if (polygonsCollide(meshPolygon, otherPolygon)) {
 			printf("Mesh collision detected\n");
 			return true;
 		}
 	}
+	//for (ColoredVertex cv : mVertices) {
+	//	vec2 cvPosition = cv.position;
+	//	cvPosition = tranformVertex(cvPosition, mesh_motion);
+
+	//	// Check if the transformed vertex is within the bounding box
+	//	if (cvPosition.x >= minBB.x && cvPosition.x <= maxBB.x &&
+	//		cvPosition.y >= minBB.y && cvPosition.y <= maxBB.y) {
+	//		printf("Mesh collision detected\n");
+	//		return true;
+	//	}
+	//}
 	return false;
 }
 

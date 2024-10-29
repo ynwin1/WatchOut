@@ -13,22 +13,32 @@ bool collides(const Entity& a, const Entity& b)
 	vec3 b_dimension = registry.hitboxes.get(b).dimension;
 
 	// If a's bottom is higher than b's top
-	if (a_position.y > b_position.y + ((b_dimension.y + a_dimension.y) / 2.0f))
+	if (a_position.y > b_position.y + ((b_dimension.y + a_dimension.y) / 2.0f)) {
 		return false;
+	}
 	// If a's top is lower than b's bottom
-	if (a_position.y + ((a_dimension.y + b_dimension.y) / 2.0f) < b_position.y)
+	if (a_position.y + ((a_dimension.y + b_dimension.y) / 2.0f) < b_position.y) {
+		printf("Problem in y dimension\n");
 		return false;
+	}
 	// If a's right is to the left of b's left
-	if (a_position.x > b_position.x + ((b_dimension.x + a_dimension.x) / 2.0f))
+	if (a_position.x > b_position.x + ((b_dimension.x + a_dimension.x) / 2.0f)) {
 		return false;
+	}
 	// Check if a's left is to the right of b's right
-	if (a_position.x + ((a_dimension.x + b_dimension.x) / 2.0f) < b_position.x)
+	if (a_position.x + ((a_dimension.x + b_dimension.x) / 2.0f) < b_position.x) {
 		return false;
+	}
+		
 	// Z dimension checks
-	if (a_position.z > b_position.z + ((b_dimension.z + a_dimension.z) / 2.0f))
+	if (a_position.z > b_position.z + ((b_dimension.z + a_dimension.z) / 2.0f)) {
 		return false;
-	if (a_position.z + ((a_dimension.z + b_dimension.z) / 2.0f) < b_position.z)
+	}
+		
+	if (a_position.z + ((a_dimension.z + b_dimension.z) / 2.0f) < b_position.z) {
 		return false;
+	}
+		
 
 	return true;
 }
@@ -64,12 +74,56 @@ void PhysicsSystem::checkCollisions()
 		for (uint j = i + 1; j < hitboxes.components.size(); j++) {
 			Entity entity_j = hitboxes.entities[j];
 			if (collides(entity_i, entity_j)) {
-				// Collision detected
-				collisions.push_back(std::make_pair(entity_i, entity_j));
-				collisions.push_back(std::make_pair(entity_j, entity_i));
+				if (registry.meshPtrs.has(entity_i) && meshCollides(entity_i, entity_j) || 
+					registry.meshPtrs.has(entity_j) && meshCollides(entity_j, entity_i)) {
+					collisions.push_back(std::make_pair(entity_i, entity_j));
+					collisions.push_back(std::make_pair(entity_j, entity_i));
+				}
+				else {
+					collisions.push_back(std::make_pair(entity_i, entity_j));
+					collisions.push_back(std::make_pair(entity_j, entity_i));
+				}
 			}
 		}
 	}
+}
+
+vec2 tranformVertex(vec2 cvPosition, Motion mesh_motion) {
+	// scale
+	vec2 scaled = cvPosition * mesh_motion.scale;
+
+	// don't think we need rotate as we aren't rotating anything
+
+	// translate
+	vec2 translated = scaled + vec2(mesh_motion.position.x, mesh_motion.position.y);
+	return translated;
+}
+
+bool PhysicsSystem::meshCollides(Entity& mesh_entity, Entity& other_entity) {
+	Mesh& mesh = *(registry.meshPtrs.get(mesh_entity));
+	
+	// Bounding box
+	Motion& other_motion = registry.motions.get(other_entity);
+	vec2 boundingBox = { abs(other_motion.scale.x) / 2, abs(other_motion.scale.y) / 2 };
+	vec2 minBB = vec2(other_motion.position.x, other_motion.position.y) - boundingBox;
+	vec2 maxBB = vec2(other_motion.position.x, other_motion.position.y) + boundingBox;
+
+	// Mesh motion
+	Motion& mesh_motion = registry.motions.get(mesh_entity);
+
+	std::vector<ColoredVertex> mVertices = mesh.vertices;
+	for (ColoredVertex cv : mVertices) {
+		vec2 cvPosition = cv.position;
+		cvPosition = tranformVertex(cvPosition, mesh_motion);
+
+		// Check if the transformed vertex is within the bounding box
+		if (cvPosition.x >= minBB.x && cvPosition.x <= maxBB.x &&
+			cvPosition.y >= minBB.y && cvPosition.y <= maxBB.y) {
+			printf("Mesh collision detected\n");
+			return true;
+		}
+	}
+	return false;
 }
 
 

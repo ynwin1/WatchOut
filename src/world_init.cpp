@@ -270,14 +270,18 @@ Entity createSalmon(RenderSystem* renderer, vec2 pos)
 	motion.position = vec3(pos, 0);
 	motion.angle = 0.f;
 	motion.scale = mesh.original_size * 150.f;
-	motion.scale.x *= -1; // point front to the right
-	motion.scale.y *= -1;
+
+	// Set up hitbox
+	Hitbox& hitbox = registry.hitboxes.emplace(entity);
+	// TODO - adjust z value
+	hitbox.dimension = { motion.scale, 500};
 
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::TEXTURE_COUNT, // TEXTURE_COUNT indicates that no texture is needed
 			EFFECT_ASSET_ID::SALMON,
 			GEOMETRY_BUFFER_ID::SALMON });
+
 	registry.midgrounds.emplace(entity);
 
 	return entity;

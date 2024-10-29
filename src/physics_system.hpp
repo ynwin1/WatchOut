@@ -17,4 +17,5 @@ public:
 private:
 	void updatePositions(float elapsed_ms);
 	void checkCollisions();
+	bool meshCollides(Entity& mesh_entity, Entity& other_entity);
 };

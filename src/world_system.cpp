@@ -72,7 +72,7 @@ void WorldSystem::restart_game()
 
     // Create player entity
     playerEntity = createJeff(renderer, vec2(world_size_x / 2.f, world_size_y / 2.f));
-    createSalmon(renderer, vec2(world_size_x / 2.f + 80.f, world_size_y / 2.f));
+    createSalmon(renderer, vec2(world_size_x / 2.f + 300.f, world_size_y / 2.f));
     
     game_over = false;
     is_paused = false;

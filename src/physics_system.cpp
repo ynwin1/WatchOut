@@ -139,8 +139,6 @@ bool PhysicsSystem::meshCollides(Entity& mesh_entity, Entity& other_entity) {
 	// Bounding box
 	Motion& other_motion = registry.motions.get(other_entity);
 	vec2 boundingBox = { abs(other_motion.scale.x) / 2, abs(other_motion.scale.y) / 2 };
-	// vec2 minBB = vec2(other_motion.position.x, other_motion.position.y) - boundingBox;
-	// vec2 maxBB = vec2(other_motion.position.x, other_motion.position.y) + boundingBox;
 
 	// Polygon vertices
 	std::vector<vec2> otherPolygon;
@@ -176,17 +174,6 @@ bool PhysicsSystem::meshCollides(Entity& mesh_entity, Entity& other_entity) {
 			return true;
 		}
 	}
-	//for (ColoredVertex cv : mVertices) {
-	//	vec2 cvPosition = cv.position;
-	//	cvPosition = tranformVertex(cvPosition, mesh_motion);
-
-	//	// Check if the transformed vertex is within the bounding box
-	//	if (cvPosition.x >= minBB.x && cvPosition.x <= maxBB.x &&
-	//		cvPosition.y >= minBB.y && cvPosition.y <= maxBB.y) {
-	//		printf("Mesh collision detected\n");
-	//		return true;
-	//	}
-	//}
 	return false;
 }
 

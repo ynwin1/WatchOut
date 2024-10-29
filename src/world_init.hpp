@@ -37,6 +37,9 @@ const std::unordered_map<std::string, vec2> entity_sizes = {
 // Jeff the Player
 Entity createJeff(RenderSystem* renderer, vec2 position);
 
+// Salmon
+Entity createSalmon(RenderSystem* renderer, vec2 position);
+
 // The boar
 Entity createBoar(RenderSystem* renderer, vec2 pos);
 

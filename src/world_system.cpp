@@ -125,6 +125,7 @@ bool WorldSystem::step(float elapsed_ms)
     trackFPS(elapsed_ms);
     updateGameTimer(elapsed_ms);
     updateTrapsCounterText();
+    updateEntityFacing();
 
     if (camera->isToggled()) {
         Motion& playerMotion = registry.motions.get(playerEntity);
@@ -611,10 +612,10 @@ void WorldSystem::place_trap(Player& player, Motion& motion, bool forward) {
 	// Place trap based on player direction
     vec2 gap = { 0.0f, 0.0f };
     if (forward) {
-        gap.x = (motion.scale.x / 2 + 70.f);
+        gap.x = (abs(motion.scale.x) / 2 + 70.f);
     }
     else {
-		gap.x = -(motion.scale.x / 2 + 70.f);
+		gap.x = -(abs(motion.scale.x) / 2 + 70.f);
     }
 
     // Cannot place trap beyond the map
@@ -661,5 +662,30 @@ void WorldSystem::handle_stamina(float elapsed_ms) {
             
         }
     }
+}
+
+void WorldSystem:: updateEntityFacing(){
+    auto& motions_registry = registry.motions;
+	for (int i = (int)motions_registry.components.size()-1; i>=0; --i) {
+	    Motion& motion = motions_registry.components[i];
+        Entity ent = motions_registry.entities[i];
+        if(registry.boars.has(ent)){
+            if (motion.velocity.x < 0) {
+                motion.scale.x = abs(motion.scale.x); 
+            } else if (motion.velocity.x > 0) {
+                motion.scale.x = -1.0f * abs(motion.scale.x);
+            }
+
+        } else{
+            if (motion.velocity.x > 0) {
+                motion.scale.x = abs(motion.scale.x); 
+            } else if (motion.velocity.x < 0) {
+                motion.scale.x = -1.0f * abs(motion.scale.x);
+            }
+
+        }
+
+    }
+
 }
 

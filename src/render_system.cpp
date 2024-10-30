@@ -340,7 +340,7 @@ void updateHpBarPositionHelper(const std::vector<Entity>& entities) {
         Motion& motion = registry.motions.get(entity);
         Motion& healthBarMotion =  registry.motions.get(healthBar.meshEntity);
          // place above character
-        float topOffset = 30;
+        float topOffset = 25;
 		healthBarMotion.position.x = motion.position.x;
         healthBarMotion.position.y = motion.position.y;
 		healthBarMotion.position.z = motion.position.z + visualToWorldY(motion.scale.y) / 2 + topOffset;
@@ -405,10 +405,9 @@ void RenderSystem::update_staminabars() {
 		Motion& motion = registry.motions.get(entity);
 		Motion& staminaBarMotion = registry.motions.get(staminabar.meshEntity);
 		staminaBarMotion.scale.x = staminabar.width * stamina.stamina/100.f;
-		float topOffset = 5;
-		float yOffset = 10;
+		float topOffset = 35;
 		staminaBarMotion.position.x = motion.position.x;
-        staminaBarMotion.position.y = motion.position.y - yOffset;
+        staminaBarMotion.position.y = motion.position.y;
 		staminaBarMotion.position.z = motion.position.z + visualToWorldY(motion.scale.y) / 2 + topOffset;
 	}
 	handleStaminaBarBoundsCheck();

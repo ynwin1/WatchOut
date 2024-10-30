@@ -6,20 +6,25 @@
 // stlib
 #include <chrono>
 #include <common.hpp>
+#include <random>
 
 // internal
 #include <world_system.hpp>
 #include <render_system.hpp>
 #include <physics_system.hpp>
+#include <ai_system.hpp>
 
 using Clock = std::chrono::high_resolution_clock;
 // Entry point
 int main()
 {
+	std::default_random_engine rng = std::default_random_engine(std::random_device()());
+
 	// Global Systems
-	WorldSystem world;
+	WorldSystem world = WorldSystem(rng);
 	RenderSystem renderer;
 	PhysicsSystem physics;
+	AISystem ai = AISystem(rng);
 	Camera camera;
 
 	// Initializing window
@@ -48,6 +53,7 @@ int main()
 			physics.step(elapsed_ms);
 			world.step(elapsed_ms);
             world.handle_collisions();
+			ai.step(elapsed_ms);
 			renderer.step(elapsed_ms);
         } 
 

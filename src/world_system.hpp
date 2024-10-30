@@ -13,7 +13,7 @@
 class WorldSystem
 {
 public:
-	WorldSystem();
+	WorldSystem(std::default_random_engine& rng);
 
 	// starts the game
 	void init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics);
@@ -54,7 +54,7 @@ private:
 	const std::unordered_map<std::string, unsigned int> max_entities;
 	std::unordered_map<std::string, float> next_spawns;
 
-	using spawn_func = Entity (*)(RenderSystem*, vec2);
+	using spawn_func = Entity (*)(vec2);
 	const std::unordered_map<std::string, spawn_func> spawn_functions;
 
 	// restart level
@@ -62,18 +62,13 @@ private:
 	void initText();
 
 	// Actions performed for each step
-	void update_positions(float elapsed_ms);
-	void update_player_facing(Player& player);
+	void spawn(float elapsed_ms);
 	void update_cooldown(float elapsed_ms);
 	void handle_deaths(float elapsed_ms);
+	void update_player_facing(Player& player);
 	void despawn_collectibles(float elapsed_ms);
 	void handle_stamina(float elapsed_ms);
-	void spawn(float elapsed_ms);
 	vec2 get_spawn_location(const std::string& entity_type);
-	void think();
-	void recoil_entities(Entity motion1, Entity motion2);
-	float calculate_x_overlap(Entity motion1, Entity motion2);
-	float calculate_y_overlap(Entity motion1, Entity motion2);
 	void place_trap(Player& player, Motion& motion, bool forward);
 	void checkAndHandlePlayerDeath(Entity& entity);
 	void trackFPS(float elapsed_ms);
@@ -83,6 +78,7 @@ private:
 	// Collision functions
 	void entity_collectible_collision(Entity entity, Entity collectible);
 	void entity_trap_collision(Entity entity, Entity trap, std::vector<Entity>& was_damaged);
+	void entity_damaging_collision(Entity entity, Entity trap, std::vector<Entity>& was_damaged);
 	void moving_entities_collision(Entity entity, Entity entityOther, std::vector<Entity>& was_damaged);
 	void processPlayerEnemyCollision(Entity player, Entity enemy, std::vector<Entity>& was_damaged);
 	void processEnemyEnemyCollision(Entity enemy1, Entity enemy2, std::vector<Entity>& was_damaged);

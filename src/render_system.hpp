@@ -30,6 +30,7 @@ class RenderSystem {
 	  textures_path("barbarian/barbarian.png"),
 	  textures_path("boar/boar.png"),
 	  textures_path("archer/archer.png"),
+	  textures_path("archer/arrow.png"),
 	  textures_path("battleground/battleground.png"),
 	  textures_path("game/game_over.png"),
 	  textures_path("collectables/heart.png"),
@@ -94,6 +95,8 @@ private:
 bool loadEffectFromFile(
 	const std::string& vs_path, const std::string& fs_path, GLuint& out_program);
 
-float getVisualYPosition(float y, float z);
-float getWorldYPosition(float y);
-vec2 getVisualPosition(vec3 pos);
+float worldToVisualY(float y, float z);
+float visualToWorldY(float y);
+vec2 worldToVisual(vec3 pos);
+static const float yConversionFactor = 1 / sqrt(2);
+static const float zConversionFactor = 1 / sqrt(2);

@@ -43,6 +43,15 @@ struct Enemy
 	unsigned int damage = 10;
 	std::string type;
 	unsigned int cooldown = 0;
+	float speed = 0;
+};
+
+struct Damaging {
+	unsigned int damage = 10;
+};
+
+struct Projectile {
+	float sticksInGround = 3000; // ms it lasts on the ground
 };
 
 struct HealthBar {
@@ -81,7 +90,11 @@ struct Motion {
 	vec3 position = { 0, 0, 0 };
 	float angle = 0;
 	vec3 velocity = { 0, 0, 0 };
-	vec2 scale = { 10, 10 };
+	vec2 scale = { 10, 10 };	// only for rendering
+
+	// Hitbox
+	vec3 hitbox = { 0, 0, 0 };
+	float solid = false;
 };
 
 // Stucture to store collision information
@@ -90,12 +103,6 @@ struct Collision
 	// Note, the first object is stored in the ECS container.entities
 	Entity other; // the second object involved in the collision
 	Collision(Entity& other) { this->other = other; };
-};
-
-// Structure to store hitbox information
-struct Hitbox
-{
-	vec3 dimension = { 0, 0, 0 };
 };
 
 // Collision Cooldown
@@ -134,15 +141,15 @@ struct GameTimer {
 	void update(float elapsedTime) {
 		ms += elapsedTime;
 		if(ms >= 1000.f) {
+			ms -= 1000;
         	seconds += 1;
-        	ms = 0;
     	}
     	if(seconds >= 60) {
-        	seconds = 0;
+        	seconds -= 60;
         	minutes += 1;
     	}
     	if(minutes >= 60) {
-        	minutes = 0;
+        	minutes -= 60;
         	hours += 1;
     	}
 	}
@@ -194,7 +201,10 @@ struct Jumper
 // Enemy types
 struct Boar {};
 struct Barbarian {};
-struct Archer {};
+struct Archer {
+	float drawArrowTime = 0;
+	bool aiming = false;
+};
 
 // Collectible types
 struct Heart { unsigned int health = 20; };

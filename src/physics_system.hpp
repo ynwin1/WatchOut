@@ -17,4 +17,8 @@ public:
 private:
 	void updatePositions(float elapsed_ms);
 	void checkCollisions();
+	void handleBoundsCheck();
+	void recoil_entities(Entity motion1, Entity motion2);
 };
+
+const float GRAVITATIONAL_CONSTANT = 0.01;

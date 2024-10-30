@@ -95,8 +95,8 @@ private:
 bool loadEffectFromFile(
 	const std::string& vs_path, const std::string& fs_path, GLuint& out_program);
 
-float getVisualYPosition(float y, float z);
-float getWorldYPosition(float y);
-vec2 getVisualPosition(vec3 pos);
+float worldToVisualY(float y, float z);
+float visualToWorldY(float y);
+vec2 worldToVisual(vec3 pos);
 static const float yConversionFactor = 1 / sqrt(2);
 static const float zConversionFactor = 1 / sqrt(2);

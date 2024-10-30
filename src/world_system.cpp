@@ -129,7 +129,7 @@ bool WorldSystem::step(float elapsed_ms)
 
     if (camera->isToggled()) {
         Motion& playerMotion = registry.motions.get(playerEntity);
-        camera->followPosition(getVisualPosition(playerMotion.position));
+        camera->followPosition(worldToVisual(playerMotion.position));
     }
 
 

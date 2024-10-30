@@ -49,8 +49,8 @@ void PhysicsSystem::handleBoundsCheck() {
 			motion.position.x = world_size_x - halfScaleX;
 		}
 
-		if (motion.position.y < getWorldYPosition(motion.scale.y)) {
-			motion.position.y = getWorldYPosition(motion.scale.y);
+		if (motion.position.y < visualToWorldY(motion.scale.y)) {
+			motion.position.y = visualToWorldY(motion.scale.y);
 		} 
 		else if (motion.position.y > world_size_y) {
 			motion.position.y = world_size_y;

@@ -141,15 +141,15 @@ struct GameTimer {
 	void update(float elapsedTime) {
 		ms += elapsedTime;
 		if(ms >= 1000.f) {
+			ms -= 1000;
         	seconds += 1;
-        	ms = 0;
     	}
     	if(seconds >= 60) {
-        	seconds = 0;
+        	seconds -= 60;
         	minutes += 1;
     	}
     	if(minutes >= 60) {
-        	minutes = 0;
+        	minutes -= 60;
         	hours += 1;
     	}
 	}

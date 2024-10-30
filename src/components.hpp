@@ -6,8 +6,7 @@
 
 // PlayerComponents 
 struct Player {
-	unsigned int health = 10000;
-	unsigned int trapsCollected = 0;
+	unsigned int health = 100;
 	bool isRunning;     // Indicates if the player is currently running
 	bool isRolling;     // Indicates if the player is currently rolling
 	bool goingUp;		// Key for going up is held down
@@ -17,6 +16,16 @@ struct Player {
 	bool tryingToJump;	// Key for jumping is held down
 	bool isMoving;		// Indicates if any movement keys are pressed
 	vec2 facing;		// Direction the player is facing
+};
+
+//Stamina
+struct Stamina {
+	float stamina = 100;
+	float max_stamina = 100;     
+    float stamina_loss_rate = 50;
+	float stamina_recovery_rate = 10;
+	float timer = 3000;
+
 };
 
 //Dashing
@@ -50,6 +59,13 @@ struct HealthBar {
 	float width;
 	float height;
 	HealthBar(Entity& meshEntity) { this->meshEntity = meshEntity; };
+};
+
+struct StaminaBar {
+	Entity meshEntity;
+	float width;
+	float height;
+	StaminaBar(Entity& meshEntity) { this->meshEntity = meshEntity; };
 };
 
 // Collectible Component
@@ -106,6 +122,73 @@ struct Damaged
 struct DeathTimer
 {
 	float timer = 3000;
+};
+
+struct TrapsCounter {
+	int count = 0;
+	Entity textEntity;
+	void reset() {
+		count = 0;
+	}
+};
+
+struct GameTimer {
+	int hours = 0;
+	int minutes = 0;
+	int seconds = 0;
+	float ms = 0;
+	Entity textEntity;
+	void update(float elapsedTime) {
+		ms += elapsedTime;
+		if(ms >= 1000.f) {
+        	seconds += 1;
+        	ms = 0;
+    	}
+    	if(seconds >= 60) {
+        	seconds = 0;
+        	minutes += 1;
+    	}
+    	if(minutes >= 60) {
+        	minutes = 0;
+        	hours += 1;
+    	}
+	}
+	void reset() {
+		hours = 0;
+		minutes = 0;
+		seconds = 0;
+	}
+};
+
+struct Text {
+	std::string value;
+	vec2 position = { 0, 0 };
+	float scale = 1.0f;
+};
+
+struct TextChar {
+    unsigned int textureID;  // ID handle of the glyph texture
+    glm::ivec2   size;       // Size of glyph
+    glm::ivec2   bearing;    // Offset from baseline to left/top of glyph
+    unsigned int advance;    // Offset to advance to next glyph
+};
+
+struct FPSTracker {
+	int fps = 0;
+	int counter = 0;
+	float elapsedTime = 0;
+	Entity textEntity;
+	bool toggled = false;
+	void update(float elapsed_ms) {
+		elapsedTime += elapsed_ms;
+		counter += 1;
+
+    	if(elapsedTime >= 1000) {
+        	fps = counter;
+        	counter = 0;
+        	elapsedTime = 0;
+    	}
+	}
 };
 
 // Entity can jump

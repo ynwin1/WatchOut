@@ -4,7 +4,8 @@
 #include "world_init.hpp"
 #include "physics_system.hpp"
 #include <iostream>
-
+#include <iomanip> 
+#include <sstream>
 
 WorldSystem::WorldSystem() :
     spawn_functions({
@@ -17,13 +18,13 @@ WorldSystem::WorldSystem() :
     spawn_delays({
         {"boar", 3000},
         {"barbarian", 8000},
-        {"archer", 0},
+        {"archer", 5000},
 		{"heart", 15000},
 		{"collectible_trap", 6000}
         }),
     max_entities({
-        {"boar", 0},
-        {"barbarian", 0},
+        {"boar", 2},
+        {"barbarian", 2},
         {"archer", 1},
 		{"heart", 1},
 		{"collectible_trap", 1}
@@ -74,7 +75,45 @@ void WorldSystem::restart_game()
     game_over = false;
     is_paused = false;
 
+    initText();
+
     next_spawns = spawn_delays;
+}
+
+void WorldSystem::updateGameTimer(float elapsed_ms) {
+    gameTimer.update(elapsed_ms);
+    std::stringstream ss;
+    ss << std::setw(2) << std::setfill('0') << gameTimer.hours << ":"
+       << std::setw(2) << std::setfill('0') << gameTimer.minutes << ":"
+       << std::setw(2) << std::setfill('0') << gameTimer.seconds;
+
+    Text& text = registry.texts.get(gameTimer.textEntity);
+    text.value = ss.str();
+}
+
+void WorldSystem::initText() {
+    registry.fpsTracker.textEntity = createFPSText(camera->getSize());
+    gameTimer.reset();
+    gameTimer.textEntity = createGameTimerText(camera->getSize());
+    trapsCounter.reset();
+    trapsCounter.textEntity = createTrapsCounterText(camera->getSize());
+}
+
+void WorldSystem::trackFPS(float elapsed_ms) {
+    FPSTracker& fpsTracker = registry.fpsTracker; 
+    fpsTracker.update(elapsed_ms);
+
+    if(fpsTracker.elapsedTime == 0) {
+        Text& text = registry.texts.get(fpsTracker.textEntity);
+        text.value = std::to_string(fpsTracker.fps) + " fps";
+    }
+}
+
+void WorldSystem::updateTrapsCounterText() {
+    Text& text = registry.texts.get(trapsCounter.textEntity);
+    std::stringstream ss;
+    ss << std::setw(2) << std::setfill('0') << trapsCounter.count;
+    text.value = "Traps: " + ss.str();
 }
 
 bool WorldSystem::step(float elapsed_ms)
@@ -83,11 +122,16 @@ bool WorldSystem::step(float elapsed_ms)
     update_cooldown(elapsed_ms);
     handle_deaths(elapsed_ms);
     despawn_collectibles(elapsed_ms);
+    handle_stamina(elapsed_ms);
+    trackFPS(elapsed_ms);
+    updateGameTimer(elapsed_ms);
+    updateTrapsCounterText();
 
     if (camera->isToggled()) {
         Motion& playerMotion = registry.motions.get(playerEntity);
         camera->followPosition(getVisualPosition(playerMotion.position));
     }
+
 
     Player& player = registry.players.get(playerEntity);
     if(player.health == 0) {
@@ -161,6 +205,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     Player& player_comp = registry.players.get(playerEntity);
     Motion& player_motion = registry.motions.get(playerEntity);
     Dash& player_dash = registry.dashers.get(playerEntity);
+    Stamina& player_stamina = registry.staminas.get(playerEntity);
 
     if (game_over) {
         if (action == GLFW_PRESS && key == GLFW_KEY_ENTER){
@@ -214,30 +259,60 @@ void WorldSystem::on_key(int key, int, int action, int mod)
                 break;
             case GLFW_KEY_LEFT_SHIFT:
                 // Sprint
-                player_comp.isRunning = pressed;
+                if (player_stamina.stamina > 0) { 
+                    player_comp.isRunning = pressed;
+                } else{
+                    player_comp.isRunning = false;
+                }
                 break;
             case GLFW_KEY_R:
                 // Roll
-                player_comp.isRolling = pressed;
+                if (player_stamina.stamina > 0) { 
+                    player_comp.isRolling = pressed;
+                } else{
+                    player_comp.isRolling = false;
+                }
                 break;
             case GLFW_KEY_D:
                 if (pressed) {
-                    const float dashDistance = 300;
-                    // Start dashing if player is moving
-                    player_dash.isDashing = true;
-                    player_dash.dashStartPosition = vec2(player_motion.position);
-                    player_dash.dashTargetPosition = player_dash.dashStartPosition + player_comp.facing * dashDistance;
-                    player_dash.dashTimer = 0.0f; // Reset timer
+                    if (player_stamina.stamina > 0) { 
+                        const float dashDistance = 300;
+                        // Start dashing if player is moving
+                        player_dash.isDashing = true;
+                        player_dash.dashStartPosition = vec2(player_motion.position);
+                        player_dash.dashTargetPosition = player_dash.dashStartPosition + player_comp.facing * dashDistance;
+                        player_dash.dashTimer = 0.0f; // Reset timer
+                    }
                 }
                 break;
 		    case GLFW_KEY_SPACE:
-                // Dash
-                player_comp.tryingToJump = pressed;
-                if (registry.jumpers.has(playerEntity)) {
-                    Jumper& jumper = registry.jumpers.get(playerEntity);
-                    if (!jumper.isJumping && pressed) {
-                        jumper.isJumping = true;
-                        player_motion.velocity.z = jumper.speed;
+                // Jump
+                if (pressed) {
+                    const float min_stamina_for_jump = 10.0f;
+                    if (player_stamina.stamina >= min_stamina_for_jump && !player_comp.tryingToJump) {
+                        player_comp.tryingToJump = true;
+                        if (registry.jumpers.has(playerEntity)) {
+                            Jumper& jumper = registry.jumpers.get(playerEntity);
+                            if (!jumper.isJumping) {  
+                                jumper.isJumping = true; 
+                                player_comp.tryingToJump = true;
+                                player_motion.velocity.z = jumper.speed; 
+                                player_stamina.stamina -= min_stamina_for_jump;
+                                if (player_stamina.stamina < 0) {
+                                    player_stamina.stamina = 0;
+                                }
+                            }
+                        }
+                    }
+                } else { 
+                    player_comp.tryingToJump = false;
+                }
+                //Handles player jumping too far up
+                if (player_motion.velocity.z <= 0 && player_comp.tryingToJump) {
+                    player_comp.tryingToJump = false;
+                    if (registry.jumpers.has(playerEntity)) {
+                        Jumper& jumper = registry.jumpers.get(playerEntity);
+                        jumper.isJumping = false;
                     }
                 }
                 break;
@@ -251,6 +326,11 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     // toggle camera on/off for debugging/testing
     if(action == GLFW_PRESS && key == GLFW_KEY_C) {
         camera->toggle();
+    }
+
+    // toggle fps
+    if(action == GLFW_PRESS && key == GLFW_KEY_F) {
+        registry.fpsTracker.toggled = !registry.fpsTracker.toggled;
     }
 }
 
@@ -356,8 +436,8 @@ void WorldSystem::entity_collectible_collision(Entity entity, Entity entity_othe
 	Collectible& collectible = registry.collectibles.get(entity_other);
 
     if (registry.collectibleTraps.has(entity_other)) {
-        player.trapsCollected++;
-        printf("Player collected a trap. Trap count is now %d\n", player.trapsCollected);
+        trapsCounter.count++;
+        printf("Player collected a trap. Trap count is now %d\n", trapsCounter.count);
     }
     else if (registry.hearts.has(entity_other)) {
         unsigned int health = registry.hearts.get(entity_other).health;
@@ -525,7 +605,7 @@ void WorldSystem::place_trap(Player& player, Motion& motion, bool forward) {
     // Player position
     vec2 playerPos = motion.position;
 	// Do not place trap if player has no traps
-    if (player.trapsCollected == 0) {
+    if (trapsCounter.count == 0) {
         printf("Player has no traps to place\n");
         return;
     }
@@ -546,7 +626,41 @@ void WorldSystem::place_trap(Player& player, Motion& motion, bool forward) {
 
     vec2 trapPos = playerPos + gap;
 	createDamageTrap(trapPos);
-	player.trapsCollected--;
-	printf("Trap count is now %d\n", player.trapsCollected);
+	trapsCounter.count--;
+	printf("Trap count is now %d\n", trapsCounter.count);
+}
+
+//Update player stamina on dashing, sprinting, rolling and jumping
+void WorldSystem::handle_stamina(float elapsed_ms) {
+    for (auto& staminaEntity : registry.staminas.entities) {
+        Stamina& stamina = registry.staminas.get(staminaEntity);
+        Player& player_comp = registry.players.get(staminaEntity);
+        Dash& dash_comp = registry.dashers.get(staminaEntity);
+        Jumper& player_jump = registry.jumpers.get(staminaEntity);
+    
+        if ((player_comp.isRunning || dash_comp.isDashing || player_comp.isRolling || player_jump.isJumping) && stamina.stamina > 0) {
+            stamina.stamina -= elapsed_ms / 1000.0f * stamina.stamina_loss_rate;
+
+            if (stamina.stamina < 0) {
+                stamina.stamina = 0;
+            }
+        }
+        else if (!player_comp.isRunning && !dash_comp.isDashing && !player_comp.isRolling && !player_jump.isJumping) {
+            stamina.stamina += elapsed_ms / 1000.0f * stamina.stamina_recovery_rate;
+
+            if (stamina.stamina > stamina.max_stamina) {
+                stamina.stamina = stamina.max_stamina;
+            }
+        }
+        
+
+        if (stamina.stamina == 0) {
+            player_comp.isRunning = false;
+            player_comp.tryingToJump = false;
+            dash_comp.isDashing = false;
+            player_comp.isRolling = false;
+            
+        }
+    }
 }
 

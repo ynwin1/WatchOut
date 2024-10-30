@@ -40,6 +40,9 @@ private:
 	PhysicsSystem* physics;
 
 	Camera* camera;
+	
+	GameTimer gameTimer;
+	TrapsCounter trapsCounter;
 
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);
@@ -56,6 +59,7 @@ private:
 
 	// restart level
 	void restart_game();
+	void initText();
 
 	// Actions performed for each step
 	void spawn(float elapsed_ms);
@@ -63,9 +67,13 @@ private:
 	void handle_deaths(float elapsed_ms);
 	void update_player_facing(Player& player);
 	void despawn_collectibles(float elapsed_ms);
+	void handle_stamina(float elapsed_ms);
 	vec2 get_spawn_location(const std::string& entity_type);
 	void place_trap(Player& player, Motion& motion, bool forward);
 	void checkAndHandlePlayerDeath(Entity& entity);
+	void trackFPS(float elapsed_ms);
+	void updateGameTimer(float elapsed_ms);
+	void updateTrapsCounterText();
 
 	// Collision functions
 	void entity_collectible_collision(Entity entity, Entity collectible);

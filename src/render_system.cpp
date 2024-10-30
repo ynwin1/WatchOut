@@ -5,8 +5,75 @@
 // external
 #include <SDL.h>
 
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 // STD
 #include <algorithm>
+
+void RenderSystem::drawText(Entity entity) {
+	const Text& text = registry.texts.get(entity);
+	const RenderRequest& render_request = registry.renderRequests.get(entity);
+
+	const GLuint used_effect_enum = (GLuint)render_request.used_effect;
+	assert(used_effect_enum != (GLuint)EFFECT_ASSET_ID::EFFECT_COUNT);
+	const GLuint program = (GLuint)effects[used_effect_enum];
+
+	// Setting shaders
+	glUseProgram(program);
+
+    glUniform3f(glGetUniformLocation(program, "textColor"), 1.0f, 1.0f, 1.0f);
+
+	glActiveTexture(GL_TEXTURE0);
+
+	float startX = text.position.x;
+	float startY = text.position.y;
+
+	std::string::const_iterator c;
+    for (c = text.value.begin(); c != text.value.end(); c++)
+    {
+        TextChar ch = registry.textChars[*c];
+
+        float xpos = startX + ch.bearing.x * text.scale;
+		float ypos = startY - (ch.size.y - ch.bearing.y) * text.scale;
+
+        float w = ch.size.x * text.scale;
+        float h = ch.size.y * text.scale;
+        // update VBO for each character
+	  	float vertices[6][4] = {
+            	{ xpos,     ypos + h,   0.0f, 0.0f },            
+            	{ xpos,     ypos,       0.0f, 1.0f },
+            	{ xpos + w, ypos,       1.0f, 1.0f },
+
+            	{ xpos,     ypos + h,   0.0f, 0.0f },
+            	{ xpos + w, ypos,       1.0f, 1.0f },
+            	{ xpos + w, ypos + h,   1.0f, 0.0f }           
+        	};
+
+        // render glyph texture over quad
+        glBindTexture(GL_TEXTURE_2D, ch.textureID);
+        // update content of VBO memory
+        const GLuint vbo = vertex_buffers[(GLuint)render_request.used_geometry];
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices); 
+
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+
+		glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(camera->getSize().x), 0.0f, static_cast<float>(camera->getSize().y));
+		GLuint projection_loc = glGetUniformLocation(program, "projection");
+		glUniformMatrix4fv(projection_loc, 1, GL_FALSE, value_ptr(projection));
+		gl_has_errors();
+
+		glm::mat4 trans = glm::mat4(1.0f);
+		unsigned int transformLoc = glGetUniformLocation(program, "transform");
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, value_ptr(trans));
+		gl_has_errors();
+
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        startX += (ch.advance >> 6) * text.scale; // bitshift by 6 to get value in pixels (2^6 = 64)
+    }
+}
 
 void RenderSystem::drawMesh(Entity entity, const mat3& projection)
 {
@@ -177,6 +244,15 @@ void RenderSystem::draw()
 		drawMesh(entity, projection_2D);
 	}
 
+	// Draw all text
+	for (Entity entity : registry.texts.entities) {
+		if(entity == registry.fpsTracker.textEntity && !registry.fpsTracker.toggled) {
+			continue; //skip rendering fps if not toggled
+		}
+
+		drawText(entity);
+	}
+
 	// flicker-free display with a double buffer
 	glfwSwapBuffers(window);
 	gl_has_errors();
@@ -197,6 +273,7 @@ void RenderSystem::step(float elapsed_ms)
 	}
 
 	update_hpbars();
+	update_staminabars();
 }
 
 void RenderSystem::turn_damaged_red(std::vector<Entity>& was_damaged)
@@ -235,8 +312,8 @@ void handleHpBarBoundsCheck() {
 		}
 
 		if(motion.position.y - halfScaleY - motion.position.z < 0) {
-			motion.position.y = halfScaleY;
-			motion.position.z = 0;
+			motion.position.y = getWorldYPosition(motion.scale.y);
+			motion.position.z = -5;
 		} else if(motion.position.y + halfScaleY > world_size_y) {
 			motion.position.y = world_size_y - halfScaleY;
 		}
@@ -282,6 +359,48 @@ void RenderSystem::update_hpbars() {
 	handleHpBarBoundsCheck();
 }
 
+void handleStaminaBarBoundsCheck() {
+	ComponentContainer<StaminaBar> &staminabars = registry.staminaBars;
+
+	for(uint i = 0; i < staminabars.components.size(); i++) {
+		StaminaBar& staminabar = staminabars.components[i];
+		Motion& motion = registry.motions.get(staminabar.meshEntity);
+		float halfScaleX = motion.scale.x / 2;
+		float halfScaleY = getWorldYPosition(motion.scale.y) / 2;
+
+		if(motion.position.x - halfScaleX  < 0) {
+			motion.position.x = halfScaleX;
+		} else if(motion.position.x + halfScaleX > world_size_x) {
+			motion.position.x = world_size_x - halfScaleX;
+		}
+
+		if(motion.position.y - halfScaleY - motion.position.z < 0) {
+			motion.position.y = halfScaleY;
+			motion.position.z = 0;
+		} else if(motion.position.y + halfScaleY > world_size_y) {
+			motion.position.y = world_size_y - halfScaleY;
+		}
+	}
+}
+
+void RenderSystem::update_staminabars() {
+	for (Entity entity : registry.players.entities) {
+		Player& player = registry.players.get(entity);
+		Stamina& stamina = registry.staminas.get(entity);
+		StaminaBar& staminabar = registry.staminaBars.get(entity);
+		Motion& motion = registry.motions.get(entity);
+		Motion& staminaBarMotion = registry.motions.get(staminabar.meshEntity);
+		staminaBarMotion.scale.x = staminabar.width * stamina.stamina/100.f;
+		float topOffset = 5;
+		float yOffset = 10;
+		staminaBarMotion.position.x = motion.position.x;
+        staminaBarMotion.position.y = motion.position.y - yOffset;
+		staminaBarMotion.position.z = motion.position.z + getWorldYPosition(motion.scale.y) / 2 + topOffset;
+	}
+	handleStaminaBarBoundsCheck();
+}
+
+
 mat3 RenderSystem::createProjectionMatrix() 
 {
 	float left;
@@ -291,10 +410,10 @@ mat3 RenderSystem::createProjectionMatrix()
 
 	if (camera->isToggled()) {
 		// viewing screen is based on camera position and its dimensions
-		left = camera->getPosition().x - (camera->getWidth() / 2);
-		right = camera->getPosition().x + (camera->getWidth() / 2);
-		bottom = camera->getPosition().y + (camera->getHeight() / 2);
-		top = camera->getPosition().y - (camera->getHeight() / 2);
+		left = camera->getPosition().x - (camera->getSize().x / 2);
+		right = camera->getPosition().x + (camera->getSize().x / 2);
+		bottom = camera->getPosition().y + (camera->getSize().y / 2);
+		top = camera->getPosition().y - (camera->getSize().y / 2);
 	}
 	else {
 		top = 0;

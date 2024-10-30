@@ -202,6 +202,9 @@ Entity createJeff(vec2 position)
 	motion.angle = 0.f;
 	motion.position = vec3(position, getElevation(position) + JEFF_BB_HEIGHT / 2);
 
+	//Initialize stamina
+	auto& stamina = registry.staminas.emplace(entity);
+
 	//Initialize movement
 	auto& player = registry.players.emplace(entity);
 	player.isRolling = false;
@@ -233,6 +236,8 @@ Entity createJeff(vec2 position)
 	registry.midgrounds.emplace(entity);
 
 	createHealthBar(entity, vec3(0.0f, 1.0f, 0.0f));
+	createStaminaBar(entity, vec3(0.0f, 0.0f, 1.0f));
+	
 	
 	return entity;
 }
@@ -328,6 +333,92 @@ void createHealthBar(Entity characterEntity, vec3 color) {
 	HealthBar& hpbar = registry.healthBars.emplace(characterEntity, meshEntity);
 	hpbar.width = width;
 	hpbar.height = height;
+}
+
+void createStaminaBar(Entity characterEntity, vec3 color) {
+	auto meshEntity = Entity();
+
+	const float width = 60.0f;
+	const float height = 10.0f;
+
+	Motion& characterMotion = registry.motions.get(characterEntity);
+
+	Motion& motion = registry.motions.emplace(meshEntity);
+	motion.angle = 0.f;
+	motion.scale = { width, height };
+
+
+	registry.colours.insert(meshEntity, color);
+
+	registry.renderRequests.insert(
+		meshEntity,
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::UNTEXTURED,
+			GEOMETRY_BUFFER_ID::STAMINA_BAR
+		});
+	registry.midgrounds.emplace(meshEntity);
+
+	StaminaBar& staminabar = registry.staminaBars.emplace(characterEntity, meshEntity);
+	staminabar.width = width;
+	staminabar.height = height;
+}
+Entity createFPSText(vec2 windowSize) {
+	auto entity = Entity();
+
+	Text& text = registry.texts.emplace(entity);
+	text.value = "00 fps";
+	// text position based on screen coordinates
+	text.position = {windowSize.x - 60.0f, windowSize.y - 20.0f};
+	text.scale = 0.5f;
+
+	registry.renderRequests.insert(
+			entity, 
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::FONT,
+			GEOMETRY_BUFFER_ID::TEXT
+		});
+
+	return entity;
+}
+
+Entity createGameTimerText(vec2 windowSize) {
+	auto entity = Entity();
+
+	Text& text = registry.texts.emplace(entity);
+	text.value = "00:00:00";
+	text.position = {(windowSize.x / 2) + 50.0f, windowSize.y - 80.0f}; 
+	text.scale = 2.0f;
+
+	registry.renderRequests.insert(
+		entity, 
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::FONT,
+			GEOMETRY_BUFFER_ID::TEXT
+		});
+
+	return entity;
+}
+
+Entity createTrapsCounterText(vec2 windowSize) {
+	auto entity = Entity();
+
+	Text& text = registry.texts.emplace(entity);
+	text.value = "Traps: 00";
+	text.position = {(windowSize.x / 2) - 250.0f, windowSize.y - 80.0f}; 
+	text.scale = 1.5f;
+
+	registry.renderRequests.insert(
+		entity, 
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::FONT,
+			GEOMETRY_BUFFER_ID::TEXT
+		});
+	
+	return entity;
 }
 
 float getElevation(vec2 xy)

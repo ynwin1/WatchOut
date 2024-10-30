@@ -67,9 +67,18 @@ Entity createArrow(vec3 pos, vec3 velocity);
 
 void createBattleGround();
 
+Entity createFPSText(vec2 windowSize);
+
+Entity createGameTimerText(vec2 windowSize);
+
+Entity createTrapsCounterText(vec2 windowSize);
+
 // GameOver
 Entity createGameOver(vec2 pos);
 
 void createHealthBar(Entity characterEntity, vec3 color);
+
+void createStaminaBar(Entity characterEntity, vec3 color);
+float getElevation(vec2 xy);
 
 float getElevation(vec2 xy);

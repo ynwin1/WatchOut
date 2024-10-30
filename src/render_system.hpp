@@ -39,16 +39,16 @@ class RenderSystem {
 
 	std::array<GLuint, effect_count> effects;
 	// Make sure these paths remain in sync with the associated enumerators.
-	const std::array<std::string, effect_count> effect_paths = { shader_path("textured"), shader_path("untextured") };
+	const std::array<std::string, effect_count> effect_paths = {shader_path("textured"), shader_path("untextured"), shader_path("font") };
 
 	std::array<GLuint, geometry_count> vertex_buffers;
 	std::array<GLuint, geometry_count> index_buffers;
 
 public:
-	GLFWwindow* create_window(Camera* camera);
+	GLFWwindow* create_window();
 
 	// Initialize the window
-	bool init();
+	bool init(Camera* camera);
 
 	template <class T>
 	void bindVBOandIBO(GEOMETRY_BUFFER_ID gid, std::vector<T> vertices, std::vector<uint16_t> indices);
@@ -60,6 +60,9 @@ public:
 	void initializeGlGeometryBuffers();
 
 	void initHealthBarBuffer();
+	void initStaminaBarBuffer();
+
+	void initText();
 
 	// Destroy resources associated to one or all entities created by the system
 	~RenderSystem();
@@ -79,7 +82,11 @@ private:
 	// Internal drawing functions for each entity type
 	void drawMesh(Entity entity, const mat3& projection);
 
+	void drawText(Entity entity);
+
 	void update_hpbars();
+
+	void update_staminabars();
 
 	// Window handle
 	GLFWwindow* window;

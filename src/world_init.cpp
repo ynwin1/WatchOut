@@ -277,8 +277,8 @@ Entity createSalmon(RenderSystem* renderer, vec2 pos)
 	hitbox.dimension = { motion.scale, MESHTREE_BB_HEIGHT };
 
 	registry.renderRequests.insert(
-		entity,
-		{ TEXTURE_ASSET_ID::TEXTURE_COUNT, // TEXTURE_COUNT indicates that no texture is needed
+		entity, { 
+			TEXTURE_ASSET_ID::MESHTREE,
 			EFFECT_ASSET_ID::SALMON,
 			GEOMETRY_BUFFER_ID::SALMON });
 

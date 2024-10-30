@@ -40,7 +40,9 @@ class RenderSystem {
 	  textures_path("game/game_over.png"),
 	  textures_path("collectables/heart.png"),
 	  textures_path("collectables/trapbottle.png"),
-	  textures_path("collectables/trap.png")};
+	  textures_path("collectables/trap.png"),
+	  textures_path("meshTree/meshtree.png")
+	};
 
 	std::array<GLuint, effect_count> effects;
 	// Make sure these paths remain in sync with the associated enumerators.

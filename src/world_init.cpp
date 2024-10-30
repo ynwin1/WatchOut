@@ -1,5 +1,6 @@
 #include "world_init.hpp"
 #include "tiny_ecs_registry.hpp"
+#include <random>
 
 // Boar creation
 Entity createBoar(RenderSystem* renderer, vec2 pos)
@@ -406,7 +407,7 @@ Entity createMapTile(vec2 position, vec2 size) {
     tile.position = position;
     tile.scale = size;
 	// Motion& motion = registry.motions.emplace(entity);
-	// motion.position = vec3(position.x, position.y, 0.0f);
+	// motion.position = vec3(position.x, position.y, getVisualYPosition(position.y, 0.0f));
 	// motion.scale = size;
 	
     registry.renderRequests.insert(
@@ -421,6 +422,34 @@ Entity createMapTile(vec2 position, vec2 size) {
     return entity;
 }
 
+void createObstacles() {
+	std::default_random_engine rng;
+    std::uniform_real_distribution<float> uniform_dist;
+    rng = std::default_random_engine(std::random_device()());
+
+	// int numTrees = 15;
+	// while(numTrees != 0) {
+    // 	float posX = (uniform_dist(rng) * world_size_x);
+	// 	float posY = (uniform_dist(rng) * world_size_y);
+	// 	createObstacle({posX, posY}, {150.f, 250.f}, TEXTURE_ASSET_ID::TREE);
+	// 	numTrees--;
+    // }
+	int numShrubs = 20;
+	while(numShrubs != 0) {
+    	float posX = (uniform_dist(rng) * world_size_x);
+		float posY = (uniform_dist(rng) * world_size_y);
+		createObstacle({posX, posY}, {SHRUB_BB_WIDTH, SHRUB_BB_HEIGHT}, TEXTURE_ASSET_ID::SHRUB);
+		numShrubs--;
+    }
+	int numRocks = 15;
+	while(numRocks != 0) {
+    	float posX = (uniform_dist(rng) * world_size_x);
+		float posY = (uniform_dist(rng) * world_size_y);
+		createObstacle({posX, posY}, {ROCK_BB_WIDTH, ROCK_BB_HEIGHT}, TEXTURE_ASSET_ID::ROCK);
+		numRocks--;
+    }
+}
+
 Entity createObstacle(vec2 position, vec2 size, TEXTURE_ASSET_ID assetId) {
     auto entity = Entity();
     registry.obstacles.emplace(entity);
@@ -428,12 +457,7 @@ Entity createObstacle(vec2 position, vec2 size, TEXTURE_ASSET_ID assetId) {
     Motion& motion = registry.motions.emplace(entity);
     motion.scale = size;
 
-	//spawn at bottom left of tile to prevent bigger obstacles overlapping smaller ones
-	// float posX = position.x + (size.x / 2);
-	// float posY = position.y + tileSize.y - (size.y / 2);
-
     motion.position = vec3(position.x, position.y, getElevation(position) + motion.scale.y / 2);
-	// motion.position = vec3(posX, posY, 0.0f);
     Hitbox& hitbox = registry.hitboxes.emplace(entity);
     hitbox.dimension = { motion.scale.x, motion.scale.x, motion.scale.y };
 
@@ -449,13 +473,7 @@ Entity createObstacle(vec2 position, vec2 size, TEXTURE_ASSET_ID assetId) {
     return entity;
 }
 
-#include <random>
-
 void createMapTiles(GLFWwindow* window) {
-    std::default_random_engine rng;
-    std::uniform_real_distribution<float> uniform_dist;
-    rng = std::default_random_engine(std::random_device()());
-
     int windowWidth;
     int windowHeight;
     glfwGetWindowSize(window, &windowWidth, &windowHeight);
@@ -466,69 +484,14 @@ void createMapTiles(GLFWwindow* window) {
     float tileHeight = getVisualYPosition(world_size_y, 0) / tilesOnScreenY;
     int numRows = tilesOnScreenY;
     int numCols = tilesOnScreenX;
-    registry.mapTilesMatrix = std::vector<std::vector<Entity>>(numRows, std::vector<Entity>(numCols));
 
-    for (int row = 0; row < registry.mapTilesMatrix.size(); row++) { 
-        for (int col = 0; col < registry.mapTilesMatrix[row].size(); col++) { 
+    for (int row = 0; row < numRows; row++) { 
+        for (int col = 0; col < numCols; col++) { 
             vec2 position = {col * tileWidth, row * tileHeight};
             vec2 size = {tileWidth, tileHeight};
-            Entity entity = createMapTile(position, size);
-            registry.mapTilesMatrix[row][col] = entity; 
+            createMapTile(position, size);
         }
     }
-
-	int numObstacles = 15;
-	// while(numObstacles != 0) {
-    // 	float posX = (uniform_dist(rng) * world_size_x);
-	// 	float posY = (uniform_dist(rng) * world_size_y);
-	// 	createObstacle({posX, posY}, {150.f, 250.f}, TEXTURE_ASSET_ID::TREE);
-	// 	numObstacles--;
-    // }
-	numObstacles = 20;
-	while(numObstacles != 0) {
-    	float posX = (uniform_dist(rng) * world_size_x);
-		float posY = (uniform_dist(rng) * world_size_y);
-		createObstacle({posX, posY}, {90.f, 100.f}, TEXTURE_ASSET_ID::SHRUB);
-		numObstacles--;
-    }
-	numObstacles = 15;
-	while(numObstacles != 0) {
-    	float posX = (uniform_dist(rng) * world_size_x);
-		float posY = (uniform_dist(rng) * world_size_y);
-		createObstacle({posX, posY}, {90.f, 100.f}, TEXTURE_ASSET_ID::ROCK);
-		numObstacles--;
-    }
-
-	// Entity& entity = registry.mapTilesMatrix[5][0];
-	// MapTile& tile = registry.mapTiles.get(entity);
-	// createObstacle(tile.position, {165.f, 330.f}, tile.scale, TEXTURE_ASSET_ID::TREE);
-	// createObstacle(tile.position, {90.f, 100.f}, tile.scale, TEXTURE_ASSET_ID::SHRUB);
-    // int numObstacles = 20;
-    // int row;
-    // int col;
-    // while(numObstacles != 0) {
-    // row = (uniform_dist(rng) * numRows);
-    // col = (uniform_dist(rng) * numCols);
-    //     Entity& entity = registry.mapTilesMatrix[row][col];
-    //     MapTile& tile = registry.mapTiles.get(entity);
-    //     if(!tile.hasObstacle) {
-    //         createObstacle(tile.position, {165.f, 330.f}, tile.scale, TEXTURE_ASSET_ID::TREE);
-    //         tile.hasObstacle = true;
-    //         numObstacles--;
-    //     }
-    // }
-    // numObstacles = 20;
-    // while(numObstacles != 0) {
-    // row = (uniform_dist(rng) * numRows);
-    // col = (uniform_dist(rng) * numCols);
-    //     Entity& entity = registry.mapTilesMatrix[row][col];
-    //     MapTile& tile = registry.mapTiles.get(entity);
-    //     if(!tile.hasObstacle) {
-    //         createObstacle(tile.position, {90.f, 100.f}, tile.scale, TEXTURE_ASSET_ID::SHRUB);
-    //         tile.hasObstacle = true;
-    //         numObstacles--;
-    //     }
-    // }
 }
 
 float getElevation(vec2 xy)

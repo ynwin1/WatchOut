@@ -34,7 +34,6 @@ public:
 	ComponentContainer<Obstacle> obstacles;
 
 	std::map<char, TextChar> textChars; //for initializing text glyphs from freetype
-	std::vector<std::vector<Entity>> mapTilesMatrix;
 
 	// Render component containers
 	ComponentContainer<RenderRequest> renderRequests;

@@ -26,6 +26,11 @@ const float TRAP_COLLECTABLE_BB_HEIGHT = 17.f * SPRITE_SCALE;
 const float HEART_BB_WIDTH = 17. * SPRITE_SCALE;
 const float HEART_BB_HEIGHT = 15. * SPRITE_SCALE;
 
+const float SHRUB_BB_WIDTH = 30.f * SPRITE_SCALE;
+const float SHRUB_BB_HEIGHT = 33.f * SPRITE_SCALE;
+const float ROCK_BB_WIDTH = 30.f * SPRITE_SCALE;
+const float ROCK_BB_HEIGHT = 35.f * SPRITE_SCALE;
+
 const std::unordered_map<std::string, vec2> entity_sizes = {
 	{"boar", { BOAR_BB_WIDTH, BOAR_BB_HEIGHT }},
 	{"barbarian", { BARBARIAN_BB_WIDTH, BARBARIAN_BB_HEIGHT }},
@@ -74,6 +79,7 @@ void createHealthBar(Entity characterEntity, vec3 color);
 void createMapTiles(GLFWwindow* window);
 Entity createMapTile(vec2 position, vec2 scale);
 Entity createObstacle(vec2 position, vec2 scale, TEXTURE_ASSET_ID assetID);
+void createObstacles();
 
 void createStaminaBar(Entity characterEntity, vec3 color);
 float getElevation(vec2 xy);

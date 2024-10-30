@@ -5,12 +5,14 @@
 
 bool collides(const Entity& a, const Entity& b)
 {
+	Motion& motionA = registry.motions.get(a);
+	Motion& motionB = registry.motions.get(b);
 	// position represents the center of the entity
-	vec3 a_position = registry.motions.get(a).position;
-	vec3 b_position = registry.motions.get(b).position;
+	vec3 a_position = motionA.position;
+	vec3 b_position = motionB.position;
 	// dimension represents the width and height of entity
-	vec3 a_dimension = registry.hitboxes.get(a).dimension;
-	vec3 b_dimension = registry.hitboxes.get(b).dimension;
+	vec3 a_dimension = motionA.hitbox;
+	vec3 b_dimension = motionB.hitbox;
 
 	// If a's bottom is higher than b's top
 	if (a_position.y > b_position.y + ((b_dimension.y + a_dimension.y) / 2.0f))
@@ -39,7 +41,6 @@ void PhysicsSystem::handleBoundsCheck() {
 	for (uint i = 0; i < motion_container.components.size(); i++) {
 		Motion& motion = motion_container.components[i];
 		float halfScaleX = motion.scale.x / 2;
-		float yAdjust = motion.position.z * sqrt(2) - motion.position.z;
 
 		if (motion.position.x - halfScaleX < 0) {
 			motion.position.x = halfScaleX;
@@ -48,11 +49,11 @@ void PhysicsSystem::handleBoundsCheck() {
 			motion.position.x = world_size_x - halfScaleX;
 		}
 
-		if (motion.position.y < getWorldYPosition(motion.scale.y) - yAdjust) {
-			motion.position.y = getWorldYPosition(motion.scale.y) - yAdjust;
+		if (motion.position.y < getWorldYPosition(motion.scale.y)) {
+			motion.position.y = getWorldYPosition(motion.scale.y);
 		} 
-		else if (motion.position.y > world_size_y - yAdjust) {
-			motion.position.y = world_size_y - yAdjust;
+		else if (motion.position.y > world_size_y) {
+			motion.position.y = world_size_y;
 		}
 	}
 }
@@ -60,18 +61,18 @@ void PhysicsSystem::handleBoundsCheck() {
 void PhysicsSystem::checkCollisions() 
 {
 	// Check for collisions between moving entities
-	ComponentContainer<Hitbox> &hitboxes = registry.hitboxes;
-	for (uint i = 0; i < hitboxes.components.size(); i++) {
-		Entity entity_i = hitboxes.entities[i];
-		for (uint j = i + 1; j < hitboxes.components.size(); j++) {
-			Entity entity_j = hitboxes.entities[j];
+	ComponentContainer<Motion> &motions = registry.motions;
+	for (uint i = 0; i < motions.components.size(); i++) {
+		Entity entity_i = motions.entities[i];
+		for (uint j = i + 1; j < motions.components.size(); j++) {
+			Entity entity_j = motions.entities[j];
 			if (collides(entity_i, entity_j)) {
 				// Collision detected
 				collisions.push_back(std::make_pair(entity_i, entity_j));
 				collisions.push_back(std::make_pair(entity_j, entity_i));
 
 				// Push each other
-				if (hitboxes.get(entity_i).solid && hitboxes.get(entity_j).solid) {
+				if (motions.components[i].solid && motions.components[j].solid) {
 					recoil_entities(entity_i, entity_j);
 				}
 			}
@@ -86,7 +87,7 @@ void PhysicsSystem::updatePositions(float elapsed_ms)
 		Motion& motion = registry.motions.get(entity);
 
 		// Z-position of entity when it is on the ground
-		float groundZ = getElevation(vec2(motion.position)) + motion.scale.y / 2;
+		float groundZ = getElevation(vec2(motion.position)) + motion.hitbox.z / 2;
 
 		// Set player velocity
 		if (registry.players.has(entity) && motion.position.z <= groundZ) {
@@ -129,9 +130,6 @@ void PhysicsSystem::updatePositions(float elapsed_ms)
 				if (registry.damagings.has(entity)) {
 					registry.damagings.remove(entity);
 				}
-				if (registry.hitboxes.has(entity)) {
-					registry.hitboxes.get(entity).solid = false;
-				}
 			}
 		}
 
@@ -160,13 +158,11 @@ void PhysicsSystem::updatePositions(float elapsed_ms)
 }
 
 float calculate_x_overlap(Entity entity1, Entity entity2) {
-	Hitbox& hitbox1 = registry.hitboxes.get(entity1);
-	Hitbox& hitbox2 = registry.hitboxes.get(entity2);
 	Motion& motion1 = registry.motions.get(entity1);
 	Motion& motion2 = registry.motions.get(entity2);
 
-	float x1_half_scale = hitbox1.dimension.x / 2;
-	float x2_half_scale = hitbox2.dimension.x / 2;
+	float x1_half_scale = motion1.hitbox.x / 2;
+	float x2_half_scale = motion2.hitbox.x / 2;
 
 	// Determine the edges of the hitboxes for x
 	float left1 = motion1.position.x - x1_half_scale;
@@ -179,13 +175,11 @@ float calculate_x_overlap(Entity entity1, Entity entity2) {
 }
 
 float calculate_y_overlap(Entity entity1, Entity entity2) {
-	Hitbox& hitbox1 = registry.hitboxes.get(entity1);
-	Hitbox& hitbox2 = registry.hitboxes.get(entity2);
 	Motion& motion1 = registry.motions.get(entity1);
 	Motion& motion2 = registry.motions.get(entity2);
 
-	float y1_half_scale = hitbox1.dimension.y / 2;
-	float y2_half_scale = hitbox2.dimension.y / 2;
+	float y1_half_scale = motion1.hitbox.y / 2;
+	float y2_half_scale = motion2.hitbox.y / 2;
 
 	// Determine the edges of the hitboxes for y
 	float top1 = motion1.position.y - y1_half_scale;

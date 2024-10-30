@@ -33,7 +33,6 @@ void shootArrow(Entity shooter, vec3 targetPos)
     const float MAX_ARROW_VELOCITY = 10;
 
     Motion& motion = registry.motions.get(shooter);
-    Hitbox& hitbox = registry.hitboxes.get(shooter);
 
     // Get start position of the arrow
     vec2 horizontal_direction = normalize(vec2(targetPos) - vec2(motion.position));
@@ -41,21 +40,21 @@ void shootArrow(Entity shooter, vec3 targetPos)
     vec3 pos = motion.position;
     if (abs(horizontal_direction.x) > abs(horizontal_direction.y)) {
         if (horizontal_direction.x > 0) {
-            pos.x += hitbox.dimension.x / 2 + maxArrowDimension;
+            pos.x += motion.hitbox.x / 2 + maxArrowDimension;
         }
         else if (horizontal_direction.x < 0) {
-            pos.x -= hitbox.dimension.x / 2 + maxArrowDimension;
+            pos.x -= motion.hitbox.x / 2 + maxArrowDimension;
         }
     }
     else {
         if (horizontal_direction.y > 0) {
-            pos.y += hitbox.dimension.y / 2 + maxArrowDimension;
+            pos.y += motion.hitbox.y / 2 + maxArrowDimension;
         }
         else if (horizontal_direction.x < 0) {
-            pos.y -= hitbox.dimension.y / 2 + maxArrowDimension;
+            pos.y -= motion.hitbox.y / 2 + maxArrowDimension;
         }
     }
-    pos.z += hitbox.dimension.z / 2 + maxArrowDimension;
+    pos.z += motion.hitbox.z / 2 + maxArrowDimension;
     horizontal_direction = normalize(vec2(targetPos) - vec2(pos));
 
     // Get distances from start to target

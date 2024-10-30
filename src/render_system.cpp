@@ -123,16 +123,12 @@ bool renderComparison(Entity a, Entity b)
 	float positionA = 0;
 	float positionB = 0;
 	if (registry.motions.has(a)) {
-		positionA += registry.motions.get(a).position.y;
+		Motion& motion = registry.motions.get(a);
+		positionA += motion.position.y;
 	}
 	if (registry.motions.has(b)) {
-		positionB += registry.motions.get(b).position.y;
-	}
-	if (registry.hitboxes.has(a)) {
-		positionA += registry.hitboxes.get(a).dimension.y / 2;
-	}
-	if (registry.hitboxes.has(b)) {
-		positionB += registry.hitboxes.get(b).dimension.y / 2;
+		Motion& motion = registry.motions.get(b);
+		positionB += motion.position.y;
 	}
 
 	return positionA < positionB;
@@ -318,12 +314,12 @@ mat3 RenderSystem::createProjectionMatrix()
 
 float getVisualYPosition(float y, float z) 
 {
-	return y / sqrt(2) - z / sqrt(2);
+	return y * yConversionFactor - z * zConversionFactor;
 }
 
 float getWorldYPosition(float y)
 {
-	return y * sqrt(2);
+	return y / yConversionFactor;
 }
 
 vec2 getVisualPosition(vec3 pos) 

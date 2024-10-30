@@ -20,7 +20,6 @@ public:
 	ComponentContainer<Collision> collisions;
 	ComponentContainer<Cooldown> cooldowns;
 	ComponentContainer<Collectible> collectibles;
-	ComponentContainer<Hitbox> hitboxes;
 	ComponentContainer<Trap> traps;
 	ComponentContainer<Damaged> damageds;
 	ComponentContainer<Damaging> damagings;
@@ -54,7 +53,6 @@ public:
 		registry_list.push_back(&collisions);
 		registry_list.push_back(&cooldowns);
 		registry_list.push_back(&collectibles);
-		registry_list.push_back(&hitboxes);
 		registry_list.push_back(&traps);
 		registry_list.push_back(&damageds);
 		registry_list.push_back(&damagings);

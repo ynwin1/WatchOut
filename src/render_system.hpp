@@ -91,3 +91,5 @@ bool loadEffectFromFile(
 float getVisualYPosition(float y, float z);
 float getWorldYPosition(float y);
 vec2 getVisualPosition(vec3 pos);
+static const float yConversionFactor = 1 / sqrt(2);
+static const float zConversionFactor = 1 / sqrt(2);

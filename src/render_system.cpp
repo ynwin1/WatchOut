@@ -405,7 +405,7 @@ void RenderSystem::update_staminabars() {
 		Motion& motion = registry.motions.get(entity);
 		Motion& staminaBarMotion = registry.motions.get(staminabar.meshEntity);
 		staminaBarMotion.scale.x = staminabar.width * stamina.stamina/100.f;
-		float topOffset = 35;
+		float topOffset = 40;
 		staminaBarMotion.position.x = motion.position.x;
         staminaBarMotion.position.y = motion.position.y;
 		staminaBarMotion.position.z = motion.position.z + visualToWorldY(motion.scale.y) / 2 + topOffset;

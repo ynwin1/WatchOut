@@ -147,7 +147,7 @@ Entity createHeart(vec2 pos)
 	fixed.position = vec3(pos, getElevation(pos) + HEART_BB_WIDTH / 2);
 	fixed.angle = 0.f;
 	fixed.scale = { HEART_BB_WIDTH, HEART_BB_WIDTH };
-	fixed.hitbox = { HEART_BB_WIDTH, HEART_BB_WIDTH, HEART_BB_WIDTH };
+	fixed.hitbox = { HEART_BB_WIDTH, HEART_BB_WIDTH, HEART_BB_HEIGHT / zConversionFactor };
 
 	registry.collectibles.emplace(entity);
 
@@ -252,11 +252,9 @@ Entity createArrow(vec3 pos, vec3 velocity)
 	motion.scale = { ARROW_BB_WIDTH, ARROW_BB_HEIGHT };
 	motion.hitbox = { ARROW_BB_WIDTH, ARROW_BB_HEIGHT, ARROW_BB_HEIGHT / zConversionFactor };
 	
-	// TODO: set angle based on velocity
-	// TODO: calculate collision using rotated bounding box
-
 	registry.projectiles.emplace(entity);
-	registry.damagings.emplace(entity);
+	Damaging& damaging = registry.damagings.emplace(entity);
+	damaging.damage = 50;
 	registry.midgrounds.emplace(entity);
 
 	registry.renderRequests.insert(

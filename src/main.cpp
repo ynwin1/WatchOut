@@ -6,6 +6,7 @@
 // stlib
 #include <chrono>
 #include <common.hpp>
+#include <random>
 
 // internal
 #include <world_system.hpp>
@@ -17,11 +18,13 @@ using Clock = std::chrono::high_resolution_clock;
 // Entry point
 int main()
 {
+	std::default_random_engine rng = std::default_random_engine(std::random_device()());
+
 	// Global Systems
-	WorldSystem world;
+	WorldSystem world = WorldSystem(rng);
 	RenderSystem renderer;
 	PhysicsSystem physics;
-	AISystem ai;
+	AISystem ai = AISystem(rng);
 	Camera camera;
 
 	// Initializing window

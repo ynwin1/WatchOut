@@ -7,7 +7,7 @@
 #include <iomanip> 
 #include <sstream>
 
-WorldSystem::WorldSystem() :
+WorldSystem::WorldSystem(std::default_random_engine& rng) :
     spawn_functions({
         {"boar", createBoar},
         {"barbarian", createBarbarian},
@@ -30,8 +30,7 @@ WorldSystem::WorldSystem() :
 		{"collectible_trap", 1}
         })
 {
-    // Seeding rng with random device
-    rng = std::default_random_engine(std::random_device()());
+    this->rng = rng;
 }
 
 void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics)
@@ -390,19 +389,19 @@ void WorldSystem::spawn(float elapsed_ms)
 vec2 WorldSystem::get_spawn_location(const std::string& entity_type)
 {
     int side = (int)(uniform_dist(rng) * 4);
-    float loc = uniform_dist(rng);
     vec2 size = entity_sizes.at(entity_type);
     vec2 spawn_location{};
 
     // spawn heart
 	if (entity_type == "heart" || entity_type == "collectible_trap") {
 		// spawn at random location on the map
-		spawn_location.x = loc * (world_size_x - (size.x + 10.0f) / 2.f);
-		spawn_location.y = loc * (world_size_y - (size.y + 10.0f) / 2.f);
+		spawn_location.x = uniform_dist(rng) * (world_size_x - (size.x + 10.0f) / 2.f);
+		spawn_location.y = uniform_dist(rng) * (world_size_y - (size.y + 10.0f) / 2.f);
     }
     else 
 	// spawn enemies
     {
+        float loc = uniform_dist(rng);
         if (side == 0) {
             // Spawn north
             spawn_location.x = size.x / 2.f + (world_size_x - size.x / 2.f) * loc;

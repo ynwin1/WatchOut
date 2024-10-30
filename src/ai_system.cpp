@@ -2,7 +2,13 @@
 #include "world_init.hpp"
 #include "physics_system.hpp"
 
-void moveTowardsPlayer(Entity enemy, vec3 playerPosition)
+
+AISystem::AISystem(std::default_random_engine& rng)
+{
+    this->rng = rng;
+}
+
+void AISystem::moveTowardsPlayer(Entity enemy, vec3 playerPosition)
 {
     Motion& enemyMotion = registry.motions.get(enemy);
     vec2 direction = normalize(playerPosition - enemyMotion.position);
@@ -10,7 +16,7 @@ void moveTowardsPlayer(Entity enemy, vec3 playerPosition)
     enemyMotion.velocity = vec3(direction * speed, enemyMotion.velocity.z);
 }
 
-void boarBehaviour(Entity boar, vec3 playerPosition)
+void AISystem::boarBehaviour(Entity boar, vec3 playerPosition)
 {
     if (registry.deathTimers.has(boar)) {
         return;
@@ -18,7 +24,7 @@ void boarBehaviour(Entity boar, vec3 playerPosition)
     moveTowardsPlayer(boar, playerPosition);
 }
 
-void barbarianBehaviour(Entity barbarian, vec3 playerPosition)
+void AISystem::barbarianBehaviour(Entity barbarian, vec3 playerPosition)
 {
     if (registry.deathTimers.has(barbarian)) {
         return;
@@ -26,7 +32,7 @@ void barbarianBehaviour(Entity barbarian, vec3 playerPosition)
     moveTowardsPlayer(barbarian, playerPosition);
 }
 
-void shootArrow(Entity shooter, vec3 targetPos)
+void AISystem::shootArrow(Entity shooter, vec3 targetPos)
 {
     // Always shoot arrow at 45 degree angle (makes calculations simpler)
     const float ARROW_ANGLE = M_PI / 4;
@@ -60,19 +66,28 @@ void shootArrow(Entity shooter, vec3 targetPos)
     // Get distances from start to target
     float horizontal_distance = distance(vec2(pos), vec2(targetPos));
     float vertical_distance = targetPos.z - pos.z;
-    
-    if (vertical_distance >= horizontal_distance) 
+
+    // Prevent trying to shoot above what is possible
+    if (vertical_distance >= horizontal_distance)
         return;
 
     float velocity = horizontal_distance * sqrt(-GRAVITATIONAL_CONSTANT / (vertical_distance - horizontal_distance));
+
+    // Prevent shooting at crazy speeds
     if (velocity > MAX_ARROW_VELOCITY)
         return;
+
+    // Introduce some randomness in the velocity 
+    float random_factor = 1 + (0.5 - uniform_dist(rng)) / 20; // 0.975-1.025
+    velocity *= random_factor;
+
+    // Determine velocities for each dimension
     vec2 horizontal_velocity = velocity * cos(ARROW_ANGLE) * horizontal_direction;
     float vertical_velocity = velocity * sin(ARROW_ANGLE);
     createArrow(pos, vec3(horizontal_velocity, vertical_velocity));
 }
 
-void archerBehaviour(Entity entity, vec3 playerPosition, float elapsed_ms)
+void AISystem::archerBehaviour(Entity entity, vec3 playerPosition, float elapsed_ms)
 {
     const float ARCHER_RANGE = 600;
     const float DISENGAGE_RANGE = 800;

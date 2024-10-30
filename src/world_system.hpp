@@ -13,7 +13,7 @@
 class WorldSystem
 {
 public:
-	WorldSystem();
+	WorldSystem(std::default_random_engine& rng);
 
 	// starts the game
 	void init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics);

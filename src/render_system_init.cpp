@@ -155,7 +155,7 @@ void RenderSystem::initializeGlMeshes()
 			meshes[(int)geom_index].vertex_indices,
 			meshes[(int)geom_index].original_size);
 
-		if (geom_index == GEOMETRY_BUFFER_ID::SALMON) {
+		if (geom_index == GEOMETRY_BUFFER_ID::TREE) {
 			for (auto& vertex : meshes[(int)geom_index].vertices) {
 				vertex.position.y *= -1;
 			}

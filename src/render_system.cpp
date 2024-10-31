@@ -153,7 +153,7 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection)
 		glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(UntexturedVertex), (void*)0);
 		gl_has_errors();
 	}
-	else if (render_request.used_effect == EFFECT_ASSET_ID::SALMON) {
+	else if (render_request.used_effect == EFFECT_ASSET_ID::TREE) {
 			GLint in_color_loc = glGetAttribLocation(program, "in_color");
 			GLint in_position_loc = glGetAttribLocation(program, "in_position");
 			gl_has_errors();

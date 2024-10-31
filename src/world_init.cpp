@@ -249,7 +249,7 @@ Entity createTree(RenderSystem* renderer, vec2 pos)
 	auto entity = Entity();
 
 	// Store a reference to the potentially re-used mesh object
-	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SALMON);
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::TREE);
 	registry.meshPtrs.emplace(entity, &mesh);
 
 	// Setting initial motion values
@@ -271,8 +271,8 @@ Entity createTree(RenderSystem* renderer, vec2 pos)
 		registry.renderRequests.insert(
 			entity, {
 				TEXTURE_ASSET_ID::TREE,
-				EFFECT_ASSET_ID::SALMON,
-				GEOMETRY_BUFFER_ID::SALMON });
+				EFFECT_ASSET_ID::TREE,
+				GEOMETRY_BUFFER_ID::TREE });
 	}
 
 	registry.obstacles.emplace(entity);

@@ -23,11 +23,11 @@ WorldSystem::WorldSystem(std::default_random_engine& rng) :
 		{"collectible_trap", 6000}
         }),
     max_entities({
-        {"boar", 2},
-        {"barbarian", 2},
-        {"archer", 1},
-		    {"heart", 1},
-		    {"collectible_trap", 1}
+        {"boar", 0},
+        {"barbarian", 0},
+        {"archer", 0},
+		{"heart", 1},
+		{"collectible_trap", 1}
         })
 {
     this->rng = rng;

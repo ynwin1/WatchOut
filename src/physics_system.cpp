@@ -175,8 +175,13 @@ bool PhysicsSystem::meshCollides(Entity& mesh_entity, Entity& other_entity) {
 	float halfWidth = other_motion.hitbox.x / 2;
 	float halfDepth = other_motion.hitbox.y / 2;
 	float halfHeight = other_motion.hitbox.z / 2;
+	vec2 horizontalDirection = normalize(vec2(mesh_motion.position) - vec2(other_motion.position));
 	
-	// TODO: replace this with four points
+	// Initialize with big numbers that will always be overwritten
+	float minHorizontalPos = FLT_MAX;
+	float maxHorizontalPos = -FLT_MAX;
+	float minVerticalPos = FLT_MAX;
+	float maxVerticalPos = -FLT_MAX;
 	for (auto i : { -1, 1 }) {
 		for (auto j : { -1, 1 }) {
 			for (auto k : { -1, 1 }) {
@@ -185,14 +190,28 @@ bool PhysicsSystem::meshCollides(Entity& mesh_entity, Entity& other_entity) {
 				vertex = tranformVertex(vertex, other_motion.position, other_motion.angle, vec3(1));
 
 				// Get vertex along collision axis relative to the mesh
-				float horizontalDistance = distance(vec2(vertex), vec2(mesh_motion.position));
-				float side = vertex.x < mesh_motion.position.x ? -1 : 1;
+				vec2 horizontalVector = vec2(vertex) - vec2(mesh_motion.position);
 				float verticalPos = vertex.z - mesh_motion.position.z;
-				vec2 collisionVertex = { horizontalDistance * side, verticalPos };
-				otherPolygon.push_back(collisionVertex);
+				float horizonalPos = dot(horizontalVector, horizontalDirection);
+				if (horizonalPos < minHorizontalPos) {
+					minHorizontalPos = horizonalPos;
+				}
+				if (horizonalPos > maxHorizontalPos) {
+					maxHorizontalPos = horizonalPos;
+				}
+				if (verticalPos < minVerticalPos) {
+					minVerticalPos = verticalPos;
+				}
+				if (verticalPos > maxVerticalPos) {
+					maxVerticalPos = verticalPos;
+				}
 			}
 		}
 	}
+	otherPolygon.push_back({ minHorizontalPos, minVerticalPos });
+	otherPolygon.push_back({ maxHorizontalPos, minVerticalPos });
+	otherPolygon.push_back({ maxHorizontalPos, maxVerticalPos });
+	otherPolygon.push_back({ minHorizontalPos, maxVerticalPos });
 
 	std::vector<uint16_t>& faces = mesh.vertex_indices;
 	for (int i = 0; i < faces.size(); i += 3) {
@@ -205,13 +224,11 @@ bool PhysicsSystem::meshCollides(Entity& mesh_entity, Entity& other_entity) {
 			vec3 scaling = { mesh_motion.scale.x, 0, mesh_motion.scale.y };
 			vec3 translation = vec3(0);
 			vertex = tranformVertex(vertex, translation, mesh_motion.angle, scaling);
-			v = { vertex.x, vertex.z };
 			meshPolygon.push_back({ vertex.x, vertex.z });
 		}
 
 		// Check if the transformed vertices are within the bounding box
 		if (polygonsCollide(meshPolygon, otherPolygon)) {
-			printf("Mesh collision detected\n");
 			// For debugging
 			if (registry.players.has(other_entity) && !registry.damageds.has(other_entity)) {
 				registry.damageds.emplace(other_entity);

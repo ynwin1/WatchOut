@@ -180,9 +180,7 @@ void WorldSystem::handle_collisions()
 				// Collision between two enemies
 				moving_entities_collision(entity, entity_other, was_damaged);
             }
-        }
-        else if (registry.collectibles.has(entity)) {
-            if (registry.damagings.has(entity_other)) {
+            else if (registry.damagings.has(entity_other)) {
                 entity_damaging_collision(entity, entity_other, was_damaged);
             }
         }

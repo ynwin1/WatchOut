@@ -69,7 +69,7 @@ void PhysicsSystem::checkCollisions()
 			Entity entity_j = motions.entities[j];
 
 			// skip obstacle to obstacle collision
-			if(registry.obstacles.has(entity_j)) continue;
+			if(registry.obstacles.has(entity_i) && registry.obstacles.has(entity_j)) continue;
 
 			if (collides(entity_i, entity_j)) {
 				// Collision detected

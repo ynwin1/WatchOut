@@ -155,6 +155,12 @@ void RenderSystem::initializeGlMeshes()
 			meshes[(int)geom_index].vertex_indices,
 			meshes[(int)geom_index].original_size);
 
+		if (geom_index == GEOMETRY_BUFFER_ID::SALMON) {
+			for (auto& vertex : meshes[(int)geom_index].vertices) {
+				vertex.position.y *= -1;
+			}
+		}
+
 		bindVBOandIBO(geom_index,
 			meshes[(int)geom_index].vertices,
 			meshes[(int)geom_index].vertex_indices);

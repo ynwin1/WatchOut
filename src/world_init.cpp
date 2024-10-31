@@ -413,9 +413,6 @@ Entity createMapTile(vec2 position, vec2 size) {
     MapTile& tile = registry.mapTiles.emplace(entity);
     tile.position = position;
     tile.scale = size;
-	// Motion& motion = registry.motions.emplace(entity);
-	// motion.position = vec3(position.x, position.y, getVisualYPosition(position.y, 0.0f));
-	// motion.scale = size;
 	
     registry.renderRequests.insert(
         entity, 
@@ -464,8 +461,8 @@ Entity createObstacle(vec2 position, vec2 size, TEXTURE_ASSET_ID assetId) {
     Motion& motion = registry.motions.emplace(entity);
     motion.scale = size;
 
-    motion.position = vec3(position.x, position.y, getElevation(position) + motion.scale.y / 2);
-	motion.hitbox = { motion.scale.x, motion.scale.y, motion.scale.y / zConversionFactor };
+    motion.position = vec3(position.x, position.y, getElevation(position) + size.y / 2);
+	motion.hitbox = { size.x, size.y, size.y / zConversionFactor };
 	motion.solid = true;
 
     registry.renderRequests.insert(

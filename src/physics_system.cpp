@@ -64,8 +64,13 @@ void PhysicsSystem::checkCollisions()
 	ComponentContainer<Motion> &motions = registry.motions;
 	for (uint i = 0; i < motions.components.size(); i++) {
 		Entity entity_i = motions.entities[i];
+
 		for (uint j = i + 1; j < motions.components.size(); j++) {
 			Entity entity_j = motions.entities[j];
+
+			// skip obstacle to obstacle collision
+			if(registry.obstacles.has(entity_j)) continue;
+
 			if (collides(entity_i, entity_j)) {
 				// Collision detected
 				collisions.push_back(std::make_pair(entity_i, entity_j));
@@ -73,7 +78,11 @@ void PhysicsSystem::checkCollisions()
 
 				// Push each other
 				if (motions.components[i].solid && motions.components[j].solid) {
-					recoil_entities(entity_i, entity_j);
+					if(registry.obstacles.has(entity_i)) { //obstacle collision
+						handle_obstacle_collision(entity_i, entity_j);
+					} else {
+						recoil_entities(entity_i, entity_j);
+					}
 				}
 			}
 		}
@@ -189,6 +198,31 @@ float calculate_y_overlap(Entity entity1, Entity entity2) {
 
 	// Calculate y overlap
 	return max(0.f, min(bottom1, bottom2) - max(top1, top2));
+}
+
+void PhysicsSystem::handle_obstacle_collision(Entity obstacle, Entity entity) {
+	// Calculate x overlap
+	float x_overlap = calculate_x_overlap(obstacle, entity);
+	// Calculate y overlap
+	float y_overlap = calculate_y_overlap(obstacle, entity);
+
+	Motion& obstacleM = registry.motions.get(obstacle);
+	Motion& entityM = registry.motions.get(entity);
+
+	// Calculate the direction of the collision
+	float x_direction = obstacleM.position.x < entityM.position.x ? 1 : -1;
+	float y_direction = obstacleM.position.y < entityM.position.y ? 1 : -1;
+
+	if (y_overlap < x_overlap) {
+		entityM.position.y += y_direction * y_overlap;
+	}
+	else {
+		entityM.position.x += x_direction * x_overlap;
+	}
+
+	if(registry.dashers.has(entity)) {
+		registry.dashers.get(entity).isDashing = false;
+	}
 }
 
 void PhysicsSystem::recoil_entities(Entity entity1, Entity entity2) {

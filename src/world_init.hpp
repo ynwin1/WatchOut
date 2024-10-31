@@ -33,7 +33,7 @@ const float ROCK_BB_HEIGHT = 35.f * SPRITE_SCALE;
 const float ARROW_BB_WIDTH = 16 * SPRITE_SCALE;
 const float ARROW_BB_HEIGHT = 7 * SPRITE_SCALE;
 
-const float BOAR_SPEED = 0.4;
+const float BOAR_SPEED = 0.3;
 const float BARBARIAN_SPEED = 0.3;
 const float ARCHER_SPEED = 0.2;
 
@@ -84,6 +84,9 @@ void createMapTiles(GLFWwindow* window);
 Entity createMapTile(vec2 position, vec2 scale);
 Entity createObstacle(vec2 position, vec2 scale, TEXTURE_ASSET_ID assetID);
 void createObstacles();
+
+void createCliffs(GLFWwindow* window);
+Entity createCliff(vec2 position, vec2 scale);
 
 void createStaminaBar(Entity characterEntity, vec3 color);
 float getElevation(vec2 xy);

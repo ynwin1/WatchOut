@@ -16,12 +16,65 @@ void AISystem::moveTowardsPlayer(Entity enemy, vec3 playerPosition)
     enemyMotion.velocity = vec3(direction * speed, enemyMotion.velocity.z);
 }
 
-void AISystem::boarBehaviour(Entity boar, vec3 playerPosition)
+void AISystem::boarBehaviour(Entity boar, vec3 playerPosition, float elapsed_ms)
 {
+    const float BOAR_AGGRO_RANGE = 500;
+    const float BOAR_DISENGAGE_RANGE = 700;
+    const float BOAR_DASH_RANGE = 400;
+    const float BOAR_DASH_DURATION = 0.2f;
+    const float BOAR_COOLDOWN_TIME = 2000;
+
     if (registry.deathTimers.has(boar)) {
         return;
     }
-    moveTowardsPlayer(boar, playerPosition);
+
+    Motion& motion = registry.motions.get(boar);
+    Boar& boars = registry.boars.get(boar);
+    Dash& dasher = registry.dashers.get(boar);
+    float distanceToPlayer = distance(motion.position, playerPosition);
+
+    if (boars.cooldownTimer > 0) {
+        boars.cooldownTimer -= elapsed_ms;
+        return; 
+    }
+
+    if (distanceToPlayer < BOAR_AGGRO_RANGE && boars.cooldownTimer <= 0) {
+
+        boars.charging = true;
+    } else if (distanceToPlayer > BOAR_DISENGAGE_RANGE) {
+        boars.charging = false;
+        dasher.isDashing = false;
+    }
+
+    if (boars.charging) {
+        
+        // Initiate dash if within dash range and not already dashing
+        if (distanceToPlayer < BOAR_DASH_RANGE && !dasher.isDashing) {
+            dasher.dashStartPosition = motion.position;
+            dasher.dashTargetPosition = playerPosition; // Lock target at dash start
+            dasher.dashTimer = 0.0f;
+            dasher.isDashing = true;
+        }
+        if (dasher.isDashing) {
+            dasher.dashTimer += elapsed_ms / 1000.0f;
+
+            if (dasher.dashTimer < BOAR_DASH_DURATION) {
+                // Perform linear interpolation for dashing
+                float t = dasher.dashTimer / BOAR_DASH_DURATION;
+                motion.position = vec3(glm::mix(dasher.dashStartPosition, dasher.dashTargetPosition, t), motion.position.z);
+            } else {
+                // Finish dash, reset states, and start cooldown
+                motion.position = vec3(dasher.dashTargetPosition, motion.position.z);
+                dasher.isDashing = false;
+                boars.charging = false;
+                boars.cooldownTimer = BOAR_COOLDOWN_TIME;
+            }
+        } 
+    } else {
+        // Move towards the player if not dashing
+        moveTowardsPlayer(boar, playerPosition);
+    }
+
 }
 
 void AISystem::barbarianBehaviour(Entity barbarian, vec3 playerPosition)
@@ -133,7 +186,7 @@ void AISystem::step(float elapsed_ms)
 
     for (Entity enemy : registry.enemies.entities) {
         if (registry.boars.has(enemy)) {
-            boarBehaviour(enemy, playerPosition);
+            boarBehaviour(enemy, playerPosition, elapsed_ms);
         }
         else if (registry.barbarians.has(enemy)) {
             barbarianBehaviour(enemy, playerPosition);

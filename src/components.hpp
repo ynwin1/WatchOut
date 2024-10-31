@@ -208,7 +208,10 @@ struct Jumper
 };
 
 // Enemy types
-struct Boar {};
+struct Boar {
+	float cooldownTimer = 0;
+	bool charging = false;
+};
 struct Barbarian {};
 struct Archer {
 	float drawArrowTime = 0;

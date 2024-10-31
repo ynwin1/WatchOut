@@ -21,6 +21,13 @@ Entity createBoar(vec2 pos)
 	enemy.speed = BOAR_SPEED;
 
 	registry.boars.emplace(entity);
+	
+	auto& dasher = registry.dashers.emplace(entity);
+	dasher.isDashing = false;
+	dasher.dashStartPosition = { 0, 0 };
+	dasher.dashTargetPosition = { 0, 0 };
+	dasher.dashTimer = 0.0f;
+	dasher.dashDuration = 0.2f;
 
 	// Add Render Request for drawing sprite
 	registry.renderRequests.insert(
@@ -476,6 +483,66 @@ Entity createObstacle(vec2 position, vec2 size, TEXTURE_ASSET_ID assetId) {
 
     return entity;
 }
+
+Entity createCliff(vec2 position, vec2 size) {
+    auto entity = Entity();
+	MapTile& tile = registry.mapTiles.emplace(entity);
+    tile.position = position;
+    tile.scale = size;
+
+    registry.renderRequests.insert(
+        entity, 
+        {
+            TEXTURE_ASSET_ID::CLIFF,
+            EFFECT_ASSET_ID::TEXTURED,
+            GEOMETRY_BUFFER_ID::SPRITE
+        });
+    registry.backgrounds.emplace(entity); 
+    return entity;
+}
+
+void createCliffs(GLFWwindow* window) {
+    int windowWidth;
+    int windowHeight;
+    glfwGetWindowSize(window, &windowWidth, &windowHeight);
+
+    int tilesOnScreenX = 5; 
+    int tilesOnScreenY = 5; 
+    float tileWidth = (rightBound - leftBound) / tilesOnScreenX;
+    float tileHeight = (bottomBound - topBound) / tilesOnScreenY;
+
+    // Define cliff thickness (adjust based on desired thickness)
+    float cliffThickness = 500.0f;
+
+    // Top boundary cliffs
+    for (int col = 0; col <= tilesOnScreenX; col++) {
+        vec2 position = {leftBound + col * tileWidth, topBound - cliffThickness};  // Positioned above the top map row
+        vec2 size = {tileWidth, cliffThickness};
+        createCliff(position, size);
+    }
+
+    // Bottom boundary cliffs
+    for (int col = 0; col <= tilesOnScreenX; col++) {
+        vec2 position = {leftBound + col * tileWidth, bottomBound - cliffThickness};  // Positioned below the bottom map row
+        vec2 size = {tileWidth, -cliffThickness};
+        createCliff(position, size);
+    }
+
+    // Left boundary cliffs
+    for (int row = 0; row <= tilesOnScreenY; row++) {
+        vec2 position = {leftBound - cliffThickness / 2, topBound + row * tileHeight};  // Positioned left of the leftmost map column
+        vec2 size = {cliffThickness, tileHeight};
+        createCliff(position, size);
+    }
+
+    // Right boundary cliffs
+    for (int row = 0; row <= tilesOnScreenY; row++) {
+        vec2 position = {rightBound + cliffThickness / 2, topBound + row * tileHeight};  // Positioned right of the rightmost map column
+        vec2 size = {cliffThickness, tileHeight};
+        createCliff(position, size);
+    }
+}
+
 
 void createMapTiles(GLFWwindow* window) {
     int windowWidth;

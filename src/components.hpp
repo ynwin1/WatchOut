@@ -135,7 +135,6 @@ struct TrapsCounter {
 struct MapTile {
 	vec2 position;
 	vec2 scale;
-	bool hasObstacle;
 };
 
 struct Obstacle {

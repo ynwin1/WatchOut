@@ -81,10 +81,17 @@ void PhysicsSystem::checkCollisions()
 			if (registry.obstacles.has(entity_i) && registry.obstacles.has(entity_j)) continue;
 
 			if (collides(entity_i, entity_j)) {
-				if (registry.meshPtrs.has(entity_i) && meshCollides(entity_i, entity_j) || 
-					registry.meshPtrs.has(entity_j) && meshCollides(entity_j, entity_i)) {
-					collisions.push_back(std::make_pair(entity_i, entity_j));
-					collisions.push_back(std::make_pair(entity_j, entity_i));
+				if (registry.meshPtrs.has(entity_i)) {
+					if (meshCollides(entity_i, entity_j)) {
+						collisions.push_back(std::make_pair(entity_i, entity_j));
+						collisions.push_back(std::make_pair(entity_j, entity_i));
+					}
+				}
+				else if (registry.meshPtrs.has(entity_j)) {
+					if (meshCollides(entity_j, entity_i)) {
+						collisions.push_back(std::make_pair(entity_i, entity_j));
+						collisions.push_back(std::make_pair(entity_j, entity_i));
+					}
 				}
 				else {
 					// Collision detected
@@ -109,16 +116,19 @@ void PhysicsSystem::checkCollisions()
 	}
 }
 
-vec2 tranformVertex(vec2 cvPosition, Motion mesh_motion) 
+static vec3 tranformVertex(vec3 vertex, vec3 translation, float rotation, vec3 scaling)
 {
-	// scale
-	vec2 scaled = cvPosition * mesh_motion.scale;
+	// Scaling
+	vertex *= scaling;
+	
+	// Rotation
+	vertex.x = vertex.x * cos(rotation) - vertex.z * sin(rotation);
+	vertex.z = vertex.x * sin(rotation) + vertex.z * cos(rotation);
 
-	// don't think we need rotate as we aren't rotating anything
+	// Translation
+	vertex += translation;
 
-	// translate
-	vec2 translated = scaled + vec2(mesh_motion.position.x, mesh_motion.position.y);
-	return translated;
+	return vertex;
 }
 
 bool polygonsCollide(std::vector<vec2> polygon1, std::vector<vec2> polygon2) {
@@ -158,42 +168,57 @@ bool polygonsCollide(std::vector<vec2> polygon1, std::vector<vec2> polygon2) {
 
 bool PhysicsSystem::meshCollides(Entity& mesh_entity, Entity& other_entity) {
 	Mesh& mesh = *(registry.meshPtrs.get(mesh_entity));
-	
-	// Bounding box
+	Motion& mesh_motion = registry.motions.get(mesh_entity);
 	Motion& other_motion = registry.motions.get(other_entity);
-	vec2 boundingBox = { abs(other_motion.scale.x) / 2, abs(other_motion.scale.y) / 2 };
-
 	// Polygon vertices
 	std::vector<vec2> otherPolygon;
-	otherPolygon.push_back(vec2(other_motion.position.x - boundingBox.x, other_motion.position.y - boundingBox.y));
-	otherPolygon.push_back(vec2(other_motion.position.x + boundingBox.x, other_motion.position.y - boundingBox.y));
-	otherPolygon.push_back(vec2(other_motion.position.x + boundingBox.x, other_motion.position.y + boundingBox.y));
-	otherPolygon.push_back(vec2(other_motion.position.x - boundingBox.x, other_motion.position.y + boundingBox.y));
+	float halfWidth = other_motion.hitbox.x / 2;
+	float halfDepth = other_motion.hitbox.y / 2;
+	float halfHeight = other_motion.hitbox.z / 2;
+	
+	// TODO: replace this with four points
+	for (auto i : { -1, 1 }) {
+		for (auto j : { -1, 1 }) {
+			for (auto k : { -1, 1 }) {
+				// Get vertex in world space
+				vec3 vertex = vec3(halfWidth * i, halfDepth * j, halfHeight * k);
+				vertex = tranformVertex(vertex, other_motion.position, other_motion.angle, vec3(1));
 
-	// Mesh motion
-	Motion& mesh_motion = registry.motions.get(mesh_entity);
+				// Get vertex along collision axis relative to the mesh
+				float horizontalDistance = distance(vec2(vertex), vec2(mesh_motion.position));
+				float side = vertex.x < mesh_motion.position.x ? -1 : 1;
+				float verticalPos = vertex.z - mesh_motion.position.z;
+				vec2 collisionVertex = { horizontalDistance * side, verticalPos };
+				otherPolygon.push_back(collisionVertex);
+			}
+		}
+	}
 
-	std::vector<uint16_t> faces = mesh.vertex_indices;
+	std::vector<uint16_t>& faces = mesh.vertex_indices;
 	for (int i = 0; i < faces.size(); i += 3) {
-		// Get the vertices of the face
-		ColoredVertex v1 = mesh.vertices[faces[i]];
-		ColoredVertex v2 = mesh.vertices[faces[i + 1]];
-		ColoredVertex v3 = mesh.vertices[faces[i + 2]];
-
-		// Transform the vertices
-		vec2 v1Position = tranformVertex(v1.position, mesh_motion);
-		vec2 v2Position = tranformVertex(v2.position, mesh_motion);
-		vec2 v3Position = tranformVertex(v3.position, mesh_motion);
-
-		// Mesh Polygon
 		std::vector<vec2> meshPolygon;
-		meshPolygon.push_back(v1Position);
-		meshPolygon.push_back(v2Position);
-		meshPolygon.push_back(v3Position);
+
+		// Get the vertices of the face
+		for (int j = 0; j < 3; j++) {
+			vec2 v = mesh.vertices[faces[i + j]].position;
+			vec3 vertex = { v.x, 0, -v.y };
+			vec3 scaling = { mesh_motion.scale.x, 0, mesh_motion.scale.y };
+			vec3 translation = vec3(0);
+			vertex = tranformVertex(vertex, translation, mesh_motion.angle, scaling);
+			v = { vertex.x, vertex.z };
+			meshPolygon.push_back({ vertex.x, vertex.z });
+		}
 
 		// Check if the transformed vertices are within the bounding box
 		if (polygonsCollide(meshPolygon, otherPolygon)) {
 			printf("Mesh collision detected\n");
+			// For debugging
+			if (registry.players.has(other_entity) && !registry.damageds.has(other_entity)) {
+				registry.damageds.emplace(other_entity);
+				registry.colours.insert(other_entity, vec3(1, 0, 0));
+			}
+			other_motion.velocity.z = 0;
+			other_motion.position.z -= 1;
 			return true;
 		}
 	}

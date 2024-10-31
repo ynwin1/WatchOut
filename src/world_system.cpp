@@ -61,7 +61,7 @@ void WorldSystem::restart_game()
 {
     registry.clear_all_components();
     createMapTiles(window);
-    createObstacles();
+    //createObstacles();
     entity_types = {
         "barbarian",
         "boar",

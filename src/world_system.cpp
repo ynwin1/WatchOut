@@ -126,7 +126,6 @@ bool WorldSystem::step(float elapsed_ms)
     trackFPS(elapsed_ms);
     updateGameTimer(elapsed_ms);
     updateTrapsCounterText();
-    updateEntityFacing();
 
     if (camera->isToggled()) {
         Motion& playerMotion = registry.motions.get(playerEntity);
@@ -661,28 +660,6 @@ void WorldSystem::handle_stamina(float elapsed_ms) {
             dash_comp.isDashing = false;
             player_comp.isRolling = false;
             
-        }
-    }
-}
-
-void WorldSystem:: updateEntityFacing(){
-    auto& motions_registry = registry.motions;
-	for (int i = (int)motions_registry.components.size()-1; i>=0; --i) {
-	    Motion& motion = motions_registry.components[i];
-        Entity entity_i = motions_registry.entities[i];
-        if(registry.boars.has(entity_i)){
-            if (motion.velocity.x < 0) {
-                motion.scale.x = abs(motion.scale.x); 
-            } else if (motion.velocity.x > 0) {
-                    motion.scale.x = -1.0f * abs(motion.scale.x);
-            }
-
-        } else{
-            if (motion.velocity.x > 0) {
-                motion.scale.x = abs(motion.scale.x); 
-            } else if (motion.velocity.x < 0) {
-                    motion.scale.x = -1.0f * abs(motion.scale.x);
-            }
         }
     }
 }

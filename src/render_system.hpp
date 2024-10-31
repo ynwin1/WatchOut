@@ -94,6 +94,8 @@ private:
 
 	void initMapTileBuffer();
 
+	void updateEntityFacing();
+
 	// Window handle
 	GLFWwindow* window;
 };

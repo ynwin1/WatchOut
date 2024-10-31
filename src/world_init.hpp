@@ -30,40 +30,44 @@ const float SHRUB_BB_WIDTH = 30.f * SPRITE_SCALE;
 const float SHRUB_BB_HEIGHT = 33.f * SPRITE_SCALE;
 const float ROCK_BB_WIDTH = 30.f * SPRITE_SCALE;
 const float ROCK_BB_HEIGHT = 35.f * SPRITE_SCALE;
+const float ARROW_BB_WIDTH = 16 * SPRITE_SCALE;
+const float ARROW_BB_HEIGHT = 7 * SPRITE_SCALE;
+
+const float BOAR_SPEED = 0.4;
+const float BARBARIAN_SPEED = 0.3;
+const float ARCHER_SPEED = 0.2;
 
 const std::unordered_map<std::string, vec2> entity_sizes = {
 	{"boar", { BOAR_BB_WIDTH, BOAR_BB_HEIGHT }},
-	{"barbarian", { BARBARIAN_BB_WIDTH, BARBARIAN_BB_HEIGHT }},
-	{"archer", { ARCHER_BB_WIDTH, ARCHER_BB_HEIGHT }},
-	{"heart", { HEART_BB_WIDTH, HEART_BB_HEIGHT }},
-	{"collectible_trap", {TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT}}
+	{"barbarian", { BARBARIAN_BB_WIDTH, BARBARIAN_BB_WIDTH }},
+	{"archer", { ARCHER_BB_WIDTH, ARCHER_BB_WIDTH }},
+	{"heart", { HEART_BB_WIDTH, HEART_BB_WIDTH }},
+	{"collectible_trap", {TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_WIDTH}}
 };
 
 // Jeff the Player
-Entity createJeff(RenderSystem* renderer, vec2 position);
+Entity createJeff(vec2 position);
 
 // The boar
-Entity createBoar(RenderSystem* renderer, vec2 pos);
+Entity createBoar(vec2 pos);
 
 // The barbarian
-Entity createBarbarian(RenderSystem* renderer, vec2 pos);
+Entity createBarbarian(vec2 pos);
 
 // The archer
-Entity createArcher(RenderSystem* renderer, vec2 pos);
+Entity createArcher(vec2 pos);
 
 // The collectible trap
-Entity createCollectibleTrap(RenderSystem* renderer, vec2 pos);
+Entity createCollectibleTrap(vec2 pos);
 
 // The collectible heart
-Entity createHeart(RenderSystem* renderer, vec2 pos);
+Entity createHeart(vec2 pos);
 
 // The damage trap
-Entity createDamageTrap(RenderSystem* renderer, vec2 pos);
+Entity createDamageTrap(vec2 pos);
 
-// The health collectable
-Entity createHeart(RenderSystem* renderer, vec2 pos);
-
-void createBattleGround();
+// Arrows fired by the archer
+Entity createArrow(vec3 pos, vec3 velocity);
 
 Entity createFPSText(vec2 windowSize);
 
@@ -72,7 +76,7 @@ Entity createGameTimerText(vec2 windowSize);
 Entity createTrapsCounterText(vec2 windowSize);
 
 // GameOver
-Entity createGameOver(RenderSystem* renderer, vec2 pos);
+Entity createGameOver(vec2 pos);
 
 void createHealthBar(Entity characterEntity, vec3 color);
 

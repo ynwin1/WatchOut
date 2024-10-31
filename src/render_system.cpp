@@ -84,10 +84,7 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection)
 	if (registry.motions.has(entity)) {
 		Motion& motion = registry.motions.get(entity);
 		if (registry.midgrounds.has(entity)) {
-			vec2 visualPos = getVisualPosition(motion.position);
-			if (registry.hitboxes.has(entity)) {
-				visualPos.y += registry.hitboxes.get(entity).dimension.y / 2;
-			}
+			vec2 visualPos = worldToVisual(vec3(motion.position.x, motion.position.y, motion.position.z));
 			transform.translate(visualPos);
 		}
 		else {
@@ -279,6 +276,20 @@ void RenderSystem::step(float elapsed_ms)
 		}
 	}
 
+	for (Entity entity : registry.projectiles.entities) {
+		Motion& motion = registry.motions.get(entity);
+		if (length(motion.velocity) == 0) {
+			Projectile& projectile = registry.projectiles.get(entity);
+			projectile.sticksInGround -= elapsed_ms;
+			if (projectile.sticksInGround <= 0) {
+				registry.remove_all_components_of(entity);
+			}
+			continue;
+		}
+		vec2 direction = normalize(worldToVisual(motion.velocity));
+		motion.angle = atan2(direction.y, direction.x);
+	}
+
 	update_hpbars();
 	update_staminabars();
 }
@@ -310,7 +321,7 @@ void handleHpBarBoundsCheck() {
 		HealthBar& hpbar = hpbars.components[i];
 		Motion& motion = registry.motions.get(hpbar.meshEntity);
 		float halfScaleX = motion.scale.x / 2;
-		float halfScaleY = getWorldYPosition(motion.scale.y) / 2;
+		float halfScaleY = visualToWorldY(motion.scale.y) / 2;
 
 		if(motion.position.x - halfScaleX  < 0) {
 			motion.position.x = halfScaleX;
@@ -319,7 +330,7 @@ void handleHpBarBoundsCheck() {
 		}
 
 		if(motion.position.y - halfScaleY - motion.position.z < 0) {
-			motion.position.y = getWorldYPosition(motion.scale.y);
+			motion.position.y = visualToWorldY(motion.scale.y);
 			motion.position.z = -5;
 		} else if(motion.position.y + halfScaleY > world_size_y) {
 			motion.position.y = world_size_y - halfScaleY;
@@ -333,10 +344,10 @@ void updateHpBarPositionHelper(const std::vector<Entity>& entities) {
         Motion& motion = registry.motions.get(entity);
         Motion& healthBarMotion =  registry.motions.get(healthBar.meshEntity);
          // place above character
-        float topOffset = 0;
+        float topOffset = 25;
 		healthBarMotion.position.x = motion.position.x;
         healthBarMotion.position.y = motion.position.y;
-		healthBarMotion.position.z = motion.position.z + getWorldYPosition(motion.scale.y) / 2 + topOffset;
+		healthBarMotion.position.z = motion.position.z + visualToWorldY(motion.scale.y) / 2 + topOffset;
     }   
 }
 
@@ -373,7 +384,7 @@ void handleStaminaBarBoundsCheck() {
 		StaminaBar& staminabar = staminabars.components[i];
 		Motion& motion = registry.motions.get(staminabar.meshEntity);
 		float halfScaleX = motion.scale.x / 2;
-		float halfScaleY = getWorldYPosition(motion.scale.y) / 2;
+		float halfScaleY = visualToWorldY(motion.scale.y) / 2;
 
 		if(motion.position.x - halfScaleX  < 0) {
 			motion.position.x = halfScaleX;
@@ -398,11 +409,10 @@ void RenderSystem::update_staminabars() {
 		Motion& motion = registry.motions.get(entity);
 		Motion& staminaBarMotion = registry.motions.get(staminabar.meshEntity);
 		staminaBarMotion.scale.x = staminabar.width * stamina.stamina/100.f;
-		float topOffset = 5;
-		float yOffset = 10;
+		float topOffset = 40;
 		staminaBarMotion.position.x = motion.position.x;
-        staminaBarMotion.position.y = motion.position.y - yOffset;
-		staminaBarMotion.position.z = motion.position.z + getWorldYPosition(motion.scale.y) / 2 + topOffset;
+        staminaBarMotion.position.y = motion.position.y;
+		staminaBarMotion.position.z = motion.position.z + visualToWorldY(motion.scale.y) / 2 + topOffset;
 	}
 	handleStaminaBarBoundsCheck();
 }
@@ -426,7 +436,7 @@ mat3 RenderSystem::createProjectionMatrix()
 		top = 0;
 		left = 0;
 		right = world_size_x;
-		bottom = getVisualYPosition(world_size_y, 0);
+		bottom = worldToVisualY(world_size_y, 0);
 	}
 
 	gl_has_errors();
@@ -438,17 +448,17 @@ mat3 RenderSystem::createProjectionMatrix()
 	return { {sx, 0.f, 0.f}, {0.f, sy, 0.f}, {tx, ty, 1.f} };
 }
 
-float getVisualYPosition(float y, float z) 
+float worldToVisualY(float y, float z) 
 {
-	return y / sqrt(2) - z / sqrt(2);
+	return y * yConversionFactor - z * zConversionFactor;
 }
 
-float getWorldYPosition(float y)
+float visualToWorldY(float y)
 {
-	return y * sqrt(2);
+	return y / yConversionFactor;
 }
 
-vec2 getVisualPosition(vec3 pos) 
+vec2 worldToVisual(vec3 pos) 
 {
-	return vec2(pos.x, getVisualYPosition(pos.y, pos.z));
+	return vec2(pos.x, worldToVisualY(pos.y, pos.z));
 }

@@ -270,29 +270,6 @@ Entity createArrow(vec3 pos, vec3 velocity)
 	return entity;
 }
 
-// gameover
-Entity createGameOver(vec2 pos)
-{
-	auto entity = Entity();
-
-	// Setting intial motion values
-	Motion& motion = registry.motions.emplace(entity);
-	motion.position = vec3(pos, 0);
-	motion.angle = 0.f;
-	motion.scale = { GO_BB_WIDTH, GO_BB_HEIGHT };
-
-	registry.renderRequests.insert(
-	entity,
-	{
-		TEXTURE_ASSET_ID::GAMEOVER,
-		EFFECT_ASSET_ID::TEXTURED,
-		GEOMETRY_BUFFER_ID::SPRITE
-	});
-	registry.foregrounds.emplace(entity);
-	
-	return entity;
-};
-
 void createHealthBar(Entity characterEntity, vec3 color) {
 	auto meshEntity = Entity();
 
@@ -356,8 +333,8 @@ Entity createFPSText(vec2 windowSize) {
 	Text& text = registry.texts.emplace(entity);
 	text.value = "00 fps";
 	// text position based on screen coordinates
-	text.position = {windowSize.x - 60.0f, windowSize.y - 20.0f};
-	text.scale = 0.5f;
+	text.position = {windowSize.x - 90.0f, windowSize.y - 40.0f};
+	text.scale = 0.8f;
 
 	registry.renderRequests.insert(
 			entity, 

@@ -31,7 +31,6 @@ class RenderSystem {
 	  textures_path("boar/boar.png"),
 	  textures_path("archer/archer.png"),
 	  textures_path("archer/arrow.png"),
-	  textures_path("game/game_over.png"),
 	  textures_path("collectables/heart.png"),
 	  textures_path("collectables/trapbottle.png"),
 	  textures_path("collectables/trap.png"),

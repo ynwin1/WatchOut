@@ -93,6 +93,11 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection)
 		transform.rotate(motion.angle);
 		transform.scale(motion.scale);
 	}
+	else if(registry.mapTiles.has(entity)) {
+		MapTile& tile = registry.mapTiles.get(entity);
+		transform.translate(tile.position);
+		transform.scale(tile.scale);
+	}
 
 	assert(registry.renderRequests.has(entity));
 	const RenderRequest& render_request = registry.renderRequests.get(entity);
@@ -187,18 +192,17 @@ bool renderComparison(Entity a, Entity b)
 	if (!registry.motions.has(b)) {
 		return true;
 	}
-	float positionA = 0;
-	float positionB = 0;
-	if (registry.motions.has(a)) {
-		Motion& motion = registry.motions.get(a);
-		positionA += motion.position.y;
-	}
-	if (registry.motions.has(b)) {
-		Motion& motion = registry.motions.get(b);
-		positionB += motion.position.y;
+
+	if (registry.motions.has(a) && registry.motions.has(b)) {
+		Motion& motionA = registry.motions.get(a);
+		Motion& motionB = registry.motions.get(b);
+		float halfScaleA = motionA.scale.y / 2;
+		float halfScaleB = motionB.scale.y / 2;
+
+		return motionA.position.y + halfScaleA < motionB.position.y + halfScaleB;
 	}
 
-	return positionA < positionB;
+	return true;
 }
 
 // Render our game world

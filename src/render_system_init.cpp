@@ -181,10 +181,26 @@ void RenderSystem::initializeGlGeometryBuffers()
 	const std::vector<uint16_t> game_space_indices = { 0, 1, 2, 0, 2, 3 };
 	bindVBOandIBO(GEOMETRY_BUFFER_ID::GAME_SPACE, game_space_vertices, game_space_indices);
 
+	initMapTileBuffer();
 	initHealthBarBuffer();
 	initStaminaBarBuffer();
-
+	
 	initText();
+}
+
+void RenderSystem::initMapTileBuffer() {
+	std::vector<TexturedVertex> map_tile_vertices(4);
+	map_tile_vertices[0].position = {0.0f, 0.0f, 0.0f};
+	map_tile_vertices[1].position = {1.f, 0.0f, 0.0f};
+	map_tile_vertices[2].position = {0.0f, 1.0f, 0.0f};
+	map_tile_vertices[3].position = {1.0f, 1.1f, 0.0f };
+	map_tile_vertices[0].texcoord = { 0.f, 0.f };
+	map_tile_vertices[1].texcoord = { 1.f, 0.f };
+	map_tile_vertices[2].texcoord = { 0.f, 1.f };
+	map_tile_vertices[3].texcoord = { 1.f, 1.f };
+
+	const std::vector<uint16_t> map_tile_indices = { 0, 1, 2, 1, 2, 3 };
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::MAP_TILE, map_tile_vertices, map_tile_indices);
 }
 
 void RenderSystem::initHealthBarBuffer() {

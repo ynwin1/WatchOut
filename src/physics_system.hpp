@@ -19,6 +19,7 @@ private:
 	void checkCollisions();
 	void handleBoundsCheck();
 	void recoil_entities(Entity motion1, Entity motion2);
+	void handle_obstacle_collision(Entity entityM, Entity obstacleM);
 };
 
 const float GRAVITATIONAL_CONSTANT = 0.01;

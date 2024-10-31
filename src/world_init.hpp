@@ -26,6 +26,10 @@ const float TRAP_COLLECTABLE_BB_HEIGHT = 17.f * SPRITE_SCALE;
 const float HEART_BB_WIDTH = 17. * SPRITE_SCALE;
 const float HEART_BB_HEIGHT = 15. * SPRITE_SCALE;
 
+const float SHRUB_BB_WIDTH = 30.f * SPRITE_SCALE;
+const float SHRUB_BB_HEIGHT = 33.f * SPRITE_SCALE;
+const float ROCK_BB_WIDTH = 30.f * SPRITE_SCALE;
+const float ROCK_BB_HEIGHT = 35.f * SPRITE_SCALE;
 const float ARROW_BB_WIDTH = 16 * SPRITE_SCALE;
 const float ARROW_BB_HEIGHT = 7 * SPRITE_SCALE;
 
@@ -65,8 +69,6 @@ Entity createDamageTrap(vec2 pos);
 // Arrows fired by the archer
 Entity createArrow(vec3 pos, vec3 velocity);
 
-void createBattleGround();
-
 Entity createFPSText(vec2 windowSize);
 
 Entity createGameTimerText(vec2 windowSize);
@@ -77,6 +79,11 @@ Entity createTrapsCounterText(vec2 windowSize);
 Entity createGameOver(vec2 pos);
 
 void createHealthBar(Entity characterEntity, vec3 color);
+
+void createMapTiles(GLFWwindow* window);
+Entity createMapTile(vec2 position, vec2 scale);
+Entity createObstacle(vec2 position, vec2 scale, TEXTURE_ASSET_ID assetID);
+void createObstacles();
 
 void createStaminaBar(Entity characterEntity, vec3 color);
 float getElevation(vec2 xy);

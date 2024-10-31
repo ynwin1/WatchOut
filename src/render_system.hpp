@@ -31,11 +31,14 @@ class RenderSystem {
 	  textures_path("boar/boar.png"),
 	  textures_path("archer/archer.png"),
 	  textures_path("archer/arrow.png"),
-	  textures_path("battleground/battleground.png"),
 	  textures_path("game/game_over.png"),
 	  textures_path("collectables/heart.png"),
 	  textures_path("collectables/trapbottle.png"),
 	  textures_path("collectables/trap.png"),
+	  textures_path("grass_tile/grass_tile.png"),
+	  textures_path("tree/tree.png"),
+	  textures_path("shrub/shrub.png"),
+	  textures_path("rock/rock.png"),
 	  textures_path("border/cliff.png")};
 
 	std::array<GLuint, effect_count> effects;
@@ -88,6 +91,8 @@ private:
 	void update_hpbars();
 
 	void update_staminabars();
+
+	void initMapTileBuffer();
 
 	// Window handle
 	GLFWwindow* window;

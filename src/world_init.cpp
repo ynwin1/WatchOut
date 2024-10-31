@@ -1,5 +1,6 @@
 #include "world_init.hpp"
 #include "tiny_ecs_registry.hpp"
+#include <random>
 
 // Boar creation
 Entity createBoar(vec2 pos)
@@ -268,19 +269,6 @@ Entity createArrow(vec3 pos, vec3 velocity)
 	return entity;
 }
 
-void createBattleGround() {
-	auto entity = Entity();
-
-	registry.renderRequests.insert(
-		entity,
-		{
-			TEXTURE_ASSET_ID::BATTLEGROUND,
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::GAME_SPACE
-		});
-	registry.backgrounds.emplace(entity);
-}
-
 // gameover
 Entity createGameOver(vec2 pos)
 {
@@ -417,6 +405,97 @@ Entity createTrapsCounterText(vec2 windowSize) {
 		});
 	
 	return entity;
+}
+
+Entity createMapTile(vec2 position, vec2 size) {
+    auto entity = Entity();
+
+    MapTile& tile = registry.mapTiles.emplace(entity);
+    tile.position = position;
+    tile.scale = size;
+	
+    registry.renderRequests.insert(
+        entity, 
+        {
+            TEXTURE_ASSET_ID::GRASS_TILE,
+            EFFECT_ASSET_ID::TEXTURED,
+            GEOMETRY_BUFFER_ID::MAP_TILE
+        });
+    registry.backgrounds.emplace(entity);
+	
+    return entity;
+}
+
+void createObstacles() {
+	std::default_random_engine rng;
+    std::uniform_real_distribution<float> uniform_dist;
+    rng = std::default_random_engine(std::random_device()());
+
+	// int numTrees = 15;
+	// while(numTrees != 0) {
+    // 	float posX = (uniform_dist(rng) * world_size_x);
+	// 	float posY = (uniform_dist(rng) * world_size_y);
+	// 	createObstacle({posX, posY}, {150.f, 250.f}, TEXTURE_ASSET_ID::TREE);
+	// 	numTrees--;
+    // }
+	int numShrubs = 20;
+	while(numShrubs != 0) {
+    	float posX = (uniform_dist(rng) * world_size_x);
+		float posY = (uniform_dist(rng) * world_size_y);
+		createObstacle({posX, posY}, {SHRUB_BB_WIDTH, SHRUB_BB_HEIGHT}, TEXTURE_ASSET_ID::SHRUB);
+		numShrubs--;
+    }
+	int numRocks = 15;
+	while(numRocks != 0) {
+    	float posX = (uniform_dist(rng) * world_size_x);
+		float posY = (uniform_dist(rng) * world_size_y);
+		createObstacle({posX, posY}, {ROCK_BB_WIDTH, ROCK_BB_HEIGHT}, TEXTURE_ASSET_ID::ROCK);
+		numRocks--;
+    }
+}
+
+Entity createObstacle(vec2 position, vec2 size, TEXTURE_ASSET_ID assetId) {
+    auto entity = Entity();
+    registry.obstacles.emplace(entity);
+
+    Motion& motion = registry.motions.emplace(entity);
+    motion.scale = size;
+
+    motion.position = vec3(position.x, position.y, getElevation(position) + size.y / 2);
+	motion.hitbox = { size.x, size.y, size.y / zConversionFactor };
+	motion.solid = true;
+
+    registry.renderRequests.insert(
+        entity, 
+        {
+            assetId,
+            EFFECT_ASSET_ID::TEXTURED,
+            GEOMETRY_BUFFER_ID::SPRITE
+        });
+    registry.midgrounds.emplace(entity);
+
+    return entity;
+}
+
+void createMapTiles(GLFWwindow* window) {
+    int windowWidth;
+    int windowHeight;
+    glfwGetWindowSize(window, &windowWidth, &windowHeight);
+
+    int tilesOnScreenX = 10; 
+    int tilesOnScreenY = 6; 
+    float tileWidth = world_size_x / tilesOnScreenX;
+    float tileHeight = world_size_y / tilesOnScreenY;
+    int numRows = tilesOnScreenY;
+    int numCols = tilesOnScreenX;
+
+    for (int row = 0; row < numRows; row++) { 
+        for (int col = 0; col < numCols; col++) { 
+            vec2 position = {col * tileWidth, row * tileHeight};
+            vec2 size = {tileWidth, tileHeight};
+            createMapTile(position, size);
+        }
+    }
 }
 
 float getElevation(vec2 xy)

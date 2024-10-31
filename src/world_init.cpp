@@ -268,7 +268,7 @@ Entity createSalmon(RenderSystem* renderer, vec2 pos)
 	// Setting initial motion values
 	Motion& motion = registry.motions.emplace(entity);
 	motion.position = vec3(pos, 0);
-	motion.angle = 3.14f;
+	motion.angle = 0.f;
 	motion.scale = mesh.original_size * 150.f;
 
 	// Set up hitbox
@@ -279,8 +279,8 @@ Entity createSalmon(RenderSystem* renderer, vec2 pos)
 	registry.renderRequests.insert(
 		entity, { 
 			TEXTURE_ASSET_ID::MESHTREE,
-			EFFECT_ASSET_ID::SALMON,
-			GEOMETRY_BUFFER_ID::SALMON });
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE });
 
 	registry.midgrounds.emplace(entity);
 

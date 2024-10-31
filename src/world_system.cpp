@@ -81,6 +81,8 @@ void WorldSystem::restart_game()
 }
 
 void WorldSystem::updateGameTimer(float elapsed_ms) {
+    GameTimer& gameTimer = registry.gameTimer;
+
     gameTimer.update(elapsed_ms);
     std::stringstream ss;
     ss << std::setw(2) << std::setfill('0') << gameTimer.hours << ":"
@@ -93,8 +95,8 @@ void WorldSystem::updateGameTimer(float elapsed_ms) {
 
 void WorldSystem::initText() {
     registry.fpsTracker.textEntity = createFPSText(camera->getSize());
-    gameTimer.reset();
-    gameTimer.textEntity = createGameTimerText(camera->getSize());
+    registry.gameTimer.reset();
+    registry.gameTimer.textEntity = createGameTimerText(camera->getSize());
     trapsCounter.reset();
     trapsCounter.textEntity = createTrapsCounterText(camera->getSize());
 }
@@ -136,9 +138,7 @@ bool WorldSystem::step(float elapsed_ms)
 
     Player& player = registry.players.get(playerEntity);
     if(player.health == 0) {
-        //CREATE GAMEOVER ENTITY
-        vec2 camera_pos = camera->getPosition();
-        createGameOver(camera_pos);
+        createGameOverText(camera->getSize());
         game_over = true;
     }
 

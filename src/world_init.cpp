@@ -1,6 +1,7 @@
 #include "world_init.hpp"
 #include "tiny_ecs_registry.hpp"
 #include <random>
+#include <sstream>
 
 // Boar creation
 Entity createBoar(vec2 pos)
@@ -496,6 +497,56 @@ void createMapTiles(GLFWwindow* window) {
             createMapTile(position, size);
         }
     }
+}
+
+void createGameOverText(vec2 windowSize) {
+	GameTimer& gameTimer = registry.gameTimer;
+	std::vector<Entity> entities;
+
+	auto entity1 = Entity();
+	Text& text1 = registry.texts.emplace(entity1);
+	text1.value = "Game Over";
+	text1.position = {windowSize.x / 2 - 235.f, windowSize.y / 2 + 50.0f};
+	text1.scale = 3.0f;
+	text1.colour = {0.85f, 0.0f, 0.0f};
+	
+	auto entity2 = Entity();
+	Text& text2 = registry.texts.emplace(entity2);
+	text2.position = {windowSize.x / 2 - 160.f, windowSize.y / 2};
+	text2.scale = 1.0f;
+	text2.colour = {1.0f, 0.85f, 0.0f};
+	std::ostringstream oss;
+    oss << "You survived for ";
+    if (gameTimer.hours > 0) {
+        oss << gameTimer.hours << "h ";
+		text2.position.x -= 20.f;
+    }
+    if (gameTimer.minutes > 0 || gameTimer.hours > 0) {
+        oss << gameTimer.minutes << "m ";
+		text2.position.x -= 40.f;
+    }
+    oss << gameTimer.seconds << "s";
+	text2.value = oss.str();
+
+	auto entity3 = Entity();
+	Text& text3 = registry.texts.emplace(entity3);
+	text3.position = {windowSize.x / 2 - 165.f, windowSize.y / 2 - 80.f};
+	text3.scale = 0.8f;
+	text3.value = "Press ENTER to play again";
+
+	entities.push_back(entity1);
+	entities.push_back(entity2);
+	entities.push_back(entity3);
+	for (Entity& entity : entities) {
+		registry.renderRequests.insert(
+			entity, 
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::FONT,
+			GEOMETRY_BUFFER_ID::TEXT
+		});
+	}
+
 }
 
 float getElevation(vec2 xy)

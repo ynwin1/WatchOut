@@ -41,7 +41,6 @@ private:
 
 	Camera* camera;
 	
-	GameTimer gameTimer;
 	TrapsCounter trapsCounter;
 
 	// Input callback functions

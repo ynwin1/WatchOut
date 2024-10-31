@@ -52,6 +52,8 @@ public:
 	ComponentContainer<Heart> hearts;
 	ComponentContainer<CollectibleTrap> collectibleTraps;
 
+	GameTimer gameTimer;
+
 	//debugging
 	FPSTracker fpsTracker;
 

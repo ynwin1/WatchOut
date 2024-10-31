@@ -80,7 +80,7 @@ Entity createGameOver(vec2 pos);
 
 void createHealthBar(Entity characterEntity, vec3 color);
 
-void createMapTiles(GLFWwindow* window);
+void createMapTiles();
 Entity createMapTile(vec2 position, vec2 scale);
 Entity createObstacle(vec2 position, vec2 scale, TEXTURE_ASSET_ID assetID);
 void createObstacles();

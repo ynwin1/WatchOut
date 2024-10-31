@@ -478,11 +478,7 @@ Entity createObstacle(vec2 position, vec2 size, TEXTURE_ASSET_ID assetId) {
     return entity;
 }
 
-void createMapTiles(GLFWwindow* window) {
-    int windowWidth;
-    int windowHeight;
-    glfwGetWindowSize(window, &windowWidth, &windowHeight);
-
+void createMapTiles() {
     int tilesOnScreenX = 10; 
     int tilesOnScreenY = 6; 
     float tileWidth = world_size_x / tilesOnScreenX;
@@ -505,9 +501,9 @@ void createGameOverText(vec2 windowSize) {
 
 	auto entity1 = Entity();
 	Text& text1 = registry.texts.emplace(entity1);
-	text1.value = "Game Over";
-	text1.position = {windowSize.x / 2 - 235.f, windowSize.y / 2 + 50.0f};
-	text1.scale = 3.0f;
+	text1.value = "GAME OVER";
+	text1.position = {windowSize.x / 2 - 315.0f, windowSize.y / 2 + 50.0f};
+	text1.scale = 4.0f;
 	text1.colour = {0.85f, 0.0f, 0.0f};
 	
 	auto entity2 = Entity();

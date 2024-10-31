@@ -60,7 +60,7 @@ WorldSystem::~WorldSystem() {
 void WorldSystem::restart_game()
 {
     registry.clear_all_components();
-    createMapTiles(window);
+    createMapTiles();
     createObstacles();
     entity_types = {
         "barbarian",
@@ -333,6 +333,19 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     if(action == GLFW_PRESS && key == GLFW_KEY_F) {
         registry.fpsTracker.toggled = !registry.fpsTracker.toggled;
     }
+
+    // toggle fullscreen
+    if(action == GLFW_PRESS && key == GLFW_KEY_V) {
+        isFullScreen = !isFullScreen;
+        GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
+
+        if(isFullScreen) {
+            glfwSetWindowMonitor(window, primaryMonitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+        } else {
+            glfwSetWindowMonitor(window, nullptr, 1, 0, mode->width, mode->height, 0);
+        }
+    } 
 }
 
 void WorldSystem::update_player_facing(Player& player) 

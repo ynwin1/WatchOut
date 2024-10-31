@@ -1,8 +1,9 @@
 #include "world_init.hpp"
 #include "tiny_ecs_registry.hpp"
+#include <random>
 
 // Boar creation
-Entity createBoar(RenderSystem* renderer, vec2 pos)
+Entity createBoar(vec2 pos)
 {
 	auto entity = Entity();
 
@@ -11,14 +12,13 @@ Entity createBoar(RenderSystem* renderer, vec2 pos)
 	motion.position = vec3(pos, getElevation(pos) + BOAR_BB_HEIGHT / 2);
 	motion.angle = 0.f;
 	motion.scale = { BOAR_BB_WIDTH, BOAR_BB_HEIGHT };
-
-	// Setting initial hitbox values
-	Hitbox& hitbox = registry.hitboxes.emplace(entity);
-	hitbox.dimension = { BOAR_BB_WIDTH, BOAR_BB_HEIGHT, BOAR_BB_HEIGHT };
+	motion.hitbox = { BOAR_BB_WIDTH, BOAR_BB_HEIGHT, BOAR_BB_HEIGHT / zConversionFactor };
+	motion.solid = true;
 
 	Enemy& enemy = registry.enemies.emplace(entity);
 	enemy.damage = 20;
 	enemy.cooldown = 1500.f; // 1.5s
+	enemy.speed = BOAR_SPEED;
 
 	registry.boars.emplace(entity);
 
@@ -38,7 +38,7 @@ Entity createBoar(RenderSystem* renderer, vec2 pos)
 };
 
 // Barbarian creation
-Entity createBarbarian(RenderSystem* renderer, vec2 pos)
+Entity createBarbarian(vec2 pos)
 {
 	auto entity = Entity();
 
@@ -47,14 +47,13 @@ Entity createBarbarian(RenderSystem* renderer, vec2 pos)
 	motion.position = vec3(pos, getElevation(pos) + BARBARIAN_BB_HEIGHT / 2);
 	motion.angle = 0.f;
 	motion.scale = { BARBARIAN_BB_WIDTH, BARBARIAN_BB_HEIGHT };
-
-	// Setting initial hitbox values
-	Hitbox& hitbox = registry.hitboxes.emplace(entity);
-	hitbox.dimension = { BARBARIAN_BB_WIDTH, BARBARIAN_BB_WIDTH, BARBARIAN_BB_HEIGHT };
+	motion.hitbox = { BARBARIAN_BB_WIDTH, BARBARIAN_BB_WIDTH, BARBARIAN_BB_HEIGHT / zConversionFactor };
+	motion.solid = true;
 	
 	Enemy& enemy = registry.enemies.emplace(entity);
 	enemy.damage = 30;
 	enemy.cooldown = 2000.f; // 2s
+	enemy.speed = BARBARIAN_SPEED;
 
 	registry.barbarians.emplace(entity);
 
@@ -74,7 +73,7 @@ Entity createBarbarian(RenderSystem* renderer, vec2 pos)
 };
 
 // Archer creation
-Entity createArcher(RenderSystem* renderer, vec2 pos)
+Entity createArcher(vec2 pos)
 {
 	auto entity = Entity();
 
@@ -83,15 +82,14 @@ Entity createArcher(RenderSystem* renderer, vec2 pos)
 	motion.position = vec3(pos, getElevation(pos) + ARCHER_BB_HEIGHT / 2);
 	motion.angle = 0.f;
 	motion.scale = { ARCHER_BB_WIDTH, ARCHER_BB_HEIGHT };
-
-	// Setting initial hitbox values
-	Hitbox& hitbox = registry.hitboxes.emplace(entity);
-	hitbox.dimension = { ARCHER_BB_WIDTH, ARCHER_BB_WIDTH, ARCHER_BB_HEIGHT };
+	motion.hitbox = { ARCHER_BB_WIDTH, ARCHER_BB_WIDTH, ARCHER_BB_HEIGHT / zConversionFactor };
+	motion.solid = true;
 
 	// Add Render Request for drawing sprite
 	Enemy& enemy = registry.enemies.emplace(entity);
 	enemy.damage = 40;
 	enemy.cooldown = 3000.f; // 3s
+	enemy.speed = ARCHER_SPEED;
 
 	registry.archers.emplace(entity);
 
@@ -110,7 +108,7 @@ Entity createArcher(RenderSystem* renderer, vec2 pos)
 };
 
 // Collectible trap creation
-Entity createCollectibleTrap(RenderSystem* renderer, vec2 pos)
+Entity createCollectibleTrap(vec2 pos)
 {
 	auto entity = Entity();
 	registry.collectibleTraps.emplace(entity);
@@ -120,10 +118,7 @@ Entity createCollectibleTrap(RenderSystem* renderer, vec2 pos)
 	motion.position = vec3(pos, getElevation(pos) + TRAP_COLLECTABLE_BB_HEIGHT / 2);
 	motion.angle = 0.f;
 	motion.scale = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT };
-
-	// Setting initial hitbox values
-	Hitbox& hitbox = registry.hitboxes.emplace(entity);
-	hitbox.dimension = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT };
+	motion.hitbox = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT / zConversionFactor };
 
 	registry.collectibles.emplace(entity);
 
@@ -143,7 +138,7 @@ Entity createCollectibleTrap(RenderSystem* renderer, vec2 pos)
 };
 
 // Heart creation
-Entity createHeart(RenderSystem* renderer, vec2 pos)
+Entity createHeart(vec2 pos)
 {
 	auto entity = Entity();
 	registry.hearts.emplace(entity);
@@ -153,10 +148,7 @@ Entity createHeart(RenderSystem* renderer, vec2 pos)
 	fixed.position = vec3(pos, getElevation(pos) + HEART_BB_WIDTH / 2);
 	fixed.angle = 0.f;
 	fixed.scale = { HEART_BB_WIDTH, HEART_BB_WIDTH };
-
-	// Setting initial hitbox values
-	Hitbox& hitbox = registry.hitboxes.emplace(entity);
-	hitbox.dimension = { HEART_BB_WIDTH, HEART_BB_WIDTH, HEART_BB_WIDTH };
+	fixed.hitbox = { HEART_BB_WIDTH, HEART_BB_WIDTH, HEART_BB_HEIGHT / zConversionFactor };
 
 	registry.collectibles.emplace(entity);
 
@@ -174,7 +166,7 @@ Entity createHeart(RenderSystem* renderer, vec2 pos)
 };
 
 // Damage trap creation
-Entity createDamageTrap(RenderSystem* renderer, vec2 pos)
+Entity createDamageTrap(vec2 pos)
 {
 	auto entity = Entity();
 
@@ -183,10 +175,7 @@ Entity createDamageTrap(RenderSystem* renderer, vec2 pos)
 	motion.position = vec3(pos, getElevation(pos) + TRAP_BB_HEIGHT / 2);
 	motion.angle = 0.f;
 	motion.scale = { TRAP_BB_WIDTH, TRAP_BB_HEIGHT };
-
-	// Setting initial hitbox values
-	Hitbox& hitbox = registry.hitboxes.emplace(entity);
-	hitbox.dimension = { TRAP_BB_WIDTH, TRAP_BB_WIDTH, TRAP_BB_HEIGHT };
+	motion.hitbox = { TRAP_BB_WIDTH, TRAP_BB_WIDTH, TRAP_BB_HEIGHT / zConversionFactor };
 
 	// Setting initial trap values
 	registry.traps.emplace(entity);
@@ -205,7 +194,7 @@ Entity createDamageTrap(RenderSystem* renderer, vec2 pos)
 };
 
 // Create Player Jeff
-Entity createJeff(RenderSystem* renderer, vec2 position)
+Entity createJeff(vec2 position)
 {
 	auto entity = Entity();
 
@@ -233,12 +222,9 @@ Entity createJeff(RenderSystem* renderer, vec2 position)
 	auto& jumper = registry.jumpers.emplace(entity);
 	jumper.speed = 2;
 
-	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ JEFF_BB_WIDTH, JEFF_BB_HEIGHT });
-
-	// Setting initial hitbox values
-	Hitbox& hitbox = registry.hitboxes.emplace(entity);
-	hitbox.dimension = { JEFF_BB_WIDTH, JEFF_BB_WIDTH, JEFF_BB_HEIGHT };
+	motion.hitbox = { JEFF_BB_WIDTH, JEFF_BB_WIDTH, JEFF_BB_HEIGHT / zConversionFactor };
+	motion.solid = true;
 
 	// Jeff Render Request
 	registry.renderRequests.insert(
@@ -287,21 +273,33 @@ Entity createSalmon(RenderSystem* renderer, vec2 pos)
 	return entity;
 }
 
-void createBattleGround() {
+Entity createArrow(vec3 pos, vec3 velocity)
+{
 	auto entity = Entity();
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.velocity = velocity;
+	motion.scale = { ARROW_BB_WIDTH, ARROW_BB_HEIGHT };
+	motion.hitbox = { ARROW_BB_WIDTH, ARROW_BB_HEIGHT, ARROW_BB_HEIGHT / zConversionFactor };
+	
+	registry.projectiles.emplace(entity);
+	Damaging& damaging = registry.damagings.emplace(entity);
+	damaging.damage = 50;
+	registry.midgrounds.emplace(entity);
 
 	registry.renderRequests.insert(
 		entity,
 		{
-			TEXTURE_ASSET_ID::BATTLEGROUND,
+			TEXTURE_ASSET_ID::ARROW,
 			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::GAME_SPACE
+			GEOMETRY_BUFFER_ID::SPRITE
 		});
-	registry.backgrounds.emplace(entity);
+
+	return entity;
 }
 
-// Gameover
-Entity createGameOver(RenderSystem* renderer, vec2 pos)
+Entity createGameOver(vec2 pos)
 {
 	auto entity = Entity();
 
@@ -310,10 +308,6 @@ Entity createGameOver(RenderSystem* renderer, vec2 pos)
 	motion.position = vec3(pos, 0);
 	motion.angle = 0.f;
 	motion.scale = { GO_BB_WIDTH, GO_BB_HEIGHT };
-
-	// Setting initial hitbox values
-	Hitbox& hitbox = registry.hitboxes.emplace(entity);
-
 
 	registry.renderRequests.insert(
 	entity,
@@ -441,6 +435,97 @@ Entity createTrapsCounterText(vec2 windowSize) {
 		});
 	
 	return entity;
+}
+
+Entity createMapTile(vec2 position, vec2 size) {
+    auto entity = Entity();
+
+    MapTile& tile = registry.mapTiles.emplace(entity);
+    tile.position = position;
+    tile.scale = size;
+	
+    registry.renderRequests.insert(
+        entity, 
+        {
+            TEXTURE_ASSET_ID::GRASS_TILE,
+            EFFECT_ASSET_ID::TEXTURED,
+            GEOMETRY_BUFFER_ID::MAP_TILE
+        });
+    registry.backgrounds.emplace(entity);
+	
+    return entity;
+}
+
+void createObstacles() {
+	std::default_random_engine rng;
+    std::uniform_real_distribution<float> uniform_dist;
+    rng = std::default_random_engine(std::random_device()());
+
+	// int numTrees = 15;
+	// while(numTrees != 0) {
+    // 	float posX = (uniform_dist(rng) * world_size_x);
+	// 	float posY = (uniform_dist(rng) * world_size_y);
+	// 	createObstacle({posX, posY}, {150.f, 250.f}, TEXTURE_ASSET_ID::TREE);
+	// 	numTrees--;
+    // }
+	int numShrubs = 20;
+	while(numShrubs != 0) {
+    	float posX = (uniform_dist(rng) * world_size_x);
+		float posY = (uniform_dist(rng) * world_size_y);
+		createObstacle({posX, posY}, {SHRUB_BB_WIDTH, SHRUB_BB_HEIGHT}, TEXTURE_ASSET_ID::SHRUB);
+		numShrubs--;
+    }
+	int numRocks = 15;
+	while(numRocks != 0) {
+    	float posX = (uniform_dist(rng) * world_size_x);
+		float posY = (uniform_dist(rng) * world_size_y);
+		createObstacle({posX, posY}, {ROCK_BB_WIDTH, ROCK_BB_HEIGHT}, TEXTURE_ASSET_ID::ROCK);
+		numRocks--;
+    }
+}
+
+Entity createObstacle(vec2 position, vec2 size, TEXTURE_ASSET_ID assetId) {
+    auto entity = Entity();
+    registry.obstacles.emplace(entity);
+
+    Motion& motion = registry.motions.emplace(entity);
+    motion.scale = size;
+
+    motion.position = vec3(position.x, position.y, getElevation(position) + size.y / 2);
+	motion.hitbox = { size.x, size.y, size.y / zConversionFactor };
+	motion.solid = true;
+
+    registry.renderRequests.insert(
+        entity, 
+        {
+            assetId,
+            EFFECT_ASSET_ID::TEXTURED,
+            GEOMETRY_BUFFER_ID::SPRITE
+        });
+    registry.midgrounds.emplace(entity);
+
+    return entity;
+}
+
+void createMapTiles(GLFWwindow* window) {
+    int windowWidth;
+    int windowHeight;
+    glfwGetWindowSize(window, &windowWidth, &windowHeight);
+
+    int tilesOnScreenX = 10; 
+    int tilesOnScreenY = 6; 
+    float tileWidth = world_size_x / tilesOnScreenX;
+    float tileHeight = world_size_y / tilesOnScreenY;
+    int numRows = tilesOnScreenY;
+    int numCols = tilesOnScreenX;
+
+    for (int row = 0; row < numRows; row++) { 
+        for (int col = 0; col < numCols; col++) { 
+            vec2 position = {col * tileWidth, row * tileHeight};
+            vec2 size = {tileWidth, tileHeight};
+            createMapTile(position, size);
+        }
+    }
 }
 
 float getElevation(vec2 xy)

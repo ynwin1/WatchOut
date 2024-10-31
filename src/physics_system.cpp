@@ -5,12 +5,14 @@
 
 bool collides(const Entity& a, const Entity& b)
 {
+	Motion& motionA = registry.motions.get(a);
+	Motion& motionB = registry.motions.get(b);
 	// position represents the center of the entity
-	vec3 a_position = registry.motions.get(a).position;
-	vec3 b_position = registry.motions.get(b).position;
+	vec3 a_position = motionA.position;
+	vec3 b_position = motionB.position;
 	// dimension represents the width and height of entity
-	vec3 a_dimension = registry.hitboxes.get(a).dimension;
-	vec3 b_dimension = registry.hitboxes.get(b).dimension;
+	vec3 a_dimension = motionA.hitbox;
+	vec3 b_dimension = motionB.hitbox;
 
 	// If a's bottom is higher than b's top
 	if (a_position.y > b_position.y + ((b_dimension.y + a_dimension.y) / 2.0f)) {
@@ -42,24 +44,25 @@ bool collides(const Entity& a, const Entity& b)
 	return true;
 }
 
-void handleBoundsCheck() {
+void PhysicsSystem::handleBoundsCheck() {
 	ComponentContainer<Motion> &motion_container = registry.motions;
 
 	for (uint i = 0; i < motion_container.components.size(); i++) {
 		Motion& motion = motion_container.components[i];
-		float halfScaleX = motion.scale.x / 2;
-		float halfScaleY = getWorldYPosition(motion.scale.y) / 2;
+		float halfScaleX = abs(motion.scale.x)/ 2;
 
-		if(motion.position.x - halfScaleX < 0) {
+		if (motion.position.x - halfScaleX < 0) {
 			motion.position.x = halfScaleX;
-		} else if(motion.position.x + halfScaleX > world_size_x) {
+		} 
+		else if (motion.position.x + halfScaleX > world_size_x) {
 			motion.position.x = world_size_x - halfScaleX;
 		}
 
-		if(motion.position.y - halfScaleY < 0) {
-			motion.position.y = halfScaleY;
-		} else if(motion.position.y + halfScaleY > world_size_y) {
-			motion.position.y = world_size_y - halfScaleY;
+		if (motion.position.y < visualToWorldY(motion.scale.y)) {
+			motion.position.y = visualToWorldY(motion.scale.y);
+		} 
+		else if (motion.position.y > world_size_y) {
+			motion.position.y = world_size_y;
 		}
 	}
 }
@@ -67,11 +70,16 @@ void handleBoundsCheck() {
 void PhysicsSystem::checkCollisions() 
 {
 	// Check for collisions between moving entities
-	ComponentContainer<Hitbox> &hitboxes = registry.hitboxes;
-	for (uint i = 0; i < hitboxes.components.size(); i++) {
-		Entity entity_i = hitboxes.entities[i];
-		for (uint j = i + 1; j < hitboxes.components.size(); j++) {
-			Entity entity_j = hitboxes.entities[j];
+	ComponentContainer<Motion> &motions = registry.motions;
+	for (uint i = 0; i < motions.components.size(); i++) {
+		Entity entity_i = motions.entities[i];
+
+		for (uint j = i + 1; j < motions.components.size(); j++) {
+			Entity entity_j = motions.entities[j];
+
+			// skip obstacle to obstacle collision
+			if(registry.obstacles.has(entity_i) && registry.obstacles.has(entity_j)) continue;
+
 			if (collides(entity_i, entity_j)) {
 				if (registry.meshPtrs.has(entity_i) && meshCollides(entity_i, entity_j) || 
 					registry.meshPtrs.has(entity_j) && meshCollides(entity_j, entity_i)) {
@@ -79,13 +87,22 @@ void PhysicsSystem::checkCollisions()
 					collisions.push_back(std::make_pair(entity_j, entity_i));
 				}
 				else {
-					collisions.push_back(std::make_pair(entity_i, entity_j));
-					collisions.push_back(std::make_pair(entity_j, entity_i));
-				}
-			}
-		}
-	}
-}
+					// Collision detected
+				  collisions.push_back(std::make_pair(entity_i, entity_j));
+				  collisions.push_back(std::make_pair(entity_j, entity_i));
+
+				  // Push each other
+				  if (motions.components[i].solid && motions.components[j].solid) {
+					  if (registry.obstacles.has(entity_i)) { //obstacle collision
+						  handle_obstacle_collision(entity_i, entity_j);
+					  } else {
+						  recoil_entities(entity_i, entity_j);
+					  }
+				  }
+			  }
+		  }
+	  }
+ }
 
 vec2 tranformVertex(vec2 cvPosition, Motion mesh_motion) {
 	// scale
@@ -184,7 +201,7 @@ void PhysicsSystem::updatePositions(float elapsed_ms)
 		Motion& motion = registry.motions.get(entity);
 
 		// Z-position of entity when it is on the ground
-		float groundZ = getElevation(vec2(motion.position)) + motion.scale.y / 2;
+		float groundZ = getElevation(vec2(motion.position)) + motion.hitbox.z / 2;
 
 		// Set player velocity
 		if (registry.players.has(entity) && motion.position.z <= groundZ) {
@@ -204,7 +221,6 @@ void PhysicsSystem::updatePositions(float elapsed_ms)
 		motion.position.z += motion.velocity.z * elapsed_ms;
 
 		// Apply gravity
-		const float GRAVITATIONAL_CONSTANT = 0.01;
 		if (motion.position.z > groundZ) {
 			motion.velocity.z -= GRAVITATIONAL_CONSTANT * elapsed_ms;
 		}
@@ -220,6 +236,13 @@ void PhysicsSystem::updatePositions(float elapsed_ms)
 				}
 				else {
 					motion.velocity.z = jumper.speed;
+				}
+			}
+			else if (registry.projectiles.has(entity)) {
+				motion.velocity.x = 0;
+				motion.velocity.y = 0;
+				if (registry.damagings.has(entity)) {
+					registry.damagings.remove(entity);
 				}
 			}
 		}
@@ -245,6 +268,90 @@ void PhysicsSystem::updatePositions(float elapsed_ms)
 				}
 			}
 		}
+	}
+}
+
+float calculate_x_overlap(Entity entity1, Entity entity2) {
+	Motion& motion1 = registry.motions.get(entity1);
+	Motion& motion2 = registry.motions.get(entity2);
+
+	float x1_half_scale = motion1.hitbox.x / 2;
+	float x2_half_scale = motion2.hitbox.x / 2;
+
+	// Determine the edges of the hitboxes for x
+	float left1 = motion1.position.x - x1_half_scale;
+	float right1 = motion1.position.x + x1_half_scale;
+	float left2 = motion2.position.x - x2_half_scale;
+	float right2 = motion2.position.x + x2_half_scale;
+
+	// Calculate x overlap
+	return max(0.f, min(right1, right2) - max(left1, left2));
+}
+
+float calculate_y_overlap(Entity entity1, Entity entity2) {
+	Motion& motion1 = registry.motions.get(entity1);
+	Motion& motion2 = registry.motions.get(entity2);
+
+	float y1_half_scale = motion1.hitbox.y / 2;
+	float y2_half_scale = motion2.hitbox.y / 2;
+
+	// Determine the edges of the hitboxes for y
+	float top1 = motion1.position.y - y1_half_scale;
+	float bottom1 = motion1.position.y + y1_half_scale;
+	float top2 = motion2.position.y - y2_half_scale;
+	float bottom2 = motion2.position.y + y2_half_scale;
+
+	// Calculate y overlap
+	return max(0.f, min(bottom1, bottom2) - max(top1, top2));
+}
+
+void PhysicsSystem::handle_obstacle_collision(Entity obstacle, Entity entity) {
+	// Calculate x overlap
+	float x_overlap = calculate_x_overlap(obstacle, entity);
+	// Calculate y overlap
+	float y_overlap = calculate_y_overlap(obstacle, entity);
+
+	Motion& obstacleM = registry.motions.get(obstacle);
+	Motion& entityM = registry.motions.get(entity);
+
+	// Calculate the direction of the collision
+	float x_direction = obstacleM.position.x < entityM.position.x ? 1 : -1;
+	float y_direction = obstacleM.position.y < entityM.position.y ? 1 : -1;
+
+	if (y_overlap < x_overlap) {
+		entityM.position.y += y_direction * y_overlap;
+	}
+	else {
+		entityM.position.x += x_direction * x_overlap;
+	}
+
+	if(registry.dashers.has(entity)) {
+		registry.dashers.get(entity).isDashing = false;
+	}
+}
+
+void PhysicsSystem::recoil_entities(Entity entity1, Entity entity2) {
+	// Calculate x overlap
+	float x_overlap = calculate_x_overlap(entity1, entity2);
+	// Calculate y overlap
+	float y_overlap = calculate_y_overlap(entity1, entity2);
+
+	Motion& motion1 = registry.motions.get(entity1);
+	Motion& motion2 = registry.motions.get(entity2);
+
+	// Calculate the direction of the collision
+	float x_direction = motion1.position.x < motion2.position.x ? -1 : 1;
+	float y_direction = motion1.position.y < motion2.position.y ? -1 : 1;
+
+	// Apply the recoil (direction * magnitude)
+	const float RECOIL_STRENGTH = 0.25;
+	if (y_overlap < x_overlap) {
+		motion1.position.y += y_direction * y_overlap * RECOIL_STRENGTH;
+		motion2.position.y -= y_direction * y_overlap * RECOIL_STRENGTH;
+	}
+	else {
+		motion1.position.x += x_direction * x_overlap * RECOIL_STRENGTH;
+		motion2.position.x -= x_direction * x_overlap * RECOIL_STRENGTH;
 	}
 }
 

@@ -7,7 +7,7 @@
 #include <iomanip> 
 #include <sstream>
 
-WorldSystem::WorldSystem() :
+WorldSystem::WorldSystem(std::default_random_engine& rng) :
     spawn_functions({
         {"boar", createBoar},
         {"barbarian", createBarbarian},
@@ -18,20 +18,19 @@ WorldSystem::WorldSystem() :
     spawn_delays({
         {"boar", 3000},
         {"barbarian", 8000},
-        {"archer", 10000},
+        {"archer", 5000},
 		{"heart", 15000},
 		{"collectible_trap", 6000}
         }),
     max_entities({
-        {"boar", 0},
-        {"barbarian", 0},
-        {"archer", 0},
-		{"heart", 0},
-		{"collectible_trap", 0}
+        {"boar", 2},
+        {"barbarian", 2},
+        {"archer", 1},
+		    {"heart", 1},
+		    {"collectible_trap", 1}
         })
 {
-    // Seeding rng with random device
-    rng = std::default_random_engine(std::random_device()());
+    this->rng = rng;
 }
 
 void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics)
@@ -61,7 +60,8 @@ WorldSystem::~WorldSystem() {
 void WorldSystem::restart_game()
 {
     registry.clear_all_components();
-    createBattleGround();
+    createMapTiles(window);
+    createObstacles();
     entity_types = {
         "barbarian",
         "boar",
@@ -71,9 +71,10 @@ void WorldSystem::restart_game()
     };
 
     // Create player entity
+
     playerEntity = createJeff(renderer, vec2(world_size_x / 2.f, world_size_y / 2.f));
     createSalmon(renderer, vec2(world_size_x / 2.f + 300.f, world_size_y / 2.f));
-    
+
     game_over = false;
     is_paused = false;
 
@@ -128,10 +129,11 @@ bool WorldSystem::step(float elapsed_ms)
     trackFPS(elapsed_ms);
     updateGameTimer(elapsed_ms);
     updateTrapsCounterText();
+    updateEntityFacing();
 
     if (camera->isToggled()) {
         Motion& playerMotion = registry.motions.get(playerEntity);
-        camera->followPosition(getVisualPosition(playerMotion.position));
+        camera->followPosition(worldToVisual(playerMotion.position));
     }
 
 
@@ -139,11 +141,10 @@ bool WorldSystem::step(float elapsed_ms)
     if(player.health == 0) {
         //CREATE GAMEOVER ENTITY
         vec2 camera_pos = camera->getPosition();
-        createGameOver(renderer, camera_pos);
+        createGameOver(camera_pos);
         game_over = true;
     }
 
-    think();
     return !is_over();
 }
 
@@ -170,6 +171,9 @@ void WorldSystem::handle_collisions()
 				// Collision between player and enemy
 				moving_entities_collision(entity, entity_other, was_damaged);
             }
+            else if (registry.damagings.has(entity_other)) {
+                entity_damaging_collision(entity, entity_other, was_damaged);
+            }
         }
         else if (registry.enemies.has(entity)) {
             if (registry.traps.has(entity_other)) {
@@ -179,7 +183,10 @@ void WorldSystem::handle_collisions()
             else if (registry.enemies.has(entity_other)) {
 				// Collision between two enemies
 				moving_entities_collision(entity, entity_other, was_damaged);
-            }   
+            }
+            else if (registry.damagings.has(entity_other)) {
+                entity_damaging_collision(entity, entity_other, was_damaged);
+            }
         }
     }
 
@@ -378,7 +385,7 @@ void WorldSystem::spawn(float elapsed_ms)
         if (next_spawns.at(entity_type) < 0 && registry.spawnable_lists.at(entity_type)->size() < max_entities.at(entity_type)) {
             vec2 spawnLocation = get_spawn_location(entity_type);
             spawn_func f = spawn_functions.at(entity_type);
-            (*f)(renderer, spawnLocation);
+            (*f)(spawnLocation);
             next_spawns[entity_type] = spawn_delays.at(entity_type);
         }
     }
@@ -387,19 +394,19 @@ void WorldSystem::spawn(float elapsed_ms)
 vec2 WorldSystem::get_spawn_location(const std::string& entity_type)
 {
     int side = (int)(uniform_dist(rng) * 4);
-    float loc = uniform_dist(rng);
     vec2 size = entity_sizes.at(entity_type);
     vec2 spawn_location{};
 
     // spawn heart
 	if (entity_type == "heart" || entity_type == "collectible_trap") {
 		// spawn at random location on the map
-		spawn_location.x = loc * (world_size_x - (size.x + 10.0f) / 2.f);
-		spawn_location.y = loc * (world_size_y - (size.y + 10.0f) / 2.f);
+		spawn_location.x = uniform_dist(rng) * (world_size_x - (size.x + 10.0f) / 2.f);
+		spawn_location.y = uniform_dist(rng) * (world_size_y - (size.y + 10.0f) / 2.f);
     }
     else 
 	// spawn enemies
     {
+        float loc = uniform_dist(rng);
         if (side == 0) {
             // Spawn north
             spawn_location.x = size.x / 2.f + (world_size_x - size.x / 2.f) * loc;
@@ -422,100 +429,6 @@ vec2 WorldSystem::get_spawn_location(const std::string& entity_type)
         }
     }
     return spawn_location;
-}
-
-
-void WorldSystem::think()
-{
-    Motion& playerMotion = registry.motions.get(playerEntity);
-
-    const float BOAR_SPEED = 0.4;
-    for (Entity boar : registry.boars.entities) {
-		if (registry.deathTimers.has(boar)) continue; // Skip dead boars
-        Motion& enemyMotion = registry.motions.get(boar);
-        vec2 direction = normalize(playerMotion.position - enemyMotion.position);
-        enemyMotion.velocity = vec3(direction * BOAR_SPEED, enemyMotion.velocity.z);
-    }
-
-    const float BARBARIAN_SPEED = 0.3;
-    for (Entity enemy : registry.barbarians.entities) {
-		if (registry.deathTimers.has(enemy)) continue; // Skip dead barbarians
-        Motion& enemyMotion = registry.motions.get(enemy);
-        vec2 direction = normalize(playerMotion.position - enemyMotion.position);
-        enemyMotion.velocity = vec3(direction * BARBARIAN_SPEED, enemyMotion.velocity.z);
-    }
-
-    const float ARCHER_SPEED = 0.2;
-    for (Entity archer : registry.archers.entities) {
-		if (registry.deathTimers.has(archer)) continue; // Skip dead archers
-        Motion& enemyMotion = registry.motions.get(archer);
-        vec2 direction = normalize(playerMotion.position - enemyMotion.position);
-        enemyMotion.velocity = vec3(direction * ARCHER_SPEED, enemyMotion.velocity.z);
-    }
-}
-
-void WorldSystem::recoil_entities(Entity entity1, Entity entity2) {
-    // Calculate x overlap
-    float x_overlap = calculate_x_overlap(entity1, entity2);
-	// Calculate y overlap
-	float y_overlap = calculate_y_overlap(entity1, entity2);
-
-    Motion& motion1 = registry.motions.get(entity1);
-    Motion& motion2 = registry.motions.get(entity2);
-
-    // Calculate the direction of the collision
-    float x_direction = motion1.position.x < motion2.position.x ? -1 : 1;
-    float y_direction = motion1.position.y < motion2.position.y ? -1 : 1;
-
-    // Apply the recoil (direction * magnitude)
-    const float RECOIL_STRENGTH = 0.25;
-    if (y_overlap < x_overlap) {
-        motion1.position.y += y_direction * y_overlap * RECOIL_STRENGTH;
-        motion2.position.y -= y_direction * y_overlap * RECOIL_STRENGTH;
-    }
-    else {
-        motion1.position.x += x_direction * x_overlap * RECOIL_STRENGTH;
-        motion2.position.x -= x_direction * x_overlap * RECOIL_STRENGTH;
-    }
-    
-}
-
-float WorldSystem::calculate_x_overlap(Entity entity1, Entity entity2) {
-    Hitbox& hitbox1 = registry.hitboxes.get(entity1);
-    Hitbox& hitbox2 = registry.hitboxes.get(entity2);
-    Motion& motion1 = registry.motions.get(entity1);
-    Motion& motion2 = registry.motions.get(entity2);
-
-	float x1_half_scale = hitbox1.dimension.x / 2;
-	float x2_half_scale = hitbox2.dimension.x / 2;
-
-	// Determine the edges of the hitboxes for x
-	float left1 = motion1.position.x - x1_half_scale;
-	float right1 = motion1.position.x + x1_half_scale;
-	float left2 = motion2.position.x - x2_half_scale;
-	float right2 = motion2.position.x + x2_half_scale;
-
-	// Calculate x overlap
-	return max(0.f, min(right1, right2) - max(left1, left2));
-}
-
-float WorldSystem::calculate_y_overlap(Entity entity1, Entity entity2) {
-    Hitbox& hitbox1 = registry.hitboxes.get(entity1);
-    Hitbox& hitbox2 = registry.hitboxes.get(entity2);
-    Motion& motion1 = registry.motions.get(entity1);
-    Motion& motion2 = registry.motions.get(entity2);
-
-	float y1_half_scale = hitbox1.dimension.y / 2;
-	float y2_half_scale = hitbox2.dimension.y / 2;
-
-	// Determine the edges of the hitboxes for y
-	float top1 = motion1.position.y - y1_half_scale;
-	float bottom1 = motion1.position.y + y1_half_scale;
-	float top2 = motion2.position.y - y2_half_scale;
-	float bottom2 = motion2.position.y + y2_half_scale;
-
-	// Calculate y overlap
-	return max(0.f, min(bottom1, bottom2) - max(top1, top2));
 }
 
 // Collision functions
@@ -578,6 +491,36 @@ void WorldSystem::entity_trap_collision(Entity entity, Entity entity_other, std:
     registry.remove_all_components_of(entity_other);
 }
 
+void WorldSystem::entity_damaging_collision(Entity entity, Entity entity_other, std::vector<Entity>& was_damaged)
+{
+    Damaging& damaging = registry.damagings.get(entity_other);
+
+    if (registry.players.has(entity)) {
+        // reduce player health
+        Player& player = registry.players.get(entity);
+        int new_health = player.health - damaging.damage;
+        player.health = new_health < 0 ? 0 : new_health;
+        was_damaged.push_back(entity);
+        printf("Player health reduced by trap from %d to %d\n", player.health + damaging.damage, player.health);
+        checkAndHandlePlayerDeath(entity);
+    }
+    else if (registry.enemies.has(entity)) {
+        // reduce enemy health
+        Enemy& enemy = registry.enemies.get(entity);
+        int new_health = enemy.health - damaging.damage;
+        enemy.health = new_health < 0 ? 0 : new_health;
+        was_damaged.push_back(entity);
+        printf("Enemy health reduced from %d to %d\n", enemy.health + damaging.damage, enemy.health);
+        checkAndHandleEnemyDeath(entity);
+    }
+    else {
+        printf("Entity is not a player or enemy\n");
+        return;
+    }
+
+    registry.remove_all_components_of(entity_other);
+}
+
 void WorldSystem::moving_entities_collision(Entity entity, Entity entityOther, std::vector<Entity>& was_damaged) {
     if (registry.players.has(entity)) {
         processPlayerEnemyCollision(entity, entityOther, was_damaged);
@@ -588,7 +531,6 @@ void WorldSystem::moving_entities_collision(Entity entity, Entity entityOther, s
 }
 
 void WorldSystem::processPlayerEnemyCollision(Entity player, Entity enemy, std::vector<Entity>& was_damaged) {
-    recoil_entities(player, enemy);
 
     if (!registry.cooldowns.has(enemy)) {
         Player& playerData = registry.players.get(player);
@@ -607,8 +549,6 @@ void WorldSystem::processPlayerEnemyCollision(Entity player, Entity enemy, std::
 }
 
 void WorldSystem::processEnemyEnemyCollision(Entity enemy1, Entity enemy2, std::vector<Entity>& was_damaged) {
-    recoil_entities(enemy1, enemy2);
-
     handleEnemyCollision(enemy1, enemy2, was_damaged);
     handleEnemyCollision(enemy2, enemy1, was_damaged);
 
@@ -676,10 +616,10 @@ void WorldSystem::place_trap(Player& player, Motion& motion, bool forward) {
 	// Place trap based on player direction
     vec2 gap = { 0.0f, 0.0f };
     if (forward) {
-        gap.x = (motion.scale.x / 2 + 70.f);
+        gap.x = (abs(motion.scale.x) / 2 + 70.f);
     }
     else {
-		gap.x = -(motion.scale.x / 2 + 70.f);
+		gap.x = -(abs(motion.scale.x) / 2 + 70.f);
     }
 
     // Cannot place trap beyond the map
@@ -689,7 +629,7 @@ void WorldSystem::place_trap(Player& player, Motion& motion, bool forward) {
 	}
 
     vec2 trapPos = playerPos + gap;
-	createDamageTrap(renderer, trapPos);
+	createDamageTrap(trapPos);
 	trapsCounter.count--;
 	printf("Trap count is now %d\n", trapsCounter.count);
 }
@@ -724,6 +664,28 @@ void WorldSystem::handle_stamina(float elapsed_ms) {
             dash_comp.isDashing = false;
             player_comp.isRolling = false;
             
+        }
+    }
+}
+
+void WorldSystem:: updateEntityFacing(){
+    auto& motions_registry = registry.motions;
+	for (int i = (int)motions_registry.components.size()-1; i>=0; --i) {
+	    Motion& motion = motions_registry.components[i];
+        Entity entity_i = motions_registry.entities[i];
+        if(registry.boars.has(entity_i)){
+            if (motion.velocity.x < 0) {
+                motion.scale.x = abs(motion.scale.x); 
+            } else if (motion.velocity.x > 0) {
+                    motion.scale.x = -1.0f * abs(motion.scale.x);
+            }
+
+        } else{
+            if (motion.velocity.x > 0) {
+                motion.scale.x = abs(motion.scale.x); 
+            } else if (motion.velocity.x < 0) {
+                    motion.scale.x = -1.0f * abs(motion.scale.x);
+            }
         }
     }
 }

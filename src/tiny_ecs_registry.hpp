@@ -21,15 +21,18 @@ public:
 	ComponentContainer<Collision> collisions;
 	ComponentContainer<Cooldown> cooldowns;
 	ComponentContainer<Collectible> collectibles;
-	ComponentContainer<Hitbox> hitboxes;
 	ComponentContainer<Trap> traps;
 	ComponentContainer<Damaged> damageds;
+	ComponentContainer<Damaging> damagings;
 	ComponentContainer<DeathTimer> deathTimers;
 	ComponentContainer<HealthBar> healthBars;
 	ComponentContainer<StaminaBar> staminaBars;
 	ComponentContainer<Stamina> staminas;
 	ComponentContainer<Text> texts;
 	ComponentContainer<Jumper> jumpers;
+  ComponentContainer<MapTile> mapTiles;
+	ComponentContainer<Obstacle> obstacles;
+	ComponentContainer<Projectile> projectiles;
 	ComponentContainer<Mesh*> meshPtrs;
 
 	std::map<char, TextChar> textChars; //for initializing text glyphs from freetype
@@ -62,17 +65,20 @@ public:
 		registry_list.push_back(&collisions);
 		registry_list.push_back(&cooldowns);
 		registry_list.push_back(&collectibles);
-		registry_list.push_back(&hitboxes);
 		registry_list.push_back(&traps);
 		registry_list.push_back(&damageds);
+		registry_list.push_back(&damagings);
 		registry_list.push_back(&deathTimers);
 		registry_list.push_back(&staminas);
+    registry_list.push_back(&mapTiles);
+		registry_list.push_back(&obstacles);
 		registry_list.push_back(&meshPtrs);
 		
 		registry_list.push_back(&healthBars);
 		registry_list.push_back(&staminaBars);
 		registry_list.push_back(&texts);
 		registry_list.push_back(&jumpers);
+		registry_list.push_back(&projectiles);
 
 		registry_list.push_back(&renderRequests);
 		registry_list.push_back(&backgrounds);

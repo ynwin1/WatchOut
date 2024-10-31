@@ -7,7 +7,7 @@ void Camera::setBounds() {
     boundsMin.x = halfWidth;
     boundsMax.x = world_size_x - halfWidth;
     boundsMin.y = halfHeight;
-    boundsMax.y = getVisualYPosition(world_size_y, 0) - halfHeight;
+    boundsMax.y = worldToVisualY(world_size_y, 0) - halfHeight;
 }
 
 void Camera::init(GLFWwindow* window) {

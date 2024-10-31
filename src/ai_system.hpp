@@ -9,14 +9,14 @@ public:
 	void step(float elapsed_ms);
 
 private:
-	void AISystem::moveTowardsPlayer(Entity enemy, vec3 playerPosition);
+	void moveTowardsPlayer(Entity enemy, vec3 playerPosition);
 	
-	void AISystem::boarBehaviour(Entity boar, vec3 playerPosition);
-	void AISystem::barbarianBehaviour(Entity barbarian, vec3 playerPosition);
+	void boarBehaviour(Entity boar, vec3 playerPosition);
+	void barbarianBehaviour(Entity barbarian, vec3 playerPosition);
 
 	// Archer functions
-	void AISystem::archerBehaviour(Entity entity, vec3 playerPosition, float elapsed_ms);
-	void AISystem::shootArrow(Entity shooter, vec3 targetPos);
+	void archerBehaviour(Entity entity, vec3 playerPosition, float elapsed_ms);
+	void shootArrow(Entity shooter, vec3 targetPos);
 
 	// C++ random number generator
 	std::default_random_engine rng;

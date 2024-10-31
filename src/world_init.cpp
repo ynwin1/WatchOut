@@ -243,8 +243,9 @@ Entity createJeff(vec2 position)
 	return entity;
 }
 
-Entity createSalmon(RenderSystem* renderer, vec2 pos)
+Entity createTree(RenderSystem* renderer, vec2 pos)
 {
+	bool RENDERING_MESH = true;
 	auto entity = Entity();
 
 	// Store a reference to the potentially re-used mesh object
@@ -255,19 +256,26 @@ Entity createSalmon(RenderSystem* renderer, vec2 pos)
 	Motion& motion = registry.motions.emplace(entity);
 	motion.position = vec3(pos, 0);
 	motion.angle = 0.f;
-	motion.scale = mesh.original_size * 150.f;
+	motion.scale = { MESHTREE_BB_WIDTH, MESHTREE_BB_HEIGHT };
+	motion.hitbox = { MESHTREE_BB_WIDTH, MESHTREE_BB_WIDTH, MESHTREE_BB_HEIGHT / zConversionFactor };
+	motion.solid = true;
 
-	// Set up hitbox
-	Hitbox& hitbox = registry.hitboxes.emplace(entity);
-	// TODO - adjust z value
-	hitbox.dimension = { motion.scale, MESHTREE_BB_HEIGHT };
+	if (!RENDERING_MESH) {
+		registry.renderRequests.insert(
+			entity, {
+				TEXTURE_ASSET_ID::MESHTREE,
+				EFFECT_ASSET_ID::TEXTURED,
+				GEOMETRY_BUFFER_ID::SPRITE });
+	}
+	else {
+		registry.renderRequests.insert(
+			entity, {
+				TEXTURE_ASSET_ID::TREE,
+				EFFECT_ASSET_ID::SALMON,
+				GEOMETRY_BUFFER_ID::SALMON });
+	}
 
-	registry.renderRequests.insert(
-		entity, { 
-			TEXTURE_ASSET_ID::MESHTREE,
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE });
-
+	registry.obstacles.emplace(entity);
 	registry.midgrounds.emplace(entity);
 
 	return entity;
@@ -492,7 +500,7 @@ Entity createObstacle(vec2 position, vec2 size, TEXTURE_ASSET_ID assetId) {
     motion.scale = size;
 
     motion.position = vec3(position.x, position.y, getElevation(position) + size.y / 2);
-	motion.hitbox = { size.x, size.y, size.y / zConversionFactor };
+	motion.hitbox = { size.x, size.x, size.y / zConversionFactor };
 	motion.solid = true;
 
     registry.renderRequests.insert(

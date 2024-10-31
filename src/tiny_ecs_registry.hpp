@@ -30,7 +30,7 @@ public:
 	ComponentContainer<Stamina> staminas;
 	ComponentContainer<Text> texts;
 	ComponentContainer<Jumper> jumpers;
-  ComponentContainer<MapTile> mapTiles;
+	ComponentContainer<MapTile> mapTiles;
 	ComponentContainer<Obstacle> obstacles;
 	ComponentContainer<Projectile> projectiles;
 	ComponentContainer<Mesh*> meshPtrs;
@@ -70,7 +70,7 @@ public:
 		registry_list.push_back(&damagings);
 		registry_list.push_back(&deathTimers);
 		registry_list.push_back(&staminas);
-    registry_list.push_back(&mapTiles);
+		registry_list.push_back(&mapTiles);
 		registry_list.push_back(&obstacles);
 		registry_list.push_back(&meshPtrs);
 		

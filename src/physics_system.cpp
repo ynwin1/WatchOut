@@ -67,10 +67,10 @@ void PhysicsSystem::handleBoundsCheck() {
 	}
 }
 
-void PhysicsSystem::checkCollisions() 
+void PhysicsSystem::checkCollisions()
 {
 	// Check for collisions between moving entities
-	ComponentContainer<Motion> &motions = registry.motions;
+	ComponentContainer<Motion>& motions = registry.motions;
 	for (uint i = 0; i < motions.components.size(); i++) {
 		Entity entity_i = motions.entities[i];
 
@@ -78,7 +78,7 @@ void PhysicsSystem::checkCollisions()
 			Entity entity_j = motions.entities[j];
 
 			// skip obstacle to obstacle collision
-			if(registry.obstacles.has(entity_i) && registry.obstacles.has(entity_j)) continue;
+			if (registry.obstacles.has(entity_i) && registry.obstacles.has(entity_j)) continue;
 
 			if (collides(entity_i, entity_j)) {
 				if (registry.meshPtrs.has(entity_i) && meshCollides(entity_i, entity_j) || 
@@ -88,23 +88,29 @@ void PhysicsSystem::checkCollisions()
 				}
 				else {
 					// Collision detected
-				  collisions.push_back(std::make_pair(entity_i, entity_j));
-				  collisions.push_back(std::make_pair(entity_j, entity_i));
+					collisions.push_back(std::make_pair(entity_i, entity_j));
+					collisions.push_back(std::make_pair(entity_j, entity_i));
 
-				  // Push each other
-				  if (motions.components[i].solid && motions.components[j].solid) {
-					  if (registry.obstacles.has(entity_i)) { //obstacle collision
-						  handle_obstacle_collision(entity_i, entity_j);
-					  } else {
-						  recoil_entities(entity_i, entity_j);
-					  }
-				  }
-			  }
-		  }
-	  }
- }
+					// Push each other
+					if (motions.components[i].solid && motions.components[j].solid) {
+						if (registry.obstacles.has(entity_i)) { //obstacle collision
+							handle_obstacle_collision(entity_i, entity_j);
+						}
+						else if (registry.obstacles.has(entity_j)) {
+							handle_obstacle_collision(entity_j, entity_i);
+						}
+						else {
+							recoil_entities(entity_i, entity_j);
+						}
+					}
+				}
+			}
+		}
+	}
+}
 
-vec2 tranformVertex(vec2 cvPosition, Motion mesh_motion) {
+vec2 tranformVertex(vec2 cvPosition, Motion mesh_motion) 
+{
 	// scale
 	vec2 scaled = cvPosition * mesh_motion.scale;
 

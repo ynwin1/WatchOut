@@ -256,11 +256,7 @@ Entity createSalmon(RenderSystem* renderer, vec2 pos)
 	motion.position = vec3(pos, 0);
 	motion.angle = 0.f;
 	motion.scale = mesh.original_size * 150.f;
-
-	// Set up hitbox
-	Hitbox& hitbox = registry.hitboxes.emplace(entity);
-	// TODO - adjust z value
-	hitbox.dimension = { motion.scale, MESHTREE_BB_HEIGHT };
+	motion.hitbox = { mesh.original_size.x * 150.f, mesh.original_size.y * 150.f, mesh.original_size.y * 150.f / zConversionFactor };
 
 	registry.renderRequests.insert(
 		entity, { 

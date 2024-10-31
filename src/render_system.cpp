@@ -212,10 +212,8 @@ bool renderComparison(Entity a, Entity b)
 	if (registry.motions.has(a) && registry.motions.has(b)) {
 		Motion& motionA = registry.motions.get(a);
 		Motion& motionB = registry.motions.get(b);
-		float halfScaleA = motionA.scale.y / 2;
-		float halfScaleB = motionB.scale.y / 2;
 
-		return motionA.position.y + halfScaleA < motionB.position.y + halfScaleB;
+		return motionA.position.y < motionB.position.y;
 	}
 
 	return true;

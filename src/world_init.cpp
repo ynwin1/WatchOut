@@ -521,13 +521,6 @@ void createCliffs(GLFWwindow* window) {
         createCliff(position, size);
     }
 
-    // Bottom boundary cliffs
-    for (int col = 0; col <= tilesOnScreenX; col++) {
-        vec2 position = {leftBound + col * tileWidth, bottomBound - cliffThickness};  // Positioned below the bottom map row
-        vec2 size = {tileWidth, -cliffThickness};
-        createCliff(position, size);
-    }
-
     // Left boundary cliffs
     for (int row = 0; row <= tilesOnScreenY; row++) {
         vec2 position = {leftBound - cliffThickness / 2, topBound + row * tileHeight};  // Positioned left of the leftmost map column
@@ -539,6 +532,12 @@ void createCliffs(GLFWwindow* window) {
     for (int row = 0; row <= tilesOnScreenY; row++) {
         vec2 position = {rightBound + cliffThickness / 2, topBound + row * tileHeight};  // Positioned right of the rightmost map column
         vec2 size = {cliffThickness, tileHeight};
+        createCliff(position, size);
+    }
+	// Bottom boundary cliffs
+    for (int col = 0; col <= tilesOnScreenX; col++) {
+        vec2 position = {leftBound + col * tileWidth, bottomBound - cliffThickness};  // Positioned below the bottom map row
+        vec2 size = {tileWidth, cliffThickness};
         createCliff(position, size);
     }
 }

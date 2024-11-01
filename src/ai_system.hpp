@@ -10,6 +10,8 @@ public:
 
 private:
 	void moveTowardsPlayer(Entity enemy, vec3 playerPosition);
+	vec2 chooseDirection(Motion& motion, vec3 playerPosition) const;
+	bool pathClear(Motion& motion, vec3 playerPosition, float howFar, const std::vector<Entity> &obstacles, float& clearDistance) const;
 	
 	void boarBehaviour(Entity boar, vec3 playerPosition);
 	void barbarianBehaviour(Entity barbarian, vec3 playerPosition);

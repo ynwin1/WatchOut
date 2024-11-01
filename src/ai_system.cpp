@@ -11,10 +11,55 @@ AISystem::AISystem(std::default_random_engine& rng)
 void AISystem::moveTowardsPlayer(Entity enemy, vec3 playerPosition)
 {
     Motion& enemyMotion = registry.motions.get(enemy);
-    vec2 direction = normalize(playerPosition - enemyMotion.position);
+    vec2 direction = chooseDirection(enemyMotion, playerPosition);
     float speed = registry.enemies.get(enemy).speed;
     enemyMotion.velocity = vec3(direction * speed, enemyMotion.velocity.z);
 }
+
+vec2 AISystem::chooseDirection(Motion& motion, vec3 playerPosition) const
+{
+    const unsigned int NUMBER_OF_DIRECTIONS = 4;
+    const float OFFSET = 2 * M_PI / NUMBER_OF_DIRECTIONS;
+    const float RADIUS = 300;
+
+    std::vector<Entity>& allObstacles = registry.obstacles.entities;
+    std::vector<Entity> obstacles;
+    // only include obstacles within the range we care about
+    std::copy_if(allObstacles.begin(), allObstacles.end(), std::back_inserter(obstacles), 
+        [&motion, RADIUS](Entity obstacle) {
+            Motion& obstacleMotion = registry.motions.get(obstacle);
+            float d = distance(vec2(obstacleMotion.position), vec2(motion.position));
+            return d < RADIUS;
+        }
+    );
+
+    const vec2 playerDirection = normalize(playerPosition - motion.position);
+    vec2 bestDirection = playerDirection;
+    float bestClearDistance = 0;
+    for (unsigned int i = 0; i < NUMBER_OF_DIRECTIONS; i++) {
+        int side = i % 2 == 0 ? -1 : 1;     // which side to apply offset
+        vec2 direction = rotate(playerDirection, OFFSET * ceil(i / 2.f) * side);
+        float clearDistance;
+        if (pathClear(motion, playerPosition, RADIUS, obstacles, clearDistance)) {
+            return direction;
+        }
+        if (clearDistance > bestClearDistance) {
+            bestDirection = direction;
+            bestClearDistance = bestClearDistance;
+        }
+    }
+
+    return bestDirection;
+}
+
+// Returns whether the path is clear or not
+// If path is not clear, sets clearDistance to the distance along the path that is clear
+bool AISystem::pathClear(Motion& motion, vec3 playerPosition, float howFar, const std::vector<Entity>& obstacles, float& clearDistance) const
+{
+    return true;
+}
+
+
 
 void AISystem::boarBehaviour(Entity boar, vec3 playerPosition)
 {

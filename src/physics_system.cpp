@@ -220,7 +220,7 @@ bool PhysicsSystem::meshCollides(Entity& mesh_entity, Entity& other_entity) {
 		for (int j = 0; j < 3; j++) {
 			vec2 v = mesh.vertices[faces[i + j]].position;
 			vec3 vertex = { v.x, 0, -v.y };
-			vec3 scaling = { mesh_motion.scale.x, 0, mesh_motion.scale.y };
+			vec3 scaling = { mesh_motion.scale.x, 0, mesh_motion.scale.y / zConversionFactor };
 			vec3 translation = vec3(0);
 			vertex = tranformVertex(vertex, translation, mesh_motion.angle, scaling);
 			meshPolygon.push_back({ vertex.x, vertex.z });
@@ -228,13 +228,6 @@ bool PhysicsSystem::meshCollides(Entity& mesh_entity, Entity& other_entity) {
 
 		// Check if the transformed vertices are within the bounding box
 		if (polygonsCollide(meshPolygon, otherPolygon)) {
-			// For debugging
-			if (registry.players.has(other_entity) && !registry.damageds.has(other_entity)) {
-				registry.damageds.emplace(other_entity);
-				registry.colours.insert(other_entity, vec3(1, 0, 0));
-			}
-			other_motion.velocity.z = 0;
-			other_motion.position.z -= 1;
 			return true;
 		}
 	}
@@ -368,6 +361,7 @@ void PhysicsSystem::handle_mesh_collision(Entity mesh, Entity entity) {
 
 	entityMotion.position.x += x_direction * PUSH_BACK;
 	entityMotion.position.y += y_direction * PUSH_BACK;
+	entityMotion.velocity.z = 0;
 }
 
 void PhysicsSystem::handle_obstacle_collision(Entity obstacle, Entity entity) {

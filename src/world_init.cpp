@@ -506,37 +506,36 @@ void createCliffs(GLFWwindow* window) {
     int windowHeight;
     glfwGetWindowSize(window, &windowWidth, &windowHeight);
 
-    int tilesOnScreenX = 5; 
-    int tilesOnScreenY = 5; 
-    float tileWidth = (rightBound - leftBound) / tilesOnScreenX;
-    float tileHeight = (bottomBound - topBound) / tilesOnScreenY;
+    int cliffsOnScreenX = 5; 
+    int cliffsOnScreenY = 5; 
+    float tileWidth = (rightBound - leftBound) / cliffsOnScreenX;
+    float tileHeight = (bottomBound - topBound) / cliffsOnScreenY;
 
-    // Define cliff thickness (adjust based on desired thickness)
     float cliffThickness = 500.0f;
 
     // Top boundary cliffs
-    for (int col = 0; col <= tilesOnScreenX; col++) {
-        vec2 position = {leftBound + col * tileWidth, topBound - cliffThickness};  // Positioned above the top map row
+    for (int col = 0; col <= cliffsOnScreenX; col++) {
+        vec2 position = {leftBound + col * tileWidth, topBound - cliffThickness}; 
         vec2 size = {tileWidth, cliffThickness};
         createCliff(position, size);
     }
 
     // Left boundary cliffs
-    for (int row = 0; row <= tilesOnScreenY; row++) {
-        vec2 position = {leftBound - cliffThickness / 2, topBound + row * tileHeight};  // Positioned left of the leftmost map column
+    for (int row = 0; row <= cliffsOnScreenY; row++) {
+        vec2 position = {leftBound - cliffThickness / 2, topBound + row * tileHeight}; 
         vec2 size = {tileHeight, cliffThickness};
         createCliff(position, size);
     }
 
     // Right boundary cliffs
-    for (int row = 0; row <= tilesOnScreenY; row++) {
-        vec2 position = {rightBound + cliffThickness / 2, topBound + row * tileHeight};  // Positioned right of the rightmost map column
+    for (int row = 0; row <= cliffsOnScreenY; row++) {
+        vec2 position = {rightBound + cliffThickness / 2, topBound + row * tileHeight};
         vec2 size = {tileHeight, cliffThickness};
         createCliff(position, size);
     }
 	// Bottom boundary cliffs
-    for (int col = 0; col <= tilesOnScreenX; col++) {
-        vec2 position = {leftBound + col * tileWidth, bottomBound - cliffThickness};  // Positioned below the bottom map row
+    for (int col = 0; col <= cliffsOnScreenX; col++) {
+        vec2 position = {leftBound + col * tileWidth, bottomBound - cliffThickness};  
         vec2 size = {tileWidth, cliffThickness};
         createCliff(position, size);
     }

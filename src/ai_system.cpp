@@ -51,7 +51,7 @@ void AISystem::boarBehaviour(Entity boar, vec3 playerPosition, float elapsed_ms)
         // Initiate dash if within dash range and not already dashing
         if (distanceToPlayer < BOAR_DASH_RANGE && !dasher.isDashing) {
             dasher.dashStartPosition = motion.position;
-            dasher.dashTargetPosition = playerPosition; // Lock target at dash start
+            dasher.dashTargetPosition = playerPosition;
             dasher.dashTimer = 0.0f;
             dasher.isDashing = true;
         }
@@ -59,11 +59,10 @@ void AISystem::boarBehaviour(Entity boar, vec3 playerPosition, float elapsed_ms)
             dasher.dashTimer += elapsed_ms / 1000.0f;
 
             if (dasher.dashTimer < BOAR_DASH_DURATION) {
-                // Perform linear interpolation for dashing
+                // linear interpolation for dashing
                 float t = dasher.dashTimer / BOAR_DASH_DURATION;
                 motion.position = vec3(glm::mix(dasher.dashStartPosition, dasher.dashTargetPosition, t), motion.position.z);
             } else {
-                // Finish dash, reset states, and start cooldown
                 motion.position = vec3(dasher.dashTargetPosition, motion.position.z);
                 dasher.isDashing = false;
                 boars.charging = false;

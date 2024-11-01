@@ -61,7 +61,7 @@ void WorldSystem::restart_game()
 {
     registry.clear_all_components();
     createMapTiles(window);
-    createMeshTrees(renderer);
+    createTrees(renderer);
     createObstacles();
     entity_types = {
         "barbarian",
@@ -77,6 +77,7 @@ void WorldSystem::restart_game()
 
     game_over = false;
     is_paused = false;
+    show_mesh = false;
 
     initText();
 
@@ -130,6 +131,7 @@ bool WorldSystem::step(float elapsed_ms)
     updateGameTimer(elapsed_ms);
     updateTrapsCounterText();
     updateEntityFacing();
+    toggleMesh();
 
     if (camera->isToggled()) {
         Motion& playerMotion = registry.motions.get(playerEntity);
@@ -336,6 +338,11 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     if(action == GLFW_PRESS && key == GLFW_KEY_F) {
         registry.fpsTracker.toggled = !registry.fpsTracker.toggled;
     }
+
+    // toggle mesh
+	if (action == GLFW_PRESS && key == GLFW_KEY_M) {
+		show_mesh = !show_mesh;
+	}
 }
 
 void WorldSystem::update_player_facing(Player& player) 
@@ -686,6 +693,28 @@ void WorldSystem:: updateEntityFacing(){
             } else if (motion.velocity.x < 0) {
                     motion.scale.x = -1.0f * abs(motion.scale.x);
             }
+        }
+    }
+}
+
+void WorldSystem::toggleMesh() {
+    // remove current meshes (every mesh has a render request)
+    // replace with appropriate textures
+    for (auto& meshEntity : registry.meshPtrs.entities) {
+        registry.renderRequests.remove(meshEntity);
+        if (show_mesh) {
+            registry.renderRequests.insert(
+                meshEntity, {
+                    TEXTURE_ASSET_ID::TREE,
+                    EFFECT_ASSET_ID::TREE,
+                    GEOMETRY_BUFFER_ID::TREE });
+        }
+        else {
+            registry.renderRequests.insert(
+                meshEntity, {
+                    TEXTURE_ASSET_ID::TREE,
+                    EFFECT_ASSET_ID::TEXTURED,
+                    GEOMETRY_BUFFER_ID::SPRITE });
         }
     }
 }

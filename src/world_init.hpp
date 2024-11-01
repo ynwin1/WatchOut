@@ -18,8 +18,8 @@ const float JEFF_BB_WIDTH   = 20.f * SPRITE_SCALE;
 const float JEFF_BB_HEIGHT  = 28.f * SPRITE_SCALE;
 const float GO_BB_WIDTH   = 100.f * SPRITE_SCALE;
 const float GO_BB_HEIGHT  = 68.f * SPRITE_SCALE;
-const float MESHTREE_BB_HEIGHT = 94 * 2 * SPRITE_SCALE;
-const float MESHTREE_BB_WIDTH = 48 * 2 * SPRITE_SCALE;
+const float TREE_BB_HEIGHT = 94 * 2 * SPRITE_SCALE;
+const float TREE_BB_WIDTH = 48 * 2 * SPRITE_SCALE;
 
 const float TRAP_BB_WIDTH = 32.f * SPRITE_SCALE;
 const float TRAP_BB_HEIGHT = 9.f * SPRITE_SCALE;
@@ -91,6 +91,6 @@ void createObstacles();
 
 void createStaminaBar(Entity characterEntity, vec3 color);
 
-void createMeshTrees(RenderSystem* renderer);
+void createTrees(RenderSystem* renderer);
 
 float getElevation(vec2 xy);

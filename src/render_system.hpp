@@ -46,8 +46,7 @@ class RenderSystem {
 		textures_path("tree/tree.png"),
 		textures_path("shrub/shrub.png"),
 		textures_path("rock/rock.png"),
-		textures_path("border/cliff.png"),
-		textures_path("meshTree/meshtree.png")
+		textures_path("border/cliff.png")
 	};
 
 	std::array<GLuint, effect_count> effects;

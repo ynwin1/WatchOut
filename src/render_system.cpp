@@ -156,7 +156,23 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection)
 		glEnableVertexAttribArray(in_position_loc);
 		glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(UntexturedVertex), (void*)0);
 		gl_has_errors();
-	} else {
+	}
+	else if (render_request.used_effect == EFFECT_ASSET_ID::TREE) {
+		GLint in_color_loc = glGetAttribLocation(program, "in_color");
+		GLint in_position_loc = glGetAttribLocation(program, "in_position");
+		gl_has_errors();
+
+		glEnableVertexAttribArray(in_position_loc);
+		glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE,
+			sizeof(ColoredVertex), (void*)0);
+		gl_has_errors();
+
+		glEnableVertexAttribArray(in_color_loc);
+		glVertexAttribPointer(in_color_loc, 3, GL_FLOAT, GL_FALSE,
+			sizeof(ColoredVertex), (void*)sizeof(vec3));
+		gl_has_errors();
+	}
+	else {
 		assert(false && "Type of render request not supported");
 	}
 
@@ -200,10 +216,8 @@ bool renderComparison(Entity a, Entity b)
 	if (registry.motions.has(a) && registry.motions.has(b)) {
 		Motion& motionA = registry.motions.get(a);
 		Motion& motionB = registry.motions.get(b);
-		float halfScaleA = motionA.scale.y / 2;
-		float halfScaleB = motionB.scale.y / 2;
 
-		return motionA.position.y + halfScaleA < motionB.position.y + halfScaleB;
+		return motionA.position.y < motionB.position.y;
 	}
 
 	return true;

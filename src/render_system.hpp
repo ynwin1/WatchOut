@@ -7,6 +7,7 @@
 #include "common.hpp"
 #include "render_components.hpp"
 #include "tiny_ecs.hpp"
+#include "components.hpp"
 
 // System responsible for setting up OpenGL and for rendering all the
 // visual entities in the game
@@ -22,6 +23,11 @@ class RenderSystem {
 	std::array<ivec2, texture_count> texture_dimensions = {
 		ivec2(20, 28),
 		ivec2(20, 34)
+	};
+
+	const std::vector < std::pair<GEOMETRY_BUFFER_ID, std::string>> mesh_paths =
+	{
+		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::TREE, mesh_path("tree.obj"))
 	};
 
 	// Make sure these paths remain in sync with the associated enumerators.
@@ -42,10 +48,11 @@ class RenderSystem {
 
 	std::array<GLuint, effect_count> effects;
 	// Make sure these paths remain in sync with the associated enumerators.
-	const std::array<std::string, effect_count> effect_paths = {shader_path("textured"), shader_path("untextured"), shader_path("font") };
+	const std::array<std::string, effect_count> effect_paths = {shader_path("textured"), shader_path("untextured"), shader_path("font"), shader_path("tree")};
 
 	std::array<GLuint, geometry_count> vertex_buffers;
 	std::array<GLuint, geometry_count> index_buffers;
+	std::array<Mesh, geometry_count> meshes;
 
 public:
 	GLFWwindow* create_window();
@@ -66,6 +73,9 @@ public:
 	void initStaminaBarBuffer();
 
 	void initText();
+
+	void initializeGlMeshes();
+	Mesh& getMesh(GEOMETRY_BUFFER_ID id) { return meshes[(int)id]; };
 
 	// Destroy resources associated to one or all entities created by the system
 	~RenderSystem();

@@ -243,6 +243,52 @@ Entity createJeff(vec2 position)
 	return entity;
 }
 
+Entity createTree(RenderSystem* renderer, vec2 pos)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::TREE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	// Setting initial motion values
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = vec3(pos, 0);
+	motion.angle = 0.f;
+	motion.scale = { TREE_BB_WIDTH, TREE_BB_HEIGHT };
+	motion.hitbox = { TREE_BB_WIDTH, TREE_BB_WIDTH, TREE_BB_HEIGHT / zConversionFactor };
+	motion.solid = true;
+
+	// print tree position
+	printf("Tree position: %f, %f, %f\n", pos.x, pos.y, motion.position.z);
+
+	registry.renderRequests.insert(
+		entity, {
+			TEXTURE_ASSET_ID::TREE,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE });
+
+	/*if (!RENDERING_MESH) {
+		registry.renderRequests.insert(
+			entity, {
+				TEXTURE_ASSET_ID::TREE,
+				EFFECT_ASSET_ID::TEXTURED,
+				GEOMETRY_BUFFER_ID::SPRITE });
+	}
+	else {
+		registry.renderRequests.insert(
+			entity, {
+				TEXTURE_ASSET_ID::TREE,
+				EFFECT_ASSET_ID::TREE,
+				GEOMETRY_BUFFER_ID::TREE });
+	}*/
+
+	registry.obstacles.emplace(entity);
+	registry.midgrounds.emplace(entity);
+
+	return entity;
+}
+
 Entity createArrow(vec3 pos, vec3 velocity)
 {
 	auto entity = Entity();
@@ -269,7 +315,6 @@ Entity createArrow(vec3 pos, vec3 velocity)
 	return entity;
 }
 
-// gameover
 Entity createGameOver(vec2 pos)
 {
 	auto entity = Entity();
@@ -349,6 +394,7 @@ void createStaminaBar(Entity characterEntity, vec3 color) {
 	staminabar.width = width;
 	staminabar.height = height;
 }
+
 Entity createFPSText(vec2 windowSize) {
 	auto entity = Entity();
 
@@ -452,6 +498,7 @@ void createObstacles() {
 		createObstacle({posX, posY}, {ROCK_BB_WIDTH, ROCK_BB_HEIGHT}, TEXTURE_ASSET_ID::ROCK);
 		numRocks--;
     }
+	int numTrees = 5;
 }
 
 Entity createObstacle(vec2 position, vec2 size, TEXTURE_ASSET_ID assetId) {
@@ -462,7 +509,7 @@ Entity createObstacle(vec2 position, vec2 size, TEXTURE_ASSET_ID assetId) {
     motion.scale = size;
 
     motion.position = vec3(position.x, position.y, getElevation(position) + size.y / 2);
-	motion.hitbox = { size.x, size.y, size.y / zConversionFactor };
+	motion.hitbox = { size.x, size.x, size.y / zConversionFactor };
 	motion.solid = true;
 
     registry.renderRequests.insert(
@@ -496,6 +543,20 @@ void createMapTiles(GLFWwindow* window) {
             createMapTile(position, size);
         }
     }
+}
+
+void createTrees(RenderSystem* renderer) {
+	int numTrees = 4;
+	std::default_random_engine rng;
+	std::uniform_real_distribution<float> uniform_dist;
+	rng = std::default_random_engine(std::random_device()());
+
+	while (numTrees != 0) {
+		float posX = (uniform_dist(rng) * world_size_x);
+		float posY = (uniform_dist(rng) * world_size_y);
+		createTree(renderer, { posX, posY });
+		numTrees--;
+	}
 }
 
 float getElevation(vec2 xy)

@@ -26,8 +26,8 @@ WorldSystem::WorldSystem(std::default_random_engine& rng) :
         {"boar", 2},
         {"barbarian", 2},
         {"archer", 1},
-		{"heart", 1},
-		{"collectible_trap", 1}
+        {"heart", 1},
+        {"collectible_trap", 1}
         })
 {
     this->rng = rng;
@@ -61,6 +61,7 @@ void WorldSystem::restart_game()
 {
     registry.clear_all_components();
     createMapTiles(window);
+    createTrees(renderer);
     createObstacles();
     entity_types = {
         "barbarian",
@@ -72,8 +73,11 @@ void WorldSystem::restart_game()
 
     // Create player entity
     playerEntity = createJeff(vec2(world_size_x / 2.f, world_size_y / 2.f));
+    // createTree(renderer, vec2(world_size_x / 2.f + 300.f, world_size_y / 2.f));
+
     game_over = false;
     is_paused = false;
+    show_mesh = false;
 
     initText();
 
@@ -126,6 +130,7 @@ bool WorldSystem::step(float elapsed_ms)
     trackFPS(elapsed_ms);
     updateGameTimer(elapsed_ms);
     updateTrapsCounterText();
+    toggleMesh();
 
     if (camera->isToggled()) {
         Motion& playerMotion = registry.motions.get(playerEntity);
@@ -332,6 +337,11 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     if(action == GLFW_PRESS && key == GLFW_KEY_F) {
         registry.fpsTracker.toggled = !registry.fpsTracker.toggled;
     }
+
+    // toggle mesh
+	if (action == GLFW_PRESS && key == GLFW_KEY_M) {
+		show_mesh = !show_mesh;
+	}
 }
 
 void WorldSystem::update_player_facing(Player& player) 
@@ -664,3 +674,24 @@ void WorldSystem::handle_stamina(float elapsed_ms) {
     }
 }
 
+void WorldSystem::toggleMesh() {
+    // remove current meshes (every mesh has a render request)
+    // replace with appropriate textures
+    for (auto& meshEntity : registry.meshPtrs.entities) {
+        registry.renderRequests.remove(meshEntity);
+        if (show_mesh) {
+            registry.renderRequests.insert(
+                meshEntity, {
+                    TEXTURE_ASSET_ID::TREE,
+                    EFFECT_ASSET_ID::TREE,
+                    GEOMETRY_BUFFER_ID::TREE });
+        }
+        else {
+            registry.renderRequests.insert(
+                meshEntity, {
+                    TEXTURE_ASSET_ID::TREE,
+                    EFFECT_ASSET_ID::TEXTURED,
+                    GEOMETRY_BUFFER_ID::SPRITE });
+        }
+    }
+}

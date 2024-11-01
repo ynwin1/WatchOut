@@ -1,6 +1,7 @@
 #include "world_init.hpp"
 #include "tiny_ecs_registry.hpp"
 #include <random>
+#include <sstream>
 
 // Boar creation
 Entity createBoar(vec2 pos)
@@ -315,28 +316,6 @@ Entity createArrow(vec3 pos, vec3 velocity)
 	return entity;
 }
 
-Entity createGameOver(vec2 pos)
-{
-	auto entity = Entity();
-
-	// Setting intial motion values
-	Motion& motion = registry.motions.emplace(entity);
-	motion.position = vec3(pos, 0);
-	motion.angle = 0.f;
-	motion.scale = { GO_BB_WIDTH, GO_BB_HEIGHT };
-
-	registry.renderRequests.insert(
-	entity,
-	{
-		TEXTURE_ASSET_ID::GAMEOVER,
-		EFFECT_ASSET_ID::TEXTURED,
-		GEOMETRY_BUFFER_ID::SPRITE
-	});
-	registry.foregrounds.emplace(entity);
-	
-	return entity;
-};
-
 void createHealthBar(Entity characterEntity, vec3 color) {
 	auto meshEntity = Entity();
 
@@ -401,8 +380,8 @@ Entity createFPSText(vec2 windowSize) {
 	Text& text = registry.texts.emplace(entity);
 	text.value = "00 fps";
 	// text position based on screen coordinates
-	text.position = {windowSize.x - 60.0f, windowSize.y - 20.0f};
-	text.scale = 0.5f;
+	text.position = {windowSize.x - 90.0f, windowSize.y - 40.0f};
+	text.scale = 0.8f;
 
 	registry.renderRequests.insert(
 			entity, 
@@ -477,13 +456,6 @@ void createObstacles() {
     std::uniform_real_distribution<float> uniform_dist;
     rng = std::default_random_engine(std::random_device()());
 
-	// int numTrees = 15;
-	// while(numTrees != 0) {
-    // 	float posX = (uniform_dist(rng) * world_size_x);
-	// 	float posY = (uniform_dist(rng) * world_size_y);
-	// 	createObstacle({posX, posY}, {150.f, 250.f}, TEXTURE_ASSET_ID::TREE);
-	// 	numTrees--;
-    // }
 	int numShrubs = 20;
 	while(numShrubs != 0) {
     	float posX = (uniform_dist(rng) * world_size_x);
@@ -498,7 +470,6 @@ void createObstacles() {
 		createObstacle({posX, posY}, {ROCK_BB_WIDTH, ROCK_BB_HEIGHT}, TEXTURE_ASSET_ID::ROCK);
 		numRocks--;
     }
-	int numTrees = 5;
 }
 
 Entity createObstacle(vec2 position, vec2 size, TEXTURE_ASSET_ID assetId) {
@@ -524,11 +495,7 @@ Entity createObstacle(vec2 position, vec2 size, TEXTURE_ASSET_ID assetId) {
     return entity;
 }
 
-void createMapTiles(GLFWwindow* window) {
-    int windowWidth;
-    int windowHeight;
-    glfwGetWindowSize(window, &windowWidth, &windowHeight);
-
+void createMapTiles() {
     int tilesOnScreenX = 10; 
     int tilesOnScreenY = 6; 
     float tileWidth = world_size_x / tilesOnScreenX;
@@ -543,6 +510,55 @@ void createMapTiles(GLFWwindow* window) {
             createMapTile(position, size);
         }
     }
+}
+
+void createGameOverText(vec2 windowSize) {
+	GameTimer& gameTimer = registry.gameTimer;
+	std::vector<Entity> entities;
+
+	auto entity1 = Entity();
+	Text& text1 = registry.texts.emplace(entity1);
+	text1.value = "GAME OVER";
+	text1.position = {windowSize.x / 2 - 315.0f, windowSize.y / 2 + 50.0f};
+	text1.scale = 4.0f;
+	text1.colour = {0.85f, 0.0f, 0.0f};
+	
+	auto entity2 = Entity();
+	Text& text2 = registry.texts.emplace(entity2);
+	text2.position = {windowSize.x / 2 - 160.f, windowSize.y / 2};
+	text2.scale = 1.0f;
+	text2.colour = {1.0f, 0.85f, 0.0f};
+	std::ostringstream oss;
+    oss << "You survived for ";
+    if (gameTimer.hours > 0) {
+        oss << gameTimer.hours << "h ";
+		text2.position.x -= 20.f;
+    }
+    if (gameTimer.minutes > 0 || gameTimer.hours > 0) {
+        oss << gameTimer.minutes << "m ";
+		text2.position.x -= 40.f;
+    }
+    oss << gameTimer.seconds << "s";
+	text2.value = oss.str();
+
+	auto entity3 = Entity();
+	Text& text3 = registry.texts.emplace(entity3);
+	text3.position = {windowSize.x / 2 - 165.f, windowSize.y / 2 - 80.f};
+	text3.scale = 0.8f;
+	text3.value = "Press ENTER to play again";
+
+	entities.push_back(entity1);
+	entities.push_back(entity2);
+	entities.push_back(entity3);
+	for (Entity& entity : entities) {
+		registry.renderRequests.insert(
+			entity, 
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::FONT,
+			GEOMETRY_BUFFER_ID::TEXT
+		});
+	}
 }
 
 void createTrees(RenderSystem* renderer) {

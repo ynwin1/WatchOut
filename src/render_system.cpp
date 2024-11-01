@@ -60,6 +60,10 @@ void RenderSystem::drawText(Entity entity) {
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
 
+		GLuint textColor_loc = glGetUniformLocation(program, "textColor");
+		glUniform3f(textColor_loc, text.colour.x, text.colour.y, text.colour.z);
+		gl_has_errors();
+		
 		glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(camera->getSize().x), 0.0f, static_cast<float>(camera->getSize().y));
 		GLuint projection_loc = glGetUniformLocation(program, "projection");
 		glUniformMatrix4fv(projection_loc, 1, GL_FALSE, value_ptr(projection));

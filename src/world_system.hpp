@@ -37,12 +37,13 @@ private:
 	// GLFW Window handle
 	GLFWwindow* window;
 
+	bool isWindowed = false;
+
 	RenderSystem* renderer;
 	PhysicsSystem* physics;
 
 	Camera* camera;
 	
-	GameTimer gameTimer;
 	TrapsCounter trapsCounter;
 
 	// Input callback functions

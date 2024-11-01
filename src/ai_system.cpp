@@ -1,9 +1,10 @@
 #include "ai_system.hpp"
 #include "world_init.hpp"
 #include "physics_system.hpp"
-
+#include "world_system.hpp"
 
 AISystem::AISystem(std::default_random_engine& rng)
+    : world(world)
 {
     this->rng = rng;
 }
@@ -84,6 +85,8 @@ void AISystem::shootArrow(Entity shooter, vec3 targetPos)
     // Determine velocities for each dimension
     vec2 horizontal_velocity = velocity * cos(ARROW_ANGLE) * horizontal_direction;
     float vertical_velocity = velocity * sin(ARROW_ANGLE);
+
+	Mix_PlayChannel(-1, world.arrow_noise, 0);
     createArrow(pos, vec3(horizontal_velocity, vertical_velocity));
 }
 

@@ -62,6 +62,8 @@ WorldSystem::~WorldSystem() {
     // destroy music components
     if (background_music != nullptr)
         Mix_FreeMusic(background_music);
+    if (arrow_noise != nullptr)
+        Mix_FreeChunk(arrow_noise);
 
     Mix_CloseAudio();
 }
@@ -119,9 +121,11 @@ void WorldSystem::init_music() {
     }
 
     background_music = Mix_LoadMUS(audio_path("background.wav").c_str());
-    if (background_music == nullptr) {
-        fprintf(stderr, "Failed to load sounds\n %s\n make sure the data directory is present",
-            audio_path("music.wav").c_str());
+	arrow_noise = Mix_LoadWAV(audio_path("arrow.wav").c_str());
+    if (background_music == nullptr || arrow_noise == nullptr) {
+        fprintf(stderr, "Failed to load sounds\n %s\n %s\n make sure the data directory is present",
+            audio_path("music.wav").c_str(),
+            audio_path("arrow.wav").c_str());
         return;
     }
     Mix_PlayMusic(background_music, -1);

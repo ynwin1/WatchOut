@@ -37,6 +37,10 @@ public:
 	// Should the game be over ?
 	bool is_over()const;
 
+	// Music references
+	Mix_Music* background_music;
+	Mix_Chunk* arrow_noise;
+
 private:
 	// GLFW Window handle
 	GLFWwindow* window;
@@ -48,9 +52,6 @@ private:
 	
 	GameTimer gameTimer;
 	TrapsCounter trapsCounter;
-
-	// Music references
-	Mix_Music* background_music;
 
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);

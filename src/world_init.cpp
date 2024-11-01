@@ -245,7 +245,7 @@ Entity createJeff(vec2 position)
 
 Entity createTree(RenderSystem* renderer, vec2 pos)
 {
-	bool RENDERING_MESH = true;
+	bool RENDERING_MESH = false;
 	auto entity = Entity();
 
 	// Store a reference to the potentially re-used mesh object
@@ -260,10 +260,13 @@ Entity createTree(RenderSystem* renderer, vec2 pos)
 	motion.hitbox = { MESHTREE_BB_WIDTH, MESHTREE_BB_WIDTH, MESHTREE_BB_HEIGHT / zConversionFactor };
 	motion.solid = true;
 
+	// print tree position
+	printf("Tree position: %f, %f, %f\n", pos.x, pos.y, motion.position.z);
+
 	if (!RENDERING_MESH) {
 		registry.renderRequests.insert(
 			entity, {
-				TEXTURE_ASSET_ID::MESHTREE,
+				TEXTURE_ASSET_ID::TREE,
 				EFFECT_ASSET_ID::TEXTURED,
 				GEOMETRY_BUFFER_ID::SPRITE });
 	}
@@ -490,6 +493,7 @@ void createObstacles() {
 		createObstacle({posX, posY}, {ROCK_BB_WIDTH, ROCK_BB_HEIGHT}, TEXTURE_ASSET_ID::ROCK);
 		numRocks--;
     }
+	int numTrees = 5;
 }
 
 Entity createObstacle(vec2 position, vec2 size, TEXTURE_ASSET_ID assetId) {
@@ -534,6 +538,20 @@ void createMapTiles(GLFWwindow* window) {
             createMapTile(position, size);
         }
     }
+}
+
+void createMeshTrees(RenderSystem* renderer) {
+	int numTrees = 3;
+	std::default_random_engine rng;
+	std::uniform_real_distribution<float> uniform_dist;
+	rng = std::default_random_engine(std::random_device()());
+
+	while (numTrees != 0) {
+		float posX = (uniform_dist(rng) * world_size_x);
+		float posY = (uniform_dist(rng) * world_size_y);
+		createTree(renderer, { posX, posY });
+		numTrees--;
+	}
 }
 
 float getElevation(vec2 xy)

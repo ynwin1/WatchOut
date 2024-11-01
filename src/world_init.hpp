@@ -91,4 +91,6 @@ void createObstacles();
 
 void createStaminaBar(Entity characterEntity, vec3 color);
 
+void createMeshTrees(RenderSystem* renderer);
+
 float getElevation(vec2 xy);

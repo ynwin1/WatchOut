@@ -23,11 +23,11 @@ WorldSystem::WorldSystem(std::default_random_engine& rng) :
 		{"collectible_trap", 6000}
         }),
     max_entities({
-        {"boar", 2},
-        {"barbarian", 2},
-        {"archer", 1},
-		{"heart", 1},
-		{"collectible_trap", 1}
+        {"boar", 0},
+        {"barbarian", 0},
+        {"archer", 0},
+		{"heart", 0},
+		{"collectible_trap", 0}
         })
 {
     this->rng = rng;
@@ -61,6 +61,7 @@ void WorldSystem::restart_game()
 {
     registry.clear_all_components();
     createMapTiles(window);
+    createMeshTrees(renderer);
     createObstacles();
     entity_types = {
         "barbarian",
@@ -72,7 +73,7 @@ void WorldSystem::restart_game()
 
     // Create player entity
     playerEntity = createJeff(vec2(world_size_x / 2.f, world_size_y / 2.f));
-    createTree(renderer, vec2(world_size_x / 2.f + 300.f, world_size_y / 2.f));
+    // createTree(renderer, vec2(world_size_x / 2.f + 300.f, world_size_y / 2.f));
 
     game_over = false;
     is_paused = false;

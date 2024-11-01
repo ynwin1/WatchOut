@@ -15,10 +15,12 @@ public:
 	std::vector<std::pair<Entity, Entity>> collisions;
 
 private:
+	vec3 meshCollisionPosition;
 	void updatePositions(float elapsed_ms);
 	void checkCollisions();
 	void handleBoundsCheck();
 	void recoil_entities(Entity motion1, Entity motion2);
+	void handle_mesh_collision(Entity entityM, Entity other_entity);
 	void handle_obstacle_collision(Entity entityM, Entity obstacleM);
 	bool meshCollides(Entity& mesh_entity, Entity& other_entity);
 };

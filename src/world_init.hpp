@@ -87,6 +87,7 @@ void createObstacles();
 
 void createCliffs(GLFWwindow* window);
 Entity createCliff(vec2 position, vec2 scale);
+Entity createSideCliff(vec2 position, vec2 scale);
 
 void createStaminaBar(Entity characterEntity, vec3 color);
 float getElevation(vec2 xy);

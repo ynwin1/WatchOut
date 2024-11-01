@@ -501,43 +501,60 @@ Entity createCliff(vec2 position, vec2 size) {
     return entity;
 }
 
+Entity createSideCliff(vec2 position, vec2 size) {
+    auto entity = Entity();
+	MapTile& tile = registry.mapTiles.emplace(entity);
+    tile.position = position;
+    tile.scale = size;
+
+    registry.renderRequests.insert(
+        entity, 
+        {
+            TEXTURE_ASSET_ID::CLIFF2,
+            EFFECT_ASSET_ID::TEXTURED,
+            GEOMETRY_BUFFER_ID::SPRITE
+        });
+    registry.backgrounds.emplace(entity); 
+    return entity;
+}
+
 void createCliffs(GLFWwindow* window) {
     int windowWidth;
     int windowHeight;
     glfwGetWindowSize(window, &windowWidth, &windowHeight);
 
-    int cliffsOnScreenX = 5; 
-    int cliffsOnScreenY = 5; 
-    float cliffWidth = (rightBound - leftBound) / cliffsOnScreenX;
-    float cliffHeight = (bottomBound - topBound) / cliffsOnScreenY;
+    int cliffsOnScreenX = 6; 
+    int cliffsOnScreenY = 6; 
+    float cliffWidth = 500;
+    float cliffHeight = 500;
 
     float cliffThickness = 500.0f;
 
-    // Top boundary cliffs
+
+	// Top boundary cliffs
     for (int col = 0; col <= cliffsOnScreenX; col++) {
         vec2 position = {leftBound + col * cliffWidth, topBound - cliffThickness}; 
         vec2 size = {cliffWidth, cliffThickness};
         createCliff(position, size);
     }
-
+	// Bottom boundary cliffs
+    for (int col = 0; col <= cliffsOnScreenX; col++) {
+        vec2 position = {leftBound + col * cliffWidth, bottomBound - cliffThickness};  
+        vec2 size = {cliffWidth, -cliffThickness};
+        createCliff(position, size);
+    }
     // Left boundary cliffs
     for (int row = 0; row <= cliffsOnScreenY; row++) {
-        vec2 position = {leftBound - cliffThickness / 2, topBound + row * cliffHeight}; 
+        vec2 position = {leftBound - cliffThickness / 2, row * cliffHeight}; 
         vec2 size = {cliffHeight, cliffThickness};
-        createCliff(position, size);
+        createSideCliff(position, size);
     }
 
     // Right boundary cliffs
     for (int row = 0; row <= cliffsOnScreenY; row++) {
-        vec2 position = {rightBound + cliffThickness / 2, topBound + row * cliffHeight};
-        vec2 size = {cliffHeight, cliffThickness};
-        createCliff(position, size);
-    }
-	// Bottom boundary cliffs
-    for (int col = 0; col <= cliffsOnScreenX; col++) {
-        vec2 position = {leftBound + col * cliffWidth, bottomBound - cliffThickness};  
-        vec2 size = {cliffWidth, cliffThickness};
-        createCliff(position, size);
+        vec2 position = {rightBound + cliffThickness / 2,  row * cliffHeight};
+        vec2 size = {-cliffHeight, cliffThickness};
+        createSideCliff(position, size);
     }
 }
 

@@ -57,7 +57,8 @@ enum class TEXTURE_ASSET_ID {
 	SHRUB = TREE + 1,
 	ROCK = SHRUB + 1,
 	CLIFF = ROCK + 1,
-	TEXTURE_COUNT = CLIFF + 1
+	CLIFF2 = CLIFF + 1,
+	TEXTURE_COUNT = CLIFF2 + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 

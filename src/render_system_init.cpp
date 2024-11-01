@@ -49,7 +49,7 @@ GLFWwindow* RenderSystem::create_window() {
 	// Create the main window (for rendering, keyboard, and mouse input)
 	GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
 	const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
-	window = glfwCreateWindow(mode->width, mode->height, "Watch Out!", nullptr, nullptr);
+	window = glfwCreateWindow(mode->width, mode->height, "Watch Out!", primaryMonitor, nullptr);
 	if (window == nullptr) {
 		fprintf(stderr, "Failed to glfwCreateWindow");
 		return nullptr;

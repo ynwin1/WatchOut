@@ -235,7 +235,6 @@ bool PhysicsSystem::meshCollides(Entity& mesh_entity, Entity& other_entity) {
 			}
 			other_motion.velocity.z = 0;
 			other_motion.position.z -= 1;
-			meshCollisionPosition = other_motion.position;
 			return true;
 		}
 	}

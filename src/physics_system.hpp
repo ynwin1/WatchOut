@@ -15,7 +15,6 @@ public:
 	std::vector<std::pair<Entity, Entity>> collisions;
 
 private:
-	vec3 meshCollisionPosition;
 	void updatePositions(float elapsed_ms);
 	void checkCollisions();
 	void handleBoundsCheck();

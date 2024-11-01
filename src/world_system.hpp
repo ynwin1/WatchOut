@@ -36,7 +36,7 @@ private:
 	// GLFW Window handle
 	GLFWwindow* window;
 
-	bool isFullScreen = false;
+	bool isWindowed = false;
 
 	RenderSystem* renderer;
 	PhysicsSystem* physics;

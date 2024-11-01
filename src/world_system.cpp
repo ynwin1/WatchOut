@@ -336,15 +336,17 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 
     // toggle fullscreen
     if(action == GLFW_PRESS && key == GLFW_KEY_V) {
-        isFullScreen = !isFullScreen;
+        isWindowed = !isWindowed;
         GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
         const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
 
-        if(isFullScreen) {
-            glfwSetWindowMonitor(window, primaryMonitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+        if(isWindowed) {
+            glfwSetWindowMonitor(window, nullptr, 50, 50, mode->width, mode->height, 0);
         } else {
-            glfwSetWindowMonitor(window, nullptr, 1, 0, mode->width, mode->height, 0);
+            glfwSetWindowMonitor(window, primaryMonitor, 0, 0, mode->width, mode->height, mode->refreshRate); 
         }
+
+        glfwSwapInterval(1); // vsync
     } 
 }
 

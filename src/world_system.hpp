@@ -76,7 +76,6 @@ private:
 	void trackFPS(float elapsed_ms);
 	void updateGameTimer(float elapsed_ms);
 	void updateTrapsCounterText();
-	void updateEntityFacing();
 	void toggleMesh();
 
 	// Collision functions

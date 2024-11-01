@@ -508,35 +508,35 @@ void createCliffs(GLFWwindow* window) {
 
     int cliffsOnScreenX = 5; 
     int cliffsOnScreenY = 5; 
-    float tileWidth = (rightBound - leftBound) / cliffsOnScreenX;
-    float tileHeight = (bottomBound - topBound) / cliffsOnScreenY;
+    float cliffWidth = (rightBound - leftBound) / cliffsOnScreenX;
+    float cliffHeight = (bottomBound - topBound) / cliffsOnScreenY;
 
     float cliffThickness = 500.0f;
 
     // Top boundary cliffs
     for (int col = 0; col <= cliffsOnScreenX; col++) {
-        vec2 position = {leftBound + col * tileWidth, topBound - cliffThickness}; 
-        vec2 size = {tileWidth, cliffThickness};
+        vec2 position = {leftBound + col * cliffWidth, topBound - cliffThickness}; 
+        vec2 size = {cliffWidth, cliffThickness};
         createCliff(position, size);
     }
 
     // Left boundary cliffs
     for (int row = 0; row <= cliffsOnScreenY; row++) {
-        vec2 position = {leftBound - cliffThickness / 2, topBound + row * tileHeight}; 
-        vec2 size = {tileHeight, cliffThickness};
+        vec2 position = {leftBound - cliffThickness / 2, topBound + row * cliffHeight}; 
+        vec2 size = {cliffHeight, cliffThickness};
         createCliff(position, size);
     }
 
     // Right boundary cliffs
     for (int row = 0; row <= cliffsOnScreenY; row++) {
-        vec2 position = {rightBound + cliffThickness / 2, topBound + row * tileHeight};
-        vec2 size = {tileHeight, cliffThickness};
+        vec2 position = {rightBound + cliffThickness / 2, topBound + row * cliffHeight};
+        vec2 size = {cliffHeight, cliffThickness};
         createCliff(position, size);
     }
 	// Bottom boundary cliffs
     for (int col = 0; col <= cliffsOnScreenX; col++) {
-        vec2 position = {leftBound + col * tileWidth, bottomBound - cliffThickness};  
-        vec2 size = {tileWidth, cliffThickness};
+        vec2 position = {leftBound + col * cliffWidth, bottomBound - cliffThickness};  
+        vec2 size = {cliffWidth, cliffThickness};
         createCliff(position, size);
     }
 }

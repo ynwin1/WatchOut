@@ -4,6 +4,11 @@
 #include <vector>
 #include <random>
 
+// music
+#define SDL_MAIN_HANDLED
+#include <SDL.h>
+#include <SDL_mixer.h>
+
 // internal 
 #include <render_system.hpp>
 #include <physics_system.hpp>
@@ -44,6 +49,9 @@ private:
 	GameTimer gameTimer;
 	TrapsCounter trapsCounter;
 
+	// Music references
+	Mix_Music* background_music;
+
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);
 	void on_mouse_move(vec2 mouse_position);
@@ -60,6 +68,7 @@ private:
 	// restart level
 	void restart_game();
 	void initText();
+	void init_music();
 
 	// Actions performed for each step
 	void spawn(float elapsed_ms);

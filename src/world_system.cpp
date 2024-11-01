@@ -49,12 +49,21 @@ void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camer
     glfwSetKeyCallback(window, key_redirect);
     glfwSetCursorPosCallback(window, cursor_pos_redirect);
 
+	// MUSIC INITIALIZATION
+    init_music();
+
     restart_game();
 }
 
 WorldSystem::~WorldSystem() {
     // Destroy all created components
     registry.clear_all_components();
+
+    // destroy music components
+    if (background_music != nullptr)
+        Mix_FreeMusic(background_music);
+
+    Mix_CloseAudio();
 }
 
 void WorldSystem::restart_game()
@@ -97,6 +106,26 @@ void WorldSystem::initText() {
     gameTimer.textEntity = createGameTimerText(camera->getSize());
     trapsCounter.reset();
     trapsCounter.textEntity = createTrapsCounterText(camera->getSize());
+}
+
+void WorldSystem::init_music() {
+    if (SDL_Init(SDL_INIT_AUDIO) < 0) {
+        fprintf(stderr, "Failed to initialize SDL Audio");
+        return;
+    }
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) == -1) {
+        fprintf(stderr, "Failed to open audio device");
+        return;
+    }
+
+    background_music = Mix_LoadMUS(audio_path("background.wav").c_str());
+    if (background_music == nullptr) {
+        fprintf(stderr, "Failed to load sounds\n %s\n make sure the data directory is present",
+            audio_path("music.wav").c_str());
+        return;
+    }
+    Mix_PlayMusic(background_music, -1);
+    fprintf(stderr, "Loaded music\n");
 }
 
 void WorldSystem::trackFPS(float elapsed_ms) {

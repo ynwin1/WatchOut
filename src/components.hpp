@@ -44,6 +44,7 @@ struct Enemy
 	std::string type;
 	unsigned int cooldown = 0;
 	float speed = 0;
+	float pathfindTime = 0;
 };
 
 struct Damaging {

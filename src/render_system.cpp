@@ -280,15 +280,12 @@ bool renderComparison(Entity a, Entity b)
 	if (!registry.motions.has(b)) {
 		return true;
 	}
-
-	if (registry.motions.has(a) && registry.motions.has(b)) {
-		Motion& motionA = registry.motions.get(a);
-		Motion& motionB = registry.motions.get(b);
-
-		return motionA.position.y < motionB.position.y;
+	Motion& motionA = registry.motions.get(a);
+	Motion& motionB = registry.motions.get(b);
+	if (motionA.position.y == motionB.position.y) {
+		return a < b;
 	}
-
-	return true;
+	return motionA.position.y < motionB.position.y;
 }
 
 // Render our game world

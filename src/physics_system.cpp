@@ -123,13 +123,14 @@ static vec3 tranformVertex(vec3 vertex, vec3 translation, float rotation, vec3 s
 	vertex *= scaling;
 	
 	// Rotation
-	vertex.x = vertex.x * cos(rotation) - vertex.z * sin(rotation);
-	vertex.z = vertex.x * sin(rotation) + vertex.z * cos(rotation);
+	vec3 rotatedVertex{};
+	rotatedVertex.x = vertex.x * cos(rotation) - vertex.z * sin(rotation);
+	rotatedVertex.z = vertex.x * sin(rotation) + vertex.z * cos(rotation);
 
 	// Translation
-	vertex += translation;
+	rotatedVertex += translation;
 
-	return vertex;
+	return rotatedVertex;
 }
 
 bool polygonsCollide(std::vector<vec2> polygon1, std::vector<vec2> polygon2) {
@@ -351,12 +352,18 @@ float calculate_y_overlap(Entity entity1, Entity entity2) {
 	return max(0.f, min(bottom1, bottom2) - max(top1, top2));
 }
 
-void PhysicsSystem::handle_mesh_collision(Entity mesh, Entity entity) {
+void PhysicsSystem::handle_mesh_collision(Entity mesh, Entity entity) 
+{
 
 	float PUSH_BACK = 5.f;
 
 	Motion& meshMotion = registry.motions.get(mesh);
 	Motion& entityMotion = registry.motions.get(entity);
+
+	if (registry.projectiles.has(entity)) {
+		entityMotion.velocity = vec3(0);
+		return;
+	}
 
 	// direction of the collision
 	float x_direction = meshMotion.position.x < entityMotion.position.x ? 1 : -1;
@@ -437,3 +444,18 @@ void PhysicsSystem::step(float elapsed_ms)
 	checkCollisions();
 	handleBoundsCheck();
 };
+
+std::vector<vec3> boundingBoxVertices(Motion& motion)
+{
+	std::vector<vec3> vertices;
+	for (auto i : { -0.5f, 0.5f }) {
+		for (auto j : { -0.5f, 0.5f }) {
+			for (auto k : { -0.5f, 0.5f }) {
+				vec3 vertex = vec3(i, j, k);
+				vertex = tranformVertex(vertex, motion.position, motion.angle, motion.hitbox);
+				vertices.push_back(vertex);
+			}
+		}
+	}
+	return vertices;
+}

@@ -553,13 +553,13 @@ void createCliffs(GLFWwindow* window) {
 	// Top boundary cliffs
     for (int col = 0; col <= cliffsOnScreenX; col++) {
         vec2 position = {leftBound + col * cliffWidth, topBound - cliffThickness}; 
-        vec2 size = {cliffWidth, cliffThickness};
+        vec2 size = {cliffWidth, -cliffThickness};
         createCliff(position, size);
     }
 	// Bottom boundary cliffs
     for (int col = 0; col <= cliffsOnScreenX; col++) {
         vec2 position = {leftBound + col * cliffWidth, bottomBound - cliffThickness};  
-        vec2 size = {cliffWidth, -cliffThickness};
+        vec2 size = {cliffWidth, cliffThickness};
         createCliff(position, size);
     }
     // Left boundary cliffs

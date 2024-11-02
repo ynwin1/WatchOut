@@ -60,7 +60,7 @@ WorldSystem::~WorldSystem() {
 void WorldSystem::restart_game()
 {
     registry.clear_all_components();
-    createMapTiles(window);
+    createMapTiles();
     createTrees(renderer);
     createObstacles();
     entity_types = {
@@ -85,6 +85,8 @@ void WorldSystem::restart_game()
 }
 
 void WorldSystem::updateGameTimer(float elapsed_ms) {
+    GameTimer& gameTimer = registry.gameTimer;
+
     gameTimer.update(elapsed_ms);
     std::stringstream ss;
     ss << std::setw(2) << std::setfill('0') << gameTimer.hours << ":"
@@ -97,8 +99,8 @@ void WorldSystem::updateGameTimer(float elapsed_ms) {
 
 void WorldSystem::initText() {
     registry.fpsTracker.textEntity = createFPSText(camera->getSize());
-    gameTimer.reset();
-    gameTimer.textEntity = createGameTimerText(camera->getSize());
+    registry.gameTimer.reset();
+    registry.gameTimer.textEntity = createGameTimerText(camera->getSize());
     trapsCounter.reset();
     trapsCounter.textEntity = createTrapsCounterText(camera->getSize());
 }
@@ -130,7 +132,6 @@ bool WorldSystem::step(float elapsed_ms)
     trackFPS(elapsed_ms);
     updateGameTimer(elapsed_ms);
     updateTrapsCounterText();
-    updateEntityFacing();
     toggleMesh();
 
     if (camera->isToggled()) {
@@ -141,9 +142,7 @@ bool WorldSystem::step(float elapsed_ms)
 
     Player& player = registry.players.get(playerEntity);
     if(player.health == 0) {
-        //CREATE GAMEOVER ENTITY
-        vec2 camera_pos = camera->getPosition();
-        createGameOver(camera_pos);
+        createGameOverText(camera->getSize());
         game_over = true;
     }
 
@@ -338,6 +337,21 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     if(action == GLFW_PRESS && key == GLFW_KEY_F) {
         registry.fpsTracker.toggled = !registry.fpsTracker.toggled;
     }
+
+    // toggle fullscreen
+    if(action == GLFW_PRESS && key == GLFW_KEY_V) {
+        isWindowed = !isWindowed;
+        GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
+
+        if(isWindowed) {
+            glfwSetWindowMonitor(window, nullptr, 50, 50, mode->width, mode->height, 0);
+        } else {
+            glfwSetWindowMonitor(window, primaryMonitor, 0, 0, mode->width, mode->height, mode->refreshRate); 
+        }
+
+        glfwSwapInterval(1); // vsync
+    } 
 
     // toggle mesh
 	if (action == GLFW_PRESS && key == GLFW_KEY_M) {
@@ -675,28 +689,6 @@ void WorldSystem::handle_stamina(float elapsed_ms) {
     }
 }
 
-void WorldSystem:: updateEntityFacing(){
-    auto& motions_registry = registry.motions;
-	for (int i = (int)motions_registry.components.size()-1; i>=0; --i) {
-	    Motion& motion = motions_registry.components[i];
-        Entity entity_i = motions_registry.entities[i];
-        if(registry.boars.has(entity_i)){
-            if (motion.velocity.x < 0) {
-                motion.scale.x = abs(motion.scale.x); 
-            } else if (motion.velocity.x > 0) {
-                    motion.scale.x = -1.0f * abs(motion.scale.x);
-            }
-
-        } else{
-            if (motion.velocity.x > 0) {
-                motion.scale.x = abs(motion.scale.x); 
-            } else if (motion.velocity.x < 0) {
-                    motion.scale.x = -1.0f * abs(motion.scale.x);
-            }
-        }
-    }
-}
-
 void WorldSystem::toggleMesh() {
     // remove current meshes (every mesh has a render request)
     // replace with appropriate textures
@@ -718,4 +710,3 @@ void WorldSystem::toggleMesh() {
         }
     }
 }
-

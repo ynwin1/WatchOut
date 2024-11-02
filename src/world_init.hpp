@@ -74,7 +74,7 @@ Entity createDamageTrap(vec2 pos);
 Entity createArrow(vec3 pos, vec3 velocity);
 
 Entity createFPSText(vec2 windowSize);
-
+void createGameOverText(vec2 windowSize);
 Entity createGameTimerText(vec2 windowSize);
 
 Entity createTrapsCounterText(vec2 windowSize);
@@ -84,7 +84,7 @@ Entity createGameOver(vec2 pos);
 
 void createHealthBar(Entity characterEntity, vec3 color);
 
-void createMapTiles(GLFWwindow* window);
+void createMapTiles();
 Entity createMapTile(vec2 position, vec2 scale);
 Entity createObstacle(vec2 position, vec2 scale, TEXTURE_ASSET_ID assetID);
 void createObstacles();

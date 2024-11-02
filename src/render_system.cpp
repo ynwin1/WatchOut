@@ -60,6 +60,10 @@ void RenderSystem::drawText(Entity entity) {
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
 
+		GLuint textColor_loc = glGetUniformLocation(program, "textColor");
+		glUniform3f(textColor_loc, text.colour.x, text.colour.y, text.colour.z);
+		gl_has_errors();
+		
 		glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(camera->getSize().x), 0.0f, static_cast<float>(camera->getSize().y));
 		GLuint projection_loc = glGetUniformLocation(program, "projection");
 		glUniformMatrix4fv(projection_loc, 1, GL_FALSE, value_ptr(projection));
@@ -306,6 +310,7 @@ void RenderSystem::step(float elapsed_ms)
 
 	update_hpbars();
 	update_staminabars();
+	updateEntityFacing();
 }
 
 void RenderSystem::turn_damaged_red(std::vector<Entity>& was_damaged)
@@ -429,6 +434,35 @@ void RenderSystem::update_staminabars() {
 		staminaBarMotion.position.z = motion.position.z + visualToWorldY(motion.scale.y) / 2 + topOffset;
 	}
 	handleStaminaBarBoundsCheck();
+}
+
+void RenderSystem::updateEntityFacing() {
+	auto& motions_registry = registry.motions;
+	for (int i = (int)motions_registry.components.size() - 1; i >= 0; --i) {
+		Motion& motion = motions_registry.components[i];
+		Entity entity_i = motions_registry.entities[i];
+		if (registry.boars.has(entity_i)) {
+			if (motion.velocity.x < 0) {
+				motion.scale.x = abs(motion.scale.x);
+			}
+			else if (motion.velocity.x > 0) {
+				motion.scale.x = -1.0f * abs(motion.scale.x);
+			}
+
+		}
+		else if (registry.projectiles.has(entity_i)) {
+			// Skip for projectiles
+			continue;
+		}
+		else {
+			if (motion.velocity.x > 0) {
+				motion.scale.x = abs(motion.scale.x);
+			}
+			else if (motion.velocity.x < 0) {
+				motion.scale.x = -1.0f * abs(motion.scale.x);
+			}
+		}
+	}
 }
 
 

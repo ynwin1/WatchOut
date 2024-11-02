@@ -37,12 +37,13 @@ private:
 	// GLFW Window handle
 	GLFWwindow* window;
 
+	bool isWindowed = false;
+
 	RenderSystem* renderer;
 	PhysicsSystem* physics;
 
 	Camera* camera;
 	
-	GameTimer gameTimer;
 	TrapsCounter trapsCounter;
 
 	// Input callback functions
@@ -75,7 +76,6 @@ private:
 	void trackFPS(float elapsed_ms);
 	void updateGameTimer(float elapsed_ms);
 	void updateTrapsCounterText();
-	void updateEntityFacing();
 	void toggleMesh();
 
 	// Collision functions

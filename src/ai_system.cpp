@@ -23,8 +23,8 @@ void AISystem::boarBehaviour(Entity boar, vec3 playerPosition, float elapsed_ms)
     const float BOAR_AGGRO_RANGE = 500;
     const float BOAR_DISENGAGE_RANGE = 700;
     const float BOAR_PREPARE_TIME = 500; 
-    const float BOAR_CHARGE_DURATION = 2000; 
-    const float BOAR_COOLDOWN_TIME = 4000; 
+    const float BOAR_CHARGE_DURATION = 1000; 
+    const float BOAR_COOLDOWN_TIME = 500; 
     const float BOAR_CHARGE_SPEED = 1.0f; 
 
     if (registry.deathTimers.has(boar)) {
@@ -74,7 +74,6 @@ void AISystem::boarBehaviour(Entity boar, vec3 playerPosition, float elapsed_ms)
     if (boars.charging) {
         if (boars.chargeTimer > 0) {
             boars.chargeTimer -= elapsed_ms;
-            motion.position += motion.velocity * (elapsed_ms / 1000.0f);
 
         } else {
             boars.charging = false;

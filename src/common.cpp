@@ -24,9 +24,10 @@ void Transform::translate(vec2 offset)
 
 vec2 rotate(vec2 v, float radians)
 {
-	v.x = v.x * cos(radians) - v.y * sin(radians);
-	v.y = v.x * sin(radians) + v.y * cos(radians);
-	return v;
+	vec2 vertex{};
+	vertex.x = v.x * cos(radians) - v.y * sin(radians);
+	vertex.y = v.x * sin(radians) + v.y * cos(radians);
+	return vertex;
 }
 
 bool gl_has_errors()

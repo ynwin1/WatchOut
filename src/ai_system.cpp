@@ -8,8 +8,15 @@ AISystem::AISystem(std::default_random_engine& rng)
     this->rng = rng;
 }
 
-void AISystem::moveTowardsPlayer(Entity enemy, vec3 playerPosition)
+void AISystem::moveTowardsPlayer(Entity enemy, vec3 playerPosition, float elapsed_ms)
 {
+    float& pathfindTime = registry.enemies.get(enemy).pathfindTime;
+    pathfindTime -= elapsed_ms;
+    if (pathfindTime > 0) {
+        return;
+    }
+    pathfindTime = 200;
+
     Motion& enemyMotion = registry.motions.get(enemy);
     vec2 direction = chooseDirection(enemyMotion, playerPosition);
     float speed = registry.enemies.get(enemy).speed;
@@ -18,29 +25,41 @@ void AISystem::moveTowardsPlayer(Entity enemy, vec3 playerPosition)
 
 vec2 AISystem::chooseDirection(Motion& motion, vec3 playerPosition) const
 {
-    const unsigned int NUMBER_OF_DIRECTIONS = 4;
+    const vec2 playerDirection = normalize(playerPosition - motion.position);
+
+    const unsigned int NUMBER_OF_DIRECTIONS = 30;
     const float OFFSET = 2 * M_PI / NUMBER_OF_DIRECTIONS;
-    const float RADIUS = 300;
+    float radius = 300;
+
+    float d = distance(motion.position, playerPosition);
+    if (d < radius) {
+        radius = d;
+    }
 
     std::vector<Entity>& allObstacles = registry.obstacles.entities;
     std::vector<Entity> obstacles;
     // only include obstacles within the range we care about
+    // won't work for extremely large obstacles (where none of their hitbox vertices will be inside the radius)
     std::copy_if(allObstacles.begin(), allObstacles.end(), std::back_inserter(obstacles), 
-        [&motion, RADIUS](Entity obstacle) {
+        [&motion, radius](Entity obstacle) {
             Motion& obstacleMotion = registry.motions.get(obstacle);
-            float d = distance(vec2(obstacleMotion.position), vec2(motion.position));
-            return d < RADIUS;
+            std::vector<vec3> vertices = boundingBoxVertices(obstacleMotion);
+            for (auto& vertex : vertices) {
+                float d = distance(motion.position, vertex);
+                if (d < radius)
+                    return true;
+            }
+            return false;
         }
     );
 
-    const vec2 playerDirection = normalize(playerPosition - motion.position);
     vec2 bestDirection = playerDirection;
     float bestClearDistance = 0;
     for (unsigned int i = 0; i < NUMBER_OF_DIRECTIONS; i++) {
         int side = i % 2 == 0 ? -1 : 1;     // which side to apply offset
         vec2 direction = rotate(playerDirection, OFFSET * ceil(i / 2.f) * side);
         float clearDistance;
-        if (pathClear(motion, playerPosition, RADIUS, obstacles, clearDistance)) {
+        if (pathClear(motion, direction, radius, obstacles, clearDistance)) {
             return direction;
         }
         if (clearDistance > bestClearDistance) {
@@ -52,29 +71,114 @@ vec2 AISystem::chooseDirection(Motion& motion, vec3 playerPosition) const
     return bestDirection;
 }
 
+// Uses hitbox vertices except for the vertex in the direction quadrant 
+static std::vector<vec2> pathPolygon(Motion& motion, vec2 pathEnd)
+{
+    std::vector<vec2> polygon;
+    vec2 topRight = vec2(motion.position) + vec2(motion.hitbox.x, motion.hitbox.y) / 2.f;
+    vec2 topLeft  = vec2(motion.position) + vec2(-motion.hitbox.x, motion.hitbox.y) / 2.f;
+    vec2 botRight = vec2(motion.position) + vec2(motion.hitbox.x, -motion.hitbox.y) / 2.f;
+    vec2 botLeft  = vec2(motion.position) + vec2(-motion.hitbox.x, -motion.hitbox.y) / 2.f;
+    if (pathEnd.x >= 0 && pathEnd.y <= 0) {
+        polygon.push_back(topLeft);
+        polygon.push_back(botLeft);
+        polygon.push_back(botRight);
+        polygon.push_back(botRight + pathEnd);
+        polygon.push_back(topRight + pathEnd);
+        polygon.push_back(topLeft  + pathEnd);
+    }
+    else if (pathEnd.x >= 0 && pathEnd.y >= 0) {
+        polygon.push_back(topRight);
+        polygon.push_back(topLeft);
+        polygon.push_back(botLeft);
+        polygon.push_back(botLeft  + pathEnd);
+        polygon.push_back(botRight + pathEnd);
+        polygon.push_back(topRight + pathEnd);
+    }
+    else if (pathEnd.x <= 0 && pathEnd.y <= 0) {
+        polygon.push_back(botRight);
+        polygon.push_back(topRight);
+        polygon.push_back(topLeft);
+        polygon.push_back(topLeft  + pathEnd);
+        polygon.push_back(botLeft  + pathEnd);
+        polygon.push_back(botRight + pathEnd);
+    }
+    else if (pathEnd.x <= 0 && pathEnd.y >= 0) {
+        polygon.push_back(botLeft);
+        polygon.push_back(botRight);
+        polygon.push_back(topRight);
+        polygon.push_back(topRight + pathEnd);
+        polygon.push_back(topLeft  + pathEnd);
+        polygon.push_back(botLeft  + pathEnd);
+    }
+    return polygon;
+}
+
 // Returns whether the path is clear or not
 // If path is not clear, sets clearDistance to the distance along the path that is clear
-bool AISystem::pathClear(Motion& motion, vec3 playerPosition, float howFar, const std::vector<Entity>& obstacles, float& clearDistance) const
+bool AISystem::pathClear(Motion& motion, vec2 direction, float howFar, const std::vector<Entity>& obstacles, float& clearDistance) const
 {
-    return true;
+    // Filter out obstacles that are outside of the Z range
+    std::vector<Entity> verticallyBlockingObstacles;
+    std::copy_if(obstacles.begin(), obstacles.end(), std::back_inserter(verticallyBlockingObstacles),
+        [&motion](Entity obstacle) {
+            Motion& obstacleMotion = registry.motions.get(obstacle);
+            return !(
+                obstacleMotion.position.z - obstacleMotion.hitbox.z / 2 > motion.position.z + motion.hitbox.z / 2 ||
+                obstacleMotion.position.z + obstacleMotion.hitbox.z / 2 < motion.position.z - motion.hitbox.z / 2);
+        }
+    );
+
+    // Horizontal path polygon
+    std::vector<vec2> polygon = pathPolygon(motion, direction * howFar);
+    
+    // Obstacles that block in both horizontal and vertical ranges
+    std::vector<Entity> blockingObstacles;
+    std::copy_if(verticallyBlockingObstacles.begin(), verticallyBlockingObstacles.end(), std::back_inserter(blockingObstacles),
+        [&polygon](Entity obstacle) {
+            Motion& obstacleMotion = registry.motions.get(obstacle);
+            std::vector<vec2> obstaclePolygon;
+            vec2 centre = vec2(obstacleMotion.position);
+            obstaclePolygon.push_back(centre + vec2( obstacleMotion.hitbox.x,  obstacleMotion.hitbox.y) / 2.f);
+            obstaclePolygon.push_back(centre + vec2(-obstacleMotion.hitbox.x,  obstacleMotion.hitbox.y) / 2.f);
+            obstaclePolygon.push_back(centre + vec2(-obstacleMotion.hitbox.x, -obstacleMotion.hitbox.y) / 2.f);
+            obstaclePolygon.push_back(centre + vec2( obstacleMotion.hitbox.x, -obstacleMotion.hitbox.y) / 2.f);
+            return polygonsCollide(polygon, obstaclePolygon);
+        });
+
+    if (blockingObstacles.size() == 0) {
+        return true;
+    }
+
+    float minDistance = FLT_MAX;
+    for (Entity obstacle : blockingObstacles) {
+        Motion& obstacleMotion = registry.motions.get(obstacle);
+        float d = distance(obstacleMotion.position, motion.position);
+        if (d < minDistance) {
+            minDistance = d;
+        }
+    }
+    clearDistance = minDistance;
+
+    return false;
 }
 
 
 
-void AISystem::boarBehaviour(Entity boar, vec3 playerPosition)
+void AISystem::boarBehaviour(Entity boar, vec3 playerPosition, float elapsed_ms)
 {
     if (registry.deathTimers.has(boar)) {
         return;
     }
-    moveTowardsPlayer(boar, playerPosition);
+    moveTowardsPlayer(boar, playerPosition, elapsed_ms);
 }
 
-void AISystem::barbarianBehaviour(Entity barbarian, vec3 playerPosition)
+void AISystem::barbarianBehaviour(Entity barbarian, vec3 playerPosition, float elapsed_ms)
 {
     if (registry.deathTimers.has(barbarian)) {
         return;
     }
-    moveTowardsPlayer(barbarian, playerPosition);
+    moveTowardsPlayer(barbarian, playerPosition, elapsed_ms);
 }
 
 void AISystem::shootArrow(Entity shooter, vec3 targetPos)
@@ -163,7 +267,7 @@ void AISystem::archerBehaviour(Entity entity, vec3 playerPosition, float elapsed
         }
     }
     else {
-        moveTowardsPlayer(entity, playerPosition);
+        moveTowardsPlayer(entity, playerPosition, elapsed_ms);
     }
 }
 
@@ -178,10 +282,10 @@ void AISystem::step(float elapsed_ms)
 
     for (Entity enemy : registry.enemies.entities) {
         if (registry.boars.has(enemy)) {
-            boarBehaviour(enemy, playerPosition);
+            boarBehaviour(enemy, playerPosition, elapsed_ms);
         }
         else if (registry.barbarians.has(enemy)) {
-            barbarianBehaviour(enemy, playerPosition);
+            barbarianBehaviour(enemy, playerPosition, elapsed_ms);
         }
         else if (registry.archers.has(enemy)) {
             archerBehaviour(enemy, playerPosition, elapsed_ms);

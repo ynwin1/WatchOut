@@ -120,13 +120,14 @@ static vec3 tranformVertex(vec3 vertex, vec3 translation, float rotation, vec3 s
 	vertex *= scaling;
 	
 	// Rotation
-	vertex.x = vertex.x * cos(rotation) - vertex.z * sin(rotation);
-	vertex.z = vertex.x * sin(rotation) + vertex.z * cos(rotation);
+	vec3 rotatedVertex{};
+	rotatedVertex.x = vertex.x * cos(rotation) - vertex.z * sin(rotation);
+	rotatedVertex.z = vertex.x * sin(rotation) + vertex.z * cos(rotation);
 
 	// Translation
-	vertex += translation;
+	rotatedVertex += translation;
 
-	return vertex;
+	return rotatedVertex;
 }
 
 bool polygonsCollide(std::vector<vec2> polygon1, std::vector<vec2> polygon2) {
@@ -434,3 +435,18 @@ void PhysicsSystem::step(float elapsed_ms)
 	checkCollisions();
 	handleBoundsCheck();
 };
+
+std::vector<vec3> boundingBoxVertices(Motion& motion)
+{
+	std::vector<vec3> vertices;
+	for (auto i : { -0.5f, 0.5f }) {
+		for (auto j : { -0.5f, 0.5f }) {
+			for (auto k : { -0.5f, 0.5f }) {
+				vec3 vertex = vec3(i, j, k);
+				vertex = tranformVertex(vertex, motion.position, motion.angle, motion.hitbox);
+				vertices.push_back(vertex);
+			}
+		}
+	}
+	return vertices;
+}

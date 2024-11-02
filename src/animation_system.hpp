@@ -27,7 +27,7 @@ struct AnimationController
 	std::unordered_map<AnimationState, Animation> animations;
 	AnimationState currentState;
 
-	AnimationController() : currentState(AnimationState::Idle) {printf("HERE1");}
+	AnimationController() : currentState(AnimationState::Idle) {}
 
 	void addAnimation(AnimationState state, float frameTime, int numFrames)
 	{

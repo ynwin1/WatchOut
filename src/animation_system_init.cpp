@@ -18,4 +18,6 @@ AnimationController& initJeffAnimationController(Entity& jeff) {
 			EFFECT_ASSET_ID::ANIMATED,
 			GEOMETRY_BUFFER_ID::SPRITE
 		});
+
+    return animationcontroller;
 }

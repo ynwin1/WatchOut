@@ -14,6 +14,9 @@
 #include <iostream>
 #include <sstream>
 
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
 // Debugging
 namespace {
 	void glfw_err_cb(int error, const char* desc) {
@@ -21,9 +24,7 @@ namespace {
 	}
 }
 
-GLFWwindow* RenderSystem::create_window(Camera* camera) {
-	this->camera = camera;
-
+GLFWwindow* RenderSystem::create_window() {
 	///////////////////////////////////////
 	// Initialize GLFW
 	glfwSetErrorCallback(glfw_err_cb);
@@ -43,7 +44,7 @@ GLFWwindow* RenderSystem::create_window(Camera* camera) {
 #if __APPLE__
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
-	glfwWindowHint(GLFW_RESIZABLE, 0);
+	glfwWindowHint(GLFW_RESIZABLE, 1);
 
 	// Create the main window (for rendering, keyboard, and mouse input)
 	GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
@@ -61,10 +62,12 @@ GLFWwindow* RenderSystem::create_window(Camera* camera) {
 
 
 // World initialization
-bool RenderSystem::init()
+bool RenderSystem::init(Camera* camera)
 {
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(1); // vsync
+
+	this->camera = camera;
 
 	// Load OpenGL function pointers
 	const int is_fine = gl3w_init();
@@ -139,12 +142,39 @@ void RenderSystem::bindVBOandIBO(GEOMETRY_BUFFER_ID gid, std::vector<T> vertices
 	gl_has_errors();
 }
 
+void RenderSystem::initializeGlMeshes()
+{
+	for (uint i = 0; i < mesh_paths.size(); i++)
+	{
+		// Initialize meshes
+		GEOMETRY_BUFFER_ID geom_index = mesh_paths[i].first;
+		std::string name = mesh_paths[i].second;
+		Mesh::loadFromOBJFile(name,
+			meshes[(int)geom_index].vertices,
+			meshes[(int)geom_index].vertex_indices,
+			meshes[(int)geom_index].original_size);
+
+		if (geom_index == GEOMETRY_BUFFER_ID::TREE) {
+			for (auto& vertex : meshes[(int)geom_index].vertices) {
+				vertex.position.y *= -1;
+			}
+		}
+
+		bindVBOandIBO(geom_index,
+			meshes[(int)geom_index].vertices,
+			meshes[(int)geom_index].vertex_indices);
+	}
+}
+
 void RenderSystem::initializeGlGeometryBuffers()
 {
 	// Vertex Buffer creation.
 	glGenBuffers((GLsizei)vertex_buffers.size(), vertex_buffers.data());
 	// Index Buffer creation.
 	glGenBuffers((GLsizei)index_buffers.size(), index_buffers.data());
+
+	// Index and Vertex buffer data initialization.
+	initializeGlMeshes();
 
 	//////////////////////////
 	// Initialize sprite
@@ -177,7 +207,26 @@ void RenderSystem::initializeGlGeometryBuffers()
 	const std::vector<uint16_t> game_space_indices = { 0, 1, 2, 0, 2, 3 };
 	bindVBOandIBO(GEOMETRY_BUFFER_ID::GAME_SPACE, game_space_vertices, game_space_indices);
 
+	initMapTileBuffer();
 	initHealthBarBuffer();
+	initStaminaBarBuffer();
+	
+	initText();
+}
+
+void RenderSystem::initMapTileBuffer() {
+	std::vector<TexturedVertex> map_tile_vertices(4);
+	map_tile_vertices[0].position = {0.0f, 0.0f, 0.0f};
+	map_tile_vertices[1].position = {1.f, 0.0f, 0.0f};
+	map_tile_vertices[2].position = {0.0f, 1.0f, 0.0f};
+	map_tile_vertices[3].position = {1.0f, 1.1f, 0.0f };
+	map_tile_vertices[0].texcoord = { 0.f, 0.f };
+	map_tile_vertices[1].texcoord = { 1.f, 0.f };
+	map_tile_vertices[2].texcoord = { 0.f, 1.f };
+	map_tile_vertices[3].texcoord = { 1.f, 1.f };
+
+	const std::vector<uint16_t> map_tile_indices = { 0, 1, 2, 1, 2, 3 };
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::MAP_TILE, map_tile_vertices, map_tile_indices);
 }
 
 void RenderSystem::initHealthBarBuffer() {
@@ -189,6 +238,83 @@ void RenderSystem::initHealthBarBuffer() {
 
     const std::vector<uint16_t> health_bar_indices = { 0, 1, 2, 1, 2, 3 };
     bindVBOandIBO(GEOMETRY_BUFFER_ID::HEALTH_BAR, health_bar_vertices, health_bar_indices);
+}
+
+void RenderSystem::initStaminaBarBuffer() {
+    std::vector<UntexturedVertex> health_bar_vertices(4);
+    health_bar_vertices[0].position = { -0.5f, -0.5f, 0.0f };
+    health_bar_vertices[1].position = {  0.5f, -0.5f, 0.0f };
+    health_bar_vertices[2].position = { -0.5f,  0.5f, 0.0f };
+    health_bar_vertices[3].position = {  0.5f,  0.5f, 0.0f };
+
+    const std::vector<uint16_t> health_bar_indices = { 0, 1, 2, 1, 2, 3 };
+    bindVBOandIBO(GEOMETRY_BUFFER_ID::STAMINA_BAR, health_bar_vertices, health_bar_indices);
+}
+void RenderSystem::initText() {
+	FT_Library ft;
+	if (FT_Init_FreeType(&ft))
+	{
+		std::cerr << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
+		return;
+	}
+    FT_Init_FreeType(&ft);
+    
+    FT_Face face;
+	std::string font_filename = PROJECT_SOURCE_DIR + std::string("data/fonts/Kenney_Pixel.ttf");
+	if (FT_New_Face(ft, font_filename.c_str(), 0, &face))
+	{
+		std::cerr << "ERROR::FREETYPE: Failed to load font: " << "data/fonts/Kenney_Pixel.ttf" << std::endl;
+		return;
+	}
+    FT_Set_Pixel_Sizes(face, 0, 48);
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+	glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	for (unsigned char c = 0; c < 128; c++) {
+   	 // load character glyph 
+		if (FT_Load_Char(face, c, FT_LOAD_RENDER))
+		{
+			std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
+			continue;
+		}
+		// generate texture
+		unsigned int texture;
+		glGenTextures(1, &texture);
+		glBindTexture(GL_TEXTURE_2D, texture);
+		glTexImage2D(
+			GL_TEXTURE_2D,
+			0,
+			GL_RED,
+			face->glyph->bitmap.width,
+			face->glyph->bitmap.rows,
+			0,
+			GL_RED,
+			GL_UNSIGNED_BYTE,
+			face->glyph->bitmap.buffer
+		);
+		// set texture options
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		// now store character for later use
+		TextChar character = {
+			texture, 
+			glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
+			glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
+			static_cast<unsigned int>(face->glyph->advance.x)
+		};
+		registry.textChars.insert(std::pair<char, TextChar>(c, character));
+	}
+
+	FT_Done_Face(face);
+	FT_Done_FreeType(ft);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffers[(uint)GEOMETRY_BUFFER_ID::TEXT]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW); 
 }
 
 

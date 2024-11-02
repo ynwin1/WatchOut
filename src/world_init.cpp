@@ -2,27 +2,26 @@
 #include "tiny_ecs_registry.hpp"
 #include "animation_system.hpp"
 #include "animation_system_init.hpp"
+#include <random>
+#include <sstream>
 
 // Boar creation
-Entity createBoar(RenderSystem* renderer, vec2 pos)
+Entity createBoar(vec2 pos)
 {
 	auto entity = Entity();
 
 	// Setting intial motion values
 	Motion& motion = registry.motions.emplace(entity);
-	motion.position = pos;
+	motion.position = vec3(pos, getElevation(pos) + BOAR_BB_HEIGHT / 2);
 	motion.angle = 0.f;
-	motion.velocity = { 0.f, 0.f };
 	motion.scale = { BOAR_BB_WIDTH, BOAR_BB_HEIGHT };
-
-	// Setting initial hitbox values
-	Hitbox& hitbox = registry.hitboxes.emplace(entity);
-	hitbox.position = pos;
-	hitbox.dimension = { BOAR_BB_WIDTH, BOAR_BB_HEIGHT };
+	motion.hitbox = { BOAR_BB_WIDTH, BOAR_BB_HEIGHT, BOAR_BB_HEIGHT / zConversionFactor };
+	motion.solid = true;
 
 	Enemy& enemy = registry.enemies.emplace(entity);
 	enemy.damage = 20;
 	enemy.cooldown = 1500.f; // 1.5s
+	enemy.speed = BOAR_SPEED;
 
 	registry.boars.emplace(entity);
 
@@ -34,6 +33,7 @@ Entity createBoar(RenderSystem* renderer, vec2 pos)
 		EFFECT_ASSET_ID::TEXTURED,
 		GEOMETRY_BUFFER_ID::SPRITE
 	});
+	registry.midgrounds.emplace(entity);
 
 	createHealthBar(entity, vec3(1.0f, 0.0f, 0.0f));
 	
@@ -41,25 +41,22 @@ Entity createBoar(RenderSystem* renderer, vec2 pos)
 };
 
 // Barbarian creation
-Entity createBarbarian(RenderSystem* renderer, vec2 pos)
+Entity createBarbarian(vec2 pos)
 {
 	auto entity = Entity();
 
 	// Setting intial motion values
 	Motion& motion = registry.motions.emplace(entity);
-	motion.position = pos;
+	motion.position = vec3(pos, getElevation(pos) + BARBARIAN_BB_HEIGHT / 2);
 	motion.angle = 0.f;
-	motion.velocity = { 0.f, 0.f };
 	motion.scale = { BARBARIAN_BB_WIDTH, BARBARIAN_BB_HEIGHT };
-
-	// Setting initial hitbox values
-	Hitbox& hitbox = registry.hitboxes.emplace(entity);
-	hitbox.position = pos;
-	hitbox.dimension = { BARBARIAN_BB_WIDTH, BARBARIAN_BB_HEIGHT };
+	motion.hitbox = { BARBARIAN_BB_WIDTH, BARBARIAN_BB_WIDTH, BARBARIAN_BB_HEIGHT / zConversionFactor };
+	motion.solid = true;
 	
 	Enemy& enemy = registry.enemies.emplace(entity);
 	enemy.damage = 30;
 	enemy.cooldown = 2000.f; // 2s
+	enemy.speed = BARBARIAN_SPEED;
 
 	registry.barbarians.emplace(entity);
 
@@ -71,6 +68,7 @@ Entity createBarbarian(RenderSystem* renderer, vec2 pos)
 		EFFECT_ASSET_ID::TEXTURED,
 		GEOMETRY_BUFFER_ID::SPRITE
 	});
+	registry.midgrounds.emplace(entity);
 
 	createHealthBar(entity, vec3(1.0f, 0.0f, 0.0f));
 
@@ -78,26 +76,23 @@ Entity createBarbarian(RenderSystem* renderer, vec2 pos)
 };
 
 // Archer creation
-Entity createArcher(RenderSystem* renderer, vec2 pos)
+Entity createArcher(vec2 pos)
 {
 	auto entity = Entity();
 
 	// Setting intial motion values
 	Motion& motion = registry.motions.emplace(entity);
-	motion.position = pos;
+	motion.position = vec3(pos, getElevation(pos) + ARCHER_BB_HEIGHT / 2);
 	motion.angle = 0.f;
-	motion.velocity = { 0.f, 0.f };
 	motion.scale = { ARCHER_BB_WIDTH, ARCHER_BB_HEIGHT };
-
-	// Setting initial hitbox values
-	Hitbox& hitbox = registry.hitboxes.emplace(entity);
-	hitbox.position = pos;
-	hitbox.dimension = { ARCHER_BB_WIDTH, ARCHER_BB_HEIGHT };
+	motion.hitbox = { ARCHER_BB_WIDTH, ARCHER_BB_WIDTH, ARCHER_BB_HEIGHT / zConversionFactor };
+	motion.solid = true;
 
 	// Add Render Request for drawing sprite
 	Enemy& enemy = registry.enemies.emplace(entity);
 	enemy.damage = 40;
 	enemy.cooldown = 3000.f; // 3s
+	enemy.speed = ARCHER_SPEED;
 
 	registry.archers.emplace(entity);
 
@@ -108,6 +103,7 @@ Entity createArcher(RenderSystem* renderer, vec2 pos)
 		EFFECT_ASSET_ID::TEXTURED,
 		GEOMETRY_BUFFER_ID::SPRITE
 	});
+	registry.midgrounds.emplace(entity);
 
 	createHealthBar(entity, vec3(1.0f, 0.0f, 0.0f));
 	
@@ -115,64 +111,106 @@ Entity createArcher(RenderSystem* renderer, vec2 pos)
 };
 
 // Collectible trap creation
-Entity createCollectibleTrap(RenderSystem* renderer, vec2 pos)
+Entity createCollectibleTrap(vec2 pos)
 {
 	auto entity = Entity();
+	registry.collectibleTraps.emplace(entity);
 
 	// Setting intial motion values
 	Motion& motion = registry.motions.emplace(entity);
-	motion.position = pos;
+	motion.position = vec3(pos, getElevation(pos) + TRAP_COLLECTABLE_BB_HEIGHT / 2);
 	motion.angle = 0.f;
-	motion.velocity = { 0.f, 0.f };
-	motion.scale = { TRAP_BB_WIDTH, TRAP_BB_HEIGHT };
+	motion.scale = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT };
+	motion.hitbox = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT / zConversionFactor };
 
-	// Setting initial hitbox values
-	Hitbox& hitbox = registry.hitboxes.emplace(entity);
-	hitbox.position = pos;
-	hitbox.dimension = { TRAP_BB_WIDTH, TRAP_BB_HEIGHT };
-
-	// TODO LATER - A1 has this entity inserted into renderRequest container
 	registry.collectibles.emplace(entity);
+
+	registry.renderRequests.insert(
+	entity,
+	{
+		TEXTURE_ASSET_ID::TRAPCOLLECTABLE,
+		EFFECT_ASSET_ID::TEXTURED,
+		GEOMETRY_BUFFER_ID::SPRITE
+	});
+
+	registry.midgrounds.emplace(entity);
+
+	printf("Collectible trap created\n");
+
+	return entity;
+};
+
+// Heart creation
+Entity createHeart(vec2 pos)
+{
+	auto entity = Entity();
+	registry.hearts.emplace(entity);
+
+	// Setting intial motion values
+	Motion& fixed = registry.motions.emplace(entity);
+	fixed.position = vec3(pos, getElevation(pos) + HEART_BB_WIDTH / 2);
+	fixed.angle = 0.f;
+	fixed.scale = { HEART_BB_WIDTH, HEART_BB_WIDTH };
+	fixed.hitbox = { HEART_BB_WIDTH, HEART_BB_WIDTH, HEART_BB_HEIGHT / zConversionFactor };
+
+	registry.collectibles.emplace(entity);
+
+	registry.renderRequests.insert(
+	entity,
+	{
+		TEXTURE_ASSET_ID::HEART,
+		EFFECT_ASSET_ID::TEXTURED,
+		GEOMETRY_BUFFER_ID::SPRITE
+	});
+
+	registry.midgrounds.emplace(entity);
+
 	return entity;
 };
 
 // Damage trap creation
-Entity createDamageTrap(RenderSystem* renderer, vec2 pos)
+Entity createDamageTrap(vec2 pos)
 {
 	auto entity = Entity();
 
 	// Setting intial motion values
 	Motion& motion = registry.motions.emplace(entity);
-	motion.position = pos;
+	motion.position = vec3(pos, getElevation(pos) + TRAP_BB_HEIGHT / 2);
 	motion.angle = 0.f;
-	motion.velocity = { 0.f, 0.f };
 	motion.scale = { TRAP_BB_WIDTH, TRAP_BB_HEIGHT };
-
-	// Setting initial hitbox values
-	Hitbox& hitbox = registry.hitboxes.emplace(entity);
-	hitbox.position = pos;
-	hitbox.dimension = { TRAP_BB_WIDTH, TRAP_BB_HEIGHT };
+	motion.hitbox = { TRAP_BB_WIDTH, TRAP_BB_WIDTH, TRAP_BB_HEIGHT / zConversionFactor };
 
 	// Setting initial trap values
 	registry.traps.emplace(entity);
-	// TODO LATER - A1 has this entity inserted into renderRequest container
+
+	registry.renderRequests.insert(
+	entity,
+	{
+		TEXTURE_ASSET_ID::TRAP,
+		EFFECT_ASSET_ID::TEXTURED,
+		GEOMETRY_BUFFER_ID::SPRITE
+	});
+
+	registry.midgrounds.emplace(entity);
+
 	return entity;
 };
 
 // Create Player Jeff
-Entity createJeff(RenderSystem* renderer, vec2 position)
+Entity createJeff(vec2 position)
 {
 	auto entity = Entity();
 
 	// Initialize the motion
 	auto& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
-	motion.velocity = { 0, 0.f };
-	motion.position = position;
+	motion.position = vec3(position, getElevation(position) + JEFF_BB_HEIGHT / 2);
+
+	//Initialize stamina
+	auto& stamina = registry.staminas.emplace(entity);
 
 	//Initialize movement
 	auto& player = registry.players.emplace(entity);
-	player.isJumping = false;
 	player.isRolling = false;
 	player.isRunning = false;
 	player.facing = { 1, 0 };
@@ -185,59 +223,103 @@ Entity createJeff(RenderSystem* renderer, vec2 position)
 	dasher.dashDuration = 0.2f;
 
 	// Setting initial values, scale is negative to make it face the opposite way
-	motion.scale = vec2({ 32 * SPRITE_SCALE, 32 * SPRITE_SCALE});
+	motion.scale = vec2({ 32. * SPRITE_SCALE, 32. * SPRITE_SCALE});
+	motion.hitbox = { JEFF_BB_WIDTH, JEFF_BB_WIDTH, JEFF_BB_HEIGHT / zConversionFactor };
+	motion.solid = true;
 
-	// Setting initial hitbox values
-	Hitbox& hitbox = registry.hitboxes.emplace(entity);
-	hitbox.position = position;
-	hitbox.dimension = { JEFF_BB_WIDTH, JEFF_BB_HEIGHT };
+	auto& jumper = registry.jumpers.emplace(entity);
+	jumper.speed = 2;
 
 	// Animation
 	initJeffAnimationController(entity);
+	// Jeff Render Request
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::JEFF,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+	registry.midgrounds.emplace(entity);
 
 	createHealthBar(entity, vec3(0.0f, 1.0f, 0.0f));
+	createStaminaBar(entity, vec3(0.0f, 0.0f, 1.0f));
+	
 	
 	return entity;
 }
 
-void createBattleGround() {
+Entity createTree(RenderSystem* renderer, vec2 pos)
+{
 	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::TREE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	// Setting initial motion values
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = vec3(pos, 0);
+	motion.angle = 0.f;
+	motion.scale = { TREE_BB_WIDTH, TREE_BB_HEIGHT };
+	motion.hitbox = { TREE_BB_WIDTH, TREE_BB_WIDTH, TREE_BB_HEIGHT / zConversionFactor };
+	motion.solid = true;
+
+	// print tree position
+	printf("Tree position: %f, %f, %f\n", pos.x, pos.y, motion.position.z);
+
+	registry.renderRequests.insert(
+		entity, {
+			TEXTURE_ASSET_ID::TREE,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE });
+
+	/*if (!RENDERING_MESH) {
+		registry.renderRequests.insert(
+			entity, {
+				TEXTURE_ASSET_ID::TREE,
+				EFFECT_ASSET_ID::TEXTURED,
+				GEOMETRY_BUFFER_ID::SPRITE });
+	}
+	else {
+		registry.renderRequests.insert(
+			entity, {
+				TEXTURE_ASSET_ID::TREE,
+				EFFECT_ASSET_ID::TREE,
+				GEOMETRY_BUFFER_ID::TREE });
+	}*/
+
+	registry.obstacles.emplace(entity);
+	registry.midgrounds.emplace(entity);
+
+	return entity;
+}
+
+Entity createArrow(vec3 pos, vec3 velocity)
+{
+	auto entity = Entity();
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.velocity = velocity;
+	motion.scale = { ARROW_BB_WIDTH, ARROW_BB_HEIGHT };
+	motion.hitbox = { ARROW_BB_WIDTH, ARROW_BB_HEIGHT, ARROW_BB_HEIGHT / zConversionFactor };
+	
+	registry.projectiles.emplace(entity);
+	Damaging& damaging = registry.damagings.emplace(entity);
+	damaging.damage = 50;
+	registry.midgrounds.emplace(entity);
 
 	registry.renderRequests.insert(
 		entity,
 		{
-			TEXTURE_ASSET_ID::BATTLEGROUND,
+			TEXTURE_ASSET_ID::ARROW,
 			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::GAME_SPACE
+			GEOMETRY_BUFFER_ID::SPRITE
 		});
-}
 
-// gameover
-Entity createGameOver(RenderSystem* renderer, vec2 pos)
-{
-	auto entity = Entity();
-
-	// Setting intial motion values
-	Motion& motion = registry.motions.emplace(entity);
-	motion.position = pos;
-	motion.angle = 0.f;
-	motion.velocity = { 0.f, 0.f };
-	motion.scale = { GO_BB_WIDTH, GO_BB_HEIGHT };
-
-	// Setting initial hitbox values
-	Hitbox& hitbox = registry.hitboxes.emplace(entity);
-
-
-	registry.renderRequests.insert(
-	entity,
-	{
-		TEXTURE_ASSET_ID::GAMEOVER,
-		EFFECT_ASSET_ID::TEXTURED,
-		GEOMETRY_BUFFER_ID::SPRITE
-	});
-	
 	return entity;
-};
+}
 
 void createHealthBar(Entity characterEntity, vec3 color) {
 	auto meshEntity = Entity();
@@ -247,10 +329,10 @@ void createHealthBar(Entity characterEntity, vec3 color) {
 
 	Motion& characterMotion = registry.motions.get(characterEntity);
 
-	StaticMotion& staticMotion = registry.staticMotions.emplace(meshEntity);
-	staticMotion.position = characterMotion.position;
-	staticMotion.angle = 0.f;
-	staticMotion.scale = { width, height };
+	Motion& motion = registry.motions.emplace(meshEntity);
+	// position does not need to be initialized as it will always be set to match the associated entity
+	motion.angle = 0.f;
+	motion.scale = { width, height };
 
 	registry.colours.insert(meshEntity, color);
 
@@ -261,8 +343,244 @@ void createHealthBar(Entity characterEntity, vec3 color) {
 			EFFECT_ASSET_ID::UNTEXTURED,
 			GEOMETRY_BUFFER_ID::HEALTH_BAR
 		});
+	registry.midgrounds.emplace(meshEntity);
 
 	HealthBar& hpbar = registry.healthBars.emplace(characterEntity, meshEntity);
 	hpbar.width = width;
 	hpbar.height = height;
+}
+
+void createStaminaBar(Entity characterEntity, vec3 color) {
+	auto meshEntity = Entity();
+
+	const float width = 60.0f;
+	const float height = 10.0f;
+
+	Motion& characterMotion = registry.motions.get(characterEntity);
+
+	Motion& motion = registry.motions.emplace(meshEntity);
+	motion.angle = 0.f;
+	motion.scale = { width, height };
+
+
+	registry.colours.insert(meshEntity, color);
+
+	registry.renderRequests.insert(
+		meshEntity,
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::UNTEXTURED,
+			GEOMETRY_BUFFER_ID::STAMINA_BAR
+		});
+	registry.midgrounds.emplace(meshEntity);
+
+	StaminaBar& staminabar = registry.staminaBars.emplace(characterEntity, meshEntity);
+	staminabar.width = width;
+	staminabar.height = height;
+}
+
+Entity createFPSText(vec2 windowSize) {
+	auto entity = Entity();
+
+	Text& text = registry.texts.emplace(entity);
+	text.value = "00 fps";
+	// text position based on screen coordinates
+	text.position = {windowSize.x - 90.0f, windowSize.y - 40.0f};
+	text.scale = 0.8f;
+
+	registry.renderRequests.insert(
+			entity, 
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::FONT,
+			GEOMETRY_BUFFER_ID::TEXT
+		});
+
+	return entity;
+}
+
+Entity createGameTimerText(vec2 windowSize) {
+	auto entity = Entity();
+
+	Text& text = registry.texts.emplace(entity);
+	text.value = "00:00:00";
+	text.position = {(windowSize.x / 2) + 50.0f, windowSize.y - 80.0f}; 
+	text.scale = 2.0f;
+
+	registry.renderRequests.insert(
+		entity, 
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::FONT,
+			GEOMETRY_BUFFER_ID::TEXT
+		});
+
+	return entity;
+}
+
+Entity createTrapsCounterText(vec2 windowSize) {
+	auto entity = Entity();
+
+	Text& text = registry.texts.emplace(entity);
+	text.value = "Traps: 00";
+	text.position = {(windowSize.x / 2) - 250.0f, windowSize.y - 80.0f}; 
+	text.scale = 1.5f;
+
+	registry.renderRequests.insert(
+		entity, 
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::FONT,
+			GEOMETRY_BUFFER_ID::TEXT
+		});
+	
+	return entity;
+}
+
+Entity createMapTile(vec2 position, vec2 size) {
+    auto entity = Entity();
+
+    MapTile& tile = registry.mapTiles.emplace(entity);
+    tile.position = position;
+    tile.scale = size;
+	
+    registry.renderRequests.insert(
+        entity, 
+        {
+            TEXTURE_ASSET_ID::GRASS_TILE,
+            EFFECT_ASSET_ID::TEXTURED,
+            GEOMETRY_BUFFER_ID::MAP_TILE
+        });
+    registry.backgrounds.emplace(entity);
+	
+    return entity;
+}
+
+void createObstacles() {
+	std::default_random_engine rng;
+    std::uniform_real_distribution<float> uniform_dist;
+    rng = std::default_random_engine(std::random_device()());
+
+	int numShrubs = 20;
+	while(numShrubs != 0) {
+    	float posX = (uniform_dist(rng) * world_size_x);
+		float posY = (uniform_dist(rng) * world_size_y);
+		createObstacle({posX, posY}, {SHRUB_BB_WIDTH, SHRUB_BB_HEIGHT}, TEXTURE_ASSET_ID::SHRUB);
+		numShrubs--;
+    }
+	int numRocks = 15;
+	while(numRocks != 0) {
+    	float posX = (uniform_dist(rng) * world_size_x);
+		float posY = (uniform_dist(rng) * world_size_y);
+		createObstacle({posX, posY}, {ROCK_BB_WIDTH, ROCK_BB_HEIGHT}, TEXTURE_ASSET_ID::ROCK);
+		numRocks--;
+    }
+}
+
+Entity createObstacle(vec2 position, vec2 size, TEXTURE_ASSET_ID assetId) {
+    auto entity = Entity();
+    registry.obstacles.emplace(entity);
+
+    Motion& motion = registry.motions.emplace(entity);
+    motion.scale = size;
+
+    motion.position = vec3(position.x, position.y, getElevation(position) + size.y / 2);
+	motion.hitbox = { size.x, size.x, size.y / zConversionFactor };
+	motion.solid = true;
+
+    registry.renderRequests.insert(
+        entity, 
+        {
+            assetId,
+            EFFECT_ASSET_ID::TEXTURED,
+            GEOMETRY_BUFFER_ID::SPRITE
+        });
+    registry.midgrounds.emplace(entity);
+
+    return entity;
+}
+
+void createMapTiles() {
+    int tilesOnScreenX = 10; 
+    int tilesOnScreenY = 6; 
+    float tileWidth = world_size_x / tilesOnScreenX;
+    float tileHeight = world_size_y / tilesOnScreenY;
+    int numRows = tilesOnScreenY;
+    int numCols = tilesOnScreenX;
+
+    for (int row = 0; row < numRows; row++) { 
+        for (int col = 0; col < numCols; col++) { 
+            vec2 position = {col * tileWidth, row * tileHeight};
+            vec2 size = {tileWidth, tileHeight};
+            createMapTile(position, size);
+        }
+    }
+}
+
+void createGameOverText(vec2 windowSize) {
+	GameTimer& gameTimer = registry.gameTimer;
+	std::vector<Entity> entities;
+
+	auto entity1 = Entity();
+	Text& text1 = registry.texts.emplace(entity1);
+	text1.value = "GAME OVER";
+	text1.position = {windowSize.x / 2 - 315.0f, windowSize.y / 2 + 50.0f};
+	text1.scale = 4.0f;
+	text1.colour = {0.85f, 0.0f, 0.0f};
+	
+	auto entity2 = Entity();
+	Text& text2 = registry.texts.emplace(entity2);
+	text2.position = {windowSize.x / 2 - 160.f, windowSize.y / 2};
+	text2.scale = 1.0f;
+	text2.colour = {1.0f, 0.85f, 0.0f};
+	std::ostringstream oss;
+    oss << "You survived for ";
+    if (gameTimer.hours > 0) {
+        oss << gameTimer.hours << "h ";
+		text2.position.x -= 20.f;
+    }
+    if (gameTimer.minutes > 0 || gameTimer.hours > 0) {
+        oss << gameTimer.minutes << "m ";
+		text2.position.x -= 40.f;
+    }
+    oss << gameTimer.seconds << "s";
+	text2.value = oss.str();
+
+	auto entity3 = Entity();
+	Text& text3 = registry.texts.emplace(entity3);
+	text3.position = {windowSize.x / 2 - 165.f, windowSize.y / 2 - 80.f};
+	text3.scale = 0.8f;
+	text3.value = "Press ENTER to play again";
+
+	entities.push_back(entity1);
+	entities.push_back(entity2);
+	entities.push_back(entity3);
+	for (Entity& entity : entities) {
+		registry.renderRequests.insert(
+			entity, 
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::FONT,
+			GEOMETRY_BUFFER_ID::TEXT
+		});
+	}
+}
+
+void createTrees(RenderSystem* renderer) {
+	int numTrees = 4;
+	std::default_random_engine rng;
+	std::uniform_real_distribution<float> uniform_dist;
+	rng = std::default_random_engine(std::random_device()());
+
+	while (numTrees != 0) {
+		float posX = (uniform_dist(rng) * world_size_x);
+		float posY = (uniform_dist(rng) * world_size_y);
+		createTree(renderer, { posX, posY });
+		numTrees--;
+	}
+}
+
+float getElevation(vec2 xy)
+{
+	return 0.0f;
 }

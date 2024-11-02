@@ -40,6 +40,7 @@ class RenderSystem {
 		textures_path("archer/arrow.png"),            // ARROW
 		textures_path("jeff/32Run.png"),              // JEFF_RUN
 		textures_path("jeff/32Idle.png"),             // JEFF_IDLE
+		textures_path("jeff/32Jump.png"),             // JEFF_JUMP
 		textures_path("collectables/heart.png"),      // HEART
 		textures_path("collectables/trapbottle.png"), // TRAPCOLLECTABLE
 		textures_path("collectables/trap.png"),       // TRAP
@@ -63,6 +64,9 @@ class RenderSystem {
 	std::array<GLuint, geometry_count> vertex_buffers;
 	std::array<GLuint, geometry_count> index_buffers;
 	std::array<Mesh, geometry_count> meshes;
+
+	void update_animations();
+	void update_jeff_animation();
 
 public:
 	GLFWwindow* create_window();

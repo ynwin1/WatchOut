@@ -362,7 +362,8 @@ void RenderSystem::step(float elapsed_ms)
 		}
 	}
 
-	// Update animations
+
+	// Update animation frames
 	for (auto& animationController : registry.animationsControllers.components) {
 		updateAnimation(animationController.animations[animationController.currentState], elapsed_ms);
 	}
@@ -380,10 +381,44 @@ void RenderSystem::step(float elapsed_ms)
 		vec2 direction = normalize(worldToVisual(motion.velocity));
 		motion.angle = atan2(direction.y, direction.x);
 	}
-
+	update_animations();
 	update_hpbars();
 	update_staminabars();
 	updateEntityFacing();
+}
+
+void RenderSystem::update_animations() {
+	update_jeff_animation();
+}
+
+void RenderSystem::update_jeff_animation() {
+	for (Entity entity : registry.players.entities) {
+		Player& player = registry.players.get(entity);
+		Motion& motion = registry.motions.get(entity);
+		AnimationController& animationController = registry.animationsControllers.get(entity);
+		
+		// Determine if player is moving
+		player.isMoving = player.goingUp || player.goingDown || player.goingLeft || player.goingRight;
+
+		// Determine the player's facing direction
+		if (player.goingRight) {
+			motion.scale = vec2(std::abs(motion.scale.x), std::abs(motion.scale.y));  // Right
+		} else if (player.goingLeft) {
+			motion.scale = vec2(-std::abs(motion.scale.x), std::abs(motion.scale.y)); // Left
+		}
+
+		Jumper& playerJumper = registry.jumpers.get(entity);
+
+		// Animation state logic
+		if (playerJumper.isJumping) {
+			animationController.changeState(entity, AnimationState::Jumping);
+		} else if (player.isMoving) {
+			animationController.changeState(entity, AnimationState::Running);
+		} else {
+			// Player is idle if no movement keys are pressed
+			animationController.changeState(entity, AnimationState::Idle);
+		}
+	}
 }
 
 void RenderSystem::turn_damaged_red(std::vector<Entity>& was_damaged)

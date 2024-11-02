@@ -136,13 +136,18 @@ bool AISystem::pathClear(Motion& motion, vec2 direction, float howFar, const std
     std::vector<Entity> blockingObstacles;
     std::copy_if(verticallyBlockingObstacles.begin(), verticallyBlockingObstacles.end(), std::back_inserter(blockingObstacles),
         [&polygon](Entity obstacle) {
+            float hitboxFactor = 1;
+            if (registry.meshPtrs.has(obstacle)) {
+                hitboxFactor = 0.5;
+            }
+
             Motion& obstacleMotion = registry.motions.get(obstacle);
             std::vector<vec2> obstaclePolygon;
             vec2 centre = vec2(obstacleMotion.position);
-            obstaclePolygon.push_back(centre + vec2( obstacleMotion.hitbox.x,  obstacleMotion.hitbox.y) / 2.f);
-            obstaclePolygon.push_back(centre + vec2(-obstacleMotion.hitbox.x,  obstacleMotion.hitbox.y) / 2.f);
-            obstaclePolygon.push_back(centre + vec2(-obstacleMotion.hitbox.x, -obstacleMotion.hitbox.y) / 2.f);
-            obstaclePolygon.push_back(centre + vec2( obstacleMotion.hitbox.x, -obstacleMotion.hitbox.y) / 2.f);
+            obstaclePolygon.push_back(centre + vec2( obstacleMotion.hitbox.x,  obstacleMotion.hitbox.y) / 2.f * hitboxFactor);
+            obstaclePolygon.push_back(centre + vec2(-obstacleMotion.hitbox.x,  obstacleMotion.hitbox.y) / 2.f * hitboxFactor);
+            obstaclePolygon.push_back(centre + vec2(-obstacleMotion.hitbox.x, -obstacleMotion.hitbox.y) / 2.f * hitboxFactor);
+            obstaclePolygon.push_back(centre + vec2( obstacleMotion.hitbox.x, -obstacleMotion.hitbox.y) / 2.f * hitboxFactor);
             return polygonsCollide(polygon, obstaclePolygon);
         });
 

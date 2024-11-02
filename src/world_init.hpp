@@ -35,7 +35,7 @@ const float ROCK_BB_HEIGHT = 35.f * SPRITE_SCALE;
 const float ARROW_BB_WIDTH = 16 * SPRITE_SCALE;
 const float ARROW_BB_HEIGHT = 7 * SPRITE_SCALE;
 
-const float BOAR_SPEED = 0.3;
+const float BOAR_SPEED = 0.2;
 const float BARBARIAN_SPEED = 0.3;
 const float ARCHER_SPEED = 0.2;
 

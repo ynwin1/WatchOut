@@ -25,7 +25,7 @@ void AISystem::boarBehaviour(Entity boar, vec3 playerPosition, float elapsed_ms)
     const float BOAR_PREPARE_TIME = 500; 
     const float BOAR_CHARGE_DURATION = 3000; 
     const float BOAR_COOLDOWN_TIME = 4000; 
-    const float BOAR_CHARGE_SPEED = 2.0f; 
+    const float BOAR_CHARGE_SPEED = 1.0f; 
 
     if (registry.deathTimers.has(boar)) {
         return;

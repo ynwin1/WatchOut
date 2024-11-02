@@ -148,6 +148,74 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection)
 		glBindTexture(GL_TEXTURE_2D, texture_id);
 		gl_has_errors();
 	}
+	else if (render_request.used_effect == EFFECT_ASSET_ID::ANIMATED)
+	{
+		GLint in_position_loc = glGetAttribLocation(program, "in_position");
+		GLint in_texcoord_loc = glGetAttribLocation(program, "in_texcoord");
+		gl_has_errors();
+		assert(in_texcoord_loc >= 0);
+
+		glEnableVertexAttribArray(in_position_loc);
+		glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), (void*)0);
+		gl_has_errors();
+
+		glEnableVertexAttribArray(in_texcoord_loc);
+		glVertexAttribPointer(in_texcoord_loc, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), (void*)sizeof(vec3)); // stride to skip position data
+		
+		// Enabling and binding texture to slot 0
+		glActiveTexture(GL_TEXTURE0);
+		gl_has_errors();
+
+		assert(registry.renderRequests.has(entity));
+		GLuint texture_id = texture_gl_handles[(GLuint)registry.renderRequests.get(entity).used_texture];
+
+		glBindTexture(GL_TEXTURE_2D, texture_id);
+		gl_has_errors();
+
+		// Pass frame information to shaders
+		GLint numFrames_loc = glGetUniformLocation(program, "num_frames");
+    	GLint currentFrame_loc = glGetUniformLocation(program, "current_frame");
+		
+		AnimationController animationController = registry.animationsControllers.get(entity);
+		Animation currentAnimation = animationController.animations[animationController.currentState];
+		glUniform1f(numFrames_loc, currentAnimation.numFrames);  // Set numFrames value
+    	glUniform1f(currentFrame_loc, currentAnimation.currentFrame);  // Set currentFrame value
+    	gl_has_errors();
+	}
+	else if (render_request.used_effect == EFFECT_ASSET_ID::ANIMATED)
+	{
+		GLint in_position_loc = glGetAttribLocation(program, "in_position");
+		GLint in_texcoord_loc = glGetAttribLocation(program, "in_texcoord");
+		gl_has_errors();
+		assert(in_texcoord_loc >= 0);
+
+		glEnableVertexAttribArray(in_position_loc);
+		glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), (void*)0);
+		gl_has_errors();
+
+		glEnableVertexAttribArray(in_texcoord_loc);
+		glVertexAttribPointer(in_texcoord_loc, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), (void*)sizeof(vec3)); // stride to skip position data
+		
+		// Enabling and binding texture to slot 0
+		glActiveTexture(GL_TEXTURE0);
+		gl_has_errors();
+
+		assert(registry.renderRequests.has(entity));
+		GLuint texture_id = texture_gl_handles[(GLuint)registry.renderRequests.get(entity).used_texture];
+
+		glBindTexture(GL_TEXTURE_2D, texture_id);
+		gl_has_errors();
+
+		// Pass frame information to shaders
+		GLint numFrames_loc = glGetUniformLocation(program, "num_frames");
+    	GLint currentFrame_loc = glGetUniformLocation(program, "current_frame");
+		
+		AnimationController animationController = registry.animationsControllers.get(entity);
+		Animation currentAnimation = animationController.animations[animationController.currentState];
+		glUniform1f(numFrames_loc, currentAnimation.numFrames);  // Set numFrames value
+    	glUniform1f(currentFrame_loc, currentAnimation.currentFrame);  // Set currentFrame value
+    	gl_has_errors();
+	}
 	// set attributes for untextured meshes
 	else if(render_request.used_effect == EFFECT_ASSET_ID::UNTEXTURED)
 	{
@@ -177,7 +245,7 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection)
 	}
 
 	// Getting uniform locations for glUniform* calls
-	GLint colour_uloc = glGetUniformLocation(program, "entity_colour");
+	GLint colour_uloc = glGetUniformLocation(program, "entity_colour");	
 	const vec3 colour = registry.colours.has(entity) ? registry.colours.get(entity) : vec3(1);
 	glUniform3fv(colour_uloc, 1, (float*)&colour);
 	gl_has_errors();
@@ -294,6 +362,12 @@ void RenderSystem::step(float elapsed_ms)
 		}
 	}
 
+
+	// Update animation frames
+	for (auto& animationController : registry.animationsControllers.components) {
+		updateAnimation(animationController.animations[animationController.currentState], elapsed_ms);
+	}
+	
 	for (Entity entity : registry.projectiles.entities) {
 		Motion& motion = registry.motions.get(entity);
 		if (length(motion.velocity) == 0) {
@@ -307,10 +381,44 @@ void RenderSystem::step(float elapsed_ms)
 		vec2 direction = normalize(worldToVisual(motion.velocity));
 		motion.angle = atan2(direction.y, direction.x);
 	}
-
+	update_animations();
 	update_hpbars();
 	update_staminabars();
 	updateEntityFacing();
+}
+
+void RenderSystem::update_animations() {
+	update_jeff_animation();
+}
+
+void RenderSystem::update_jeff_animation() {
+	for (Entity entity : registry.players.entities) {
+		Player& player = registry.players.get(entity);
+		Motion& motion = registry.motions.get(entity);
+		AnimationController& animationController = registry.animationsControllers.get(entity);
+		
+		// Determine if player is moving
+		player.isMoving = player.goingUp || player.goingDown || player.goingLeft || player.goingRight;
+
+		// Determine the player's facing direction
+		if (player.goingRight) {
+			motion.scale = vec2(std::abs(motion.scale.x), std::abs(motion.scale.y));  // Right
+		} else if (player.goingLeft) {
+			motion.scale = vec2(-std::abs(motion.scale.x), std::abs(motion.scale.y)); // Left
+		}
+
+		Jumper& playerJumper = registry.jumpers.get(entity);
+
+		// Animation state logic
+		if (playerJumper.isJumping) {
+			animationController.changeState(entity, AnimationState::Jumping);
+		} else if (player.isMoving) {
+			animationController.changeState(entity, AnimationState::Running);
+		} else {
+			// Player is idle if no movement keys are pressed
+			animationController.changeState(entity, AnimationState::Idle);
+		}
+	}
 }
 
 void RenderSystem::turn_damaged_red(std::vector<Entity>& was_damaged)

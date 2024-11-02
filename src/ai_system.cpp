@@ -8,6 +8,12 @@ AISystem::AISystem(std::default_random_engine& rng)
     this->rng = rng;
 }
 
+vec2 AISystem::randomDirection()
+{
+    float angle = uniform_dist(rng) * 2 * M_PI;
+    return vec2(cos(angle), sin(angle));
+}
+
 void AISystem::moveTowardsPlayer(Entity enemy, vec3 playerPosition, float elapsed_ms)
 {
     float& pathfindTime = registry.enemies.get(enemy).pathfindTime;
@@ -15,7 +21,7 @@ void AISystem::moveTowardsPlayer(Entity enemy, vec3 playerPosition, float elapse
     if (pathfindTime > 0) {
         return;
     }
-    pathfindTime = 200;
+    pathfindTime = 100 + uniform_dist(rng) * 400;
 
     Motion& enemyMotion = registry.motions.get(enemy);
     vec2 direction = chooseDirection(enemyMotion, playerPosition);
@@ -23,13 +29,13 @@ void AISystem::moveTowardsPlayer(Entity enemy, vec3 playerPosition, float elapse
     enemyMotion.velocity = vec3(direction * speed, enemyMotion.velocity.z);
 }
 
-vec2 AISystem::chooseDirection(Motion& motion, vec3 playerPosition) const
+vec2 AISystem::chooseDirection(Motion& motion, vec3 playerPosition)
 {
     const vec2 playerDirection = normalize(playerPosition - motion.position);
 
-    const unsigned int NUMBER_OF_DIRECTIONS = 30;
+    const unsigned int NUMBER_OF_DIRECTIONS = 60;
     const float OFFSET = 2 * M_PI / NUMBER_OF_DIRECTIONS;
-    float radius = 300;
+    float radius = 400;
 
     float d = distance(motion.position, playerPosition);
     if (d < radius) {
@@ -66,6 +72,10 @@ vec2 AISystem::chooseDirection(Motion& motion, vec3 playerPosition) const
             bestDirection = direction;
             bestClearDistance = bestClearDistance;
         }
+    }
+
+    if (bestClearDistance < 100) {
+        return randomDirection();
     }
 
     return bestDirection;
@@ -116,7 +126,7 @@ static std::vector<vec2> pathPolygon(Motion& motion, vec2 pathEnd)
 
 // Returns whether the path is clear or not
 // If path is not clear, sets clearDistance to the distance along the path that is clear
-bool AISystem::pathClear(Motion& motion, vec2 direction, float howFar, const std::vector<Entity>& obstacles, float& clearDistance) const
+bool AISystem::pathClear(Motion& motion, vec2 direction, float howFar, const std::vector<Entity>& obstacles, float& clearDistance)
 {
     // Filter out obstacles that are outside of the Z range
     std::vector<Entity> verticallyBlockingObstacles;

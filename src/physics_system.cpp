@@ -49,20 +49,23 @@ void PhysicsSystem::handleBoundsCheck() {
 
 	for (uint i = 0; i < motion_container.components.size(); i++) {
 		Motion& motion = motion_container.components[i];
-		float halfScaleX = abs(motion.scale.x)/ 2;
+		float halfScaleX = abs(motion.scale.x) / 2;
+		float halfScaleY = abs(motion.scale.y) / 2;
 
-		if (motion.position.x - halfScaleX < 0) {
-			motion.position.x = halfScaleX;
+		// Check left and right bounds
+		if (motion.position.x - halfScaleX < leftBound) {
+			motion.position.x = leftBound + halfScaleX;
 		} 
-		else if (motion.position.x + halfScaleX > world_size_x) {
-			motion.position.x = world_size_x - halfScaleX;
+		else if (motion.position.x + halfScaleX > rightBound) {
+			motion.position.x = rightBound - halfScaleX;
 		}
 
-		if (motion.position.y < visualToWorldY(motion.scale.y)) {
-			motion.position.y = visualToWorldY(motion.scale.y);
+		// Check top and bottom bounds
+		if (motion.position.y - halfScaleY < topBound) {
+			motion.position.y = topBound + halfScaleY;
 		} 
-		else if (motion.position.y > world_size_y) {
-			motion.position.y = world_size_y;
+		else if (motion.position.y + halfScaleY > bottomBound) {
+			motion.position.y = bottomBound - halfScaleY;
 		}
 	}
 }

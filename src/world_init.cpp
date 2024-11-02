@@ -24,6 +24,13 @@ Entity createBoar(vec2 pos)
 	enemy.speed = BOAR_SPEED;
 
 	registry.boars.emplace(entity);
+	
+	auto& dasher = registry.dashers.emplace(entity);
+	dasher.isDashing = false;
+	dasher.dashStartPosition = { 0, 0 };
+	dasher.dashTargetPosition = { 0, 0 };
+	dasher.dashTimer = 0.0f;
+	dasher.dashDuration = 0.2f;
 
 	// Add Render Request for drawing sprite
 	registry.renderRequests.insert(
@@ -492,7 +499,103 @@ Entity createObstacle(vec2 position, vec2 size, TEXTURE_ASSET_ID assetId) {
     return entity;
 }
 
+
+Entity createBottomCliff(vec2 position, vec2 size) {
+    auto entity = Entity();
+	MapTile& tile = registry.mapTiles.emplace(entity);
+    tile.position = position;
+    tile.scale = size;
+
+    registry.renderRequests.insert(
+        entity, 
+        {
+            TEXTURE_ASSET_ID::CLIFF,
+            EFFECT_ASSET_ID::TEXTURED,
+            GEOMETRY_BUFFER_ID::SPRITE
+        });
+    registry.backgrounds.emplace(entity); 
+    return entity;
+}
+
+Entity createSideCliff(vec2 position, vec2 size) {
+    auto entity = Entity();
+	MapTile& tile = registry.mapTiles.emplace(entity);
+    tile.position = position;
+    tile.scale = size;
+
+    registry.renderRequests.insert(
+        entity, 
+        {
+            TEXTURE_ASSET_ID::CLIFFSIDE,
+            EFFECT_ASSET_ID::TEXTURED,
+            GEOMETRY_BUFFER_ID::SPRITE
+        });
+    registry.backgrounds.emplace(entity); 
+    return entity;
+}
+Entity createTopCliff(vec2 position, vec2 size) {
+    auto entity = Entity();
+	MapTile& tile = registry.mapTiles.emplace(entity);
+    tile.position = position;
+    tile.scale = size;
+
+    registry.renderRequests.insert(
+        entity, 
+        {
+            TEXTURE_ASSET_ID::CLIFFTOP,
+            EFFECT_ASSET_ID::TEXTURED,
+            GEOMETRY_BUFFER_ID::SPRITE
+        });
+    registry.backgrounds.emplace(entity); 
+    return entity;
+}
+
+void createCliffs(GLFWwindow* window) {
+    int windowWidth;
+    int windowHeight;
+    glfwGetWindowSize(window, &windowWidth, &windowHeight);
+
+    int cliffsOnScreenX = 6; 
+    int cliffsOnScreenY = 6; 
+    float cliffWidth = 500;
+	float bottomCliffWidth = 480;
+    float cliffHeight = 500;
+	float sideCliffHeight = 510;
+	float bottomCliffOffset = 70;
+
+    float cliffThickness = 500.0f;
+	float sideCliffThickness = 510.0f;
+
+
+	// Top boundary cliffs
+    for (int col = 0; col <= cliffsOnScreenX; col++) {
+        vec2 position = {leftBound + col * cliffWidth, topBound - cliffThickness}; 
+        vec2 size = {cliffWidth, cliffThickness};
+        createTopCliff(position, size);
+    }
+	// Bottom boundary cliffs
+    for (int col = 0; col <= cliffsOnScreenX; col++) {
+        vec2 position = {leftBound + bottomCliffWidth / 2 + col * bottomCliffWidth - bottomCliffOffset, bottomBound - cliffThickness};  
+        vec2 size = {cliffWidth, cliffThickness};
+        createBottomCliff(position, size);
+    }
+    // Left boundary cliffs
+    for (int row = 0; row < cliffsOnScreenY - 2; row++) {
+        vec2 position = {leftBound - cliffThickness / 2, row * sideCliffHeight}; 
+        vec2 size = {sideCliffHeight, sideCliffThickness};
+        createSideCliff(position, size);
+    }
+
+    // Right boundary cliffs
+    for (int row = 0; row < cliffsOnScreenY - 2; row++) {
+        vec2 position = {rightBound + cliffThickness / 2,  row * sideCliffHeight};
+        vec2 size = {-sideCliffHeight, sideCliffThickness};
+        createSideCliff(position, size);
+    }
+}
+
 void createMapTiles() {
+
     int tilesOnScreenX = 10; 
     int tilesOnScreenY = 6; 
     float tileWidth = world_size_x / tilesOnScreenX;

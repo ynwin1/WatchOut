@@ -182,10 +182,69 @@ bool AISystem::pathClear(Motion& motion, vec2 direction, float howFar, const std
 
 void AISystem::boarBehaviour(Entity boar, vec3 playerPosition, float elapsed_ms)
 {
+    const float BOAR_AGGRO_RANGE = 500;
+    const float BOAR_DISENGAGE_RANGE = 700;
+    const float BOAR_PREPARE_TIME = 500; 
+    const float BOAR_CHARGE_DURATION = 1000; 
+    const float BOAR_COOLDOWN_TIME = 500; 
+    const float BOAR_CHARGE_SPEED = 1.0f; 
+
     if (registry.deathTimers.has(boar)) {
         return;
     }
-    moveTowardsPlayer(boar, playerPosition, elapsed_ms);
+
+    Motion& motion = registry.motions.get(boar);
+    Boar& boars = registry.boars.get(boar);
+    float distanceToPlayer = distance(motion.position, playerPosition);
+
+    if (boars.cooldownTimer > 0) {
+        boars.cooldownTimer -= elapsed_ms;
+        return;
+    }
+
+    // Set state based on distance
+    if (distanceToPlayer < BOAR_AGGRO_RANGE && boars.cooldownTimer <= 0 && !boars.preparing && !boars.charging) {
+        boars.preparing = true;
+        boars.prepareTimer = BOAR_PREPARE_TIME;
+        boars.chargeTimer = BOAR_CHARGE_DURATION;
+    } else if (distanceToPlayer > BOAR_DISENGAGE_RANGE) {
+        boars.preparing = false;
+        boars.charging = false;
+    }
+
+    if (boars.preparing) {
+        // Preparation shake
+        if (boars.prepareTimer > 0) {
+            boars.prepareTimer -= elapsed_ms;
+
+            float shakeMagnitude = 5.0f;
+            float offsetX = (uniform_dist(rng) - 0.5f) * shakeMagnitude;
+            float offsetY = (uniform_dist(rng) - 0.5f) * shakeMagnitude;
+
+            motion.position.x += offsetX;
+            motion.position.y += offsetY;
+            motion.velocity = vec3(0, 0, 0);
+
+        } else {
+            boars.preparing = false; 
+            boars.charging = true;
+            boars.chargeDirection = normalize(vec2(playerPosition) - vec2(motion.position));
+            motion.velocity = vec3(boars.chargeDirection * BOAR_CHARGE_SPEED, 0);
+        }
+    }
+
+    if (boars.charging) {
+        if (boars.chargeTimer > 0) {
+            boars.chargeTimer -= elapsed_ms;
+
+        } else {
+            boars.charging = false;
+            boars.cooldownTimer = BOAR_COOLDOWN_TIME;
+            motion.velocity = vec3(0, 0, 0);
+        }
+    } else if (!boars.preparing) {
+        moveTowardsPlayer(boar, playerPosition, elapsed_ms);
+    }
 }
 
 void AISystem::barbarianBehaviour(Entity barbarian, vec3 playerPosition, float elapsed_ms)

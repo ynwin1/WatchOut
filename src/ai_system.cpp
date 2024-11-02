@@ -23,7 +23,7 @@ void AISystem::boarBehaviour(Entity boar, vec3 playerPosition, float elapsed_ms)
     const float BOAR_AGGRO_RANGE = 500;
     const float BOAR_DISENGAGE_RANGE = 700;
     const float BOAR_PREPARE_TIME = 500; 
-    const float BOAR_CHARGE_DURATION = 3000; 
+    const float BOAR_CHARGE_DURATION = 2000; 
     const float BOAR_COOLDOWN_TIME = 4000; 
     const float BOAR_CHARGE_SPEED = 1.0f; 
 

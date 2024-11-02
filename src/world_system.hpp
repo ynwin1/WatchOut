@@ -25,6 +25,7 @@ public:
 	bool step(float elapsed_ms);
 	bool game_over;
 	bool is_paused;
+	bool show_mesh;
 
 	// Check for collisions
 	void handle_collisions();
@@ -36,12 +37,13 @@ private:
 	// GLFW Window handle
 	GLFWwindow* window;
 
+	bool isWindowed = false;
+
 	RenderSystem* renderer;
 	PhysicsSystem* physics;
 
 	Camera* camera;
 	
-	GameTimer gameTimer;
 	TrapsCounter trapsCounter;
 
 	// Input callback functions
@@ -74,7 +76,7 @@ private:
 	void trackFPS(float elapsed_ms);
 	void updateGameTimer(float elapsed_ms);
 	void updateTrapsCounterText();
-	void updateEntityFacing();
+	void toggleMesh();
 
 	// Collision functions
 	void entity_collectible_collision(Entity entity, Entity collectible);

@@ -23,7 +23,7 @@ WorldSystem::WorldSystem(std::default_random_engine& rng) :
 		{"collectible_trap", 6000}
         }),
     max_entities({
-        {"boar", 2},
+        {"boar", 1},
         {"barbarian", 2},
         {"archer", 1},
         {"heart", 1},
@@ -60,8 +60,11 @@ WorldSystem::~WorldSystem() {
 void WorldSystem::restart_game()
 {
     registry.clear_all_components();
+
     createMapTiles();
+    createCliffs(window);
     createTrees(renderer);
+
     createObstacles();
     entity_types = {
         "barbarian",

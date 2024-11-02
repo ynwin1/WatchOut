@@ -32,6 +32,7 @@ class RenderSystem {
 
 	// Make sure these paths remain in sync with the associated enumerators.
 	const std::array<std::string, texture_count> texture_paths = 
+
 	{ 
 		textures_path("jeff/jeff.png"),               // JEFF
 		textures_path("barbarian/barbarian.png"),     // BARBARIAN
@@ -48,8 +49,11 @@ class RenderSystem {
 		textures_path("tree/tree.png"),               // TREE
 		textures_path("shrub/shrub.png"),             // SHRUB
 		textures_path("rock/rock.png"),               // ROCK
-		textures_path("border/cliff.png")             // CLIFF
+		textures_path("border/cliff.png"),            //BOTTOM CLIFF
+	  textures_path("border/cliff2.png"),           //SIDE CLIFF
+	  textures_path("border/cliffTop.png")          // TOP CLIFF
 	};
+
 
 	std::array<GLuint, effect_count> effects;
 	// Make sure these paths remain in sync with the associated enumerators.

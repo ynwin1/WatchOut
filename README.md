@@ -8,11 +8,13 @@ You are the lone survivor trapped in the world of Draugamoor, forced to face Kin
 
 | Function | Key Combination |
 |----------|----------------|
-| Movement | WASD or Arrows |
-| Sprint   | WASD or Arrows + Left Shift |
-| Dash     | F |
-| Pause    | P |
-| Restart  | Enter |
-| Quit     | Esc |
+| Movement  | Arrows |
+| Sprint    | Arrows + Left Shift |
+| Dash      | D |
+| Jump      | Space bar|
+| Place trap| Q or W|
+| Pause     | P |
+| Restart   | Enter |
+| Quit      | Esc |
 
 

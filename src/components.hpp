@@ -232,7 +232,15 @@ struct Jumper
 };
 
 // Enemy types
-struct Boar {};
+struct Boar {
+	float cooldownTimer = 0;        // Tracks time remaining in cooldown
+    float prepareTimer = 0;         // Tracks time for preparation phase (shaking)
+    float chargeTimer = 0;          // Tracks remaining time for charge duration
+    bool preparing = false;         // Indicates if the boar is in the preparation phase
+    bool charging = false;          // Indicates if the boar is actively charging
+
+    vec2 chargeDirection = vec2(0);
+};
 struct Barbarian {};
 struct Archer {
 	float drawArrowTime = 0;

@@ -11,7 +11,7 @@ public:
 private:
 	void moveTowardsPlayer(Entity enemy, vec3 playerPosition);
 	
-	void boarBehaviour(Entity boar, vec3 playerPosition);
+	void boarBehaviour(Entity boar, vec3 playerPosition, float elapsed_ms);
 	void barbarianBehaviour(Entity barbarian, vec3 playerPosition);
 
 	// Archer functions

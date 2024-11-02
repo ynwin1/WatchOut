@@ -32,27 +32,41 @@ class RenderSystem {
 
 	// Make sure these paths remain in sync with the associated enumerators.
 	const std::array<std::string, texture_count> texture_paths = 
-	{ textures_path("jeff/jeff.png"),
-	  textures_path("barbarian/barbarian.png"),
-	  textures_path("boar/boar.png"),
-	  textures_path("archer/archer.png"),
-	  textures_path("archer/arrow.png"),
-	  textures_path("collectables/heart.png"),
-	  textures_path("collectables/trapbottle.png"),
-	  textures_path("collectables/trap.png"),
-	  textures_path("grass_tile/grass_tile.png"),
-	  textures_path("tree/tree.png"),
-	  textures_path("shrub/shrub.png"),
-	  textures_path("rock/rock.png"),
-	  textures_path("border/cliff.png")};
+	{ 
+		textures_path("jeff/jeff.png"),               // JEFF
+		textures_path("barbarian/barbarian.png"),     // BARBARIAN
+		textures_path("boar/boar.png"),               // BOAR
+		textures_path("archer/archer.png"),           // ARCHER
+		textures_path("archer/arrow.png"),            // ARROW
+		textures_path("jeff/32Run.png"),              // JEFF_RUN
+		textures_path("jeff/32Idle.png"),             // JEFF_IDLE
+		textures_path("jeff/32Jump.png"),             // JEFF_JUMP
+		textures_path("collectables/heart.png"),      // HEART
+		textures_path("collectables/trapbottle.png"), // TRAPCOLLECTABLE
+		textures_path("collectables/trap.png"),       // TRAP
+		textures_path("grass_tile/grass_tile.png"),   // GRASS_TILE
+		textures_path("tree/tree.png"),               // TREE
+		textures_path("shrub/shrub.png"),             // SHRUB
+		textures_path("rock/rock.png"),               // ROCK
+		textures_path("border/cliff.png")             // CLIFF
+	};
 
 	std::array<GLuint, effect_count> effects;
 	// Make sure these paths remain in sync with the associated enumerators.
-	const std::array<std::string, effect_count> effect_paths = {shader_path("textured"), shader_path("untextured"), shader_path("font"), shader_path("tree")};
+	const std::array<std::string, effect_count> effect_paths = {
+		shader_path("textured"), 
+		shader_path("untextured"), 
+		shader_path("animated"), 
+		shader_path("font"), 
+		shader_path("tree")
+	};
 
 	std::array<GLuint, geometry_count> vertex_buffers;
 	std::array<GLuint, geometry_count> index_buffers;
 	std::array<Mesh, geometry_count> meshes;
+
+	void update_animations();
+	void update_jeff_animation();
 
 public:
 	GLFWwindow* create_window();

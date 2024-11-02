@@ -1,5 +1,7 @@
 #include "world_init.hpp"
 #include "tiny_ecs_registry.hpp"
+#include "animation_system.hpp"
+#include "animation_system_init.hpp"
 #include <random>
 #include <sstream>
 
@@ -220,21 +222,16 @@ Entity createJeff(vec2 position)
 	dasher.dashTimer = 0.0f;
 	dasher.dashDuration = 0.2f;
 
-	auto& jumper = registry.jumpers.emplace(entity);
-	jumper.speed = 2;
-
-	motion.scale = vec2({ JEFF_BB_WIDTH, JEFF_BB_HEIGHT });
+	// Setting initial values, scale is negative to make it face the opposite way
+	motion.scale = vec2({ 32. * SPRITE_SCALE, 32. * SPRITE_SCALE});
 	motion.hitbox = { JEFF_BB_WIDTH, JEFF_BB_WIDTH, JEFF_BB_HEIGHT / zConversionFactor };
 	motion.solid = true;
 
-	// Jeff Render Request
-	registry.renderRequests.insert(
-		entity,
-		{
-			TEXTURE_ASSET_ID::JEFF,
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE
-		});
+	auto& jumper = registry.jumpers.emplace(entity);
+	jumper.speed = 2;
+
+	// Animation
+	initJeffAnimationController(entity);
 	registry.midgrounds.emplace(entity);
 
 	createHealthBar(entity, vec3(0.0f, 1.0f, 0.0f));

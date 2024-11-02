@@ -17,8 +17,8 @@ struct Animation
 
 	Animation() = default;
 
-	Animation(float frameTime, int numFrames)
-		: currentFrame(0), elapsedTime(0.0f), frameTime(frameTime), numFrames(numFrames) {}
+	Animation(float frameTime, int numFrames, TEXTURE_ASSET_ID spritesheet)
+		: currentFrame(0), elapsedTime(0.0f), frameTime(frameTime), numFrames(numFrames), spritesheet(spritesheet){}
 };
 
 // Controls and manages animations for an entity by storing animations mapped to states
@@ -29,9 +29,9 @@ struct AnimationController
 
 	AnimationController() : currentState(AnimationState::Idle) {}
 
-	void addAnimation(AnimationState state, float frameTime, int numFrames)
+	void addAnimation(AnimationState state, float frameTime, int numFrames, TEXTURE_ASSET_ID spritesheet)
 	{
-		animations[state] = Animation(frameTime, numFrames);
+		animations[state] = Animation(frameTime, numFrames, spritesheet);
 	}
     
 	void changeState(Entity entity, AnimationState newState);

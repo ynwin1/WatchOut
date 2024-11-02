@@ -185,7 +185,7 @@ Entity createJeff(RenderSystem* renderer, vec2 position)
 	dasher.dashDuration = 0.2f;
 
 	// Setting initial values, scale is negative to make it face the opposite way
-	motion.scale = vec2({ JEFF_RUN_BB_WIDTH, JEFF_RUN_BB_HEIGHT });
+	motion.scale = vec2({ 32 * SPRITE_SCALE, 32 * SPRITE_SCALE});
 
 	// Setting initial hitbox values
 	Hitbox& hitbox = registry.hitboxes.emplace(entity);

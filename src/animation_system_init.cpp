@@ -3,18 +3,19 @@
 
 const int JEFF_RUN_NUM_FRAMES = 6;
 const int JEFF_RUN_FRAME_TIME = 150;
-const TEXTURE_ASSET_ID JEFF_RUN_TEXTURE_ASSET_ID = TEXTURE_ASSET_ID::JEFF_RUN;
+
+const int JEFF_IDLE_NUM_FRAMES = 4;
+const int JEFF_IDLE_FRAME_TIME = 150;
 
 AnimationController& initJeffAnimationController(Entity& jeff) {
-    printf("HERE0\n");
     AnimationController& animationcontroller = registry.animationsControllers.emplace(jeff);
-    printf("HERE2");
-    animationcontroller.addAnimation(AnimationState::Idle, JEFF_RUN_FRAME_TIME, JEFF_RUN_NUM_FRAMES);
+	animationcontroller.addAnimation(AnimationState::Idle, JEFF_IDLE_FRAME_TIME, JEFF_IDLE_NUM_FRAMES, TEXTURE_ASSET_ID::JEFF_IDLE);
+    animationcontroller.addAnimation(AnimationState::Running, JEFF_RUN_FRAME_TIME, JEFF_RUN_NUM_FRAMES, TEXTURE_ASSET_ID::JEFF_RUN);
 
     registry.renderRequests.insert(
 		jeff,
 		{
-			TEXTURE_ASSET_ID::JEFF_RUN,
+			TEXTURE_ASSET_ID::JEFF_IDLE,
 			EFFECT_ASSET_ID::ANIMATED,
 			GEOMETRY_BUFFER_ID::SPRITE
 		});

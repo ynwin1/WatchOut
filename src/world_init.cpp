@@ -1,5 +1,7 @@
 #include "world_init.hpp"
 #include "tiny_ecs_registry.hpp"
+#include "animation_system.hpp"
+#include "animation_system_init.hpp"
 
 // Boar creation
 Entity createBoar(RenderSystem* renderer, vec2 pos)
@@ -191,15 +193,7 @@ Entity createJeff(RenderSystem* renderer, vec2 position)
 	hitbox.dimension = { JEFF_BB_WIDTH, JEFF_BB_HEIGHT };
 
 	// Animation
-	Animation& animation = registry.animations.emplace(entity, 150.f, 6);
-	// Jeff Render Request
-	registry.renderRequests.insert(
-		entity,
-		{
-			TEXTURE_ASSET_ID::JEFF_RUN,
-			EFFECT_ASSET_ID::ANIMATED,
-			GEOMETRY_BUFFER_ID::SPRITE
-		});
+	initJeffAnimationController(entity);
 
 	createHealthBar(entity, vec3(0.0f, 1.0f, 0.0f));
 	

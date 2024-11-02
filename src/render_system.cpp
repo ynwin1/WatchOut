@@ -96,9 +96,10 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection)
 		GLint numFrames_loc = glGetUniformLocation(program, "num_frames");
     	GLint currentFrame_loc = glGetUniformLocation(program, "current_frame");
 		
-		Animation animation = registry.animations.get(entity);
-		glUniform1f(numFrames_loc, animation.numFrames);  // Set numFrames value
-    	glUniform1f(currentFrame_loc, animation.currentFrame);  // Set currentFrame value
+		AnimationController animationController = registry.animationsControllers.get(entity);
+		Animation currentAnimation = animationController.animations[animationController.currentState];
+		glUniform1f(numFrames_loc, currentAnimation.numFrames);  // Set numFrames value
+    	glUniform1f(currentFrame_loc, currentAnimation.currentFrame);  // Set currentFrame value
     	gl_has_errors();
 	}
 	// set attributes for untextured meshes
@@ -190,8 +191,8 @@ void RenderSystem::step(float elapsed_ms)
 	}
 
 	// Update animations
-	for (auto& animation : registry.animations.components) {
-		updateAnimation(animation, elapsed_ms);
+	for (auto& animationController : registry.animationsControllers.components) {
+		updateAnimation(animationController.animations[animationController.currentState], elapsed_ms);
 	}
 
 	update_hpbars();

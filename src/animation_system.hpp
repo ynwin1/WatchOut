@@ -1,14 +1,40 @@
+#include <unordered_map>
+#include "render_components.hpp"
 #pragma once
 
+enum class AnimationState { Idle, Running, Jumping };
+
+// Represents a single animation sequence, including frame timing, frame count, and spritesheet
+// Gets looked up if EFFECT_ASSET_ID is ANIMATED
 struct Animation
 {
 	int currentFrame = 0;
 	float elapsedTime = 0.0f;
-	float frameTime;
-	int numFrames;
+	float frameTime = 0.;
+	int numFrames = 1;
+	TEXTURE_ASSET_ID spritesheet;
+
+
+	Animation() = default;
 
 	Animation(float frameTime, int numFrames)
 		: currentFrame(0), elapsedTime(0.0f), frameTime(frameTime), numFrames(numFrames) {}
+};
+
+// Controls and manages animations for an entity by storing animations mapped to states
+struct AnimationController	
+{
+	std::unordered_map<AnimationState, Animation> animations;
+	AnimationState currentState;
+
+	AnimationController() : currentState(AnimationState::Idle) {printf("HERE1");}
+
+	void addAnimation(AnimationState state, float frameTime, int numFrames)
+	{
+		animations[state] = Animation(frameTime, numFrames);
+	}
+    
+	void changeState(Entity entity, AnimationState newState);
 };
 
 void updateAnimation(Animation& animation, float deltaTime);

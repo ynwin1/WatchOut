@@ -29,7 +29,7 @@ public:
 	ComponentContainer<DeathTimer> deathTimers;
 	ComponentContainer<HealthBar> healthBars;
 	ComponentContainer<StaticMotion> staticMotions;
-	ComponentContainer<Animation> animations;
+	ComponentContainer<AnimationController> animationsControllers;
 
 
 	// Spawnable types
@@ -57,6 +57,8 @@ public:
 		registry_list.push_back(&boars);
 		registry_list.push_back(&barbarians);
 		registry_list.push_back(&archers);
+
+		registry_list.push_back(&animationsControllers);
 
 		spawnable_lists["boar"] = &boars;
 		spawnable_lists["barbarian"] = &barbarians;

@@ -349,12 +349,18 @@ float calculate_y_overlap(Entity entity1, Entity entity2) {
 	return max(0.f, min(bottom1, bottom2) - max(top1, top2));
 }
 
-void PhysicsSystem::handle_mesh_collision(Entity mesh, Entity entity) {
+void PhysicsSystem::handle_mesh_collision(Entity mesh, Entity entity) 
+{
 
 	float PUSH_BACK = 5.f;
 
 	Motion& meshMotion = registry.motions.get(mesh);
 	Motion& entityMotion = registry.motions.get(entity);
+
+	if (registry.projectiles.has(entity)) {
+		entityMotion.velocity = vec3(0);
+		return;
+	}
 
 	// direction of the collision
 	float x_direction = meshMotion.position.x < entityMotion.position.x ? 1 : -1;

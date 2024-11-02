@@ -74,6 +74,8 @@ void WorldSystem::restart_game()
     // Create player entity
     playerEntity = createJeff(vec2(world_size_x / 2.f, world_size_y / 2.f));
     // createTree(renderer, vec2(world_size_x / 2.f + 300.f, world_size_y / 2.f));
+    createPlayerHealthBar(playerEntity, camera->getSize());
+    createPlayerStaminaBar(playerEntity, camera->getSize());
 
     game_over = false;
     is_paused = false;

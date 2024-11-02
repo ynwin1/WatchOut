@@ -83,6 +83,7 @@ Entity createTrapsCounterText(vec2 windowSize);
 Entity createGameOver(vec2 pos);
 
 void createHealthBar(Entity characterEntity, vec3 color);
+void createPlayerHealthBar(Entity characterEntity, vec2 windowSize);
 
 void createMapTiles();
 Entity createMapTile(vec2 position, vec2 scale);
@@ -90,6 +91,7 @@ Entity createObstacle(vec2 position, vec2 scale, TEXTURE_ASSET_ID assetID);
 void createObstacles();
 
 void createStaminaBar(Entity characterEntity, vec3 color);
+void createPlayerStaminaBar(Entity characterEntity, vec2 windowSize);
 
 void createTrees(RenderSystem* renderer);
 

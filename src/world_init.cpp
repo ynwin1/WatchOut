@@ -236,10 +236,6 @@ Entity createJeff(vec2 position)
 			GEOMETRY_BUFFER_ID::SPRITE
 		});
 	registry.midgrounds.emplace(entity);
-
-	createHealthBar(entity, vec3(0.0f, 1.0f, 0.0f));
-	createStaminaBar(entity, vec3(0.0f, 0.0f, 1.0f));
-	
 	
 	return entity;
 }
@@ -316,6 +312,30 @@ Entity createArrow(vec3 pos, vec3 velocity)
 	return entity;
 }
 
+void createPlayerHealthBar(Entity characterEntity, vec2 windowSize) {
+	auto meshE= Entity();
+	const float width = 150.0f;
+	const float height = 30.0f;
+
+	Foreground& fg = registry.foregrounds.emplace(meshE);
+	fg.position = {100.0f, windowSize.y - 50.0f};
+	fg.scale = {width, height};
+
+	HealthBar& hpbar = registry.healthBars.emplace(characterEntity, meshE);
+	hpbar.width = width;
+	hpbar.height = height;
+
+	registry.colours.insert(meshE, vec3(0.0f, 1.0f, 0.0f));
+
+	registry.renderRequests.insert(
+		meshE,
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::UNTEXTURED,
+			GEOMETRY_BUFFER_ID::RECTANGLE
+		});
+}
+
 void createHealthBar(Entity characterEntity, vec3 color) {
 	auto meshEntity = Entity();
 
@@ -336,7 +356,7 @@ void createHealthBar(Entity characterEntity, vec3 color) {
 		{
 			TEXTURE_ASSET_ID::NONE,
 			EFFECT_ASSET_ID::UNTEXTURED,
-			GEOMETRY_BUFFER_ID::HEALTH_BAR
+			GEOMETRY_BUFFER_ID::RECTANGLE
 		});
 	registry.midgrounds.emplace(meshEntity);
 
@@ -365,13 +385,37 @@ void createStaminaBar(Entity characterEntity, vec3 color) {
 		{
 			TEXTURE_ASSET_ID::NONE,
 			EFFECT_ASSET_ID::UNTEXTURED,
-			GEOMETRY_BUFFER_ID::STAMINA_BAR
+			GEOMETRY_BUFFER_ID::RECTANGLE
 		});
 	registry.midgrounds.emplace(meshEntity);
 
 	StaminaBar& staminabar = registry.staminaBars.emplace(characterEntity, meshEntity);
 	staminabar.width = width;
 	staminabar.height = height;
+}
+
+void createPlayerStaminaBar(Entity characterEntity, vec2 windowSize) {
+	auto meshE = Entity();
+	const float width = 150.0f;
+	const float height = 30.0f;
+
+	Foreground& fg = registry.foregrounds.emplace(meshE);
+	fg.position = {100.0f, windowSize.y - 90.0f};
+	fg.scale = {width, height};
+
+	StaminaBar& staminabar = registry.staminaBars.emplace(characterEntity, meshE);
+	staminabar.width = width;
+	staminabar.height = height;
+
+	registry.colours.insert(meshE, vec3(1.0f, 1.0f, 0.0f));
+
+	registry.renderRequests.insert(
+		meshE,
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::UNTEXTURED,
+			GEOMETRY_BUFFER_ID::RECTANGLE
+		});
 }
 
 Entity createFPSText(vec2 windowSize) {

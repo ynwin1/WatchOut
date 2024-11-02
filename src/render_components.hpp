@@ -72,9 +72,8 @@ const int effect_count = (int)EFFECT_ASSET_ID::EFFECT_COUNT;
 enum class GEOMETRY_BUFFER_ID {
 	SPRITE = 0,
 	GAME_SPACE = SPRITE + 1,
-	HEALTH_BAR = GAME_SPACE + 1,
-	STAMINA_BAR = HEALTH_BAR + 1,
-	TEXT = STAMINA_BAR + 1,
+	RECTANGLE = GAME_SPACE + 1,
+	TEXT = RECTANGLE + 1,
 	TREE = TEXT + 1,
 	MAP_TILE = TREE + 1,
 	OBSTACLE = MAP_TILE + 1,
@@ -90,4 +89,7 @@ struct RenderRequest {
 
 struct Background {};
 struct Midground {};
-struct Foreground {};
+struct Foreground {
+	vec2 position;
+	vec2 scale;
+};

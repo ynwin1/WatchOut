@@ -69,8 +69,7 @@ public:
 
 	void initializeGlGeometryBuffers();
 
-	void initHealthBarBuffer();
-	void initStaminaBarBuffer();
+	void initRectangleBuffer();
 
 	void initText();
 
@@ -88,6 +87,7 @@ public:
 	void step(float elapsed_ms);
 
 	mat3 createProjectionMatrix();
+	mat4 createProjectionToScreen();
 
 private:
 	Camera* camera;

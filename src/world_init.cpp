@@ -232,14 +232,6 @@ Entity createJeff(vec2 position)
 
 	// Animation
 	initJeffAnimationController(entity);
-	// Jeff Render Request
-	registry.renderRequests.insert(
-		entity,
-		{
-			TEXTURE_ASSET_ID::JEFF,
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE
-		});
 	registry.midgrounds.emplace(entity);
 
 	createHealthBar(entity, vec3(0.0f, 1.0f, 0.0f));

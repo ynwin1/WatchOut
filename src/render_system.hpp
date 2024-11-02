@@ -52,7 +52,13 @@ class RenderSystem {
 
 	std::array<GLuint, effect_count> effects;
 	// Make sure these paths remain in sync with the associated enumerators.
-	const std::array<std::string, effect_count> effect_paths = {shader_path("textured"), shader_path("untextured"), shader_path("animated"), ("font"), shader_path("tree")};
+	const std::array<std::string, effect_count> effect_paths = {
+		shader_path("textured"), 
+		shader_path("untextured"), 
+		shader_path("animated"), 
+		shader_path("font"), 
+		shader_path("tree")
+	};
 
 	std::array<GLuint, geometry_count> vertex_buffers;
 	std::array<GLuint, geometry_count> index_buffers;

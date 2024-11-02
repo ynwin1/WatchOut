@@ -64,7 +64,6 @@ GLFWwindow* RenderSystem::create_window() {
 // World initialization
 bool RenderSystem::init(Camera* camera)
 {
-	
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(1); // vsync
 

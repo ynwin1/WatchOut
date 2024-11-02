@@ -5,6 +5,7 @@
 #include "tiny_ecs.hpp"
 #include "components.hpp"
 #include "render_components.hpp"
+#include "animation_system.hpp"
 
 class ECSRegistry
 {
@@ -26,6 +27,7 @@ public:
 	ComponentContainer<Damaging> damagings;
 	ComponentContainer<DeathTimer> deathTimers;
 	ComponentContainer<HealthBar> healthBars;
+	ComponentContainer<AnimationController> animationsControllers;
 	ComponentContainer<StaminaBar> staminaBars;
 	ComponentContainer<Stamina> staminas;
 	ComponentContainer<Text> texts;
@@ -93,6 +95,8 @@ public:
 		registry_list.push_back(&archers);
 		registry_list.push_back(&hearts);
 		registry_list.push_back(&collectibleTraps);
+
+		registry_list.push_back(&animationsControllers);
 
 		spawnable_lists["boar"] = &boars;
 		spawnable_lists["barbarian"] = &barbarians;

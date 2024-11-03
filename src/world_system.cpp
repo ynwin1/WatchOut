@@ -595,7 +595,8 @@ void WorldSystem::handleEnemyCollision(Entity attacker, Entity target, std::vect
          // damage should only apply when boar is charging
         if(!boar.charging) return;
 
-        int newHealth = targetData.health - attackerData.damage;
+        const int DAMAGE_MULTIPLIER = 3;
+        int newHealth = targetData.health - attackerData.damage * DAMAGE_MULTIPLIER;
         targetData.health = std::max(newHealth, 0);
         was_damaged.push_back(target);
         printf("Enemy %d's health reduced from %d to %d\n", (unsigned int)target, targetData.health + attackerData.damage, targetData.health);

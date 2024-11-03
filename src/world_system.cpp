@@ -604,6 +604,7 @@ void WorldSystem::checkAndHandleEnemyDeath(Entity enemy) {
 
         HealthBar& hpbar = registry.healthBars.get(enemy);
         registry.remove_all_components_of(hpbar.meshEntity);
+        registry.remove_all_components_of(hpbar.frameEntity);
         registry.healthBars.remove(enemy);
         registry.enemies.remove(enemy);
         registry.deathTimers.emplace(enemy);

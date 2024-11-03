@@ -81,10 +81,16 @@ enum class GEOMETRY_BUFFER_ID {
 };
 const int geometry_count = (int)GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;
 
+enum class PRIMITIVE_TYPE {
+	TRIANGLES,
+	LINES
+};
+
 struct RenderRequest {
 	TEXTURE_ASSET_ID used_texture = TEXTURE_ASSET_ID::TEXTURE_COUNT;
 	EFFECT_ASSET_ID used_effect = EFFECT_ASSET_ID::EFFECT_COUNT;
 	GEOMETRY_BUFFER_ID used_geometry = GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;
+	PRIMITIVE_TYPE primitive_type = PRIMITIVE_TYPE::TRIANGLES;
 };
 
 struct Background {};

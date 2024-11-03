@@ -87,7 +87,7 @@ public:
 	void step(float elapsed_ms);
 
 	mat3 createProjectionMatrix();
-	mat4 createProjectionToScreen();
+	mat4 createProjectionToScreenSpace();
 
 private:
 	Camera* camera;

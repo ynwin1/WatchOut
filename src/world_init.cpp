@@ -312,20 +312,19 @@ Entity createArrow(vec3 pos, vec3 velocity)
 	return entity;
 }
 
-void createPlayerHealthBar(Entity characterEntity, vec2 windowSize) {
-	auto meshE= Entity();
+void createPlayerStaminaBar(Entity characterEntity, vec2 windowSize) {
+	auto meshE = Entity();
 	const float width = 150.0f;
-	const float height = 30.0f;
+	const float height = 20.0f;
+
+	vec2 position = {150.0f, windowSize.y - 80.0f};
 
 	Foreground& fg = registry.foregrounds.emplace(meshE);
-	fg.position = {100.0f, windowSize.y - 50.0f};
+	fg.position = position;
 	fg.scale = {width, height};
 
-	HealthBar& hpbar = registry.healthBars.emplace(characterEntity, meshE);
-	hpbar.width = width;
-	hpbar.height = height;
-
-	registry.colours.insert(meshE, vec3(0.0f, 1.0f, 0.0f));
+	vec3 colour = vec3(0.8f, 0.8f, 0.0f);
+	registry.colours.insert(meshE, colour);
 
 	registry.renderRequests.insert(
 		meshE,
@@ -334,6 +333,94 @@ void createPlayerHealthBar(Entity characterEntity, vec2 windowSize) {
 			EFFECT_ASSET_ID::UNTEXTURED,
 			GEOMETRY_BUFFER_ID::RECTANGLE
 		});
+
+	// Bar frame
+	auto frameE = Entity();
+	Foreground& frameFg = registry.foregrounds.emplace(frameE);
+	frameFg.position = position;
+	frameFg.scale = fg.scale;
+	registry.colours.insert(frameE, colour);
+	registry.renderRequests.insert(
+		frameE,
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::UNTEXTURED,
+			GEOMETRY_BUFFER_ID::RECTANGLE,
+			PRIMITIVE_TYPE::LINES,
+		});
+
+	auto textE = Entity();
+	Text& text = registry.texts.emplace(textE);
+	text.scale = 0.8f;
+	text.position = {position.x - 100.0f, position.y};
+	registry.renderRequests.insert(
+		textE,
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::FONT,
+			GEOMETRY_BUFFER_ID::TEXT,
+		});
+
+	StaminaBar& staminabar = registry.staminaBars.emplace(characterEntity, meshE, frameE);
+	staminabar.width = width;
+	staminabar.height = height;
+	staminabar.textEntity = textE;
+}
+
+void createPlayerHealthBar(Entity characterEntity, vec2 windowSize) {
+	auto meshE= Entity();
+	const float width = 150.0f;
+	const float height = 20.0f;
+
+	vec2 position = {150.0f, windowSize.y - 50.0f};
+
+	Foreground& fg = registry.foregrounds.emplace(meshE);
+	fg.position = position;
+	fg.scale = {width, height};
+
+	vec3 green = vec3(0.0f, 1.0f, 0.0f);
+
+	registry.colours.insert(meshE, green);
+
+	registry.renderRequests.insert(
+		meshE,
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::UNTEXTURED,
+			GEOMETRY_BUFFER_ID::RECTANGLE,
+		});
+
+	// Bar frame
+	auto frameE = Entity();
+	Foreground& frameFg = registry.foregrounds.emplace(frameE);
+	frameFg.position = position;
+	frameFg.scale = fg.scale;
+	registry.colours.insert(frameE, green);
+	registry.renderRequests.insert(
+		frameE,
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::UNTEXTURED,
+			GEOMETRY_BUFFER_ID::RECTANGLE,
+			PRIMITIVE_TYPE::LINES,
+		});
+
+	auto textE = Entity();
+	Text& text = registry.texts.emplace(textE);
+	text.scale = 0.8f;
+	text.position = {position.x - 32.0f, position.y};
+	registry.renderRequests.insert(
+		textE,
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::FONT,
+			GEOMETRY_BUFFER_ID::TEXT,
+		});
+
+	HealthBar& hpbar = registry.healthBars.emplace(characterEntity, meshE, frameE);
+	hpbar.width = width;
+	hpbar.height = height;
+	hpbar.textEntity = textE;
 }
 
 void createHealthBar(Entity characterEntity, vec3 color) {
@@ -356,66 +443,29 @@ void createHealthBar(Entity characterEntity, vec3 color) {
 		{
 			TEXTURE_ASSET_ID::NONE,
 			EFFECT_ASSET_ID::UNTEXTURED,
-			GEOMETRY_BUFFER_ID::RECTANGLE
+			GEOMETRY_BUFFER_ID::RECTANGLE,
 		});
 	registry.midgrounds.emplace(meshEntity);
 
-	HealthBar& hpbar = registry.healthBars.emplace(characterEntity, meshEntity);
+	// HP bar frame
+	auto frameEntity = Entity();
+	Motion& frameM = registry.motions.emplace(frameEntity);
+	frameM.position = motion.position;
+	frameM.scale = motion.scale;
+	registry.colours.insert(frameEntity, color);
+	registry.renderRequests.insert(
+		frameEntity,
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::UNTEXTURED,
+			GEOMETRY_BUFFER_ID::RECTANGLE,
+			PRIMITIVE_TYPE::LINES,
+		});
+	registry.midgrounds.emplace(frameEntity);
+
+	HealthBar& hpbar = registry.healthBars.emplace(characterEntity, meshEntity, frameEntity);
 	hpbar.width = width;
 	hpbar.height = height;
-}
-
-void createStaminaBar(Entity characterEntity, vec3 color) {
-	auto meshEntity = Entity();
-
-	const float width = 60.0f;
-	const float height = 10.0f;
-
-	Motion& characterMotion = registry.motions.get(characterEntity);
-
-	Motion& motion = registry.motions.emplace(meshEntity);
-	motion.angle = 0.f;
-	motion.scale = { width, height };
-
-
-	registry.colours.insert(meshEntity, color);
-
-	registry.renderRequests.insert(
-		meshEntity,
-		{
-			TEXTURE_ASSET_ID::NONE,
-			EFFECT_ASSET_ID::UNTEXTURED,
-			GEOMETRY_BUFFER_ID::RECTANGLE
-		});
-	registry.midgrounds.emplace(meshEntity);
-
-	StaminaBar& staminabar = registry.staminaBars.emplace(characterEntity, meshEntity);
-	staminabar.width = width;
-	staminabar.height = height;
-}
-
-void createPlayerStaminaBar(Entity characterEntity, vec2 windowSize) {
-	auto meshE = Entity();
-	const float width = 150.0f;
-	const float height = 30.0f;
-
-	Foreground& fg = registry.foregrounds.emplace(meshE);
-	fg.position = {100.0f, windowSize.y - 90.0f};
-	fg.scale = {width, height};
-
-	StaminaBar& staminabar = registry.staminaBars.emplace(characterEntity, meshE);
-	staminabar.width = width;
-	staminabar.height = height;
-
-	registry.colours.insert(meshE, vec3(1.0f, 1.0f, 0.0f));
-
-	registry.renderRequests.insert(
-		meshE,
-		{
-			TEXTURE_ASSET_ID::NONE,
-			EFFECT_ASSET_ID::UNTEXTURED,
-			GEOMETRY_BUFFER_ID::RECTANGLE
-		});
 }
 
 Entity createFPSText(vec2 windowSize) {

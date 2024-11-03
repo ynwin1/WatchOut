@@ -585,6 +585,16 @@ void WorldSystem::handleEnemyCollision(Entity attacker, Entity target, std::vect
         Enemy& attackerData = registry.enemies.get(attacker);
         Enemy& targetData = registry.enemies.get(target);
 
+        // collision damage only applies to boars
+        if(!registry.boars.has(attacker)) {
+            return;
+        }
+
+         Boar& boar = registry.boars.get(attacker);
+
+         // damage should only apply when boar is charging
+        if(!boar.charging) return;
+
         int newHealth = targetData.health - attackerData.damage;
         targetData.health = std::max(newHealth, 0);
         was_damaged.push_back(target);

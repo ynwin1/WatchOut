@@ -383,7 +383,7 @@ Entity createPauseHelpText(vec2 windowSize) {
 
 	Text& text = registry.texts.emplace(entity);
 	text.value = "PAUSE/PLAY(P)    HELP (H)";
-	text.position = {windowSize.x - 550, windowSize.y - 70.0f};
+	text.position = {windowSize.x - 550, windowSize.y - 80.0f};
 	text.scale = 1.5f;
 
 	registry.renderRequests.insert(

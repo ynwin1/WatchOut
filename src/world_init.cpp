@@ -397,7 +397,7 @@ Entity createPauseHelpText(vec2 windowSize) {
 	return entity;
 }
 
-Entity createPauseMenu(vec2 windowSize) {
+Entity createPauseMenu(vec2 cameraPosition) {
 	auto entity = Entity();
 
 	registry.pauseMenuComponents.emplace(entity);
@@ -405,7 +405,7 @@ Entity createPauseMenu(vec2 windowSize) {
 	registry.foregrounds.emplace(entity);
 
 	Motion& motion = registry.motions.emplace(entity);
-	motion.position = {windowSize.x / 2 + 680, windowSize.y / 2., 0};
+	motion.position = {cameraPosition, 0};
 	motion.angle = 0.f;
 	motion.scale = { 960, 540 };
 
@@ -427,7 +427,7 @@ void exitPauseMenu() {
 	}
 }
 
-Entity createHelpMenu(vec2 windowSize) {
+Entity createHelpMenu(vec2 cameraPosition) {
 	auto entity = Entity();
 
 	registry.pauseMenuComponents.emplace(entity);
@@ -435,7 +435,7 @@ Entity createHelpMenu(vec2 windowSize) {
 	registry.foregrounds.emplace(entity);
 
 	Motion& motion = registry.motions.emplace(entity);
-	motion.position = {windowSize.x / 2 + 680, windowSize.y / 2., 0};
+	motion.position = {cameraPosition, 0};
 	motion.angle = 0.f;
 	motion.scale = { 960, 540 };
 

@@ -12,7 +12,7 @@
 // internal 
 #include <render_system.hpp>
 #include <physics_system.hpp>
-
+#include<game_state_controller.hpp>
 
 // Container for all our entities and game logic
 class WorldSystem
@@ -26,10 +26,12 @@ public:
 	// Releases all associated resources
 	~WorldSystem();
 
+	GameStateController gameStateController = GameStateController(GAME_STATE::PLAYING);
+
 	// Steps the game ahead by ms milliseconds
 	bool step(float elapsed_ms);
-	bool game_over;
-	bool is_paused;
+	
+	bool show_mesh;
 
 	// Check for collisions
 	void handle_collisions();
@@ -45,12 +47,13 @@ private:
 	// GLFW Window handle
 	GLFWwindow* window;
 
+	bool isWindowed = false;
+
 	RenderSystem* renderer;
 	PhysicsSystem* physics;
 
 	Camera* camera;
 	
-	GameTimer gameTimer;
 	TrapsCounter trapsCounter;
 
 	// Input callback functions
@@ -84,7 +87,7 @@ private:
 	void trackFPS(float elapsed_ms);
 	void updateGameTimer(float elapsed_ms);
 	void updateTrapsCounterText();
-	void updateEntityFacing();
+	void toggleMesh();
 
 	// Collision functions
 	void entity_collectible_collision(Entity entity, Entity collectible);

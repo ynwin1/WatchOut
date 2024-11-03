@@ -44,17 +44,18 @@ GLFWwindow* RenderSystem::create_window() {
 #if __APPLE__
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
-	glfwWindowHint(GLFW_RESIZABLE, 0);
+	glfwWindowHint(GLFW_RESIZABLE, 1);
 
 	// Create the main window (for rendering, keyboard, and mouse input)
 	GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
 	const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
-	window = glfwCreateWindow(mode->width, mode->height, "Watch Out!", primaryMonitor, nullptr);
+	window = glfwCreateWindow(mode->width, mode->height, "Watch Out!", nullptr, nullptr);
 	if (window == nullptr) {
 		fprintf(stderr, "Failed to glfwCreateWindow");
 		return nullptr;
 	}
 
+	glfwSetWindowMonitor(window, primaryMonitor, 0, 0, mode->width, mode->height, mode->refreshRate);
     glfwMakeContextCurrent(window);
 
 	return window;
@@ -64,7 +65,6 @@ GLFWwindow* RenderSystem::create_window() {
 // World initialization
 bool RenderSystem::init(Camera* camera)
 {
-	
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(1); // vsync
 
@@ -143,12 +143,39 @@ void RenderSystem::bindVBOandIBO(GEOMETRY_BUFFER_ID gid, std::vector<T> vertices
 	gl_has_errors();
 }
 
+void RenderSystem::initializeGlMeshes()
+{
+	for (uint i = 0; i < mesh_paths.size(); i++)
+	{
+		// Initialize meshes
+		GEOMETRY_BUFFER_ID geom_index = mesh_paths[i].first;
+		std::string name = mesh_paths[i].second;
+		Mesh::loadFromOBJFile(name,
+			meshes[(int)geom_index].vertices,
+			meshes[(int)geom_index].vertex_indices,
+			meshes[(int)geom_index].original_size);
+
+		if (geom_index == GEOMETRY_BUFFER_ID::TREE) {
+			for (auto& vertex : meshes[(int)geom_index].vertices) {
+				vertex.position.y *= -1;
+			}
+		}
+
+		bindVBOandIBO(geom_index,
+			meshes[(int)geom_index].vertices,
+			meshes[(int)geom_index].vertex_indices);
+	}
+}
+
 void RenderSystem::initializeGlGeometryBuffers()
 {
 	// Vertex Buffer creation.
 	glGenBuffers((GLsizei)vertex_buffers.size(), vertex_buffers.data());
 	// Index Buffer creation.
 	glGenBuffers((GLsizei)index_buffers.size(), index_buffers.data());
+
+	// Index and Vertex buffer data initialization.
+	initializeGlMeshes();
 
 	//////////////////////////
 	// Initialize sprite

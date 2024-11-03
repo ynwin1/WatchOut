@@ -23,11 +23,11 @@ WorldSystem::WorldSystem(std::default_random_engine& rng) :
 		{"collectible_trap", 6000}
         }),
     max_entities({
-        {"boar", 2},
+        {"boar", 1},
         {"barbarian", 2},
         {"archer", 1},
-		{"heart", 1},
-		{"collectible_trap", 1}
+        {"heart", 1},
+        {"collectible_trap", 1}
         })
 {
     this->rng = rng;
@@ -71,7 +71,11 @@ WorldSystem::~WorldSystem() {
 void WorldSystem::restart_game()
 {
     registry.clear_all_components();
-    createMapTiles(window);
+
+    createMapTiles();
+    createCliffs(window);
+    createTrees(renderer);
+
     createObstacles();
     entity_types = {
         "barbarian",
@@ -80,11 +84,13 @@ void WorldSystem::restart_game()
         "heart",
         "collectible_trap"
     };
-
+    
     // Create player entity
     playerEntity = createJeff(vec2(world_size_x / 2.f, world_size_y / 2.f));
-    game_over = false;
-    is_paused = false;
+    // createTree(renderer, vec2(world_size_x / 2.f + 300.f, world_size_y / 2.f));
+
+    gameStateController.setGameState(GAME_STATE::PLAYING);
+    show_mesh = false;
 
     initText();
 
@@ -92,6 +98,8 @@ void WorldSystem::restart_game()
 }
 
 void WorldSystem::updateGameTimer(float elapsed_ms) {
+    GameTimer& gameTimer = registry.gameTimer;
+
     gameTimer.update(elapsed_ms);
     std::stringstream ss;
     ss << std::setw(2) << std::setfill('0') << gameTimer.hours << ":"
@@ -103,9 +111,10 @@ void WorldSystem::updateGameTimer(float elapsed_ms) {
 }
 
 void WorldSystem::initText() {
+    createPauseHelpText(camera->getSize());
     registry.fpsTracker.textEntity = createFPSText(camera->getSize());
-    gameTimer.reset();
-    gameTimer.textEntity = createGameTimerText(camera->getSize());
+    registry.gameTimer.reset();
+    registry.gameTimer.textEntity = createGameTimerText(camera->getSize());
     trapsCounter.reset();
     trapsCounter.textEntity = createTrapsCounterText(camera->getSize());
 }
@@ -159,7 +168,7 @@ bool WorldSystem::step(float elapsed_ms)
     trackFPS(elapsed_ms);
     updateGameTimer(elapsed_ms);
     updateTrapsCounterText();
-    updateEntityFacing();
+    toggleMesh();
 
     if (camera->isToggled()) {
         Motion& playerMotion = registry.motions.get(playerEntity);
@@ -169,10 +178,8 @@ bool WorldSystem::step(float elapsed_ms)
 
     Player& player = registry.players.get(playerEntity);
     if(player.health == 0) {
-        //CREATE GAMEOVER ENTITY
-        vec2 camera_pos = camera->getPosition();
-        createGameOver(camera_pos);
-        game_over = true;
+        createGameOverText(camera->getSize());
+        gameStateController.setGameState(GAME_STATE::GAMEOVER);
     }
 
     return !is_over();
@@ -241,7 +248,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     Dash& player_dash = registry.dashers.get(playerEntity);
     Stamina& player_stamina = registry.staminas.get(playerEntity);
 
-    if (game_over) {
+    if (gameStateController.getGameState() == GAME_STATE::GAMEOVER) {
         if (action == GLFW_PRESS && key == GLFW_KEY_ENTER){
             restart_game();
             return;
@@ -263,10 +270,24 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 
     // Handle EP to pause gameplay
     if (action == GLFW_PRESS && key == GLFW_KEY_P) {
-        if(is_paused == false){
-            is_paused = true;
+        if(gameStateController.getGameState() != GAME_STATE::PAUSED){
+            createPauseMenu(camera->getSize());
+            gameStateController.setGameState(GAME_STATE::PAUSED);
         } else{
-            is_paused = false;
+            exitPauseMenu();
+            gameStateController.setGameState(GAME_STATE::PLAYING);
+        }
+        
+    }
+
+    // Handle EP to display help menu
+    if (action == GLFW_PRESS && key == GLFW_KEY_H) {
+        if(gameStateController.getGameState() != GAME_STATE::HELP){
+            createHelpMenu(camera->getSize());
+            gameStateController.setGameState(GAME_STATE::HELP);
+        } else{
+            exitHelpMenu();
+            gameStateController.setGameState(GAME_STATE::PLAYING);
         }
         
     }
@@ -366,6 +387,26 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     if(action == GLFW_PRESS && key == GLFW_KEY_F) {
         registry.fpsTracker.toggled = !registry.fpsTracker.toggled;
     }
+
+    // toggle fullscreen
+    if(action == GLFW_PRESS && key == GLFW_KEY_V) {
+        isWindowed = !isWindowed;
+        GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
+
+        if(isWindowed) {
+            glfwSetWindowMonitor(window, nullptr, 50, 50, mode->width, mode->height, 0);
+        } else {
+            glfwSetWindowMonitor(window, primaryMonitor, 0, 0, mode->width, mode->height, mode->refreshRate); 
+        }
+
+        glfwSwapInterval(1); // vsync
+    } 
+
+    // toggle mesh
+	if (action == GLFW_PRESS && key == GLFW_KEY_M) {
+		show_mesh = !show_mesh;
+	}
 }
 
 void WorldSystem::update_player_facing(Player& player) 
@@ -698,25 +739,24 @@ void WorldSystem::handle_stamina(float elapsed_ms) {
     }
 }
 
-void WorldSystem:: updateEntityFacing(){
-    auto& motions_registry = registry.motions;
-	for (int i = (int)motions_registry.components.size()-1; i>=0; --i) {
-	    Motion& motion = motions_registry.components[i];
-        Entity entity_i = motions_registry.entities[i];
-        if(registry.boars.has(entity_i)){
-            if (motion.velocity.x < 0) {
-                motion.scale.x = abs(motion.scale.x); 
-            } else if (motion.velocity.x > 0) {
-                    motion.scale.x = -1.0f * abs(motion.scale.x);
-            }
-
-        } else{
-            if (motion.velocity.x > 0) {
-                motion.scale.x = abs(motion.scale.x); 
-            } else if (motion.velocity.x < 0) {
-                    motion.scale.x = -1.0f * abs(motion.scale.x);
-            }
+void WorldSystem::toggleMesh() {
+    // remove current meshes (every mesh has a render request)
+    // replace with appropriate textures
+    for (auto& meshEntity : registry.meshPtrs.entities) {
+        registry.renderRequests.remove(meshEntity);
+        if (show_mesh) {
+            registry.renderRequests.insert(
+                meshEntity, {
+                    TEXTURE_ASSET_ID::TREE,
+                    EFFECT_ASSET_ID::TREE,
+                    GEOMETRY_BUFFER_ID::TREE });
+        }
+        else {
+            registry.renderRequests.insert(
+                meshEntity, {
+                    TEXTURE_ASSET_ID::TREE,
+                    EFFECT_ASSET_ID::TEXTURED,
+                    GEOMETRY_BUFFER_ID::SPRITE });
         }
     }
 }
-

@@ -44,6 +44,7 @@ struct Enemy
 	std::string type;
 	unsigned int cooldown = 0;
 	float speed = 0;
+	float pathfindTime = 0;
 };
 
 struct Damaging {
@@ -172,6 +173,7 @@ struct GameTimer {
 struct Text {
 	std::string value;
 	vec2 position = { 0, 0 };
+	vec3 colour = {1.0f, 1.0f, 1.0f};
 	float scale = 1.0f;
 };
 
@@ -200,6 +202,29 @@ struct FPSTracker {
 	}
 };
 
+struct ColoredVertex
+{
+	vec3 position;
+	vec3 color;
+};
+
+struct Mesh
+{
+	static bool loadFromOBJFile(std::string obj_path, std::vector<ColoredVertex>& out_vertices, std::vector<uint16_t>& out_vertex_indices, vec2& out_size);
+	vec2 original_size = { 1,1 };
+	std::vector<ColoredVertex> vertices;
+	std::vector<uint16_t> vertex_indices;
+};
+
+// Data structure for toggling debug mode
+struct Debug {
+	bool in_debug_mode = 0;
+	bool in_freeze_mode = 0;
+};
+extern Debug debugging;
+
+
+
 // Entity can jump
 struct Jumper
 {
@@ -208,7 +233,15 @@ struct Jumper
 };
 
 // Enemy types
-struct Boar {};
+struct Boar {
+	float cooldownTimer = 0;        // Tracks time remaining in cooldown
+    float prepareTimer = 0;         // Tracks time for preparation phase (shaking)
+    float chargeTimer = 0;          // Tracks remaining time for charge duration
+    bool preparing = false;         // Indicates if the boar is in the preparation phase
+    bool charging = false;          // Indicates if the boar is actively charging
+
+    vec2 chargeDirection = vec2(0);
+};
 struct Barbarian {};
 struct Archer {
 	float drawArrowTime = 0;
@@ -218,3 +251,6 @@ struct Archer {
 // Collectible types
 struct Heart { unsigned int health = 20; };
 struct CollectibleTrap {};
+
+struct PauseMenuComponent {};
+struct HelpMenuComponent {};

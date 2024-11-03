@@ -29,8 +29,14 @@ inline std::string textures_path(const std::string& name) { return data_path() +
 inline std::string audio_path(const std::string& name) { return data_path() + "/audio/" + std::string(name); };
 inline std::string mesh_path(const std::string& name) { return data_path() + "/meshes/" + std::string(name); };
 
-const int world_size_x = 3200;
-const int world_size_y = 2000;
+const int world_size_x = 4200;//3200
+const int world_size_y = 3000;//2000
+const int leftBound = 500;
+const int rightBound = world_size_x - 500; // 4000 - 100 = 3900
+const int topBound = 500;
+const int bottomBound = world_size_y - 500;
+
+
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846f
@@ -45,5 +51,7 @@ struct Transform {
 	void rotate(float radians);
 	void translate(vec2 offset);
 };
+
+vec2 rotate(vec2 v, float radians);
 
 bool gl_has_errors();

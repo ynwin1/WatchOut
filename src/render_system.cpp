@@ -60,6 +60,10 @@ void RenderSystem::drawText(Entity entity) {
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
 
+		GLuint textColor_loc = glGetUniformLocation(program, "textColor");
+		glUniform3f(textColor_loc, text.colour.x, text.colour.y, text.colour.z);
+		gl_has_errors();
+		
 		glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(camera->getSize().x), 0.0f, static_cast<float>(camera->getSize().y));
 		GLuint projection_loc = glGetUniformLocation(program, "projection");
 		glUniformMatrix4fv(projection_loc, 1, GL_FALSE, value_ptr(projection));
@@ -144,6 +148,74 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection)
 		glBindTexture(GL_TEXTURE_2D, texture_id);
 		gl_has_errors();
 	}
+	else if (render_request.used_effect == EFFECT_ASSET_ID::ANIMATED)
+	{
+		GLint in_position_loc = glGetAttribLocation(program, "in_position");
+		GLint in_texcoord_loc = glGetAttribLocation(program, "in_texcoord");
+		gl_has_errors();
+		assert(in_texcoord_loc >= 0);
+
+		glEnableVertexAttribArray(in_position_loc);
+		glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), (void*)0);
+		gl_has_errors();
+
+		glEnableVertexAttribArray(in_texcoord_loc);
+		glVertexAttribPointer(in_texcoord_loc, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), (void*)sizeof(vec3)); // stride to skip position data
+		
+		// Enabling and binding texture to slot 0
+		glActiveTexture(GL_TEXTURE0);
+		gl_has_errors();
+
+		assert(registry.renderRequests.has(entity));
+		GLuint texture_id = texture_gl_handles[(GLuint)registry.renderRequests.get(entity).used_texture];
+
+		glBindTexture(GL_TEXTURE_2D, texture_id);
+		gl_has_errors();
+
+		// Pass frame information to shaders
+		GLint numFrames_loc = glGetUniformLocation(program, "num_frames");
+    	GLint currentFrame_loc = glGetUniformLocation(program, "current_frame");
+		
+		AnimationController animationController = registry.animationsControllers.get(entity);
+		Animation currentAnimation = animationController.animations[animationController.currentState];
+		glUniform1f(numFrames_loc, currentAnimation.numFrames);  // Set numFrames value
+    	glUniform1f(currentFrame_loc, currentAnimation.currentFrame);  // Set currentFrame value
+    	gl_has_errors();
+	}
+	else if (render_request.used_effect == EFFECT_ASSET_ID::ANIMATED)
+	{
+		GLint in_position_loc = glGetAttribLocation(program, "in_position");
+		GLint in_texcoord_loc = glGetAttribLocation(program, "in_texcoord");
+		gl_has_errors();
+		assert(in_texcoord_loc >= 0);
+
+		glEnableVertexAttribArray(in_position_loc);
+		glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), (void*)0);
+		gl_has_errors();
+
+		glEnableVertexAttribArray(in_texcoord_loc);
+		glVertexAttribPointer(in_texcoord_loc, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), (void*)sizeof(vec3)); // stride to skip position data
+		
+		// Enabling and binding texture to slot 0
+		glActiveTexture(GL_TEXTURE0);
+		gl_has_errors();
+
+		assert(registry.renderRequests.has(entity));
+		GLuint texture_id = texture_gl_handles[(GLuint)registry.renderRequests.get(entity).used_texture];
+
+		glBindTexture(GL_TEXTURE_2D, texture_id);
+		gl_has_errors();
+
+		// Pass frame information to shaders
+		GLint numFrames_loc = glGetUniformLocation(program, "num_frames");
+    	GLint currentFrame_loc = glGetUniformLocation(program, "current_frame");
+		
+		AnimationController animationController = registry.animationsControllers.get(entity);
+		Animation currentAnimation = animationController.animations[animationController.currentState];
+		glUniform1f(numFrames_loc, currentAnimation.numFrames);  // Set numFrames value
+    	glUniform1f(currentFrame_loc, currentAnimation.currentFrame);  // Set currentFrame value
+    	gl_has_errors();
+	}
 	// set attributes for untextured meshes
 	else if(render_request.used_effect == EFFECT_ASSET_ID::UNTEXTURED)
 	{
@@ -152,12 +224,28 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection)
 		glEnableVertexAttribArray(in_position_loc);
 		glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(UntexturedVertex), (void*)0);
 		gl_has_errors();
-	} else {
+	}
+	else if (render_request.used_effect == EFFECT_ASSET_ID::TREE) {
+		GLint in_color_loc = glGetAttribLocation(program, "in_color");
+		GLint in_position_loc = glGetAttribLocation(program, "in_position");
+		gl_has_errors();
+
+		glEnableVertexAttribArray(in_position_loc);
+		glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE,
+			sizeof(ColoredVertex), (void*)0);
+		gl_has_errors();
+
+		glEnableVertexAttribArray(in_color_loc);
+		glVertexAttribPointer(in_color_loc, 3, GL_FLOAT, GL_FALSE,
+			sizeof(ColoredVertex), (void*)sizeof(vec3));
+		gl_has_errors();
+	}
+	else {
 		assert(false && "Type of render request not supported");
 	}
 
 	// Getting uniform locations for glUniform* calls
-	GLint colour_uloc = glGetUniformLocation(program, "entity_colour");
+	GLint colour_uloc = glGetUniformLocation(program, "entity_colour");	
 	const vec3 colour = registry.colours.has(entity) ? registry.colours.get(entity) : vec3(1);
 	glUniform3fv(colour_uloc, 1, (float*)&colour);
 	gl_has_errors();
@@ -192,17 +280,12 @@ bool renderComparison(Entity a, Entity b)
 	if (!registry.motions.has(b)) {
 		return true;
 	}
-
-	if (registry.motions.has(a) && registry.motions.has(b)) {
-		Motion& motionA = registry.motions.get(a);
-		Motion& motionB = registry.motions.get(b);
-		float halfScaleA = motionA.scale.y / 2;
-		float halfScaleB = motionB.scale.y / 2;
-
-		return motionA.position.y + halfScaleA < motionB.position.y + halfScaleB;
+	Motion& motionA = registry.motions.get(a);
+	Motion& motionB = registry.motions.get(b);
+	if (motionA.position.y == motionB.position.y) {
+		return a < b;
 	}
-
-	return true;
+	return motionA.position.y < motionB.position.y;
 }
 
 // Render our game world
@@ -276,6 +359,12 @@ void RenderSystem::step(float elapsed_ms)
 		}
 	}
 
+
+	// Update animation frames
+	for (auto& animationController : registry.animationsControllers.components) {
+		updateAnimation(animationController.animations[animationController.currentState], elapsed_ms);
+	}
+	
 	for (Entity entity : registry.projectiles.entities) {
 		Motion& motion = registry.motions.get(entity);
 		if (length(motion.velocity) == 0) {
@@ -289,9 +378,44 @@ void RenderSystem::step(float elapsed_ms)
 		vec2 direction = normalize(worldToVisual(motion.velocity));
 		motion.angle = atan2(direction.y, direction.x);
 	}
-
+	update_animations();
 	update_hpbars();
 	update_staminabars();
+	updateEntityFacing();
+}
+
+void RenderSystem::update_animations() {
+	update_jeff_animation();
+}
+
+void RenderSystem::update_jeff_animation() {
+	for (Entity entity : registry.players.entities) {
+		Player& player = registry.players.get(entity);
+		Motion& motion = registry.motions.get(entity);
+		AnimationController& animationController = registry.animationsControllers.get(entity);
+		
+		// Determine if player is moving
+		player.isMoving = player.goingUp || player.goingDown || player.goingLeft || player.goingRight;
+
+		// Determine the player's facing direction
+		if (player.goingRight) {
+			motion.scale = vec2(std::abs(motion.scale.x), std::abs(motion.scale.y));  // Right
+		} else if (player.goingLeft) {
+			motion.scale = vec2(-std::abs(motion.scale.x), std::abs(motion.scale.y)); // Left
+		}
+
+		Jumper& playerJumper = registry.jumpers.get(entity);
+
+		// Animation state logic
+		if (playerJumper.isJumping) {
+			animationController.changeState(entity, AnimationState::Jumping);
+		} else if (player.isMoving) {
+			animationController.changeState(entity, AnimationState::Running);
+		} else {
+			// Player is idle if no movement keys are pressed
+			animationController.changeState(entity, AnimationState::Idle);
+		}
+	}
 }
 
 void RenderSystem::turn_damaged_red(std::vector<Entity>& was_damaged)
@@ -415,6 +539,35 @@ void RenderSystem::update_staminabars() {
 		staminaBarMotion.position.z = motion.position.z + visualToWorldY(motion.scale.y) / 2 + topOffset;
 	}
 	handleStaminaBarBoundsCheck();
+}
+
+void RenderSystem::updateEntityFacing() {
+	auto& motions_registry = registry.motions;
+	for (int i = (int)motions_registry.components.size() - 1; i >= 0; --i) {
+		Motion& motion = motions_registry.components[i];
+		Entity entity_i = motions_registry.entities[i];
+		if (registry.boars.has(entity_i)) {
+			if (motion.velocity.x < 0) {
+				motion.scale.x = abs(motion.scale.x);
+			}
+			else if (motion.velocity.x > 0) {
+				motion.scale.x = -1.0f * abs(motion.scale.x);
+			}
+
+		}
+		else if (registry.projectiles.has(entity_i)) {
+			// Skip for projectiles
+			continue;
+		}
+		else {
+			if (motion.velocity.x > 0) {
+				motion.scale.x = abs(motion.scale.x);
+			}
+			else if (motion.velocity.x < 0) {
+				motion.scale.x = -1.0f * abs(motion.scale.x);
+			}
+		}
+	}
 }
 
 

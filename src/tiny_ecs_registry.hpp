@@ -5,6 +5,7 @@
 #include "tiny_ecs.hpp"
 #include "components.hpp"
 #include "render_components.hpp"
+#include "animation_system.hpp"
 
 class ECSRegistry
 {
@@ -26,6 +27,7 @@ public:
 	ComponentContainer<Damaging> damagings;
 	ComponentContainer<DeathTimer> deathTimers;
 	ComponentContainer<HealthBar> healthBars;
+	ComponentContainer<AnimationController> animationsControllers;
 	ComponentContainer<StaminaBar> staminaBars;
 	ComponentContainer<Stamina> staminas;
 	ComponentContainer<Text> texts;
@@ -33,6 +35,10 @@ public:
 	ComponentContainer<MapTile> mapTiles;
 	ComponentContainer<Obstacle> obstacles;
 	ComponentContainer<Projectile> projectiles;
+	ComponentContainer<Mesh*> meshPtrs;
+	
+	ComponentContainer<PauseMenuComponent> pauseMenuComponents;
+	ComponentContainer<HelpMenuComponent> helpMenuComponents;
 
 	std::map<char, TextChar> textChars; //for initializing text glyphs from freetype
 
@@ -51,6 +57,8 @@ public:
 	ComponentContainer<Archer> archers;
 	ComponentContainer<Heart> hearts;
 	ComponentContainer<CollectibleTrap> collectibleTraps;
+
+	GameTimer gameTimer;
 
 	//debugging
 	FPSTracker fpsTracker;
@@ -71,6 +79,7 @@ public:
 		registry_list.push_back(&staminas);
 		registry_list.push_back(&mapTiles);
 		registry_list.push_back(&obstacles);
+		registry_list.push_back(&meshPtrs);
 		
 		registry_list.push_back(&healthBars);
 		registry_list.push_back(&staminaBars);
@@ -89,6 +98,11 @@ public:
 		registry_list.push_back(&archers);
 		registry_list.push_back(&hearts);
 		registry_list.push_back(&collectibleTraps);
+
+		registry_list.push_back(&animationsControllers);
+
+		registry_list.push_back(&pauseMenuComponents);
+		registry_list.push_back(&helpMenuComponents);
 
 		spawnable_lists["boar"] = &boars;
 		spawnable_lists["barbarian"] = &barbarians;

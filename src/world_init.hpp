@@ -16,8 +16,12 @@ const float ARCHER_BB_WIDTH = 32.f * SPRITE_SCALE;
 const float ARCHER_BB_HEIGHT = 32.f * SPRITE_SCALE;
 const float JEFF_BB_WIDTH   = 20.f * SPRITE_SCALE;
 const float JEFF_BB_HEIGHT  = 28.f * SPRITE_SCALE;
+const float JEFF_RUN_BB_WIDTH   = 24.f * SPRITE_SCALE;
+const float JEFF_RUN_BB_HEIGHT  = 32.f * SPRITE_SCALE;
 const float GO_BB_WIDTH   = 100.f * SPRITE_SCALE;
 const float GO_BB_HEIGHT  = 68.f * SPRITE_SCALE;
+const float TREE_BB_HEIGHT = 94 * 2 * SPRITE_SCALE;
+const float TREE_BB_WIDTH = 48 * 2 * SPRITE_SCALE;
 
 const float TRAP_BB_WIDTH = 32.f * SPRITE_SCALE;
 const float TRAP_BB_HEIGHT = 9.f * SPRITE_SCALE;
@@ -33,7 +37,7 @@ const float ROCK_BB_HEIGHT = 35.f * SPRITE_SCALE;
 const float ARROW_BB_WIDTH = 16 * SPRITE_SCALE;
 const float ARROW_BB_HEIGHT = 7 * SPRITE_SCALE;
 
-const float BOAR_SPEED = 0.4;
+const float BOAR_SPEED = 0.2;
 const float BARBARIAN_SPEED = 0.3;
 const float ARCHER_SPEED = 0.2;
 
@@ -47,6 +51,11 @@ const std::unordered_map<std::string, vec2> entity_sizes = {
 
 // Jeff the Player
 Entity createJeff(vec2 position);
+
+Entity createTree(RenderSystem* renderer, vec2 position);
+
+// Running Jeff 
+Entity createRunningJeff(RenderSystem* renderer, vec2 position);
 
 // The boar
 Entity createBoar(vec2 pos);
@@ -69,8 +78,20 @@ Entity createDamageTrap(vec2 pos);
 // Arrows fired by the archer
 Entity createArrow(vec3 pos, vec3 velocity);
 
+// Pause UI
+Entity createPauseMenu(vec2 windowSize);
+void exitPauseMenu();
+
+// Help Menu UI
+Entity createHelpMenu(vec2 windowSize);
+void exitHelpMenu();
+
+// Playing UI
+Entity createPauseHelpText(vec2 windowSize);
 Entity createFPSText(vec2 windowSize);
 
+// Game over UI
+void createGameOverText(vec2 windowSize);
 Entity createGameTimerText(vec2 windowSize);
 
 Entity createTrapsCounterText(vec2 windowSize);
@@ -80,12 +101,19 @@ Entity createGameOver(vec2 pos);
 
 void createHealthBar(Entity characterEntity, vec3 color);
 
-void createMapTiles(GLFWwindow* window);
+void createMapTiles();
 Entity createMapTile(vec2 position, vec2 scale);
 Entity createObstacle(vec2 position, vec2 scale, TEXTURE_ASSET_ID assetID);
 void createObstacles();
 
+//cliffs
+void createCliffs(GLFWwindow* window);
+Entity createBottomCliff(vec2 position, vec2 scale);
+Entity createSideCliff(vec2 position, vec2 scale);
+Entity createTopCliff(vec2 position, vec2 scale);
+
 void createStaminaBar(Entity characterEntity, vec3 color);
-float getElevation(vec2 xy);
+
+void createTrees(RenderSystem* renderer);
 
 float getElevation(vec2 xy);

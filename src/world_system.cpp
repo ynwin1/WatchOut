@@ -129,7 +129,7 @@ void WorldSystem::init_music() {
         return;
     }
 
-    background_music = Mix_LoadMUS(audio_path("background.wav").c_str());
+    background_music = Mix_LoadMUS(audio_path("in_game.wav").c_str());
 	arrow_noise = Mix_LoadWAV(audio_path("arrow.wav").c_str());
     if (background_music == nullptr || arrow_noise == nullptr) {
         fprintf(stderr, "Failed to load sounds\n %s\n %s\n make sure the data directory is present",

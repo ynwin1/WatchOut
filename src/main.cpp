@@ -49,7 +49,7 @@ int main()
 		float elapsed_ms = (float)(std::chrono::duration_cast<std::chrono::microseconds>(now - t)).count() / 1000;
 		t = now;
 
-		if (!world.game_over && !world.is_paused) {
+		if (world.gameState == GAME_STATE::PLAYING) {
 			physics.step(elapsed_ms);
 			world.step(elapsed_ms);
             world.handle_collisions();

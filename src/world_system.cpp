@@ -78,8 +78,7 @@ void WorldSystem::restart_game()
     playerEntity = createJeff(vec2(world_size_x / 2.f, world_size_y / 2.f));
     // createTree(renderer, vec2(world_size_x / 2.f + 300.f, world_size_y / 2.f));
 
-    game_over = false;
-    is_paused = false;
+    gameState = GAME_STATE::PLAYING;
     show_mesh = false;
 
     initText();
@@ -146,7 +145,7 @@ bool WorldSystem::step(float elapsed_ms)
     Player& player = registry.players.get(playerEntity);
     if(player.health == 0) {
         createGameOverText(camera->getSize());
-        game_over = true;
+        gameState = GAME_STATE::GAMEOVER;
     }
 
     return !is_over();
@@ -215,7 +214,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     Dash& player_dash = registry.dashers.get(playerEntity);
     Stamina& player_stamina = registry.staminas.get(playerEntity);
 
-    if (game_over) {
+    if (gameState == GAME_STATE::GAMEOVER) {
         if (action == GLFW_PRESS && key == GLFW_KEY_ENTER){
             restart_game();
             return;
@@ -237,10 +236,10 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 
     // Handle EP to pause gameplay
     if (action == GLFW_PRESS && key == GLFW_KEY_P) {
-        if(is_paused == false){
-            is_paused = true;
+        if(gameState != GAME_STATE::PAUSED){
+            gameState = GAME_STATE::PAUSED;
         } else{
-            is_paused = false;
+            gameState = GAME_STATE::PLAYING;
         }
         
     }

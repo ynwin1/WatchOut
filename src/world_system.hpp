@@ -7,7 +7,7 @@
 // internal 
 #include <render_system.hpp>
 #include <physics_system.hpp>
-
+#include<game_state_controller.hpp>
 
 // Container for all our entities and game logic
 class WorldSystem
@@ -21,10 +21,11 @@ public:
 	// Releases all associated resources
 	~WorldSystem();
 
+	GAME_STATE gameState;
+
 	// Steps the game ahead by ms milliseconds
 	bool step(float elapsed_ms);
-	bool game_over;
-	bool is_paused;
+	
 	bool show_mesh;
 
 	// Check for collisions

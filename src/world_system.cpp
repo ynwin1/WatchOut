@@ -78,7 +78,7 @@ void WorldSystem::restart_game()
     playerEntity = createJeff(vec2(world_size_x / 2.f, world_size_y / 2.f));
     // createTree(renderer, vec2(world_size_x / 2.f + 300.f, world_size_y / 2.f));
 
-    gameState = GAME_STATE::PLAYING;
+    gameStateController.setGameState(GAME_STATE::PLAYING);
     show_mesh = false;
 
     initText();
@@ -100,6 +100,7 @@ void WorldSystem::updateGameTimer(float elapsed_ms) {
 }
 
 void WorldSystem::initText() {
+    createPauseHelpText(camera->getSize());
     registry.fpsTracker.textEntity = createFPSText(camera->getSize());
     registry.gameTimer.reset();
     registry.gameTimer.textEntity = createGameTimerText(camera->getSize());
@@ -145,7 +146,7 @@ bool WorldSystem::step(float elapsed_ms)
     Player& player = registry.players.get(playerEntity);
     if(player.health == 0) {
         createGameOverText(camera->getSize());
-        gameState = GAME_STATE::GAMEOVER;
+        gameStateController.setGameState(GAME_STATE::GAMEOVER);
     }
 
     return !is_over();
@@ -214,7 +215,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     Dash& player_dash = registry.dashers.get(playerEntity);
     Stamina& player_stamina = registry.staminas.get(playerEntity);
 
-    if (gameState == GAME_STATE::GAMEOVER) {
+    if (gameStateController.getGameState() == GAME_STATE::GAMEOVER) {
         if (action == GLFW_PRESS && key == GLFW_KEY_ENTER){
             restart_game();
             return;
@@ -236,10 +237,24 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 
     // Handle EP to pause gameplay
     if (action == GLFW_PRESS && key == GLFW_KEY_P) {
-        if(gameState != GAME_STATE::PAUSED){
-            gameState = GAME_STATE::PAUSED;
+        if(gameStateController.getGameState() != GAME_STATE::PAUSED){
+            createPauseMenu(camera->getSize());
+            gameStateController.setGameState(GAME_STATE::PAUSED);
         } else{
-            gameState = GAME_STATE::PLAYING;
+            exitPauseMenu();
+            gameStateController.setGameState(GAME_STATE::PLAYING);
+        }
+        
+    }
+
+    // Handle EP to display help menu
+    if (action == GLFW_PRESS && key == GLFW_KEY_H) {
+        if(gameStateController.getGameState() != GAME_STATE::HELP){
+            createHelpMenu(camera->getSize());
+            gameStateController.setGameState(GAME_STATE::HELP);
+        } else{
+            exitHelpMenu();
+            gameStateController.setGameState(GAME_STATE::PLAYING);
         }
         
     }

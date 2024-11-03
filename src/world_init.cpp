@@ -378,13 +378,91 @@ void createStaminaBar(Entity characterEntity, vec3 color) {
 	staminabar.height = height;
 }
 
+Entity createPauseHelpText(vec2 windowSize) {
+	auto entity = Entity();
+
+	Text& text = registry.texts.emplace(entity);
+	text.value = "PAUSE/PLAY(P)    HELP (H)";
+	text.position = {windowSize.x - 550, windowSize.y - 70.0f};
+	text.scale = 1.5f;
+
+	registry.renderRequests.insert(
+		entity, 
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::FONT,
+			GEOMETRY_BUFFER_ID::TEXT
+		});
+
+	return entity;
+}
+
+Entity createPauseMenu(vec2 windowSize) {
+	auto entity = Entity();
+
+	registry.pauseMenuComponents.emplace(entity);
+
+	registry.foregrounds.emplace(entity);
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = {windowSize.x / 2 + 680, windowSize.y / 2., 0};
+	motion.angle = 0.f;
+	motion.scale = { 960, 540 };
+
+	registry.renderRequests.insert(
+		entity, 
+		{
+			TEXTURE_ASSET_ID::MENU_PAUSED,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	return entity;
+}
+
+
+void exitPauseMenu() {
+	for (auto& entity: registry.pauseMenuComponents.entities) {
+		registry.remove_all_components_of(entity);
+	}
+}
+
+Entity createHelpMenu(vec2 windowSize) {
+	auto entity = Entity();
+
+	registry.pauseMenuComponents.emplace(entity);
+
+	registry.foregrounds.emplace(entity);
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = {windowSize.x / 2 + 680, windowSize.y / 2., 0};
+	motion.angle = 0.f;
+	motion.scale = { 960, 540 };
+
+	registry.renderRequests.insert(
+		entity, 
+		{
+			TEXTURE_ASSET_ID::MENU_HELP,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	return entity;
+}
+
+void exitHelpMenu() {
+	for (auto& entity: registry.pauseMenuComponents.entities) {
+		registry.remove_all_components_of(entity);
+	}
+}
+
 Entity createFPSText(vec2 windowSize) {
 	auto entity = Entity();
 
 	Text& text = registry.texts.emplace(entity);
 	text.value = "00 fps";
 	// text position based on screen coordinates
-	text.position = {windowSize.x - 90.0f, windowSize.y - 40.0f};
+	text.position = {90.0f, windowSize.y - 40.0f};
 	text.scale = 0.8f;
 
 	registry.renderRequests.insert(

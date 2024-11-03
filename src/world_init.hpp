@@ -78,7 +78,19 @@ Entity createDamageTrap(vec2 pos);
 // Arrows fired by the archer
 Entity createArrow(vec3 pos, vec3 velocity);
 
+// Pause UI
+Entity createPauseMenu(vec2 windowSize);
+void exitPauseMenu();
+
+// Help Menu UI
+Entity createHelpMenu(vec2 windowSize);
+void exitHelpMenu();
+
+// Playing UI
+Entity createPauseHelpText(vec2 windowSize);
 Entity createFPSText(vec2 windowSize);
+
+// Game over UI
 void createGameOverText(vec2 windowSize);
 Entity createGameTimerText(vec2 windowSize);
 

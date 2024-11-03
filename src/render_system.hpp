@@ -49,9 +49,11 @@ class RenderSystem {
 		textures_path("tree/tree.png"),               // TREE
 		textures_path("shrub/shrub.png"),             // SHRUB
 		textures_path("rock/rock.png"),               // ROCK
-		textures_path("border/cliff.png"),            //BOTTOM CLIFF
-	  textures_path("border/cliff2.png"),           //SIDE CLIFF
-	  textures_path("border/cliffTop.png")          // TOP CLIFF
+		textures_path("border/cliff.png"),            // BOTTOM CLIFF
+	  	textures_path("border/cliff2.png"),           // SIDE CLIFF
+	  	textures_path("border/cliffTop.png"),         // TOP CLIFF
+	  	textures_path("menu/HelpMenu.png"),           // MENU_HELP
+		textures_path("menu/PauseMenu.png")           // MENU_PAUSED
 	};
 
 

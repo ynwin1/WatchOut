@@ -21,7 +21,7 @@ public:
 	// Releases all associated resources
 	~WorldSystem();
 
-	GAME_STATE gameState;
+	GameStateController gameStateController = GameStateController(GAME_STATE::PLAYING);
 
 	// Steps the game ahead by ms milliseconds
 	bool step(float elapsed_ms);

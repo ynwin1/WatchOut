@@ -251,3 +251,6 @@ struct Archer {
 // Collectible types
 struct Heart { unsigned int health = 20; };
 struct CollectibleTrap {};
+
+struct PauseMenuComponent {};
+struct HelpMenuComponent {};

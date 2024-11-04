@@ -34,8 +34,8 @@ class RenderSystem {
 	const std::array<std::string, texture_count> texture_paths = 
 
 	{ 
-		textures_path("jeff/jeff.png"),               // JEFF
-		textures_path("barbarian/barbarian.png"),     // BARBARIAN
+		textures_path("barbarian/Idle32x36.png"),     // BARBARIAN_IDLE
+		textures_path("barbarian/Run32x36.png"),      // BARBARIAN_RUN
 		textures_path("boar/boar.png"),               // BOAR
 		textures_path("archer/archer.png"),           // ARCHER
 		textures_path("archer/arrow.png"),            // ARROW

@@ -10,6 +10,12 @@ const int JEFF_IDLE_FRAME_TIME = 150;
 const int JEFF_JUMP_NUM_FRAMES = 1;
 const int JEFF_JUMP_FRAME_TIME = 1000;
 
+const int BARBARIAN_RUN_NUM_FRAMES = 6;
+const int BARBARIAN_RUN_FRAME_TIME = 150;
+
+const int BARBARIAN_IDLE_NUM_FRAMES = 4;
+const int BARBARIAN_IDLE_FRAME_TIME = 200;
+
 AnimationController& initJeffAnimationController(Entity& jeff) {
     AnimationController& animationcontroller = registry.animationsControllers.emplace(jeff);
 	animationcontroller.addAnimation(AnimationState::Idle, JEFF_IDLE_FRAME_TIME, JEFF_IDLE_NUM_FRAMES, TEXTURE_ASSET_ID::JEFF_IDLE);
@@ -23,6 +29,25 @@ AnimationController& initJeffAnimationController(Entity& jeff) {
 			EFFECT_ASSET_ID::ANIMATED,
 			GEOMETRY_BUFFER_ID::SPRITE
 		});
+
+    return animationcontroller;
+}
+
+
+AnimationController& initBarbarianAnimationController(Entity& entity) {
+    AnimationController& animationcontroller = registry.animationsControllers.emplace(entity);
+	animationcontroller.addAnimation(AnimationState::Idle, BARBARIAN_IDLE_FRAME_TIME, BARBARIAN_IDLE_NUM_FRAMES, TEXTURE_ASSET_ID::BARBARIAN_IDLE);
+    animationcontroller.addAnimation(AnimationState::Running, BARBARIAN_RUN_FRAME_TIME, 6, TEXTURE_ASSET_ID::BARBARIAN_RUN);
+
+    registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::BARBARIAN_RUN,
+			EFFECT_ASSET_ID::ANIMATED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+		animationcontroller.changeState(entity, AnimationState::Running);
 
     return animationcontroller;
 }

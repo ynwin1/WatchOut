@@ -56,7 +56,7 @@ Entity createBarbarian(vec2 pos)
 	Motion& motion = registry.motions.emplace(entity);
 	motion.position = vec3(pos, getElevation(pos) + BARBARIAN_BB_HEIGHT / 2);
 	motion.angle = 0.f;
-	motion.scale = { BARBARIAN_BB_WIDTH, BARBARIAN_BB_HEIGHT };
+	motion.scale = { 32. * SPRITE_SCALE, 36. * SPRITE_SCALE};
 	motion.hitbox = { BARBARIAN_BB_WIDTH, BARBARIAN_BB_WIDTH, BARBARIAN_BB_HEIGHT / zConversionFactor };
 	motion.solid = true;
 	
@@ -67,14 +67,7 @@ Entity createBarbarian(vec2 pos)
 
 	registry.barbarians.emplace(entity);
 
-	// Add Render Request for drawing sprite
-	registry.renderRequests.insert(
-	entity,
-	{
-		TEXTURE_ASSET_ID::BARBARIAN,
-		EFFECT_ASSET_ID::TEXTURED,
-		GEOMETRY_BUFFER_ID::SPRITE
-	});
+	initBarbarianAnimationController(entity);
 	registry.midgrounds.emplace(entity);
 
 	createHealthBar(entity, vec3(1.0f, 0.0f, 0.0f));

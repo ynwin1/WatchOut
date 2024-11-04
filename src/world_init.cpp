@@ -32,14 +32,7 @@ Entity createBoar(vec2 pos)
 	dasher.dashTimer = 0.0f;
 	dasher.dashDuration = 0.2f;
 
-	// Add Render Request for drawing sprite
-	registry.renderRequests.insert(
-	entity,
-	{
-		TEXTURE_ASSET_ID::BOAR,
-		EFFECT_ASSET_ID::TEXTURED,
-		GEOMETRY_BUFFER_ID::SPRITE
-	});
+	initBoarAnimationController(entity);
 	registry.midgrounds.emplace(entity);
 
 	createHealthBar(entity, vec3(1.0f, 0.0f, 0.0f));

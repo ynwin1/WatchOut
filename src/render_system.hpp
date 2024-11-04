@@ -27,7 +27,7 @@ class RenderSystem {
 
 	const std::vector < std::pair<GEOMETRY_BUFFER_ID, std::string>> mesh_paths =
 	{
-		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::TREE, mesh_path("tree.obj"))
+		std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::TREE, mesh_path("tree.obj"))
 	};
 
 	// Make sure these paths remain in sync with the associated enumerators.
@@ -36,7 +36,9 @@ class RenderSystem {
 	{ 
 		textures_path("barbarian/Idle32x36.png"),     // BARBARIAN_IDLE
 		textures_path("barbarian/Run32x36.png"),      // BARBARIAN_RUN
-		textures_path("boar/boar.png"),               // BOAR
+		textures_path("barbarian/Dead32x36.png"),     // BARBARIAN_DEAD
+		textures_path("boar/idle1f28x19.png"),        // BOAR_IDLE
+		textures_path("boar/run7f28x19.png"),         // BOAR_RUN
 		textures_path("archer/archer.png"),           // ARCHER
 		textures_path("archer/arrow.png"),            // ARROW
 		textures_path("jeff/32Run.png"),              // JEFF_RUN

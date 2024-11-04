@@ -4,3 +4,4 @@
 
 AnimationController& initJeffAnimationController(Entity& jeff);
 AnimationController& initBarbarianAnimationController(Entity& entity);
+AnimationController& initBoarAnimationController(Entity& entity);

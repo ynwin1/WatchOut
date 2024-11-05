@@ -238,7 +238,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     // Handle EP to pause gameplay
     if (action == GLFW_PRESS && key == GLFW_KEY_P) {
         if(gameStateController.getGameState() != GAME_STATE::PAUSED){
-            createPauseMenu(camera->getSize());
+            createPauseMenu(camera->getPosition());
             gameStateController.setGameState(GAME_STATE::PAUSED);
         } else{
             exitPauseMenu();
@@ -250,7 +250,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     // Handle EP to display help menu
     if (action == GLFW_PRESS && key == GLFW_KEY_H) {
         if(gameStateController.getGameState() != GAME_STATE::HELP){
-            createHelpMenu(camera->getSize());
+            createHelpMenu(camera->getPosition());
             gameStateController.setGameState(GAME_STATE::HELP);
         } else{
             exitHelpMenu();
@@ -599,7 +599,18 @@ void WorldSystem::handleEnemyCollision(Entity attacker, Entity target, std::vect
         Enemy& attackerData = registry.enemies.get(attacker);
         Enemy& targetData = registry.enemies.get(target);
 
-        int newHealth = targetData.health - attackerData.damage;
+        // collision damage only applies to boars
+        if(!registry.boars.has(attacker)) {
+            return;
+        }
+
+         Boar& boar = registry.boars.get(attacker);
+
+         // damage should only apply when boar is charging
+        if(!boar.charging) return;
+
+        const int DAMAGE_MULTIPLIER = 3;
+        int newHealth = targetData.health - attackerData.damage * DAMAGE_MULTIPLIER;
         targetData.health = std::max(newHealth, 0);
         was_damaged.push_back(target);
         printf("Enemy %d's health reduced from %d to %d\n", (unsigned int)target, targetData.health + attackerData.damage, targetData.health);

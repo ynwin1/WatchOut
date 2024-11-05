@@ -35,30 +35,42 @@ public:
 	bool is_over()const;
 
 private:
+	// CONSTANTS
+	// Spawn delays
+	const float ORIGINAL_BOAR_SPAWN_DELAY = 3000.0f;
+	const float ORIGINAL_BABARIAN_SPAWN_DELAY = 8000.0f;
+	const float ORIGINAL_ARCHER_SPAWN_DELAY = 5000.0f;
+	const float ORIGINAL_HEART_SPAWN_DELAY = 15000.0f;
+	const float ORIGINAL_TRAP_SPAWN_DELAY = 10000.0f;
+
+	// Max entities
+	const unsigned int MAX_BOARS = 2;
+	const unsigned int MAX_BABARIANS = 2;
+	const unsigned int MAX_ARCHERS = 1;
+	const unsigned int MAX_HEARTS = 1;
+	const unsigned int MAX_TRAPS = 1;
+
 	// GLFW Window handle
 	GLFWwindow* window;
+	RenderSystem* renderer;
+	PhysicsSystem* physics;
+	Camera* camera;
+	TrapsCounter trapsCounter;
 
 	bool isWindowed = false;
 
-	RenderSystem* renderer;
-	PhysicsSystem* physics;
-
-	Camera* camera;
-	
-	TrapsCounter trapsCounter;
-
-	// Input callback functions
-	void on_key(int key, int, int action, int mod);
-	void on_mouse_move(vec2 mouse_position);
-	
 	Entity playerEntity;
 	std::vector<std::string> entity_types;
 	const std::unordered_map<std::string, float> spawn_delays;
 	const std::unordered_map<std::string, unsigned int> max_entities;
 	std::unordered_map<std::string, float> next_spawns;
 
-	using spawn_func = Entity (*)(vec2);
+	using spawn_func = Entity(*)(vec2);
 	const std::unordered_map<std::string, spawn_func> spawn_functions;
+
+	// Input callback functions
+	void on_key(int key, int, int action, int mod);
+	void on_mouse_move(vec2 mouse_position);
 
 	// restart level
 	void restart_game();

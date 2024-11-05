@@ -16,7 +16,7 @@ WorldSystem::WorldSystem(std::default_random_engine& rng) :
 		{"collectible_trap", createCollectibleTrap}
         }),
     spawn_delays({
-        {"boar", 3000},
+        {"boar", ORIGINAL_BOAR_SPAWN_DELAY},
         {"barbarian", 8000},
         {"archer", 5000},
 		{"heart", 15000},

@@ -599,7 +599,18 @@ void WorldSystem::handleEnemyCollision(Entity attacker, Entity target, std::vect
         Enemy& attackerData = registry.enemies.get(attacker);
         Enemy& targetData = registry.enemies.get(target);
 
-        int newHealth = targetData.health - attackerData.damage;
+        // collision damage only applies to boars
+        if(!registry.boars.has(attacker)) {
+            return;
+        }
+
+         Boar& boar = registry.boars.get(attacker);
+
+         // damage should only apply when boar is charging
+        if(!boar.charging) return;
+
+        const int DAMAGE_MULTIPLIER = 3;
+        int newHealth = targetData.health - attackerData.damage * DAMAGE_MULTIPLIER;
         targetData.health = std::max(newHealth, 0);
         was_damaged.push_back(target);
         printf("Enemy %d's health reduced from %d to %d\n", (unsigned int)target, targetData.health + attackerData.damage, targetData.health);

@@ -26,6 +26,8 @@ const int ARCHER_IDLE_NUM_FRAMES = 4;
 const int ARCHER_IDLE_FRAME_TIME = 200;
 const int ARCHER_DEAD_NUM_FRAMES = 1;
 const int ARCHER_DEAD_FRAME_TIME = 1000;
+const int ARCHER_BOWDRAW_NUM_FRAMES = 10;
+const int ARCHER_BOWDRAW_FRAME_TIME = 100;
 
 AnimationController& initJeffAnimationController(Entity& jeff) {
     AnimationController& animationcontroller = registry.animationControllers.emplace(jeff);
@@ -87,7 +89,8 @@ AnimationController& initArcherAnimationController(Entity& entity) {
     AnimationController& animationcontroller = registry.animationControllers.emplace(entity);
 	animationcontroller.addAnimation(AnimationState::Idle, ARCHER_IDLE_FRAME_TIME, ARCHER_IDLE_NUM_FRAMES, TEXTURE_ASSET_ID::ARCHER_IDLE);
     animationcontroller.addAnimation(AnimationState::Running, ARCHER_RUN_FRAME_TIME, ARCHER_RUN_NUM_FRAMES, TEXTURE_ASSET_ID::ARCHER_RUN);
-	animationcontroller.addAnimation(AnimationState::Dead, ARCHER_IDLE_FRAME_TIME, ARCHER_IDLE_NUM_FRAMES, TEXTURE_ASSET_ID::ARCHER_IDLE);
+	animationcontroller.addAnimation(AnimationState::Dead, ARCHER_DEAD_FRAME_TIME, ARCHER_DEAD_NUM_FRAMES, TEXTURE_ASSET_ID::ARCHER_DEAD);
+	animationcontroller.addAnimation(AnimationState::Attack, ARCHER_BOWDRAW_FRAME_TIME, ARCHER_BOWDRAW_NUM_FRAMES, TEXTURE_ASSET_ID::ARCHER_BOW_DRAW);
 
     registry.renderRequests.insert(
 		entity,

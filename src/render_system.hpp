@@ -42,6 +42,7 @@ class RenderSystem {
 		textures_path("archer/Idle-4f-32x36.png"),    // ARCHER_IDLE
 		textures_path("archer/Run-6f-33x34.png"),     // ARCHER_RUN
 		textures_path("archer/Dead-1f-32x36.png"),    // ARCHER_DEAD
+		textures_path("archer/BowDraw-10f-33x34.png"),// ARCHER_BOW_DRAW
 		textures_path("archer/arrow.png"),            // ARROW
 		textures_path("jeff/32Run.png"),              // JEFF_RUN
 		textures_path("jeff/32Idle.png"),             // JEFF_IDLE

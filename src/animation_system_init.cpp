@@ -16,7 +16,7 @@ const int BARBARIAN_DEAD_NUM_FRAMES = 1;
 const int BARBARIAN_DEAD_FRAME_TIME = 1000;
 
 const int BOAR_RUN_NUM_FRAMES = 7;
-const int BOAR_RUN_FRAME_TIME = 150;
+const int BOAR_RUN_FRAME_TIME = 80;
 const int BOAR_IDLE_NUM_FRAMES = 1;
 const int BOAR_IDLE_FRAME_TIME = 200;
 

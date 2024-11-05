@@ -91,7 +91,7 @@ struct Motion {
 	float angle = 0;
 	vec3 velocity = { 0, 0, 0 };
 	vec2 scale = { 10, 10 };	// only for rendering
-	vec2 facing;				// direction the entity is facing
+	vec2 facing = { 0, 0 };		// direction the entity is facing
 
 	// Hitbox
 	vec3 hitbox = { 0, 0, 0 };

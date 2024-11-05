@@ -23,7 +23,7 @@ WorldSystem::WorldSystem(std::default_random_engine& rng) :
 		{"collectible_trap", 6000}
         }),
     max_entities({
-        {"boar", 1},
+        {"boar", 2},
         {"barbarian", 2},
         {"archer", 1},
         {"heart", 1},
@@ -302,7 +302,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
                         // Start dashing if player is moving
                         player_dash.isDashing = true;
                         player_dash.dashStartPosition = vec2(player_motion.position);
-                        player_dash.dashTargetPosition = player_dash.dashStartPosition + player_comp.facing * dashDistance;
+                        player_dash.dashTargetPosition = player_dash.dashStartPosition + player_motion.facing * dashDistance;
                         player_dash.dashTimer = 0.0f; // Reset timer
                     }
                 }
@@ -343,7 +343,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
         }
     }
     
-    update_player_facing(player_comp);
+    update_player_facing(player_comp, player_motion);
 
     // toggle camera on/off for debugging/testing
     if(action == GLFW_PRESS && key == GLFW_KEY_C) {
@@ -376,7 +376,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	}
 }
 
-void WorldSystem::update_player_facing(Player& player) 
+void WorldSystem::update_player_facing(Player& player, Motion& motion) 
 {
     vec2 player_facing = { 
         player.goingRight - player.goingLeft,
@@ -389,7 +389,7 @@ void WorldSystem::update_player_facing(Player& player)
     }
     else {
         player.isMoving = true;
-        player.facing = normalize(player_facing);
+        motion.facing = normalize(player_facing);
     }
 }
 

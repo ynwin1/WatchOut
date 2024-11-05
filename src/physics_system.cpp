@@ -255,8 +255,8 @@ void PhysicsSystem::updatePositions(float elapsed_ms)
 			if (!player_comp.isMoving) player_speed = 0;
 			else if (player_comp.isRunning) player_speed *= 2;
 
-			motion.velocity.x = (player_speed * player_comp.facing).x;
-			motion.velocity.y = (player_speed * player_comp.facing).y;
+			motion.velocity.x = (player_speed * motion.facing).x;
+			motion.velocity.y = (player_speed * motion.facing).y;
 		}
 
 		// Update the entity's position based on its velocity and elapsed time

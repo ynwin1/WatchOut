@@ -617,8 +617,8 @@ void WorldSystem::checkAndHandleEnemyDeath(Entity enemy) {
         motion.angle = 1.57f; // Rotate enemy 90 degrees
         printf("Enemy %d died with health %d\n", (unsigned int)enemy, enemyData.health);
 
-        if (registry.animationsControllers.has(enemy)) {
-            AnimationController& animationController = registry.animationsControllers.get(enemy);
+        if (registry.animationControllers.has(enemy)) {
+            AnimationController& animationController = registry.animationControllers.get(enemy);
             animationController.changeState(enemy, AnimationState::Dead);
         }
 

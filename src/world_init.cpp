@@ -81,7 +81,6 @@ Entity createArcher(vec2 pos)
 	motion.hitbox = { ARCHER_BB_WIDTH, ARCHER_BB_WIDTH, ARCHER_BB_HEIGHT / zConversionFactor };
 	motion.solid = true;
 
-	// Add Render Request for drawing sprite
 	Enemy& enemy = registry.enemies.emplace(entity);
 	enemy.damage = 40;
 	enemy.cooldown = 3000.f; // 3s
@@ -89,13 +88,7 @@ Entity createArcher(vec2 pos)
 
 	registry.archers.emplace(entity);
 
-	registry.renderRequests.insert(
-	entity,
-	{
-		TEXTURE_ASSET_ID::ARCHER,
-		EFFECT_ASSET_ID::TEXTURED,
-		GEOMETRY_BUFFER_ID::SPRITE
-	});
+	initArcherAnimationController(entity);
 	registry.midgrounds.emplace(entity);
 
 	createHealthBar(entity, vec3(1.0f, 0.0f, 0.0f));

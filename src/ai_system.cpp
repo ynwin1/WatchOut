@@ -325,10 +325,14 @@ void AISystem::archerBehaviour(Entity entity, vec3 playerPosition, float elapsed
         archer.aiming = true;
         motion.velocity.x = 0;
         motion.velocity.y = 0;
+        AnimationController& animationController = registry.animationControllers.get(entity);
+        animationController.changeState(entity, AnimationState::Idle);
     }
     else if (d > DISENGAGE_RANGE) {
         archer.aiming = false;
         archer.drawArrowTime = 0;
+        AnimationController& animationController = registry.animationControllers.get(entity);
+        animationController.changeState(entity, AnimationState::Running);
     }
 
     if (archer.aiming) {

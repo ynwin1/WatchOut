@@ -61,8 +61,8 @@ private:
 
 	Entity playerEntity;
 	std::vector<std::string> entity_types;
-	const std::unordered_map<std::string, float> spawn_delays;
-	const std::unordered_map<std::string, unsigned int> max_entities;
+	std::unordered_map<std::string, float> spawn_delays;
+	std::unordered_map<std::string, unsigned int> max_entities;
 	std::unordered_map<std::string, float> next_spawns;
 
 	using spawn_func = Entity(*)(vec2);
@@ -90,6 +90,7 @@ private:
 	void updateGameTimer(float elapsed_ms);
 	void updateTrapsCounterText();
 	void toggleMesh();
+	void resetSpawnSystem();
 
 	// Collision functions
 	void entity_collectible_collision(Entity entity, Entity collectible);

@@ -547,11 +547,6 @@ void RenderSystem::updateEntityFacing() {
 		Motion& motion = motions_registry.components[i];
 		Entity entity_i = motions_registry.entities[i];
 
-		if (registry.projectiles.has(entity_i)) {
-			// Skip for projectiles
-			continue;
-		}
-
 		if (registry.boars.has(entity_i)) {
 			if (motion.facing.x < 0) {
 				motion.scale.x = abs(motion.scale.x);

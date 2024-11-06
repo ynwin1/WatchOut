@@ -255,8 +255,8 @@ void PhysicsSystem::updatePositions(float elapsed_ms)
 			if (!player_comp.isMoving) player_speed = 0;
 			else if (player_comp.isRunning) player_speed *= 2;
 
-			motion.velocity.x = (player_speed * player_comp.facing).x;
-			motion.velocity.y = (player_speed * player_comp.facing).y;
+			motion.velocity.x = (player_speed * motion.facing).x;
+			motion.velocity.y = (player_speed * motion.facing).y;
 		}
 
 		// Update the entity's position based on its velocity and elapsed time
@@ -374,7 +374,16 @@ void PhysicsSystem::handle_mesh_collision(Entity mesh, Entity entity)
 	entityMotion.velocity.z = 0;
 }
 
-void PhysicsSystem::handle_obstacle_collision(Entity obstacle, Entity entity) {
+void PhysicsSystem::handle_obstacle_collision(Entity obstacle, Entity entity) 
+{
+	Motion& obstacleM = registry.motions.get(obstacle);
+	Motion& entityM = registry.motions.get(entity);
+
+	if (registry.projectiles.has(entity)) {
+		entityM.velocity = vec3(0);
+		return;
+	}
+
 	// Calculate x overlap
 	float x_overlap = calculate_x_overlap(obstacle, entity);
 	// Calculate y overlap
@@ -385,9 +394,6 @@ void PhysicsSystem::handle_obstacle_collision(Entity obstacle, Entity entity) {
 
 	// print the overlap
 	// std::cout << "x overlap: " << x_overlap << " y overlap: " << y_overlap << std::endl;
-
-	Motion& obstacleM = registry.motions.get(obstacle);
-	Motion& entityM = registry.motions.get(entity);
 
 	// Calculate the direction of the collision
 	float x_direction = obstacleM.position.x < entityM.position.x ? 1 : -1;

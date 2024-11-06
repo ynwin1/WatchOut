@@ -83,7 +83,7 @@ private:
 	void spawn(float elapsed_ms);
 	void update_cooldown(float elapsed_ms);
 	void handle_deaths(float elapsed_ms);
-	void update_player_facing(Player& player);
+	void update_player_facing(Player& player, Motion& motion);
 	void despawn_collectibles(float elapsed_ms);
 	void handle_stamina(float elapsed_ms);
 	vec2 get_spawn_location(const std::string& entity_type);

@@ -191,6 +191,7 @@ Entity createJeff(vec2 position)
 	auto& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
 	motion.position = vec3(position, getElevation(position) + JEFF_BB_HEIGHT / 2);
+	motion.facing = { 1, 0 };
 
 	//Initialize stamina
 	auto& stamina = registry.staminas.emplace(entity);
@@ -199,7 +200,6 @@ Entity createJeff(vec2 position)
 	auto& player = registry.players.emplace(entity);
 	player.isRolling = false;
 	player.isRunning = false;
-	player.facing = { 1, 0 };
 
 	auto& dasher = registry.dashers.emplace(entity);
 	dasher.isDashing = false;

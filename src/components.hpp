@@ -15,7 +15,6 @@ struct Player {
 	bool goingRight;	// Key for going right is held down
 	bool tryingToJump;	// Key for jumping is held down
 	bool isMoving;		// Indicates if any movement keys are pressed
-	vec2 facing;		// Direction the player is facing
 };
 
 //Stamina
@@ -92,10 +91,12 @@ struct Motion {
 	float angle = 0;
 	vec3 velocity = { 0, 0, 0 };
 	vec2 scale = { 10, 10 };	// only for rendering
+	vec2 facing = { 0, 0 };		// direction the entity is facing
 
 	// Hitbox
 	vec3 hitbox = { 0, 0, 0 };
 	float solid = false;
+
 };
 
 // Stucture to store collision information

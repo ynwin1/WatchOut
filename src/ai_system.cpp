@@ -25,6 +25,7 @@ void AISystem::moveTowardsPlayer(Entity enemy, vec3 playerPosition, float elapse
 
     Motion& enemyMotion = registry.motions.get(enemy);
     vec2 direction = chooseDirection(enemyMotion, playerPosition);
+    enemyMotion.facing = direction;
     float speed = registry.enemies.get(enemy).speed;
     enemyMotion.velocity = vec3(direction * speed, enemyMotion.velocity.z);
 }
@@ -196,6 +197,7 @@ void AISystem::boarBehaviour(Entity boar, vec3 playerPosition, float elapsed_ms)
     Motion& motion = registry.motions.get(boar);
     Boar& boars = registry.boars.get(boar);
     float distanceToPlayer = distance(motion.position, playerPosition);
+    vec2 directionToPlayer = normalize(vec2(playerPosition) - vec2(motion.position));
 
     if (boars.cooldownTimer > 0) {
         boars.cooldownTimer -= elapsed_ms;
@@ -214,6 +216,7 @@ void AISystem::boarBehaviour(Entity boar, vec3 playerPosition, float elapsed_ms)
 
     if (boars.preparing) {
         // Preparation shake
+        motion.facing = directionToPlayer;
         if (boars.prepareTimer > 0) {
             AnimationController& animationController = registry.animationControllers.get(boar);
             animationController.changeState(boar, AnimationState::Idle);
@@ -232,7 +235,7 @@ void AISystem::boarBehaviour(Entity boar, vec3 playerPosition, float elapsed_ms)
             animationController.changeState(boar, AnimationState::Running);
             boars.preparing = false; 
             boars.charging = true;
-            boars.chargeDirection = normalize(vec2(playerPosition) - vec2(motion.position));
+            boars.chargeDirection = directionToPlayer;
             motion.velocity = vec3(boars.chargeDirection * BOAR_CHARGE_SPEED, 0);
         }
     }
@@ -343,6 +346,7 @@ void AISystem::archerBehaviour(Entity entity, vec3 playerPosition, float elapsed
     }
 
     if (archer.aiming) {
+        motion.facing = normalize(vec2(playerPosition) - vec2(motion.position));
         if (archer.drawArrowTime > DRAW_ARROW_TIME) {
             shootArrow(entity, playerPosition);
             archer.drawArrowTime = 0;

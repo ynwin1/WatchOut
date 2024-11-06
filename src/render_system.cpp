@@ -176,7 +176,7 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection)
 		GLint numFrames_loc = glGetUniformLocation(program, "num_frames");
     	GLint currentFrame_loc = glGetUniformLocation(program, "current_frame");
 		
-		AnimationController animationController = registry.animationsControllers.get(entity);
+		AnimationController animationController = registry.animationControllers.get(entity);
 		Animation currentAnimation = animationController.animations[animationController.currentState];
 		glUniform1f(numFrames_loc, currentAnimation.numFrames);  // Set numFrames value
     	glUniform1f(currentFrame_loc, currentAnimation.currentFrame);  // Set currentFrame value
@@ -210,7 +210,7 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection)
 		GLint numFrames_loc = glGetUniformLocation(program, "num_frames");
     	GLint currentFrame_loc = glGetUniformLocation(program, "current_frame");
 		
-		AnimationController animationController = registry.animationsControllers.get(entity);
+		AnimationController animationController = registry.animationControllers.get(entity);
 		Animation currentAnimation = animationController.animations[animationController.currentState];
 		glUniform1f(numFrames_loc, currentAnimation.numFrames);  // Set numFrames value
     	glUniform1f(currentFrame_loc, currentAnimation.currentFrame);  // Set currentFrame value
@@ -361,7 +361,7 @@ void RenderSystem::step(float elapsed_ms)
 
 
 	// Update animation frames
-	for (auto& animationController : registry.animationsControllers.components) {
+	for (auto& animationController : registry.animationControllers.components) {
 		updateAnimation(animationController.animations[animationController.currentState], elapsed_ms);
 	}
 	
@@ -392,7 +392,7 @@ void RenderSystem::update_jeff_animation() {
 	for (Entity entity : registry.players.entities) {
 		Player& player = registry.players.get(entity);
 		Motion& motion = registry.motions.get(entity);
-		AnimationController& animationController = registry.animationsControllers.get(entity);
+		AnimationController& animationController = registry.animationControllers.get(entity);
 		
 		// Determine if player is moving
 		player.isMoving = player.goingUp || player.goingDown || player.goingLeft || player.goingRight;
@@ -546,16 +546,7 @@ void RenderSystem::updateEntityFacing() {
 	for (int i = (int)motions_registry.components.size() - 1; i >= 0; --i) {
 		Motion& motion = motions_registry.components[i];
 		Entity entity_i = motions_registry.entities[i];
-		if (registry.boars.has(entity_i)) {
-			if (motion.velocity.x < 0) {
-				motion.scale.x = abs(motion.scale.x);
-			}
-			else if (motion.velocity.x > 0) {
-				motion.scale.x = -1.0f * abs(motion.scale.x);
-			}
-
-		}
-		else if (registry.projectiles.has(entity_i)) {
+		if (registry.projectiles.has(entity_i)) {
 			// Skip for projectiles
 			continue;
 		}

@@ -2,7 +2,7 @@
 #include "render_components.hpp"
 #pragma once
 
-enum class AnimationState { Idle, Running, Jumping };
+enum class AnimationState { Idle, Running, Jumping, Dead, Attack};
 
 // Represents a single animation sequence, including frame timing, frame count, and spritesheet
 // Gets looked up if EFFECT_ASSET_ID is ANIMATED

@@ -16,11 +16,11 @@ WorldSystem::WorldSystem(std::default_random_engine& rng) :
 		{"collectible_trap", createCollectibleTrap}
         }),
     spawn_delays({
-        {"boar", 3000},
-        {"barbarian", 8000},
-        {"archer", 5000},
-		{"heart", 15000},
-		{"collectible_trap", 6000}
+        {"boar", ORIGINAL_BOAR_SPAWN_DELAY},
+        {"barbarian", ORIGINAL_BABARIAN_SPAWN_DELAY},
+        {"archer", ORIGINAL_ARCHER_SPAWN_DELAY},
+		{"heart", ORIGINAL_HEART_SPAWN_DELAY},
+		{"collectible_trap", ORIGINAL_TRAP_SPAWN_DELAY}
         }),
     max_entities({
         {"boar", 2},
@@ -76,11 +76,10 @@ void WorldSystem::restart_game()
     
     // Create player entity
     playerEntity = createJeff(vec2(world_size_x / 2.f, world_size_y / 2.f));
-    // createTree(renderer, vec2(world_size_x / 2.f + 300.f, world_size_y / 2.f));
 
     gameStateController.setGameState(GAME_STATE::PLAYING);
     show_mesh = false;
-
+    resetSpawnSystem();
     initText();
 
     next_spawns = spawn_delays;
@@ -127,6 +126,7 @@ void WorldSystem::updateTrapsCounterText() {
 
 bool WorldSystem::step(float elapsed_ms)
 {
+    adjustSpawnSystem(elapsed_ms);
     spawn(elapsed_ms);
     update_cooldown(elapsed_ms);
     handle_deaths(elapsed_ms);
@@ -420,7 +420,9 @@ void WorldSystem::spawn(float elapsed_ms)
 {
     for (std::string& entity_type : entity_types) {
         next_spawns.at(entity_type) -= elapsed_ms;
-        if (next_spawns.at(entity_type) < 0 && registry.spawnable_lists.at(entity_type)->size() < max_entities.at(entity_type)) {
+        if (registry.enemies.size() < MAX_TOTAL_ENEMIES && 
+            next_spawns.at(entity_type) < 0 && 
+            registry.spawnable_lists.at(entity_type)->size() < max_entities.at(entity_type)) {
             vec2 spawnLocation = get_spawn_location(entity_type);
             spawn_func f = spawn_functions.at(entity_type);
             (*f)(spawnLocation);
@@ -606,7 +608,8 @@ void WorldSystem::handleEnemyCollision(Entity attacker, Entity target, std::vect
 
          Boar& boar = registry.boars.get(attacker);
 
-         // damage should only apply when boar is charging
+         // damage should only apply when boar is charging 
+         // (boars can be colliding with others while walking)
         if(!boar.charging) return;
 
         const int DAMAGE_MULTIPLIER = 3;
@@ -742,4 +745,46 @@ void WorldSystem::toggleMesh() {
                     GEOMETRY_BUFFER_ID::SPRITE });
         }
     }
+}
+
+void WorldSystem::adjustSpawnSystem(float elapsed_ms) {
+	GameTimer& gameTimer = registry.gameTimer;
+	if (gameTimer.elapsed > DIFFICULTY_INTERVAL) {
+		// Increase difficulty
+		for (auto& spawnDelay : spawn_delays) {
+			// increse spawn delay for collectibles
+			if (spawnDelay.first == "heart" || spawnDelay.first == "collectible_trap") {
+				spawnDelay.second *= 1.1f;
+            }
+            else {
+				// Decrease spawn delay for enemies
+                spawnDelay.second *= 0.9f;
+            }
+			
+		}
+		for (auto& maxEntity : max_entities) {
+			// Do not increase max entities for collectibles
+			if (maxEntity.first == "heart" || maxEntity.first == "collectible_trap") {
+				continue;
+			}
+			maxEntity.second++;
+		}
+		gameTimer.elapsed = 0;
+	}
+}
+
+void WorldSystem::resetSpawnSystem() {
+	// Reset spawn delays
+	spawn_delays.at("boar") = ORIGINAL_BOAR_SPAWN_DELAY;
+	spawn_delays.at("barbarian") = ORIGINAL_BABARIAN_SPAWN_DELAY;
+	spawn_delays.at("archer") = ORIGINAL_ARCHER_SPAWN_DELAY;
+	spawn_delays.at("heart") = ORIGINAL_HEART_SPAWN_DELAY;
+	spawn_delays.at("collectible_trap") = ORIGINAL_TRAP_SPAWN_DELAY;
+
+	// Reset max entities
+	max_entities.at("boar") = MAX_BOARS;
+	max_entities.at("barbarian") = MAX_BABARIANS;
+	max_entities.at("archer") = MAX_ARCHERS;
+	max_entities.at("heart") = MAX_HEARTS;
+	max_entities.at("collectible_trap") = MAX_TRAPS;
 }

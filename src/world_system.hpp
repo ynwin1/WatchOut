@@ -38,17 +38,19 @@ private:
 	// CONSTANTS
 	// Spawn delays
 	const float ORIGINAL_BOAR_SPAWN_DELAY = 3000.0f;
-	const float ORIGINAL_BABARIAN_SPAWN_DELAY = 8000.0f;
-	const float ORIGINAL_ARCHER_SPAWN_DELAY = 5000.0f;
-	const float ORIGINAL_HEART_SPAWN_DELAY = 15000.0f;
-	const float ORIGINAL_TRAP_SPAWN_DELAY = 10000.0f;
+	const float ORIGINAL_BABARIAN_SPAWN_DELAY = 5000.0f;
+	const float ORIGINAL_ARCHER_SPAWN_DELAY = 7000.0f;
+	const float ORIGINAL_HEART_SPAWN_DELAY = 10000.0f;
+	const float ORIGINAL_TRAP_SPAWN_DELAY = 700.0f;
 
 	// Max entities
-	const unsigned int MAX_BOARS = 2;
-	const unsigned int MAX_BABARIANS = 2;
-	const unsigned int MAX_ARCHERS = 1;
+	const unsigned int MAX_BOARS = 1;
+	const unsigned int MAX_BABARIANS = 1;
+	const unsigned int MAX_ARCHERS = 0;
 	const unsigned int MAX_HEARTS = 1;
 	const unsigned int MAX_TRAPS = 1;
+
+	const float DIFFICULTY_INTERVAL = 45000.0f;
 
 	// GLFW Window handle
 	GLFWwindow* window;
@@ -90,6 +92,7 @@ private:
 	void updateGameTimer(float elapsed_ms);
 	void updateTrapsCounterText();
 	void toggleMesh();
+	void adjustSpawnSystem(float elapsed_ms);
 	void resetSpawnSystem();
 
 	// Collision functions

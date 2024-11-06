@@ -76,13 +76,10 @@ void WorldSystem::restart_game()
     
     // Create player entity
     playerEntity = createJeff(vec2(world_size_x / 2.f, world_size_y / 2.f));
-    // createTree(renderer, vec2(world_size_x / 2.f + 300.f, world_size_y / 2.f));
 
     gameStateController.setGameState(GAME_STATE::PLAYING);
     show_mesh = false;
-
     resetSpawnSystem();
-
     initText();
 
     next_spawns = spawn_delays;
@@ -129,6 +126,7 @@ void WorldSystem::updateTrapsCounterText() {
 
 bool WorldSystem::step(float elapsed_ms)
 {
+    adjustSpawnSystem(elapsed_ms);
     spawn(elapsed_ms);
     update_cooldown(elapsed_ms);
     handle_deaths(elapsed_ms);
@@ -608,7 +606,8 @@ void WorldSystem::handleEnemyCollision(Entity attacker, Entity target, std::vect
 
          Boar& boar = registry.boars.get(attacker);
 
-         // damage should only apply when boar is charging
+         // damage should only apply when boar is charging 
+         // (boars can be colliding with others while walking)
         if(!boar.charging) return;
 
         const int DAMAGE_MULTIPLIER = 3;
@@ -739,6 +738,32 @@ void WorldSystem::toggleMesh() {
                     GEOMETRY_BUFFER_ID::SPRITE });
         }
     }
+}
+
+void WorldSystem::adjustSpawnSystem(float elapsed_ms) {
+	GameTimer& gameTimer = registry.gameTimer;
+	if (gameTimer.elapsed > DIFFICULTY_INTERVAL) {
+		// Increase difficulty
+		for (auto& spawnDelay : spawn_delays) {
+			// increse spawn delay for collectibles
+			if (spawnDelay.first == "heart" || spawnDelay.first == "collectible_trap") {
+				continue;
+            }
+            else {
+				// Decrease spawn delay for enemies
+                spawnDelay.second *= 0.9f;
+            }
+			
+		}
+		for (auto& maxEntity : max_entities) {
+			// Do not increase max entities for collectibles
+			if (maxEntity.first == "heart" || maxEntity.first == "collectible_trap") {
+				continue;
+			}
+			maxEntity.second++;
+		}
+		gameTimer.elapsed = 0;
+	}
 }
 
 void WorldSystem::resetSpawnSystem() {

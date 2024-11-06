@@ -27,7 +27,7 @@ public:
 	ComponentContainer<Damaging> damagings;
 	ComponentContainer<DeathTimer> deathTimers;
 	ComponentContainer<HealthBar> healthBars;
-	ComponentContainer<AnimationController> animationsControllers;
+	ComponentContainer<AnimationController> animationControllers;
 	ComponentContainer<StaminaBar> staminaBars;
 	ComponentContainer<Stamina> staminas;
 	ComponentContainer<Text> texts;
@@ -99,7 +99,7 @@ public:
 		registry_list.push_back(&hearts);
 		registry_list.push_back(&collectibleTraps);
 
-		registry_list.push_back(&animationsControllers);
+		registry_list.push_back(&animationControllers);
 
 		registry_list.push_back(&pauseMenuComponents);
 		registry_list.push_back(&helpMenuComponents);

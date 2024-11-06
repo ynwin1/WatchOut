@@ -32,14 +32,7 @@ Entity createBoar(vec2 pos)
 	dasher.dashTimer = 0.0f;
 	dasher.dashDuration = 0.2f;
 
-	// Add Render Request for drawing sprite
-	registry.renderRequests.insert(
-	entity,
-	{
-		TEXTURE_ASSET_ID::BOAR,
-		EFFECT_ASSET_ID::TEXTURED,
-		GEOMETRY_BUFFER_ID::SPRITE
-	});
+	initBoarAnimationController(entity);
 	registry.midgrounds.emplace(entity);
 
 	createHealthBar(entity, vec3(1.0f, 0.0f, 0.0f));
@@ -56,7 +49,7 @@ Entity createBarbarian(vec2 pos)
 	Motion& motion = registry.motions.emplace(entity);
 	motion.position = vec3(pos, getElevation(pos) + BARBARIAN_BB_HEIGHT / 2);
 	motion.angle = 0.f;
-	motion.scale = { BARBARIAN_BB_WIDTH, BARBARIAN_BB_HEIGHT };
+	motion.scale = { 32. * SPRITE_SCALE, 36. * SPRITE_SCALE};
 	motion.hitbox = { BARBARIAN_BB_WIDTH, BARBARIAN_BB_WIDTH, BARBARIAN_BB_HEIGHT / zConversionFactor };
 	motion.solid = true;
 	
@@ -67,14 +60,7 @@ Entity createBarbarian(vec2 pos)
 
 	registry.barbarians.emplace(entity);
 
-	// Add Render Request for drawing sprite
-	registry.renderRequests.insert(
-	entity,
-	{
-		TEXTURE_ASSET_ID::BARBARIAN,
-		EFFECT_ASSET_ID::TEXTURED,
-		GEOMETRY_BUFFER_ID::SPRITE
-	});
+	initBarbarianAnimationController(entity);
 	registry.midgrounds.emplace(entity);
 
 	createHealthBar(entity, vec3(1.0f, 0.0f, 0.0f));
@@ -95,7 +81,6 @@ Entity createArcher(vec2 pos)
 	motion.hitbox = { ARCHER_BB_WIDTH, ARCHER_BB_WIDTH, ARCHER_BB_HEIGHT / zConversionFactor };
 	motion.solid = true;
 
-	// Add Render Request for drawing sprite
 	Enemy& enemy = registry.enemies.emplace(entity);
 	enemy.damage = 40;
 	enemy.cooldown = 3000.f; // 3s
@@ -103,13 +88,7 @@ Entity createArcher(vec2 pos)
 
 	registry.archers.emplace(entity);
 
-	registry.renderRequests.insert(
-	entity,
-	{
-		TEXTURE_ASSET_ID::ARCHER,
-		EFFECT_ASSET_ID::TEXTURED,
-		GEOMETRY_BUFFER_ID::SPRITE
-	});
+	initArcherAnimationController(entity);
 	registry.midgrounds.emplace(entity);
 
 	createHealthBar(entity, vec3(1.0f, 0.0f, 0.0f));
@@ -397,7 +376,7 @@ Entity createPauseHelpText(vec2 windowSize) {
 	return entity;
 }
 
-Entity createPauseMenu(vec2 windowSize) {
+Entity createPauseMenu(vec2 cameraPosition) {
 	auto entity = Entity();
 
 	registry.pauseMenuComponents.emplace(entity);
@@ -405,7 +384,7 @@ Entity createPauseMenu(vec2 windowSize) {
 	registry.foregrounds.emplace(entity);
 
 	Motion& motion = registry.motions.emplace(entity);
-	motion.position = {windowSize.x / 2 + 680, windowSize.y / 2., 0};
+	motion.position = {cameraPosition, 0};
 	motion.angle = 0.f;
 	motion.scale = { 960, 540 };
 
@@ -427,7 +406,7 @@ void exitPauseMenu() {
 	}
 }
 
-Entity createHelpMenu(vec2 windowSize) {
+Entity createHelpMenu(vec2 cameraPosition) {
 	auto entity = Entity();
 
 	registry.pauseMenuComponents.emplace(entity);
@@ -435,7 +414,7 @@ Entity createHelpMenu(vec2 windowSize) {
 	registry.foregrounds.emplace(entity);
 
 	Motion& motion = registry.motions.emplace(entity);
-	motion.position = {windowSize.x / 2 + 680, windowSize.y / 2., 0};
+	motion.position = {cameraPosition, 0};
 	motion.angle = 0.f;
 	motion.scale = { 960, 540 };
 

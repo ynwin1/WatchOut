@@ -41,7 +41,7 @@ private:
 	const float ORIGINAL_BABARIAN_SPAWN_DELAY = 5000.0f;
 	const float ORIGINAL_ARCHER_SPAWN_DELAY = 7000.0f;
 	const float ORIGINAL_HEART_SPAWN_DELAY = 10000.0f;
-	const float ORIGINAL_TRAP_SPAWN_DELAY = 700.0f;
+	const float ORIGINAL_TRAP_SPAWN_DELAY = 7000.0f;
 
 	// Max entities
 	const unsigned int MAX_BOARS = 1;
@@ -51,6 +51,7 @@ private:
 	const unsigned int MAX_TRAPS = 1;
 
 	const float DIFFICULTY_INTERVAL = 45000.0f;
+	const unsigned int MAX_TOTAL_ENEMIES = 8;
 
 	// GLFW Window handle
 	GLFWwindow* window;

@@ -20,7 +20,7 @@ WorldSystem::WorldSystem(std::default_random_engine& rng) :
         {"barbarian", ORIGINAL_BABARIAN_SPAWN_DELAY},
         {"archer", ORIGINAL_ARCHER_SPAWN_DELAY},
 		{"heart", ORIGINAL_HEART_SPAWN_DELAY},
-		{"collectible_trap", ORIGINAL_HEART_SPAWN_DELAY}
+		{"collectible_trap", ORIGINAL_TRAP_SPAWN_DELAY}
         }),
     max_entities({
         {"boar", 1},
@@ -420,7 +420,9 @@ void WorldSystem::spawn(float elapsed_ms)
 {
     for (std::string& entity_type : entity_types) {
         next_spawns.at(entity_type) -= elapsed_ms;
-        if (next_spawns.at(entity_type) < 0 && registry.spawnable_lists.at(entity_type)->size() < max_entities.at(entity_type)) {
+        if (registry.enemies.size() < MAX_TOTAL_ENEMIES && 
+            next_spawns.at(entity_type) < 0 && 
+            registry.spawnable_lists.at(entity_type)->size() < max_entities.at(entity_type)) {
             vec2 spawnLocation = get_spawn_location(entity_type);
             spawn_func f = spawn_functions.at(entity_type);
             (*f)(spawnLocation);
@@ -747,7 +749,7 @@ void WorldSystem::adjustSpawnSystem(float elapsed_ms) {
 		for (auto& spawnDelay : spawn_delays) {
 			// increse spawn delay for collectibles
 			if (spawnDelay.first == "heart" || spawnDelay.first == "collectible_trap") {
-				continue;
+				spawnDelay.second *= 1.1f;
             }
             else {
 				// Decrease spawn delay for enemies

@@ -362,6 +362,28 @@ void AISystem::archerBehaviour(Entity entity, vec3 playerPosition, float elapsed
     }
 }
 
+void AISystem::wizardBehaviour(Entity entity, vec3 playerPosition, float elapsed_ms)
+{ 
+	const float WIZARD_RANGE = 500;
+	if (registry.deathTimers.has(entity)) {
+		return;
+	}
+	Motion& motion = registry.motions.get(entity);
+	Wizard& wizard = registry.wizards.get(entity);
+	float d = distance(motion.position, playerPosition);
+
+	// if player is out of range, wizard will move towards player
+    if (d > WIZARD_RANGE) {
+		moveTowardsPlayer(entity, playerPosition, elapsed_ms);
+    }
+    else {
+		// TODO - wizard attack patterns go here, Idle for now
+        AnimationController& animationController = registry.animationControllers.get(entity);
+		animationController.changeState(entity, AnimationState::Idle);
+    }
+
+}
+
 
 void AISystem::step(float elapsed_ms)
 {
@@ -381,5 +403,8 @@ void AISystem::step(float elapsed_ms)
         else if (registry.archers.has(enemy)) {
             archerBehaviour(enemy, playerPosition, elapsed_ms);
         }
+		else if (registry.wizards.has(enemy)) {
+			wizardBehaviour(enemy, playerPosition, elapsed_ms);
+		}
     }
 }

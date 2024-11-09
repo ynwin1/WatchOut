@@ -12,6 +12,7 @@ WorldSystem::WorldSystem(std::default_random_engine& rng) :
         {"boar", createBoar},
         {"barbarian", createBarbarian},
         {"archer", createArcher},
+	    {"wizard", createWizard},
         {"heart", createHeart},
 		{"collectible_trap", createCollectibleTrap}
         }),
@@ -19,6 +20,7 @@ WorldSystem::WorldSystem(std::default_random_engine& rng) :
         {"boar", ORIGINAL_BOAR_SPAWN_DELAY},
         {"barbarian", ORIGINAL_BABARIAN_SPAWN_DELAY},
         {"archer", ORIGINAL_ARCHER_SPAWN_DELAY},
+		{"wizard", ORIGINAL_WIZARD_SPAWN_DELAY},
 		{"heart", ORIGINAL_HEART_SPAWN_DELAY},
 		{"collectible_trap", ORIGINAL_TRAP_SPAWN_DELAY}
         }),
@@ -26,6 +28,7 @@ WorldSystem::WorldSystem(std::default_random_engine& rng) :
         {"boar", 2},
         {"barbarian", 2},
         {"archer", 1},
+		{"wizard", 1},
         {"heart", 1},
         {"collectible_trap", 1}
         })
@@ -70,6 +73,7 @@ void WorldSystem::restart_game()
         "barbarian",
         "boar",
         "archer",
+        "wizard",
         "heart",
         "collectible_trap"
     };

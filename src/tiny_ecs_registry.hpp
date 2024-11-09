@@ -109,6 +109,7 @@ public:
 		spawnable_lists["boar"] = &boars;
 		spawnable_lists["barbarian"] = &barbarians;
 		spawnable_lists["archer"] = &archers;
+		spawnable_lists["wizard"] = &wizards;
 		spawnable_lists["heart"] = &hearts;
 		spawnable_lists["collectible_trap"] = &collectibleTraps;
 	}

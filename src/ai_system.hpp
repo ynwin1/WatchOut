@@ -20,6 +20,9 @@ private:
 	void archerBehaviour(Entity entity, vec3 playerPosition, float elapsed_ms);
 	void shootArrow(Entity shooter, vec3 targetPos);
 
+	// Wizard functions
+	void wizardBehaviour(Entity entity, vec3 playerPosition, float elapsed_ms);
+
 	vec2 randomDirection();
 
 	// C++ random number generator

@@ -374,6 +374,7 @@ void AISystem::wizardBehaviour(Entity entity, vec3 playerPosition, float elapsed
     AnimationController& animationController = registry.animationControllers.get(entity);
 	// if player is out of range, wizard will move towards player
     if (d > WIZARD_RANGE) {
+		animationController.changeState(entity, AnimationState::Running);
 		moveTowardsPlayer(entity, playerPosition, elapsed_ms);
     }
     else {

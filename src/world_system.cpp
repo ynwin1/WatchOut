@@ -632,7 +632,10 @@ void WorldSystem::checkAndHandleEnemyDeath(Entity enemy) {
     if (enemyData.health == 0 && !registry.deathTimers.has(enemy)) {
         Motion& motion = registry.motions.get(enemy);
         motion.velocity = { 0, 0, motion.velocity.z }; // Stop enemy movement
-        motion.angle = 1.57f; // Rotate enemy 90 degrees
+        // Do not rotate wizard
+        if (!registry.wizards.has(enemy)) {
+            motion.angle = 1.57f; // Rotate enemy 90 degrees
+        }
         printf("Enemy %d died with health %d\n", (unsigned int)enemy, enemyData.health);
 
         if (registry.animationControllers.has(enemy)) {

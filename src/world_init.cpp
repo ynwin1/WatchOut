@@ -270,9 +270,6 @@ Entity createTree(RenderSystem* renderer, vec2 pos)
 	motion.hitbox = { TREE_BB_WIDTH, TREE_BB_WIDTH, TREE_BB_HEIGHT / zConversionFactor };
 	motion.solid = true;
 
-	// print tree position
-	printf("Tree position: %f, %f, %f\n", pos.x, pos.y, motion.position.z);
-
 	registry.renderRequests.insert(
 		entity, {
 			TEXTURE_ASSET_ID::TREE,

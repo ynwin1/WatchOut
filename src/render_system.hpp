@@ -44,9 +44,9 @@ class RenderSystem {
 		textures_path("archer/Dead-1f-32x36.png"),    // ARCHER_DEAD
 		textures_path("archer/BowDraw-10f-33x34.png"),// ARCHER_BOW_DRAW
 		textures_path("archer/arrow.png"),            // ARROW
-		textures_path("wizard/Dead-6f-32x36.png"),    // WIZARD_DEAD
 		textures_path("wizard/Idle-4f-32x36.png"),    // WIZARD_IDLE
 		textures_path("wizard/Run-6f-32x36.png"),     // WIZARD_RUN
+		textures_path("wizard/Dead-6f-32x36.png"),    // WIZARD_DEAD
 		textures_path("jeff/32Run.png"),              // JEFF_RUN
 		textures_path("jeff/32Idle.png"),             // JEFF_IDLE
 		textures_path("jeff/32Jump.png"),             // JEFF_JUMP

@@ -16,14 +16,14 @@ WorldSystem::WorldSystem(std::default_random_engine& rng) :
 		{"collectible_trap", createCollectibleTrap}
         }),
     spawn_delays({
-        {"boar", 3000},
-        {"barbarian", 8000},
-        {"archer", 5000},
-		{"heart", 15000},
-		{"collectible_trap", 6000}
+        {"boar", ORIGINAL_BOAR_SPAWN_DELAY},
+        {"barbarian", ORIGINAL_BABARIAN_SPAWN_DELAY},
+        {"archer", ORIGINAL_ARCHER_SPAWN_DELAY},
+		{"heart", ORIGINAL_HEART_SPAWN_DELAY},
+		{"collectible_trap", ORIGINAL_TRAP_SPAWN_DELAY}
         }),
     max_entities({
-        {"boar", 1},
+        {"boar", 2},
         {"barbarian", 2},
         {"archer", 1},
         {"heart", 1},
@@ -76,13 +76,12 @@ void WorldSystem::restart_game()
     
     // Create player entity
     playerEntity = createJeff(vec2(world_size_x / 2.f, world_size_y / 2.f));
-    // createTree(renderer, vec2(world_size_x / 2.f + 300.f, world_size_y / 2.f));
     createPlayerHealthBar(playerEntity, camera->getSize());
     createPlayerStaminaBar(playerEntity, camera->getSize());
 
-    gameState = GAME_STATE::PLAYING;
+    gameStateController.setGameState(GAME_STATE::PLAYING);
     show_mesh = false;
-
+    resetSpawnSystem();
     initText();
 
     next_spawns = spawn_delays;
@@ -102,6 +101,7 @@ void WorldSystem::updateGameTimer(float elapsed_ms) {
 }
 
 void WorldSystem::initText() {
+    createPauseHelpText(camera->getSize());
     registry.fpsTracker.textEntity = createFPSText(camera->getSize());
     registry.gameTimer.reset();
     registry.gameTimer.textEntity = createGameTimerText(camera->getSize());
@@ -128,6 +128,7 @@ void WorldSystem::updateTrapsCounterText() {
 
 bool WorldSystem::step(float elapsed_ms)
 {
+    adjustSpawnSystem(elapsed_ms);
     spawn(elapsed_ms);
     update_cooldown(elapsed_ms);
     handle_deaths(elapsed_ms);
@@ -147,7 +148,7 @@ bool WorldSystem::step(float elapsed_ms)
     Player& player = registry.players.get(playerEntity);
     if(player.health == 0) {
         createGameOverText(camera->getSize());
-        gameState = GAME_STATE::GAMEOVER;
+        gameStateController.setGameState(GAME_STATE::GAMEOVER);
     }
 
     return !is_over();
@@ -216,7 +217,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     Dash& player_dash = registry.dashers.get(playerEntity);
     Stamina& player_stamina = registry.staminas.get(playerEntity);
 
-    if (gameState == GAME_STATE::GAMEOVER) {
+    if (gameStateController.getGameState() == GAME_STATE::GAMEOVER) {
         if (action == GLFW_PRESS && key == GLFW_KEY_ENTER){
             restart_game();
             return;
@@ -238,10 +239,24 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 
     // Handle EP to pause gameplay
     if (action == GLFW_PRESS && key == GLFW_KEY_P) {
-        if(gameState != GAME_STATE::PAUSED){
-            gameState = GAME_STATE::PAUSED;
+        if(gameStateController.getGameState() != GAME_STATE::PAUSED){
+            createPauseMenu(camera->getPosition());
+            gameStateController.setGameState(GAME_STATE::PAUSED);
         } else{
-            gameState = GAME_STATE::PLAYING;
+            exitPauseMenu();
+            gameStateController.setGameState(GAME_STATE::PLAYING);
+        }
+        
+    }
+
+    // Handle EP to display help menu
+    if (action == GLFW_PRESS && key == GLFW_KEY_H) {
+        if(gameStateController.getGameState() != GAME_STATE::HELP){
+            createHelpMenu(camera->getPosition());
+            gameStateController.setGameState(GAME_STATE::HELP);
+        } else{
+            exitHelpMenu();
+            gameStateController.setGameState(GAME_STATE::PLAYING);
         }
         
     }
@@ -289,7 +304,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
                         // Start dashing if player is moving
                         player_dash.isDashing = true;
                         player_dash.dashStartPosition = vec2(player_motion.position);
-                        player_dash.dashTargetPosition = player_dash.dashStartPosition + player_comp.facing * dashDistance;
+                        player_dash.dashTargetPosition = player_dash.dashStartPosition + player_motion.facing * dashDistance;
                         player_dash.dashTimer = 0.0f; // Reset timer
                     }
                 }
@@ -330,7 +345,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
         }
     }
     
-    update_player_facing(player_comp);
+    update_player_facing(player_comp, player_motion);
 
     // toggle camera on/off for debugging/testing
     if(action == GLFW_PRESS && key == GLFW_KEY_C) {
@@ -363,7 +378,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	}
 }
 
-void WorldSystem::update_player_facing(Player& player) 
+void WorldSystem::update_player_facing(Player& player, Motion& motion) 
 {
     vec2 player_facing = { 
         player.goingRight - player.goingLeft,
@@ -376,7 +391,7 @@ void WorldSystem::update_player_facing(Player& player)
     }
     else {
         player.isMoving = true;
-        player.facing = normalize(player_facing);
+        motion.facing = normalize(player_facing);
     }
 }
 
@@ -407,7 +422,9 @@ void WorldSystem::spawn(float elapsed_ms)
 {
     for (std::string& entity_type : entity_types) {
         next_spawns.at(entity_type) -= elapsed_ms;
-        if (next_spawns.at(entity_type) < 0 && registry.spawnable_lists.at(entity_type)->size() < max_entities.at(entity_type)) {
+        if (registry.enemies.size() < MAX_TOTAL_ENEMIES && 
+            next_spawns.at(entity_type) < 0 && 
+            registry.spawnable_lists.at(entity_type)->size() < max_entities.at(entity_type)) {
             vec2 spawnLocation = get_spawn_location(entity_type);
             spawn_func f = spawn_functions.at(entity_type);
             (*f)(spawnLocation);
@@ -586,7 +603,19 @@ void WorldSystem::handleEnemyCollision(Entity attacker, Entity target, std::vect
         Enemy& attackerData = registry.enemies.get(attacker);
         Enemy& targetData = registry.enemies.get(target);
 
-        int newHealth = targetData.health - attackerData.damage;
+        // collision damage only applies to boars
+        if(!registry.boars.has(attacker)) {
+            return;
+        }
+
+         Boar& boar = registry.boars.get(attacker);
+
+         // damage should only apply when boar is charging 
+         // (boars can be colliding with others while walking)
+        if(!boar.charging) return;
+
+        const int DAMAGE_MULTIPLIER = 3;
+        int newHealth = targetData.health - attackerData.damage * DAMAGE_MULTIPLIER;
         targetData.health = std::max(newHealth, 0);
         was_damaged.push_back(target);
         printf("Enemy %d's health reduced from %d to %d\n", (unsigned int)target, targetData.health + attackerData.damage, targetData.health);
@@ -603,6 +632,11 @@ void WorldSystem::checkAndHandleEnemyDeath(Entity enemy) {
         motion.velocity = { 0, 0, motion.velocity.z }; // Stop enemy movement
         motion.angle = 1.57f; // Rotate enemy 90 degrees
         printf("Enemy %d died with health %d\n", (unsigned int)enemy, enemyData.health);
+
+        if (registry.animationControllers.has(enemy)) {
+            AnimationController& animationController = registry.animationControllers.get(enemy);
+            animationController.changeState(enemy, AnimationState::Dead);
+        }
 
         HealthBar& hpbar = registry.healthBars.get(enemy);
         registry.remove_all_components_of(hpbar.meshEntity);
@@ -714,4 +748,46 @@ void WorldSystem::toggleMesh() {
                     GEOMETRY_BUFFER_ID::SPRITE });
         }
     }
+}
+
+void WorldSystem::adjustSpawnSystem(float elapsed_ms) {
+	GameTimer& gameTimer = registry.gameTimer;
+	if (gameTimer.elapsed > DIFFICULTY_INTERVAL) {
+		// Increase difficulty
+		for (auto& spawnDelay : spawn_delays) {
+			// increse spawn delay for collectibles
+			if (spawnDelay.first == "heart" || spawnDelay.first == "collectible_trap") {
+				spawnDelay.second *= 1.1f;
+            }
+            else {
+				// Decrease spawn delay for enemies
+                spawnDelay.second *= 0.9f;
+            }
+			
+		}
+		for (auto& maxEntity : max_entities) {
+			// Do not increase max entities for collectibles
+			if (maxEntity.first == "heart" || maxEntity.first == "collectible_trap") {
+				continue;
+			}
+			maxEntity.second++;
+		}
+		gameTimer.elapsed = 0;
+	}
+}
+
+void WorldSystem::resetSpawnSystem() {
+	// Reset spawn delays
+	spawn_delays.at("boar") = ORIGINAL_BOAR_SPAWN_DELAY;
+	spawn_delays.at("barbarian") = ORIGINAL_BABARIAN_SPAWN_DELAY;
+	spawn_delays.at("archer") = ORIGINAL_ARCHER_SPAWN_DELAY;
+	spawn_delays.at("heart") = ORIGINAL_HEART_SPAWN_DELAY;
+	spawn_delays.at("collectible_trap") = ORIGINAL_TRAP_SPAWN_DELAY;
+
+	// Reset max entities
+	max_entities.at("boar") = MAX_BOARS;
+	max_entities.at("barbarian") = MAX_BABARIANS;
+	max_entities.at("archer") = MAX_ARCHERS;
+	max_entities.at("heart") = MAX_HEARTS;
+	max_entities.at("collectible_trap") = MAX_TRAPS;
 }

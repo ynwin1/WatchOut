@@ -25,6 +25,7 @@ void AISystem::moveTowardsPlayer(Entity enemy, vec3 playerPosition, float elapse
 
     Motion& enemyMotion = registry.motions.get(enemy);
     vec2 direction = chooseDirection(enemyMotion, playerPosition);
+    enemyMotion.facing = direction;
     float speed = registry.enemies.get(enemy).speed;
     enemyMotion.velocity = vec3(direction * speed, enemyMotion.velocity.z);
 }
@@ -196,6 +197,7 @@ void AISystem::boarBehaviour(Entity boar, vec3 playerPosition, float elapsed_ms)
     Motion& motion = registry.motions.get(boar);
     Boar& boars = registry.boars.get(boar);
     float distanceToPlayer = distance(motion.position, playerPosition);
+    vec2 directionToPlayer = normalize(vec2(playerPosition) - vec2(motion.position));
 
     if (boars.cooldownTimer > 0) {
         boars.cooldownTimer -= elapsed_ms;
@@ -214,7 +216,10 @@ void AISystem::boarBehaviour(Entity boar, vec3 playerPosition, float elapsed_ms)
 
     if (boars.preparing) {
         // Preparation shake
+        motion.facing = directionToPlayer;
         if (boars.prepareTimer > 0) {
+            AnimationController& animationController = registry.animationControllers.get(boar);
+            animationController.changeState(boar, AnimationState::Idle);
             boars.prepareTimer -= elapsed_ms;
 
             float shakeMagnitude = 5.0f;
@@ -226,18 +231,23 @@ void AISystem::boarBehaviour(Entity boar, vec3 playerPosition, float elapsed_ms)
             motion.velocity = vec3(0, 0, 0);
 
         } else {
+            AnimationController& animationController = registry.animationControllers.get(boar);
+            animationController.changeState(boar, AnimationState::Running);
             boars.preparing = false; 
             boars.charging = true;
-            boars.chargeDirection = normalize(vec2(playerPosition) - vec2(motion.position));
+            boars.chargeDirection = directionToPlayer;
             motion.velocity = vec3(boars.chargeDirection * BOAR_CHARGE_SPEED, 0);
         }
     }
 
     if (boars.charging) {
+        AnimationController& animationController = registry.animationControllers.get(boar);
         if (boars.chargeTimer > 0) {
+            animationController.changeState(boar, AnimationState::Running);
             boars.chargeTimer -= elapsed_ms;
 
         } else {
+            animationController.changeState(boar, AnimationState::Idle);
             boars.charging = false;
             boars.cooldownTimer = BOAR_COOLDOWN_TIME;
             motion.velocity = vec3(0, 0, 0);
@@ -314,7 +324,7 @@ void AISystem::archerBehaviour(Entity entity, vec3 playerPosition, float elapsed
 {
     const float ARCHER_RANGE = 600;
     const float DISENGAGE_RANGE = 800;
-    const float DRAW_ARROW_TIME = 2000;
+    const float DRAW_ARROW_TIME = 1000;
     if (registry.deathTimers.has(entity)) {
         return;
     }
@@ -325,16 +335,23 @@ void AISystem::archerBehaviour(Entity entity, vec3 playerPosition, float elapsed
         archer.aiming = true;
         motion.velocity.x = 0;
         motion.velocity.y = 0;
+        AnimationController& animationController = registry.animationControllers.get(entity);
+        animationController.changeState(entity, AnimationState::Attack);
     }
     else if (d > DISENGAGE_RANGE) {
         archer.aiming = false;
         archer.drawArrowTime = 0;
+        AnimationController& animationController = registry.animationControllers.get(entity);
+        animationController.changeState(entity, AnimationState::Running);
     }
 
     if (archer.aiming) {
+        motion.facing = normalize(vec2(playerPosition) - vec2(motion.position));
         if (archer.drawArrowTime > DRAW_ARROW_TIME) {
             shootArrow(entity, playerPosition);
             archer.drawArrowTime = 0;
+            AnimationController& animationController = registry.animationControllers.get(entity);
+            animationController.changeState(entity, AnimationState::Idle);
         }
         else {
             archer.drawArrowTime += elapsed_ms;

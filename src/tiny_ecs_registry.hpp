@@ -27,7 +27,7 @@ public:
 	ComponentContainer<Damaging> damagings;
 	ComponentContainer<DeathTimer> deathTimers;
 	ComponentContainer<HealthBar> healthBars;
-	ComponentContainer<AnimationController> animationsControllers;
+	ComponentContainer<AnimationController> animationControllers;
 	ComponentContainer<StaminaBar> staminaBars;
 	ComponentContainer<Stamina> staminas;
 	ComponentContainer<Text> texts;
@@ -36,6 +36,9 @@ public:
 	ComponentContainer<Obstacle> obstacles;
 	ComponentContainer<Projectile> projectiles;
 	ComponentContainer<Mesh*> meshPtrs;
+	
+	ComponentContainer<PauseMenuComponent> pauseMenuComponents;
+	ComponentContainer<HelpMenuComponent> helpMenuComponents;
 
 	std::map<char, TextChar> textChars; //for initializing text glyphs from freetype
 
@@ -96,7 +99,10 @@ public:
 		registry_list.push_back(&hearts);
 		registry_list.push_back(&collectibleTraps);
 
-		registry_list.push_back(&animationsControllers);
+		registry_list.push_back(&animationControllers);
+
+		registry_list.push_back(&pauseMenuComponents);
+		registry_list.push_back(&helpMenuComponents);
 
 		spawnable_lists["boar"] = &boars;
 		spawnable_lists["barbarian"] = &barbarians;

@@ -15,7 +15,6 @@ struct Player {
 	bool goingRight;	// Key for going right is held down
 	bool tryingToJump;	// Key for jumping is held down
 	bool isMoving;		// Indicates if any movement keys are pressed
-	vec2 facing;		// Direction the player is facing
 };
 
 //Stamina
@@ -102,10 +101,12 @@ struct Motion {
 	float angle = 0;
 	vec3 velocity = { 0, 0, 0 };
 	vec2 scale = { 10, 10 };	// only for rendering
+	vec2 facing = { 0, 0 };		// direction the entity is facing
 
 	// Hitbox
 	vec3 hitbox = { 0, 0, 0 };
 	float solid = false;
+
 };
 
 // Stucture to store collision information
@@ -157,9 +158,11 @@ struct GameTimer {
 	int minutes = 0;
 	int seconds = 0;
 	float ms = 0;
+	float elapsed = 0;
 	Entity textEntity;
 	void update(float elapsedTime) {
 		ms += elapsedTime;
+		elapsed += elapsedTime;
 		if(ms >= 1000.f) {
 			ms -= 1000;
         	seconds += 1;
@@ -174,6 +177,8 @@ struct GameTimer {
     	}
 	}
 	void reset() {
+		ms = 0;
+		elapsed = 0;
 		hours = 0;
 		minutes = 0;
 		seconds = 0;
@@ -261,3 +266,6 @@ struct Archer {
 // Collectible types
 struct Heart { unsigned int health = 20; };
 struct CollectibleTrap {};
+
+struct PauseMenuComponent {};
+struct HelpMenuComponent {};

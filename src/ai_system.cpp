@@ -267,8 +267,8 @@ void AISystem::barbarianBehaviour(Entity barbarian, vec3 playerPosition, float e
 
 void AISystem::shootArrow(Entity shooter, vec3 targetPos)
 {
-    // Always shoot arrow at 45 degree angle (makes calculations simpler)
-    const float ARROW_ANGLE = M_PI / 4;
+    // Always shoot arrow at a constant angle (makes calculations simpler)
+    const float ARROW_ANGLE = M_PI / 6; // 30 degrees
     const float MAX_ARROW_VELOCITY = 10;
 
     Motion& motion = registry.motions.get(shooter);

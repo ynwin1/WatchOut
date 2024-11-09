@@ -377,7 +377,9 @@ void AISystem::wizardBehaviour(Entity entity, vec3 playerPosition, float elapsed
 		moveTowardsPlayer(entity, playerPosition, elapsed_ms);
     }
     else {
-		// TODO - wizard attack patterns go here, Idle for now        
+		// TODO - wizard attack patterns go here, Idle for now   
+        motion.velocity.x = 0;
+		motion.velocity.y = 0;
 		animationController.changeState(entity, AnimationState::Idle);
     }
 

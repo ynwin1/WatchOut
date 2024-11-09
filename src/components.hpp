@@ -252,6 +252,9 @@ struct Archer {
 	float drawArrowTime = 0;
 	bool aiming = false;
 };
+struct Wizard {
+	bool aiming = false;
+};
 
 // Collectible types
 struct Heart { unsigned int health = 20; };

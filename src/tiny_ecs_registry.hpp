@@ -55,6 +55,7 @@ public:
 	ComponentContainer<Boar> boars;
 	ComponentContainer<Barbarian> barbarians;
 	ComponentContainer<Archer> archers;
+	ComponentContainer<Wizard> wizards;
 	ComponentContainer<Heart> hearts;
 	ComponentContainer<CollectibleTrap> collectibleTraps;
 
@@ -96,6 +97,7 @@ public:
 		registry_list.push_back(&boars);
 		registry_list.push_back(&barbarians);
 		registry_list.push_back(&archers);
+		registry_list.push_back(&wizards);
 		registry_list.push_back(&hearts);
 		registry_list.push_back(&collectibleTraps);
 

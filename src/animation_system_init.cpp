@@ -29,6 +29,13 @@ const int ARCHER_DEAD_FRAME_TIME = 1000;
 const int ARCHER_BOWDRAW_NUM_FRAMES = 10;
 const int ARCHER_BOWDRAW_FRAME_TIME = 100;
 
+const int WIZARD_RUN_NUM_FRAMES = 6;
+const int WIZARD_RUN_FRAME_TIME = 150;
+const int WIZARD_IDLE_NUM_FRAMES = 4;
+const int WIZARD_IDLE_FRAME_TIME = 200;
+const int WIZARD_DEAD_NUM_FRAMES = 6;
+const int WIZARD_DEAD_FRAME_TIME = 1000;
+
 AnimationController& initJeffAnimationController(Entity& jeff) {
     AnimationController& animationcontroller = registry.animationControllers.emplace(jeff);
 	animationcontroller.addAnimation(AnimationState::Idle, JEFF_IDLE_FRAME_TIME, JEFF_IDLE_NUM_FRAMES, TEXTURE_ASSET_ID::JEFF_IDLE);
@@ -103,4 +110,23 @@ AnimationController& initArcherAnimationController(Entity& entity) {
 	animationcontroller.changeState(entity, AnimationState::Running);
 
     return animationcontroller;
+}
+
+AnimationController& initWizardAnimationController(Entity& entity) {
+	AnimationController& animationcontroller = registry.animationControllers.emplace(entity);
+	animationcontroller.addAnimation(AnimationState::Idle, WIZARD_IDLE_FRAME_TIME, WIZARD_IDLE_NUM_FRAMES, TEXTURE_ASSET_ID::WIZARD_IDLE);
+	animationcontroller.addAnimation(AnimationState::Running, WIZARD_RUN_FRAME_TIME, WIZARD_RUN_NUM_FRAMES, TEXTURE_ASSET_ID::WIZARD_RUN);
+	animationcontroller.addAnimation(AnimationState::Dead, WIZARD_DEAD_FRAME_TIME, WIZARD_DEAD_NUM_FRAMES, TEXTURE_ASSET_ID::WIZARD_DEAD);
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::WIZARD_RUN,
+			EFFECT_ASSET_ID::ANIMATED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	animationcontroller.changeState(entity, AnimationState::Running);
+
+	return animationcontroller;
 }

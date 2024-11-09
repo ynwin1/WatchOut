@@ -96,6 +96,33 @@ Entity createArcher(vec2 pos)
 	return entity;
 };
 
+// Wizard creation
+Entity createWizard(vec2 pos) {
+	auto entity = Entity();
+
+	// Setting intial motion values
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = vec3(pos, getElevation(pos) + WIZARD_BB_HEIGHT / 2);
+	motion.angle = 0.f;
+	motion.scale = { WIZARD_BB_WIDTH, WIZARD_BB_HEIGHT };
+	motion.hitbox = { WIZARD_BB_WIDTH, WIZARD_BB_WIDTH, WIZARD_BB_HEIGHT / zConversionFactor };
+	motion.solid = true;
+
+	Enemy& enemy = registry.enemies.emplace(entity);
+	enemy.damage = 60;
+	enemy.cooldown = 8000.f; // 8s
+	enemy.speed = WIZARD_SPEED;
+
+	registry.wizards.emplace(entity);
+
+	initWizardAnimationController(entity);
+	registry.midgrounds.emplace(entity);
+
+	createHealthBar(entity, vec3(1.0f, 0.0f, 0.0f));
+
+	return entity;
+};
+
 // Collectible trap creation
 Entity createCollectibleTrap(vec2 pos)
 {

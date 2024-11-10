@@ -23,8 +23,6 @@ void RenderSystem::drawText(Entity entity) {
 	// Setting shaders
 	glUseProgram(program);
 
-    glUniform3f(glGetUniformLocation(program, "textColor"), 1.0f, 1.0f, 1.0f);
-
 	glActiveTexture(GL_TEXTURE0);
 
 	float startX = text.position.x;

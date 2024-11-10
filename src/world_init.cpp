@@ -300,7 +300,7 @@ void createPlayerStaminaBar(Entity characterEntity, vec2 windowSize) {
 	const float width = 150.0f;
 	const float height = 20.0f;
 
-	vec2 position = {150.0f, windowSize.y - 80.0f};
+	vec2 position = {210.0f, windowSize.y - 80.0f};
 
 	Foreground& fg = registry.foregrounds.emplace(meshE);
 	fg.position = position;
@@ -355,7 +355,7 @@ void createPlayerHealthBar(Entity characterEntity, vec2 windowSize) {
 	const float width = 150.0f;
 	const float height = 20.0f;
 
-	vec2 position = {150.0f, windowSize.y - 50.0f};
+	vec2 position = {210.0f, windowSize.y - 50.0f};
 
 	Foreground& fg = registry.foregrounds.emplace(meshE);
 	fg.position = position;
@@ -535,7 +535,7 @@ Entity createFPSText(vec2 windowSize) {
 	Text& text = registry.texts.emplace(entity);
 	text.value = "00 fps";
 	// text position based on screen coordinates
-	text.position = {90.0f, windowSize.y - 40.0f};
+	text.position = {30.0f, windowSize.y - 40.0f};
 	text.scale = 0.8f;
 
 	registry.renderRequests.insert(

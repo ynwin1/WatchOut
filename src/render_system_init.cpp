@@ -260,9 +260,6 @@ void RenderSystem::initText() {
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-	glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
 	for (unsigned char c = 0; c < 128; c++) {
    	 // load character glyph 
 		if (FT_Load_Char(face, c, FT_LOAD_RENDER))

@@ -73,6 +73,11 @@ private:
 	using spawn_func = Entity(*)(vec2);
 	const std::unordered_map<std::string, spawn_func> spawn_functions;
 
+	// Keeps track of what collisions have been handled recently.
+	// Map key always starts with the lesser Entity.
+	// Key uses entities cast to ints for comparisons.
+	std::map<std::pair<int, int>, float> collisionCooldowns;
+
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);
 	void on_mouse_move(vec2 mouse_position);

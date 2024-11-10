@@ -162,6 +162,19 @@ void WorldSystem::handle_collisions()
         Entity entity = physics->collisions[i].first;
         Entity entity_other = physics->collisions[i].second;
 
+
+        float COOLDOWN_TIME = 1000;
+        std::pair<int, int> pair;
+        if (entity < entity_other)  pair = { entity, entity_other };
+        else                        pair = { entity_other, entity };
+        if (collisionCooldowns.find(pair) != collisionCooldowns.end()) {
+            collisionCooldowns[pair] = COOLDOWN_TIME;
+            continue;
+        }
+        else {
+            collisionCooldowns[pair] = COOLDOWN_TIME;
+        }
+
         // If the entity is a player
         if (registry.players.has(entity)) {
             // If the entity is colliding with a collectible
@@ -403,9 +416,20 @@ void WorldSystem::update_cooldown(float elapsed_ms) {
         float new_remaining = cooldown.remaining - elapsed_ms;
         cooldown.remaining = new_remaining < 0 ? 0 : new_remaining;
 
-        // Avaialble to attack again
+        // Available to attack again
         if (cooldown.remaining == 0) {
             registry.cooldowns.remove(cooldownEntity);
+        }
+    }
+
+    auto it = collisionCooldowns.begin();
+    while (it != collisionCooldowns.end()) {
+        it->second -= elapsed_ms;
+        if (it->second <= 0) {
+            it = collisionCooldowns.erase(it);
+        }
+        else {
+            it++;
         }
     }
 }
@@ -603,8 +627,11 @@ void WorldSystem::processPlayerEnemyCollision(Entity player, Entity enemy, std::
         was_damaged.push_back(player);
         printf("Player health reduced by enemy from %d to %d\n", playerData.health + enemyData.damage, playerData.health);
 
-        Cooldown& cooldown = registry.cooldowns.emplace(enemy);
-        cooldown.remaining = enemyData.cooldown;
+        // Check if enemy can have an attack cooldown
+        if (enemyData.cooldown > 0) {
+            Cooldown& cooldown = registry.cooldowns.emplace(enemy);
+            cooldown.remaining = enemyData.cooldown;
+        }
 
 		checkAndHandlePlayerDeath(player);
     }
@@ -640,8 +667,10 @@ void WorldSystem::handleEnemyCollision(Entity attacker, Entity target, std::vect
         was_damaged.push_back(target);
         printf("Enemy %d's health reduced from %d to %d\n", (unsigned int)target, targetData.health + attackerData.damage, targetData.health);
 
-        Cooldown& cooldown = registry.cooldowns.emplace(attacker);
-        cooldown.remaining = attackerData.cooldown;
+        if (attackerData.cooldown > 0) {
+            Cooldown& cooldown = registry.cooldowns.emplace(attacker);
+            cooldown.remaining = attackerData.cooldown;
+        }
     }
 }
 

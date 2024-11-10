@@ -372,6 +372,7 @@ void PhysicsSystem::handle_mesh_collision(Entity mesh, Entity entity)
 	if (registry.damagings.has(entity)) {
 		// Destroy the damaging
 		registry.remove_all_components_of(entity);
+		return;
 	}
 
 	// direction of the collision

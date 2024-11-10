@@ -58,9 +58,6 @@ Entity createJeff(vec2 position);
 
 Entity createTree(RenderSystem* renderer, vec2 position);
 
-// Running Jeff 
-Entity createRunningJeff(RenderSystem* renderer, vec2 position);
-
 // The boar
 Entity createBoar(vec2 pos);
 

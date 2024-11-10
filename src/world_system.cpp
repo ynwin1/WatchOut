@@ -312,21 +312,23 @@ void WorldSystem::on_key(int key, int, int action, int mod)
                 break;
             case GLFW_KEY_D:
                 if (pressed) {
-                    if (player_stamina.stamina > 0) { 
+                    const float DASH_STAMINA = 40;
+                    if (player_stamina.stamina > DASH_STAMINA) { 
                         const float dashDistance = 300;
                         // Start dashing if player is moving
                         player_dash.isDashing = true;
                         player_dash.dashStartPosition = vec2(player_motion.position);
                         player_dash.dashTargetPosition = player_dash.dashStartPosition + player_motion.facing * dashDistance;
                         player_dash.dashTimer = 0.0f; // Reset timer
+                        player_stamina.stamina -= DASH_STAMINA;
                     }
                 }
                 break;
 		    case GLFW_KEY_SPACE:
                 // Jump
                 if (pressed) {
-                    const float min_stamina_for_jump = 10.0f;
-                    if (player_stamina.stamina >= min_stamina_for_jump && !player_comp.tryingToJump) {
+                    const float JUMP_STAMINA = 20;
+                    if (player_stamina.stamina >= JUMP_STAMINA && !player_comp.tryingToJump) {
                         player_comp.tryingToJump = true;
                         if (registry.jumpers.has(playerEntity)) {
                             Jumper& jumper = registry.jumpers.get(playerEntity);
@@ -334,7 +336,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
                                 jumper.isJumping = true; 
                                 player_comp.tryingToJump = true;
                                 player_motion.velocity.z = jumper.speed; 
-                                player_stamina.stamina -= min_stamina_for_jump;
+                                player_stamina.stamina -= JUMP_STAMINA;
                                 if (player_stamina.stamina < 0) {
                                     player_stamina.stamina = 0;
                                 }
@@ -343,14 +345,6 @@ void WorldSystem::on_key(int key, int, int action, int mod)
                     }
                 } else { 
                     player_comp.tryingToJump = false;
-                }
-                //Handles player jumping too far up
-                if (player_motion.velocity.z <= 0 && player_comp.tryingToJump) {
-                    player_comp.tryingToJump = false;
-                    if (registry.jumpers.has(playerEntity)) {
-                        Jumper& jumper = registry.jumpers.get(playerEntity);
-                        jumper.isJumping = false;
-                    }
                 }
                 break;
             default:
@@ -748,7 +742,7 @@ void WorldSystem::handle_stamina(float elapsed_ms) {
         Dash& dash_comp = registry.dashers.get(staminaEntity);
         Jumper& player_jump = registry.jumpers.get(staminaEntity);
     
-        if ((player_comp.isRunning || dash_comp.isDashing || player_comp.isRolling || player_jump.isJumping) && stamina.stamina > 0) {
+        if (player_comp.isRunning && stamina.stamina > 0) {
             stamina.stamina -= elapsed_ms / 1000.0f * stamina.stamina_loss_rate;
 
             if (stamina.stamina < 0) {

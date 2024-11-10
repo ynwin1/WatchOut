@@ -104,6 +104,7 @@ private:
 	void entity_trap_collision(Entity entity, Entity trap, std::vector<Entity>& was_damaged);
 	void entity_damaging_collision(Entity entity, Entity trap, std::vector<Entity>& was_damaged);
 	void moving_entities_collision(Entity entity, Entity entityOther, std::vector<Entity>& was_damaged);
+	void damaging_obstacle_collision(Entity entity);
 	void processPlayerEnemyCollision(Entity player, Entity enemy, std::vector<Entity>& was_damaged);
 	void processEnemyEnemyCollision(Entity enemy1, Entity enemy2, std::vector<Entity>& was_damaged);
 	void handleEnemyCollision(Entity attacker, Entity target, std::vector<Entity>& was_damaged);

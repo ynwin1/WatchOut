@@ -197,6 +197,13 @@ void WorldSystem::handle_collisions()
                 entity_damaging_collision(entity, entity_other, was_damaged);
             }
         }
+        else if (registry.damagings.has(entity)) {
+			Damaging& damaging = registry.damagings.get(entity);
+            if (damaging.type == "fireball" && registry.obstacles.has(entity_other)) {
+				// Collision between damaging and obstacle
+                damaging_obstacle_collision(entity);
+            }
+        }
     }
 
     // Clear all collisions
@@ -564,6 +571,11 @@ void WorldSystem::entity_damaging_collision(Entity entity, Entity entity_other, 
     }
 
     registry.remove_all_components_of(entity_other);
+}
+
+void WorldSystem::damaging_obstacle_collision(Entity damaging) {
+    // Currently, there is only fireball
+	registry.remove_all_components_of(damaging);
 }
 
 void WorldSystem::moving_entities_collision(Entity entity, Entity entityOther, std::vector<Entity>& was_damaged) {

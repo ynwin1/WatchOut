@@ -333,6 +333,7 @@ Entity createFireball(vec3 pos, vec3 velocity) {
 	motion.hitbox = { FIREBALL_BB_WIDTH, FIREBALL_BB_WIDTH, FIREBALL_BB_HEIGHT / zConversionFactor };
 
 	Damaging& damaging = registry.damagings.emplace(entity);
+	damaging.type = "fireball";
 	damaging.damage = 30;
 	registry.midgrounds.emplace(entity);
 

@@ -47,6 +47,7 @@ struct Enemy
 };
 
 struct Damaging {
+	std::string type = "arrow"; // default type
 	unsigned int damage = 10;
 };
 

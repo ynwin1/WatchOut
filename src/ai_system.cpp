@@ -322,7 +322,7 @@ void AISystem::shootArrow(Entity shooter, vec3 targetPos)
 
 void AISystem::shootFireball(Entity shooter, vec3 targetPos) {
     // Shoot in a straight line towards the player
-    const float FIREBALL_SPEED = 0.5f;
+    const float FIREBALL_SPEED = 0.3f;
     const float BASE_FIREBALL_OFFSET = 50.f;
 
     Motion& motion = registry.motions.get(shooter);

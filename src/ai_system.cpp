@@ -331,15 +331,13 @@ void AISystem::shootFireball(Entity shooter, vec3 targetPos) {
 
     // Start position of the fireball
     vec3 pos = motion.position;
-	// Set offset to avoid collision with the shooter
+    // Set offset to avoid collision with the shooter
     const float maxFireballDimension = max(FIREBALL_BB_HEIGHT, FIREBALL_BB_WIDTH);
-	vec3 offset = vec3(direction * maxFireballDimension, 0);
+	const float maxShooterDimension = max(motion.hitbox.x / 4, motion.hitbox.y / 4);
+    vec3 offset = vec3(direction * (maxFireballDimension + maxShooterDimension), 0);
     pos += offset;
 
-    // print shooter and fireball positions
-	printf("Shooter: (%f, %f, %f)\n", motion.position.x, motion.position.y, motion.position.z);
-	printf("Shooter dimensions: (%f, %f, %f)\n", motion.hitbox.x, motion.hitbox.y, motion.hitbox.z);
-	printf("Fireball: (%f, %f, %f)\n", pos.x, pos.y, pos.z);
+	direction = normalize(vec2(targetPos) - vec2(pos));
 
     // Velocity of the fireball
     vec3 velocity = vec3(direction * FIREBALL_SPEED, 0);

@@ -25,12 +25,12 @@ WorldSystem::WorldSystem(std::default_random_engine& rng) :
 		{"collectible_trap", ORIGINAL_TRAP_SPAWN_DELAY}
         }),
     max_entities({
-        {"boar", 0},
-        {"barbarian", 0},
-        {"archer", 0},
-		{"wizard", 1},
-        {"heart", 1},
-        {"collectible_trap", 1}
+        {"boar", MAX_BOARS},
+        {"barbarian", MAX_BABARIANS},
+        {"archer", MAX_ARCHERS},
+		{"wizard", MAX_WIZARDS},
+        {"heart", MAX_HEARTS},
+        {"collectible_trap", MAX_TRAPS}
         })
 {
     this->rng = rng;
@@ -830,6 +830,7 @@ void WorldSystem::resetSpawnSystem() {
 	max_entities.at("boar") = MAX_BOARS;
 	max_entities.at("barbarian") = MAX_BABARIANS;
 	max_entities.at("archer") = MAX_ARCHERS;
+	max_entities.at("wizard") = MAX_WIZARDS;
 	max_entities.at("heart") = MAX_HEARTS;
 	max_entities.at("collectible_trap") = MAX_TRAPS;
 }

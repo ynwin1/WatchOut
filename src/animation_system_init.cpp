@@ -30,11 +30,13 @@ const int ARCHER_BOWDRAW_NUM_FRAMES = 10;
 const int ARCHER_BOWDRAW_FRAME_TIME = 100;
 
 const int WIZARD_RUN_NUM_FRAMES = 6;
-const int WIZARD_RUN_FRAME_TIME = 100;
+const int WIZARD_RUN_FRAME_TIME = 200;
 const int WIZARD_IDLE_NUM_FRAMES = 4;
 const int WIZARD_IDLE_FRAME_TIME = 200;
 const int WIZARD_DEAD_NUM_FRAMES = 6;
 const int WIZARD_DEAD_FRAME_TIME = 600;
+const int LIGHTENING_NUM_FRAMES = 9;
+const int LIGHTENING_FRAME_TIME = 50;
 
 AnimationController& initJeffAnimationController(Entity& jeff) {
     AnimationController& animationcontroller = registry.animationControllers.emplace(jeff);
@@ -127,6 +129,23 @@ AnimationController& initWizardAnimationController(Entity& entity) {
 		});
 
 	animationcontroller.changeState(entity, AnimationState::Running);
+
+	return animationcontroller;
+}
+
+AnimationController& initLighteningAnimationController(Entity& entity) {
+	AnimationController& animationcontroller = registry.animationControllers.emplace(entity);
+	animationcontroller.addAnimation(AnimationState::Attack, LIGHTENING_FRAME_TIME, LIGHTENING_NUM_FRAMES, TEXTURE_ASSET_ID::LIGHTENING);
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::LIGHTENING,
+			EFFECT_ASSET_ID::ANIMATED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	animationcontroller.changeState(entity, AnimationState::Attack);
 
 	return animationcontroller;
 }

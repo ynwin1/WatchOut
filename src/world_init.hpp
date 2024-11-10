@@ -36,10 +36,12 @@ const float SHRUB_BB_WIDTH = 30.f * SPRITE_SCALE;
 const float SHRUB_BB_HEIGHT = 33.f * SPRITE_SCALE;
 const float ROCK_BB_WIDTH = 30.f * SPRITE_SCALE;
 const float ROCK_BB_HEIGHT = 35.f * SPRITE_SCALE;
-const float ARROW_BB_WIDTH = 16 * SPRITE_SCALE;
-const float ARROW_BB_HEIGHT = 7 * SPRITE_SCALE;
-const float FIREBALL_BB_WIDTH = 48 * SPRITE_SCALE;
-const float FIREBALL_BB_HEIGHT = 24 * SPRITE_SCALE;
+const float ARROW_BB_WIDTH = 16.f * SPRITE_SCALE;
+const float ARROW_BB_HEIGHT = 7.f * SPRITE_SCALE;
+const float FIREBALL_BB_WIDTH = 48.f * SPRITE_SCALE;
+const float FIREBALL_BB_HEIGHT = 24.f * SPRITE_SCALE;
+const float LIGHTENING_BB_WIDTH = 48.f * SPRITE_SCALE;
+const float LIGHTENING_BB_HEIGHT = 380.f * SPRITE_SCALE;
 
 const float BOAR_SPEED = 0.2;
 const float BARBARIAN_SPEED = 0.3;
@@ -86,6 +88,9 @@ Entity createArrow(vec3 pos, vec3 velocity);
 
 // Fireballs fired by the wizard
 Entity createFireball(vec3 pos, vec3 velocity, vec2 direction);
+
+// Lightening bolt from the sky
+Entity createLightening(vec3 pos);
 
 // Pause UI
 Entity createPauseMenu(vec2 windowSize);

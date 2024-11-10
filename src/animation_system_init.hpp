@@ -7,3 +7,4 @@ AnimationController& initBarbarianAnimationController(Entity& entity);
 AnimationController& initBoarAnimationController(Entity& entity);
 AnimationController& initArcherAnimationController(Entity& entity);
 AnimationController& initWizardAnimationController(Entity& entity);
+AnimationController& initLighteningAnimationController(Entity& entity);

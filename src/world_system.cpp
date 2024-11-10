@@ -408,12 +408,16 @@ void WorldSystem::update_player_facing(Player& player, Motion& motion)
 void WorldSystem::update_cooldown(float elapsed_ms) {
     for (auto& cooldownEntity : registry.cooldowns.entities) {
         Cooldown& cooldown = registry.cooldowns.get(cooldownEntity);
-        float new_remaining = cooldown.remaining - elapsed_ms;
-        cooldown.remaining = new_remaining < 0 ? 0 : new_remaining;
+		cooldown.remaining -= elapsed_ms;
 
-        // Avaialble to attack again
-        if (cooldown.remaining == 0) {
-            registry.cooldowns.remove(cooldownEntity);
+        if (cooldown.remaining <= 0) {
+            // remove lightening completly
+            if (registry.damagings.has(cooldownEntity) && registry.damagings.get(cooldownEntity).type == "lightening") {
+                registry.remove_all_components_of(cooldownEntity);
+            }
+            else {
+                registry.cooldowns.remove(cooldownEntity);
+            }
         }
     }
 }

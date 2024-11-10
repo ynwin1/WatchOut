@@ -320,31 +320,6 @@ void AISystem::shootArrow(Entity shooter, vec3 targetPos)
     createArrow(pos, vec3(horizontal_velocity, vertical_velocity));
 }
 
-void AISystem::shootFireball(Entity shooter, vec3 targetPos) {
-    // Shoot in a straight line towards the player
-    const float FIREBALL_SPEED = 0.5f;
-
-    Motion& motion = registry.motions.get(shooter);
-
-    // Direction to the player
-    vec2 direction = normalize(vec2(targetPos) - vec2(motion.position));
-
-    // Start position of the fireball
-    vec3 pos = motion.position;
-    // Set offset to avoid collision with the shooter
-    const float maxFireballDimension = max(FIREBALL_BB_HEIGHT, FIREBALL_BB_WIDTH);
-	const float maxShooterDimension = max(motion.hitbox.x / 4, motion.hitbox.y / 4);
-    vec3 offset = vec3(direction * (maxFireballDimension + maxShooterDimension), 0);
-    pos += offset;
-
-	direction = normalize(vec2(targetPos) - vec2(pos));
-
-    // Velocity of the fireball
-    vec3 velocity = vec3(direction * FIREBALL_SPEED, 0);
-
-    createFireball(pos, velocity, direction);
-}
-
 
 void AISystem::archerBehaviour(Entity entity, vec3 playerPosition, float elapsed_ms)
 {
@@ -390,8 +365,9 @@ void AISystem::archerBehaviour(Entity entity, vec3 playerPosition, float elapsed
 
 void AISystem::wizardBehaviour(Entity entity, vec3 playerPosition, float elapsed_ms)
 { 
-	const float WIZARD_RANGE = 700;
-	const float CAST_FIREBALL_TIME = 1500;
+	const float WIZARD_RANGE = 800;
+	const float SHOT_COOLDOWN = 5000;
+	const float EDGE_BUFFER = 200;
 
 	if (registry.deathTimers.has(entity)) {
 		return;
@@ -409,25 +385,87 @@ void AISystem::wizardBehaviour(Entity entity, vec3 playerPosition, float elapsed
         animationController.changeState(entity, AnimationState::Idle);
     }
     else {
+		// else, move towards player
 		wizard.aiming = false;
         animationController.changeState(entity, AnimationState::Running);
         moveTowardsPlayer(entity, playerPosition, elapsed_ms);
     }
 
-	// if aimed, cast fireball
+	// if wizard is already shooting, wait for the cooldown to shoot again
+    if (wizard.shooting) {
+		wizard.shootTime += elapsed_ms;
+		if (wizard.shootTime > SHOT_COOLDOWN) {
+			wizard.shooting = false;
+		}
+        return;
+    }
+
+	// if wizard is aiming, prepare to shoot
 	if (wizard.aiming) {
-		motion.facing = normalize(vec2(playerPosition) - vec2(motion.position));
-		if (wizard.castFireballTime > CAST_FIREBALL_TIME) {
-			shootFireball(entity, playerPosition);
-			wizard.castFireballTime = 0;
-		}
-		else {
-			wizard.castFireballTime += elapsed_ms;
-		}
+		float rand = uniform_dist(rng);
+        motion.facing = normalize(vec2(playerPosition) - vec2(motion.position));
+        wizard.shooting = true;
+        
+		bool farFromEdge = 
+            playerPosition.x > leftBound + EDGE_BUFFER &&
+            playerPosition.x < rightBound - EDGE_BUFFER &&
+            playerPosition.y > topBound + EDGE_BUFFER &&
+            playerPosition.y < bottomBound - EDGE_BUFFER;
+
+        // choose a random attack (fireball OR lightening)
+        if (rand > 0.5 && farFromEdge) {
+            // trigger lightening
+            triggerLightening(playerPosition);
+        }
+        else {
+            // cast fireball
+            shootFireball(entity, playerPosition);
+        }
+        wizard.shootTime = 0;
 	}
-	else {
-		wizard.castFireballTime = 0;
-	}
+}
+
+void AISystem::shootFireball(Entity shooter, vec3 targetPos) {
+    // Shoot in a straight line towards the player
+    const float FIREBALL_SPEED = 0.5f;
+
+    Motion& motion = registry.motions.get(shooter);
+
+    // Direction to the player
+    vec2 direction = normalize(vec2(targetPos) - vec2(motion.position));
+
+    // Start position of the fireball
+    vec3 pos = motion.position;
+    // Set offset to avoid collision with the shooter
+    const float maxFireballDimension = max(FIREBALL_BB_HEIGHT, FIREBALL_BB_WIDTH);
+    const float maxShooterDimension = max(motion.hitbox.x / 4, motion.hitbox.y / 4);
+    vec3 offset = vec3(direction * (maxFireballDimension + maxShooterDimension), 0);
+    pos += offset;
+
+    direction = normalize(vec2(targetPos) - vec2(pos));
+
+    // Velocity of the fireball
+    vec3 velocity = vec3(direction * FIREBALL_SPEED, 0);
+
+    createFireball(pos, velocity, direction);
+}
+
+void AISystem::triggerLightening(vec3 player_pos) {
+    const float LIGHTENING_COUNT = 5;
+    const float LIGHTENING_RADIUS = 300;
+    for (int i = 0; i < LIGHTENING_COUNT; i++) {
+		float angle = uniform_dist(rng) * 2 * M_PI;
+		float radius = sqrt(uniform_dist(rng)) * LIGHTENING_RADIUS;
+
+		float x = radius * cos(angle);
+		float y = radius * sin(angle);
+		vec3 pos = player_pos + vec3(x, y, 0);
+
+        // pos should be within the bounds
+		pos.x = max(0.f, min(pos.x, (float) rightBound));
+		pos.y = max(0.f, min(pos.y, (float) bottomBound));
+		createLightening(pos);
+    }
 }
 
 

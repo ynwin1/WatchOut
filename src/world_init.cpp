@@ -349,6 +349,28 @@ Entity createFireball(vec3 pos, vec3 velocity, vec2 direction) {
 	return entity;
 }
 
+Entity createLightening(vec3 pos) {
+	auto entity = Entity();
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.scale = { LIGHTENING_BB_WIDTH, LIGHTENING_BB_HEIGHT };
+	motion.hitbox = { LIGHTENING_BB_WIDTH, LIGHTENING_BB_WIDTH, LIGHTENING_BB_HEIGHT / zConversionFactor };
+
+	Damaging& damaging = registry.damagings.emplace(entity);
+	damaging.type = "lightening";
+	damaging.damage = 20;
+	registry.midgrounds.emplace(entity);
+
+	Cooldown& duration = registry.cooldowns.emplace(entity);
+	duration.remaining = 2000.f; // 1.5s
+
+	printf("Lightening created\n");
+
+	initLighteningAnimationController(entity);
+	return entity;
+}
+
 void createHealthBar(Entity characterEntity, vec3 color) {
 	auto meshEntity = Entity();
 

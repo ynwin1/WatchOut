@@ -7,6 +7,7 @@
 // internal 
 #include <render_system.hpp>
 #include <physics_system.hpp>
+#include <ai_system.hpp>
 #include<game_state_controller.hpp>
 
 // Container for all our entities and game logic
@@ -16,7 +17,7 @@ public:
 	WorldSystem(std::default_random_engine& rng);
 
 	// starts the game
-	void init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics);
+	void init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics, AISystem* ai);
 
 	// Releases all associated resources
 	~WorldSystem();
@@ -57,6 +58,7 @@ private:
 	GLFWwindow* window;
 	RenderSystem* renderer;
 	PhysicsSystem* physics;
+	AISystem* ai;
 	Camera* camera;
 	TrapsCounter trapsCounter;
 
@@ -100,6 +102,7 @@ private:
 	void entity_collectible_collision(Entity entity, Entity collectible);
 	void entity_trap_collision(Entity entity, Entity trap, std::vector<Entity>& was_damaged);
 	void entity_damaging_collision(Entity entity, Entity trap, std::vector<Entity>& was_damaged);
+	void entity_obstacle_collision(Entity entity, Entity obstacle, std::vector<Entity>& was_damaged);
 	void moving_entities_collision(Entity entity, Entity entityOther, std::vector<Entity>& was_damaged);
 	void processPlayerEnemyCollision(Entity player, Entity enemy, std::vector<Entity>& was_damaged);
 	void processEnemyEnemyCollision(Entity enemy1, Entity enemy2, std::vector<Entity>& was_damaged);

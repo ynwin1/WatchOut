@@ -38,7 +38,7 @@ int main()
 	// Initialize the main systems
 	camera.init(window);
 	renderer.init(&camera);
-	world.init(&renderer, window, &camera, &physics);
+	world.init(&renderer, window, &camera, &physics, &ai);
 
 	auto t = Clock::now();
 	while (!world.is_over()) {

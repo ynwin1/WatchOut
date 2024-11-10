@@ -33,12 +33,13 @@ WorldSystem::WorldSystem(std::default_random_engine& rng) :
     this->rng = rng;
 }
 
-void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics)
+void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics, AISystem* ai)
 {
     this->renderer = renderer;
     this->window = window;
     this->camera = camera;
     this->physics = physics;
+    this->ai = ai;
 
     // Setting callbacks to member functions (that's why the redirect is needed)
     // Input is handled using GLFW, for more info see
@@ -190,6 +191,9 @@ void WorldSystem::handle_collisions()
             }
             else if (registry.damagings.has(entity_other)) {
                 entity_damaging_collision(entity, entity_other, was_damaged);
+            }
+            else if (registry.obstacles.has(entity_other)) {
+                entity_obstacle_collision(entity, entity_other, was_damaged);
             }
         }
     }
@@ -559,6 +563,23 @@ void WorldSystem::entity_damaging_collision(Entity entity, Entity entity_other, 
     }
 
     registry.remove_all_components_of(entity_other);
+}
+
+void WorldSystem::entity_obstacle_collision(Entity entity, Entity obstacle, std::vector<Entity>& was_damaged)
+{
+    if (registry.boars.has(entity)) {
+        Boar& boar = registry.boars.get(entity);
+        if (boar.charging) {
+           Enemy& enemy = registry.enemies.get(entity);
+            // Boar hurts itself
+           enemy.health -= enemy.damage;
+           ai->boarReset(entity);
+           boar.cooldownTimer = 1000; // stunned for 1 second
+           
+           was_damaged.push_back(entity);
+           checkAndHandleEnemyDeath(entity);
+        }
+    }
 }
 
 void WorldSystem::moving_entities_collision(Entity entity, Entity entityOther, std::vector<Entity>& was_damaged) {

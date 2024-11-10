@@ -322,18 +322,18 @@ void AISystem::shootArrow(Entity shooter, vec3 targetPos)
 
 void AISystem::shootFireball(Entity shooter, vec3 targetPos) {
     // Shoot in a straight line towards the player
-    const float FIREBALL_SPEED = 0.3f;
+    const float FIREBALL_SPEED = 0.5f;
 
     Motion& motion = registry.motions.get(shooter);
 
+    // Direction to the player
+    vec2 direction = normalize(vec2(targetPos) - vec2(motion.position));
+
     // Start position of the fireball
     vec3 pos = motion.position;
-
-    // Direction to the player
-    vec2 direction = normalize(vec2(targetPos) - vec2(pos));
-
 	// Set offset to avoid collision with the shooter
-    float max_dimension = std::max(FIREBALL_BB_WIDTH, FIREBALL_BB_HEIGHT);
+    const float maxFireballDimension = max(FIREBALL_BB_HEIGHT, FIREBALL_BB_WIDTH);
+    float max_dimension = maxFireballDimension;
 	vec3 offset = vec3(direction * max_dimension, 0);
     pos += offset;
 

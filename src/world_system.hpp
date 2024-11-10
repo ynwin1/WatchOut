@@ -74,7 +74,6 @@ private:
 	const std::unordered_map<std::string, spawn_func> spawn_functions;
 
 	// Keeps track of what collisions have been handled recently.
-	// Map key always starts with the lesser Entity.
 	// Key uses entities cast to ints for comparisons.
 	std::map<std::pair<int, int>, float> collisionCooldowns;
 

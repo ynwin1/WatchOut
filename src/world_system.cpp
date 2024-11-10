@@ -164,9 +164,7 @@ void WorldSystem::handle_collisions()
 
 
         float COOLDOWN_TIME = 1000;
-        std::pair<int, int> pair;
-        if (entity < entity_other)  pair = { entity, entity_other };
-        else                        pair = { entity_other, entity };
+        std::pair<int, int> pair = { entity, entity_other };
         if (collisionCooldowns.find(pair) != collisionCooldowns.end()) {
             collisionCooldowns[pair] = COOLDOWN_TIME;
             continue;

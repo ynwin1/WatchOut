@@ -48,7 +48,7 @@ private:
 	const unsigned int MAX_BOARS = 1;
 	const unsigned int MAX_BABARIANS = 1;
 	const unsigned int MAX_ARCHERS = 0;
-	const unsigned int MAX_WIZARDS = 0;
+	const unsigned int MAX_WIZARDS = 1;
 	const unsigned int MAX_HEARTS = 1;
 	const unsigned int MAX_TRAPS = 1;
 

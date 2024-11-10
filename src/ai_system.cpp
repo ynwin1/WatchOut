@@ -366,6 +366,7 @@ void AISystem::archerBehaviour(Entity entity, vec3 playerPosition, float elapsed
 void AISystem::wizardBehaviour(Entity entity, vec3 playerPosition, float elapsed_ms)
 { 
 	const float WIZARD_RANGE = 800;
+    const float LIGHTNING_PREPARE_TIME = 3000;
 	const float SHOT_COOLDOWN = 7000;
 	const float EDGE_BUFFER = 200;
 
@@ -402,27 +403,47 @@ void AISystem::wizardBehaviour(Entity entity, vec3 playerPosition, float elapsed
 
 	// if wizard is aiming, prepare to shoot
 	if (wizard.aiming) {
-		float rand = uniform_dist(rng);
-        motion.facing = normalize(vec2(playerPosition) - vec2(motion.position));
-        wizard.shooting = true;
-        
-		bool farFromEdge = 
-            playerPosition.x > leftBound + EDGE_BUFFER &&
-            playerPosition.x < rightBound - EDGE_BUFFER &&
-            playerPosition.y > topBound + EDGE_BUFFER &&
-            playerPosition.y < bottomBound - EDGE_BUFFER;
 
-        // choose a random attack (fireball OR lightening)
-        if (rand > 0.5 && farFromEdge) {
-            // trigger lightening
-            triggerLightening(playerPosition);
+		// check if wizard is preparing lightening
+        if (wizard.isPreparingLightening) {
+            if (wizard.prepareLighteningTime > LIGHTNING_PREPARE_TIME) {
+				wizard.isPreparingLightening = false;
+				triggerLightening(playerPosition);
+				wizard.prepareLighteningTime = 0;
+				wizard.shooting = true;
+				wizard.shootTime = 0;
+            }
+            else {
+                wizard.prepareLighteningTime += elapsed_ms;
+            }
         }
         else {
-            // cast fireball
-            shootFireball(entity, playerPosition);
+            float rand = uniform_dist(rng);
+            motion.facing = normalize(vec2(playerPosition) - vec2(motion.position));
+
+            bool farFromEdge =
+                playerPosition.x > leftBound + EDGE_BUFFER &&
+                playerPosition.x < rightBound - EDGE_BUFFER &&
+                playerPosition.y > topBound + EDGE_BUFFER &&
+                playerPosition.y < bottomBound - EDGE_BUFFER;
+
+            // choose a random attack (fireball OR lightening)
+            if (rand > 0.5 && farFromEdge) {
+				// start preparing lightening
+				wizard.isPreparingLightening = true;
+				wizard.prepareLighteningTime += elapsed_ms;
+            }
+            else {
+                // cast fireball
+                shootFireball(entity, playerPosition);
+                wizard.shooting = true;
+                wizard.shootTime = 0;
+            }
         }
-        wizard.shootTime = 0;
-	}
+    }
+    else {
+		wizard.prepareLighteningTime = 0;
+    }
 }
 
 void AISystem::shootFireball(Entity shooter, vec3 targetPos) {
@@ -452,7 +473,7 @@ void AISystem::shootFireball(Entity shooter, vec3 targetPos) {
 
 void AISystem::triggerLightening(vec3 player_pos) {
     const float LIGHTENING_COUNT = 5;
-    const float LIGHTENING_RADIUS = 300;
+    const float LIGHTENING_RADIUS = 400;
     for (int i = 0; i < LIGHTENING_COUNT; i++) {
 		float angle = uniform_dist(rng) * 2 * M_PI;
 		float radius = sqrt(uniform_dist(rng)) * LIGHTENING_RADIUS;

@@ -257,6 +257,8 @@ struct Wizard {
 	bool aiming = false;
 	bool shooting = false;
 	float shootTime = 0;
+	float isPreparingLightening = false;
+	float prepareLighteningTime = 0;
 };
 
 // Collectible types

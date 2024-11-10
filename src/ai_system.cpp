@@ -366,7 +366,7 @@ void AISystem::archerBehaviour(Entity entity, vec3 playerPosition, float elapsed
 void AISystem::wizardBehaviour(Entity entity, vec3 playerPosition, float elapsed_ms)
 { 
 	const float WIZARD_RANGE = 800;
-	const float SHOT_COOLDOWN = 5000;
+	const float SHOT_COOLDOWN = 7000;
 	const float EDGE_BUFFER = 200;
 
 	if (registry.deathTimers.has(entity)) {

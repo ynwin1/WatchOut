@@ -363,7 +363,7 @@ Entity createLightening(vec3 pos) {
 	registry.midgrounds.emplace(entity);
 
 	Cooldown& duration = registry.cooldowns.emplace(entity);
-	duration.remaining = 2000.f; // 1.5s
+	duration.remaining = 1500.f; // 1.5s
 
 	printf("Lightening created\n");
 

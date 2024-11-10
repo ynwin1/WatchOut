@@ -403,42 +403,14 @@ void AISystem::wizardBehaviour(Entity entity, vec3 playerPosition, float elapsed
 
 	// if wizard is aiming, prepare to shoot
 	if (wizard.aiming) {
-
 		// check if wizard is preparing lightening
         if (wizard.isPreparingLightening) {
-            if (wizard.prepareLighteningTime > LIGHTNING_PREPARE_TIME) {
-				wizard.isPreparingLightening = false;
-				triggerLightening(playerPosition);
-				wizard.prepareLighteningTime = 0;
-				wizard.shooting = true;
-				wizard.shootTime = 0;
-            }
-            else {
-                wizard.prepareLighteningTime += elapsed_ms;
-            }
+			// make a decision to shoot lightening or not
+			makeLighteningDecision(wizard, playerPosition, LIGHTNING_PREPARE_TIME, elapsed_ms);
         }
         else {
-            float rand = uniform_dist(rng);
-            motion.facing = normalize(vec2(playerPosition) - vec2(motion.position));
-
-            bool farFromEdge =
-                playerPosition.x > leftBound + EDGE_BUFFER &&
-                playerPosition.x < rightBound - EDGE_BUFFER &&
-                playerPosition.y > topBound + EDGE_BUFFER &&
-                playerPosition.y < bottomBound - EDGE_BUFFER;
-
-            // choose a random attack (fireball OR lightening)
-            if (rand > 0.5 && farFromEdge) {
-				// start preparing lightening
-				wizard.isPreparingLightening = true;
-				wizard.prepareLighteningTime += elapsed_ms;
-            }
-            else {
-                // cast fireball
-                shootFireball(entity, playerPosition);
-                wizard.shooting = true;
-                wizard.shootTime = 0;
-            }
+            // select attack
+			selectWizardAttack(entity, playerPosition, EDGE_BUFFER, elapsed_ms);
         }
     }
     else {
@@ -489,6 +461,49 @@ void AISystem::triggerLightening(vec3 player_pos) {
     }
 }
 
+void AISystem::makeLighteningDecision(Wizard& wizard, vec3 playerPosition, float LIGHTNING_PREPARE_TIME, float elapsed_ms) {
+    if (wizard.prepareLighteningTime > LIGHTNING_PREPARE_TIME) {
+		// time to trigger lightening
+        wizard.isPreparingLightening = false;
+		wizard.aiming = false;
+        wizard.shooting = true;
+
+		// reset times
+        wizard.shootTime = 0;
+        wizard.prepareLighteningTime = 0;
+        triggerLightening(playerPosition);
+    }
+    else {
+        wizard.prepareLighteningTime += elapsed_ms;
+    }
+}
+
+void AISystem::selectWizardAttack(Entity& entity, vec3 playerPosition, float EDGE_BUFFER, float elapsed_ms) {
+    float rand = uniform_dist(rng);
+	Motion& motion = registry.motions.get(entity);
+	Wizard& wizard = registry.wizards.get(entity);
+    motion.facing = normalize(vec2(playerPosition) - vec2(motion.position));
+
+    bool farFromEdge =
+        playerPosition.x > leftBound + EDGE_BUFFER &&
+        playerPosition.x < rightBound - EDGE_BUFFER &&
+        playerPosition.y > topBound + EDGE_BUFFER &&
+        playerPosition.y < bottomBound - EDGE_BUFFER;
+
+    // choose a random attack (fireball OR lightening)
+    if (rand > 0.5 && farFromEdge) {
+        // start preparing lightening
+        wizard.isPreparingLightening = true;
+        wizard.prepareLighteningTime += elapsed_ms;
+    }
+    else {
+        // cast fireball
+		wizard.aiming = false;
+        wizard.shooting = true;
+        wizard.shootTime = 0;
+        shootFireball(entity, playerPosition);
+    }
+}
 
 void AISystem::step(float elapsed_ms)
 {

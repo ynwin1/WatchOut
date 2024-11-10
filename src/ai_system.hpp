@@ -25,6 +25,10 @@ private:
 	void shootFireball(Entity shooter, vec3 targetPos);
 	void triggerLightening(vec3 targetPos);
 
+	// Wizard AI helper functions
+	void selectWizardAttack(Entity& wizard, vec3 playerPosition, float BUFFER, float elapsed_ms);
+	void makeLighteningDecision(Wizard& wizard, vec3 playerPosition, float LIGHTNING_PREPARE_TIME, float elapsed_ms);
+
 	vec2 randomDirection();
 
 	// C++ random number generator

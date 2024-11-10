@@ -368,6 +368,12 @@ void PhysicsSystem::handle_mesh_collision(Entity mesh, Entity entity)
 		return;
 	}
 
+	// Example - fireball
+	if (registry.damagings.has(entity)) {
+		// Destroy the damaging
+		registry.remove_all_components_of(entity);
+	}
+
 	// direction of the collision
 	float x_direction = meshMotion.position.x < entityMotion.position.x ? 1 : -1;
 	float y_direction = meshMotion.position.y < entityMotion.position.y ? 1 : -1;

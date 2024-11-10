@@ -78,7 +78,7 @@ void RenderSystem::drawText(Entity entity) {
     }
 }
 
-void RenderSystem::drawMesh(Entity entity, const mat3& projection)
+void RenderSystem::drawMesh(Entity entity, const mat3& projection, const mat4& projection_screen)
 {
 	// Transformation code, see Rendering and Transformation in the template
 	// specification for more info Incrementally updates transformation matrix,
@@ -256,9 +256,8 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection)
 
 	if(registry.foregrounds.has(entity)) { // screen space
 		glUniform1i(toScreen, 1);
-		glm::mat4 projection = createProjectionToScreenSpace();
 		GLuint projection_loc = glGetUniformLocation(currProgram, "projection4");
-		glUniformMatrix4fv(projection_loc, 1, GL_FALSE, value_ptr(projection));
+		glUniformMatrix4fv(projection_loc, 1, GL_FALSE, value_ptr(projection_screen));
 		gl_has_errors();
 
 		// apply transformations
@@ -341,10 +340,11 @@ void RenderSystem::draw()
 	// sprites back to front
 	gl_has_errors();
 	mat3 projection_2D = createProjectionMatrix();
+	mat4 projection_screen = createProjectionToScreenSpace();
 
 	// Draw all background textures
 	for (Entity entity : registry.backgrounds.entities) {
-		drawMesh(entity, projection_2D);
+		drawMesh(entity, projection_2D, projection_screen);
 	}
 	
 	// Copy entities and sort
@@ -352,12 +352,12 @@ void RenderSystem::draw()
 	std::sort(renderOrder.begin(), renderOrder.end(), renderComparison);
 	// Draw all midground textured meshes that have a position and size component
 	for (Entity entity : renderOrder) {
-		drawMesh(entity, projection_2D);
+		drawMesh(entity, projection_2D, projection_screen);
 	}
 
 	// Draw all foreground textures
 	for (Entity entity : registry.foregrounds.entities) {
-		drawMesh(entity, projection_2D);
+		drawMesh(entity, projection_2D, projection_screen);
 	}
 
 	// Draw all text

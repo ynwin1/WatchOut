@@ -118,7 +118,7 @@ private:
 	Camera* camera;
 
 	// Internal drawing functions for each entity type
-	void drawMesh(Entity entity, const mat3& projection);
+	void drawMesh(Entity entity, const mat3& projection, const mat4& projection_screen);
 
 	void drawText(Entity entity);
 

@@ -47,8 +47,8 @@ class RenderSystem {
 		textures_path("wizard/Idle-4f-96x35.png"),    // WIZARD_IDLE
 		textures_path("wizard/Run-6f-96x35-Sheet.png"),// WIZARD_RUN
 		textures_path("wizard/Death-Sheet-6f-96x35.png"),// WIZARD_DEAD
-		textures_path("wizard/fireball.png"),         // FIREBALL
-		textures_path("wizard/lightening.png"),       // LIGHTENING
+		textures_path("wizard/fireball.png"),         // FIREBALL Source: https://nyknck.itch.io/pixelarteffectfx017
+		textures_path("wizard/lightening.png"),       // LIGHTENING Source: https://sanctumpixel.itch.io/lightning-lines-pixel-art-effect
 		textures_path("jeff/32Run.png"),              // JEFF_RUN
 		textures_path("jeff/32Idle.png"),             // JEFF_IDLE
 		textures_path("jeff/32Jump.png"),             // JEFF_JUMP

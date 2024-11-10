@@ -392,7 +392,7 @@ void AISystem::wizardBehaviour(Entity entity, vec3 playerPosition, float elapsed
         moveTowardsPlayer(entity, playerPosition, elapsed_ms);
     }
 
-	// if wizard is already shooting, wait for the cooldown to shoot again
+	// cooldown to shoot again
     if (wizard.shooting) {
 		wizard.shootTime += elapsed_ms;
 		if (wizard.shootTime > SHOT_COOLDOWN) {
@@ -405,7 +405,7 @@ void AISystem::wizardBehaviour(Entity entity, vec3 playerPosition, float elapsed
 	if (wizard.aiming) {
 		// check if wizard is preparing lightening
         if (wizard.isPreparingLightening) {
-			// make a decision to shoot lightening or not
+			// make a decision to trigger lightening or not
 			makeLighteningDecision(wizard, playerPosition, LIGHTNING_PREPARE_TIME, elapsed_ms);
         }
         else {

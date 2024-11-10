@@ -104,7 +104,7 @@ Entity createWizard(vec2 pos) {
 	Motion& motion = registry.motions.emplace(entity);
 	motion.position = vec3(pos, getElevation(pos) + WIZARD_BB_HEIGHT / 2);
 	motion.angle = 0.f;
-	motion.scale = { WIZARD_BB_WIDTH, WIZARD_BB_HEIGHT };
+	motion.scale = { 96 * SPRITE_SCALE,  35 * SPRITE_SCALE };
 	motion.hitbox = { WIZARD_BB_WIDTH, WIZARD_BB_WIDTH, WIZARD_BB_HEIGHT / zConversionFactor };
 	motion.solid = true;
 

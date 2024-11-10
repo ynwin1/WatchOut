@@ -25,9 +25,9 @@ WorldSystem::WorldSystem(std::default_random_engine& rng) :
 		{"collectible_trap", ORIGINAL_TRAP_SPAWN_DELAY}
         }),
     max_entities({
-        {"boar", 2},
-        {"barbarian", 2},
-        {"archer", 1},
+        {"boar", 0},
+        {"barbarian", 0},
+        {"archer", 0},
 		{"wizard", 1},
         {"heart", 1},
         {"collectible_trap", 1}
@@ -135,6 +135,7 @@ bool WorldSystem::step(float elapsed_ms)
     update_cooldown(elapsed_ms);
     handle_deaths(elapsed_ms);
     despawn_collectibles(elapsed_ms);
+	destroyDamagings();
     handle_stamina(elapsed_ms);
     trackFPS(elapsed_ms);
     updateGameTimer(elapsed_ms);
@@ -659,6 +660,27 @@ void WorldSystem::despawn_collectibles(float elapsed_ms) {
 			registry.remove_all_components_of(collectibleEntity);
 		}
 	}
+}
+
+void WorldSystem::destroyDamagings() {
+    for (auto& damagingEntity : registry.damagings.entities) {
+        Damaging& damaging = registry.damagings.get(damagingEntity);
+        Motion& motion = registry.motions.get(damagingEntity);
+
+        // half scale
+		float halfScaleX = abs(motion.scale.x) / 2;
+		float halfScaleY = abs(motion.scale.y) / 2;
+
+		bool collidesWithLeft = motion.position.x - halfScaleX <= leftBound;
+		bool collidesWithRight = motion.position.x + halfScaleX >= rightBound;
+		bool collidesWithTop = motion.position.y - halfScaleY <= topBound;
+		bool collidesWithBottom = motion.position.y + halfScaleY >= bottomBound;
+
+		// Destroy if it collides with the map bounds (fireball)
+        if (collidesWithLeft || collidesWithRight || collidesWithTop || collidesWithBottom) {
+            registry.remove_all_components_of(damagingEntity);
+        }
+    }
 }
 
 void WorldSystem::checkAndHandlePlayerDeath(Entity& entity) {

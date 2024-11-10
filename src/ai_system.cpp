@@ -320,6 +320,31 @@ void AISystem::shootArrow(Entity shooter, vec3 targetPos)
     createArrow(pos, vec3(horizontal_velocity, vertical_velocity));
 }
 
+void AISystem::shootFireball(Entity shooter, vec3 targetPos) {
+    // Shoot in a straight line towards the player
+    const float FIREBALL_SPEED = 0.5f;
+    const float BASE_FIREBALL_OFFSET = 50.f;
+
+    Motion& motion = registry.motions.get(shooter);
+
+    // Start position of the fireball
+    vec3 pos = motion.position;
+
+    // Direction to the player
+    vec2 direction = normalize(vec2(targetPos) - vec2(pos));
+
+    // Calculate the total offset to ensure the fireball starts outside the shooter's hitbox
+    float totalOffset = BASE_FIREBALL_OFFSET + motion.hitbox.x; // Base offset + half of hitbox width
+    vec3 offset = vec3(direction * totalOffset, 0);
+    pos += offset;
+
+    // Velocity of the fireball
+    vec3 velocity = vec3(direction * FIREBALL_SPEED, 0);
+
+    createFireball(pos, velocity);
+}
+
+
 void AISystem::archerBehaviour(Entity entity, vec3 playerPosition, float elapsed_ms)
 {
     const float ARCHER_RANGE = 600;
@@ -365,6 +390,8 @@ void AISystem::archerBehaviour(Entity entity, vec3 playerPosition, float elapsed
 void AISystem::wizardBehaviour(Entity entity, vec3 playerPosition, float elapsed_ms)
 { 
 	const float WIZARD_RANGE = 500;
+	const float CAST_FIREBALL_TIME = 1500;
+
 	if (registry.deathTimers.has(entity)) {
 		return;
 	}
@@ -372,18 +399,34 @@ void AISystem::wizardBehaviour(Entity entity, vec3 playerPosition, float elapsed
 	Wizard& wizard = registry.wizards.get(entity);
 	float d = distance(motion.position, playerPosition);
     AnimationController& animationController = registry.animationControllers.get(entity);
-	// if player is out of range, wizard will move towards player
-    if (d > WIZARD_RANGE) {
-		animationController.changeState(entity, AnimationState::Running);
-		moveTowardsPlayer(entity, playerPosition, elapsed_ms);
+
+	// if player is within range, start aiming
+    if (d < WIZARD_RANGE) {
+		wizard.aiming = true;
+        motion.velocity.x = 0;
+        motion.velocity.y = 0;
+        animationController.changeState(entity, AnimationState::Idle);
     }
     else {
-		// TODO - wizard attack patterns go here, Idle for now   
-        motion.velocity.x = 0;
-		motion.velocity.y = 0;
-		animationController.changeState(entity, AnimationState::Idle);
+		wizard.aiming = false;
+        animationController.changeState(entity, AnimationState::Running);
+        moveTowardsPlayer(entity, playerPosition, elapsed_ms);
     }
 
+	// if aimed, cast fireball
+	if (wizard.aiming) {
+		motion.facing = normalize(vec2(playerPosition) - vec2(motion.position));
+		if (wizard.castFireballTime > CAST_FIREBALL_TIME) {
+			shootFireball(entity, playerPosition);
+			wizard.castFireballTime = 0;
+		}
+		else {
+			wizard.castFireballTime += elapsed_ms;
+		}
+	}
+	else {
+		wizard.castFireballTime = 0;
+	}
 }
 
 

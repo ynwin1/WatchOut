@@ -22,6 +22,7 @@ private:
 
 	// Wizard functions
 	void wizardBehaviour(Entity entity, vec3 playerPosition, float elapsed_ms);
+	void shootFireball(Entity shooter, vec3 targetPos);
 
 	vec2 randomDirection();
 

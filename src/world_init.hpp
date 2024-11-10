@@ -38,6 +38,8 @@ const float ROCK_BB_WIDTH = 30.f * SPRITE_SCALE;
 const float ROCK_BB_HEIGHT = 35.f * SPRITE_SCALE;
 const float ARROW_BB_WIDTH = 16 * SPRITE_SCALE;
 const float ARROW_BB_HEIGHT = 7 * SPRITE_SCALE;
+const float FIREBALL_BB_WIDTH = 16 * SPRITE_SCALE;
+const float FIREBALL_BB_HEIGHT = 16 * SPRITE_SCALE;
 
 const float BOAR_SPEED = 0.2;
 const float BARBARIAN_SPEED = 0.3;
@@ -81,6 +83,9 @@ Entity createDamageTrap(vec2 pos);
 
 // Arrows fired by the archer
 Entity createArrow(vec3 pos, vec3 velocity);
+
+// Fireballs fired by the wizard
+Entity createFireball(vec3 pos, vec3 velocity);
 
 // Pause UI
 Entity createPauseMenu(vec2 windowSize);

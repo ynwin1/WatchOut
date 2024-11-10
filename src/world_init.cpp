@@ -323,6 +323,30 @@ Entity createArrow(vec3 pos, vec3 velocity)
 	return entity;
 }
 
+Entity createFireball(vec3 pos, vec3 velocity) {
+	auto entity = Entity();
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.velocity = velocity;
+	motion.scale = { FIREBALL_BB_WIDTH, FIREBALL_BB_HEIGHT };
+	motion.hitbox = { FIREBALL_BB_WIDTH, FIREBALL_BB_WIDTH, FIREBALL_BB_HEIGHT / zConversionFactor };
+
+	Damaging& damaging = registry.damagings.emplace(entity);
+	damaging.damage = 30;
+	registry.midgrounds.emplace(entity);
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::FIREBALL,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	return entity;
+}
+
 void createHealthBar(Entity characterEntity, vec3 color) {
 	auto meshEntity = Entity();
 

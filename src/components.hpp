@@ -253,6 +253,7 @@ struct Archer {
 	bool aiming = false;
 };
 struct Wizard {
+	float castFireballTime = 0;
 	bool aiming = false;
 };
 

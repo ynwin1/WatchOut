@@ -445,10 +445,10 @@ void AISystem::shootFireball(Entity shooter, vec3 targetPos) {
 
 void AISystem::triggerLightening(vec3 player_pos) {
     const float LIGHTENING_COUNT = 5;
-    const float LIGHTENING_RADIUS = 400;
+    const float LIGHTENING_RADIUS = 300;
     for (int i = 0; i < LIGHTENING_COUNT; i++) {
 		float angle = uniform_dist(rng) * 2 * M_PI;
-		float radius = sqrt(uniform_dist(rng)) * LIGHTENING_RADIUS;
+		float radius = uniform_dist(rng) * LIGHTENING_RADIUS;
 
 		float x = radius * cos(angle);
 		float y = radius * sin(angle);

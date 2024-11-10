@@ -45,8 +45,8 @@ private:
 	const float ORIGINAL_TRAP_SPAWN_DELAY = 7000.0f;
 
 	// Max entities at start
-	const unsigned int MAX_BOARS = 1;
-	const unsigned int MAX_BABARIANS = 1;
+	const unsigned int MAX_BOARS = 0;
+	const unsigned int MAX_BABARIANS = 0;
 	const unsigned int MAX_ARCHERS = 0;
 	const unsigned int MAX_WIZARDS = 1;
 	const unsigned int MAX_HEARTS = 1;

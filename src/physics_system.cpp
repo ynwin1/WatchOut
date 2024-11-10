@@ -87,11 +87,15 @@ void PhysicsSystem::checkCollisions()
 				if (registry.meshPtrs.has(entity_i)) {
 					if (meshCollides(entity_i, entity_j)) {
 						handle_mesh_collision(entity_i, entity_j);
+						collisions.push_back(std::make_pair(entity_i, entity_j));
+						collisions.push_back(std::make_pair(entity_j, entity_i));
 					}
 				}
 				else if (registry.meshPtrs.has(entity_j)) {
 					if (meshCollides(entity_j, entity_i)) {
 						handle_mesh_collision(entity_j, entity_i);
+						collisions.push_back(std::make_pair(entity_i, entity_j));
+						collisions.push_back(std::make_pair(entity_j, entity_i));
 					}
 				}
 				else {

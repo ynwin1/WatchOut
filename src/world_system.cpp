@@ -572,7 +572,8 @@ void WorldSystem::entity_obstacle_collision(Entity entity, Entity obstacle, std:
         if (boar.charging) {
            Enemy& enemy = registry.enemies.get(entity);
             // Boar hurts itself
-           enemy.health -= enemy.damage;
+           int newHealth = enemy.health - enemy.damage;
+           enemy.health = std::max(newHealth, 0);
            ai->boarReset(entity);
            boar.cooldownTimer = 1000; // stunned for 1 second
            

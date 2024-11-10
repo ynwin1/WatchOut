@@ -85,7 +85,7 @@ Entity createDamageTrap(vec2 pos);
 Entity createArrow(vec3 pos, vec3 velocity);
 
 // Fireballs fired by the wizard
-Entity createFireball(vec3 pos, vec3 velocity);
+Entity createFireball(vec3 pos, vec3 velocity, vec2 direction);
 
 // Pause UI
 Entity createPauseMenu(vec2 windowSize);

@@ -323,7 +323,6 @@ void AISystem::shootArrow(Entity shooter, vec3 targetPos)
 void AISystem::shootFireball(Entity shooter, vec3 targetPos) {
     // Shoot in a straight line towards the player
     const float FIREBALL_SPEED = 0.3f;
-    const float BASE_FIREBALL_OFFSET = 50.f;
 
     Motion& motion = registry.motions.get(shooter);
 
@@ -333,15 +332,15 @@ void AISystem::shootFireball(Entity shooter, vec3 targetPos) {
     // Direction to the player
     vec2 direction = normalize(vec2(targetPos) - vec2(pos));
 
-    // Calculate the total offset to ensure the fireball starts outside the shooter's hitbox
-    float totalOffset = BASE_FIREBALL_OFFSET + motion.hitbox.x; // Base offset + half of hitbox width
-    vec3 offset = vec3(direction * totalOffset, 0);
+	// Set offset to avoid collision with the shooter
+    float max_dimension = std::max(FIREBALL_BB_WIDTH, FIREBALL_BB_HEIGHT);
+	vec3 offset = vec3(direction * max_dimension, 0);
     pos += offset;
 
     // Velocity of the fireball
     vec3 velocity = vec3(direction * FIREBALL_SPEED, 0);
 
-    createFireball(pos, velocity);
+    createFireball(pos, velocity, direction);
 }
 
 
@@ -389,7 +388,7 @@ void AISystem::archerBehaviour(Entity entity, vec3 playerPosition, float elapsed
 
 void AISystem::wizardBehaviour(Entity entity, vec3 playerPosition, float elapsed_ms)
 { 
-	const float WIZARD_RANGE = 500;
+	const float WIZARD_RANGE = 700;
 	const float CAST_FIREBALL_TIME = 1500;
 
 	if (registry.deathTimers.has(entity)) {

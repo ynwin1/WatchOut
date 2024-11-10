@@ -238,7 +238,6 @@ bool PhysicsSystem::meshCollides(Entity& mesh_entity, Entity& other_entity) {
 	return false;
 }
 
-
 void PhysicsSystem::updatePositions(float elapsed_ms)
 {
 	for (Entity entity : registry.motions.entities) {

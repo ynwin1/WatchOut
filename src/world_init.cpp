@@ -304,9 +304,9 @@ void createPlayerStaminaBar(Entity characterEntity, vec2 windowSize) {
 
 	Foreground& fg = registry.foregrounds.emplace(meshE);
 	fg.position = position;
-	fg.scale = {width, height};
+	fg.scale = { width, height };
 
-	vec3 colour = vec3(0.8f, 0.8f, 0.0f);
+	vec3 colour = vec3(0.0f, 0.0f, 1.0f);
 	registry.colours.insert(meshE, colour);
 
 	registry.renderRequests.insert(
@@ -321,7 +321,7 @@ void createPlayerStaminaBar(Entity characterEntity, vec2 windowSize) {
 	auto frameE = Entity();
 	Foreground& frameFg = registry.foregrounds.emplace(frameE);
 	frameFg.position = position;
-	frameFg.scale = fg.scale;
+	frameFg.scale = { width, height };
 	registry.colours.insert(frameE, colour);
 	registry.renderRequests.insert(
 		frameE,
@@ -377,7 +377,7 @@ void createPlayerHealthBar(Entity characterEntity, vec2 windowSize) {
 	auto frameE = Entity();
 	Foreground& frameFg = registry.foregrounds.emplace(frameE);
 	frameFg.position = position;
-	frameFg.scale = fg.scale;
+	frameFg.scale = { width, height };
 	registry.colours.insert(frameE, green);
 	registry.renderRequests.insert(
 		frameE,
@@ -399,7 +399,6 @@ void createPlayerHealthBar(Entity characterEntity, vec2 windowSize) {
 			EFFECT_ASSET_ID::FONT,
 			GEOMETRY_BUFFER_ID::TEXT,
 		});
-
 	HealthBar& hpbar = registry.healthBars.emplace(characterEntity, meshE, frameE);
 	hpbar.width = width;
 	hpbar.height = height;
@@ -434,7 +433,7 @@ void createHealthBar(Entity characterEntity, vec3 color) {
 	auto frameEntity = Entity();
 	Motion& frameM = registry.motions.emplace(frameEntity);
 	frameM.position = motion.position;
-	frameM.scale = motion.scale;
+	frameM.scale = { width, height };
 	registry.colours.insert(frameEntity, color);
 	registry.renderRequests.insert(
 		frameEntity,

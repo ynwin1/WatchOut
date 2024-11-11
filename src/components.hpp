@@ -144,6 +144,9 @@ struct Obstacle {
 
 };
 
+struct TargetArea {
+};
+
 struct GameTimer {
 	int hours = 0;
 	int minutes = 0;
@@ -228,8 +231,6 @@ struct Debug {
 	bool in_freeze_mode = 0;
 };
 extern Debug debugging;
-
-
 
 // Entity can jump
 struct Jumper

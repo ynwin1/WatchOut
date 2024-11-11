@@ -36,6 +36,7 @@ public:
 	ComponentContainer<Obstacle> obstacles;
 	ComponentContainer<Projectile> projectiles;
 	ComponentContainer<Mesh*> meshPtrs;
+	ComponentContainer<TargetArea> targetAreas;
 	
 	ComponentContainer<PauseMenuComponent> pauseMenuComponents;
 	ComponentContainer<HelpMenuComponent> helpMenuComponents;
@@ -87,6 +88,7 @@ public:
 		registry_list.push_back(&texts);
 		registry_list.push_back(&jumpers);
 		registry_list.push_back(&projectiles);
+		registry_list.push_back(&targetAreas);
 
 		registry_list.push_back(&renderRequests);
 		registry_list.push_back(&backgrounds);

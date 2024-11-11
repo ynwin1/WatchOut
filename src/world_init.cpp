@@ -434,20 +434,22 @@ Entity createTargetArea(vec3 position, float radius) {
 
 	Motion& motion = registry.motions.emplace(entity);
 	motion.position = position;
-	motion.scale = { 2 * radius, 2 * radius };
+	motion.position.z = 0.f;
 
-	vec3 red = { 1.0f, 0.0f, 0.0f };
-	registry.colours.insert(entity, red);
+	float ogRadius = 170.f;
+	float scaledFactor = radius / ogRadius;
+	motion.scale = { 2 * ogRadius * scaledFactor, 2 * ogRadius * scaledFactor };
 
 	registry.renderRequests.insert(
 		entity,
 		{
-			TEXTURE_ASSET_ID::NONE,
-			EFFECT_ASSET_ID::UNTEXTURED,
-			GEOMETRY_BUFFER_ID::TARGET_AREA
+			TEXTURE_ASSET_ID::TARGET_AREA,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
 		});
 
 	registry.midgrounds.emplace(entity);
+	registry.targetAreas.emplace(entity);
 
 	printf("Target area created\n");
 	return entity;

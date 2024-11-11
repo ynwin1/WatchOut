@@ -28,7 +28,7 @@ private:
 	void triggerLightening(vec3 targetPos);
 
 	// Wizard AI helper functions
-	vec3 selectWizardAttack(Entity& wizard, vec3 playerPosition, float BUFFER, float elapsed_ms);
+	void selectWizardAttack(Entity& wizard, vec3 playerPosition, float BUFFER, float elapsed_ms);
 	void makeLighteningDecision(Wizard& wizard, float LIGHTNING_PREPARE_TIME, float elapsed_ms);
 
 	vec2 randomDirection();

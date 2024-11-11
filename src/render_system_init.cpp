@@ -211,6 +211,7 @@ void RenderSystem::initializeGlGeometryBuffers()
 	initMapTileBuffer();
 	initHealthBarBuffer();
 	initStaminaBarBuffer();
+	initTargetAreaBuffer();
 	
 	initText();
 }
@@ -251,6 +252,24 @@ void RenderSystem::initStaminaBarBuffer() {
     const std::vector<uint16_t> health_bar_indices = { 0, 1, 2, 1, 2, 3 };
     bindVBOandIBO(GEOMETRY_BUFFER_ID::STAMINA_BAR, health_bar_vertices, health_bar_indices);
 }
+
+void RenderSystem::initTargetAreaBuffer() {
+	// target area is circular
+	std::vector<UntexturedVertex> target_area_vertices(360);
+	for (int i = 0; i < 360; i++) {
+		float angle = i * M_PI / 180.f;
+		target_area_vertices[i].position = { cos(angle), sin(angle), 0.0f };
+	}
+
+	std::vector<uint16_t> target_area_indices(360);
+	for (int i = 0; i < 360; i++) {
+		target_area_indices[i] = i;
+	}
+
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::TARGET_AREA, target_area_vertices, target_area_indices);
+}
+
+
 void RenderSystem::initText() {
 	FT_Library ft;
 	if (FT_Init_FreeType(&ft))

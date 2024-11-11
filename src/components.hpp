@@ -256,9 +256,12 @@ struct Archer {
 struct Wizard {
 	bool aiming = false;
 	bool shooting = false;
+	bool isPreparingLightening = false;
+
 	float shootTime = 0;
-	float isPreparingLightening = false;
 	float prepareLighteningTime = 0;
+	
+	vec3 locked_target = vec3(0, 0, 0);
 };
 
 // Collectible types

@@ -9,6 +9,8 @@ public:
 	void step(float elapsed_ms);
 
 private:
+	const float LIGHTENING_RADIUS = 200.f;
+
 	void moveTowardsPlayer(Entity enemy, vec3 playerPosition, float elapsed_ms);
 	vec2 chooseDirection(Motion& motion, vec3 playerPosition);
 	bool pathClear(Motion& motion, vec2 direction, float howFar, const std::vector<Entity> &obstacles, float& clearDistance);
@@ -26,8 +28,8 @@ private:
 	void triggerLightening(vec3 targetPos);
 
 	// Wizard AI helper functions
-	void selectWizardAttack(Entity& wizard, vec3 playerPosition, float BUFFER, float elapsed_ms);
-	void makeLighteningDecision(Wizard& wizard, vec3 playerPosition, float LIGHTNING_PREPARE_TIME, float elapsed_ms);
+	vec3 selectWizardAttack(Entity& wizard, vec3 playerPosition, float BUFFER, float elapsed_ms);
+	void makeLighteningDecision(Wizard& wizard, float LIGHTNING_PREPARE_TIME, float elapsed_ms);
 
 	vec2 randomDirection();
 

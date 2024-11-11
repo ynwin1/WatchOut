@@ -406,11 +406,11 @@ void AISystem::wizardBehaviour(Entity entity, vec3 playerPosition, float elapsed
 		// check if wizard is preparing lightening
         if (wizard.isPreparingLightening) {
 			// make a decision to trigger lightening or not
-			makeLighteningDecision(wizard, playerPosition, LIGHTNING_PREPARE_TIME, elapsed_ms);
+			makeLighteningDecision(wizard, LIGHTNING_PREPARE_TIME, elapsed_ms);
         }
         else {
             // select attack
-			selectWizardAttack(entity, playerPosition, EDGE_BUFFER, elapsed_ms);
+            wizard.locked_target = selectWizardAttack(entity, playerPosition, EDGE_BUFFER, elapsed_ms);
         }
     }
     else {
@@ -443,16 +443,15 @@ void AISystem::shootFireball(Entity shooter, vec3 targetPos) {
     createFireball(pos, velocity, direction);
 }
 
-void AISystem::triggerLightening(vec3 player_pos) {
+void AISystem::triggerLightening(vec3 target_pos) {
     const float LIGHTENING_COUNT = 5;
-    const float LIGHTENING_RADIUS = 300;
     for (int i = 0; i < LIGHTENING_COUNT; i++) {
 		float angle = uniform_dist(rng) * 2 * M_PI;
 		float radius = uniform_dist(rng) * LIGHTENING_RADIUS;
 
 		float x = radius * cos(angle);
 		float y = radius * sin(angle);
-		vec3 pos = player_pos + vec3(x, y, 0);
+		vec3 pos = target_pos + vec3(x, y, 0);
 
         // pos should be within the bounds
 		pos.x = max(0.f, min(pos.x, (float) rightBound));
@@ -461,7 +460,7 @@ void AISystem::triggerLightening(vec3 player_pos) {
     }
 }
 
-void AISystem::makeLighteningDecision(Wizard& wizard, vec3 playerPosition, float LIGHTNING_PREPARE_TIME, float elapsed_ms) {
+void AISystem::makeLighteningDecision(Wizard& wizard, float LIGHTNING_PREPARE_TIME, float elapsed_ms) {
     if (wizard.prepareLighteningTime > LIGHTNING_PREPARE_TIME) {
 		// time to trigger lightening
         wizard.isPreparingLightening = false;
@@ -471,14 +470,15 @@ void AISystem::makeLighteningDecision(Wizard& wizard, vec3 playerPosition, float
 		// reset times
         wizard.shootTime = 0;
         wizard.prepareLighteningTime = 0;
-        triggerLightening(playerPosition);
+        // lightening around the locked target (allows player to move around)
+        triggerLightening(wizard.locked_target);
     }
     else {
         wizard.prepareLighteningTime += elapsed_ms;
     }
 }
 
-void AISystem::selectWizardAttack(Entity& entity, vec3 playerPosition, float EDGE_BUFFER, float elapsed_ms) {
+vec3 AISystem::selectWizardAttack(Entity& entity, vec3 playerPosition, float EDGE_BUFFER, float elapsed_ms) {
     float rand = uniform_dist(rng);
 	Motion& motion = registry.motions.get(entity);
 	Wizard& wizard = registry.wizards.get(entity);
@@ -495,6 +495,7 @@ void AISystem::selectWizardAttack(Entity& entity, vec3 playerPosition, float EDG
         // start preparing lightening
         wizard.isPreparingLightening = true;
         wizard.prepareLighteningTime += elapsed_ms;
+        createTargetArea(playerPosition, LIGHTENING_RADIUS);
     }
     else {
         // cast fireball
@@ -503,6 +504,7 @@ void AISystem::selectWizardAttack(Entity& entity, vec3 playerPosition, float EDG
         wizard.shootTime = 0;
         shootFireball(entity, playerPosition);
     }
+	return playerPosition;
 }
 
 void AISystem::step(float elapsed_ms)

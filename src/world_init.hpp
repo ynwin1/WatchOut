@@ -113,20 +113,24 @@ Entity createTrapsCounterText(vec2 windowSize);
 // GameOver
 Entity createGameOver(vec2 pos);
 
+// Display bars
 void createHealthBar(Entity characterEntity, vec3 color);
+void createStaminaBar(Entity characterEntity, vec3 color);
 
+// Map objects
 void createMapTiles();
 Entity createMapTile(vec2 position, vec2 scale);
 Entity createObstacle(vec2 position, vec2 scale, TEXTURE_ASSET_ID assetID);
 void createObstacles();
+Entity createTargetArea(vec3 position, float radius);
 
-//cliffs
+// Cliffs
 void createCliffs(GLFWwindow* window);
 Entity createBottomCliff(vec2 position, vec2 scale);
 Entity createSideCliff(vec2 position, vec2 scale);
 Entity createTopCliff(vec2 position, vec2 scale);
 
-void createStaminaBar(Entity characterEntity, vec3 color);
+
 
 void createTrees(RenderSystem* renderer);
 

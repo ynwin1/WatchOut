@@ -101,6 +101,7 @@ public:
 
 	void initHealthBarBuffer();
 	void initStaminaBarBuffer();
+	void initTargetAreaBuffer();
 
 	void initText();
 

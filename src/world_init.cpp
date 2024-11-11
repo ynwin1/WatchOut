@@ -429,11 +429,35 @@ void createStaminaBar(Entity characterEntity, vec3 color) {
 	staminabar.height = height;
 }
 
+Entity createTargetArea(vec3 position, float radius) {
+	auto entity = Entity();
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = position;
+	motion.scale = { 2 * radius, 2 * radius };
+
+	vec3 red = { 1.0f, 0.0f, 0.0f };
+	registry.colours.insert(entity, red);
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::UNTEXTURED,
+			GEOMETRY_BUFFER_ID::TARGET_AREA
+		});
+
+	registry.midgrounds.emplace(entity);
+
+	printf("Target area created\n");
+	return entity;
+}
+
 Entity createPauseHelpText(vec2 windowSize) {
 	auto entity = Entity();
 
 	Text& text = registry.texts.emplace(entity);
-	text.value = "PAUSE/PLAY(P)    HELP (H)";
+	text.value = "PAUSE/PLAY(P)    HELP(H)";
 	text.position = {windowSize.x - 550, windowSize.y - 70.0f};
 	text.scale = 1.5f;
 

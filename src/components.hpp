@@ -255,11 +255,9 @@ struct Archer {
 	bool aiming = false;
 };
 
+enum WizardState { Moving, Aiming, Preparing, Shooting };
 struct Wizard {
-	bool aiming = false;
-	bool shooting = false;
-	bool isPreparingLightening = false;
-
+	WizardState state = WizardState::Moving;
 	float shoot_cooldown = 0;
 	float prepareLighteningTime = 0;
 	

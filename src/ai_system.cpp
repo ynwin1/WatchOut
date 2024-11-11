@@ -363,60 +363,107 @@ void AISystem::archerBehaviour(Entity entity, vec3 playerPosition, float elapsed
     }
 }
 
-void AISystem::wizardBehaviour(Entity entity, vec3 playerPosition, float elapsed_ms)
-{ 
-	const float WIZARD_RANGE = 800;
-    const float LIGHTNING_PREPARE_TIME = 3000;
-	const float SHOT_COOLDOWN = 7000;
-	const float EDGE_BUFFER = 200;
-
+void AISystem::wizardBehaviour(Entity entity, vec3 playerPosition, float elapsed_ms) {
+    
 	if (registry.deathTimers.has(entity)) {
 		return;
 	}
-	Motion& motion = registry.motions.get(entity);
-	Wizard& wizard = registry.wizards.get(entity);
-	float d = distance(motion.position, playerPosition);
-    AnimationController& animationController = registry.animationControllers.get(entity);
 
-	// if player is within range, start aiming
+	Wizard& wizard = registry.wizards.get(entity);
+    switch (wizard.state) {
+    case WizardState::Moving:
+        processWizardMoving(entity, playerPosition, elapsed_ms);
+        break;
+    case WizardState::Aiming:
+		processWizardAiming(entity, playerPosition, elapsed_ms);
+        break;
+	case WizardState::Preparing:
+        processWizardPreparing(entity, playerPosition, elapsed_ms);
+        break;
+	case WizardState::Shooting:
+		processWizardShooting(entity, playerPosition, elapsed_ms);
+		break;
+    default:
+        break;
+    }
+}
+
+void AISystem::processWizardMoving(Entity entity, vec3 playerPosition, float elapsed_ms) {
+    const float WIZARD_RANGE = 800;
+
+    Motion& motion = registry.motions.get(entity);
+    Wizard& wizard = registry.wizards.get(entity);
+    AnimationController& animationController = registry.animationControllers.get(entity);
+    float d = distance(motion.position, playerPosition);
+
     if (d < WIZARD_RANGE) {
-		wizard.aiming = true;
+        wizard.state = WizardState::Aiming;
         motion.velocity.x = 0;
         motion.velocity.y = 0;
         animationController.changeState(entity, AnimationState::Idle);
     }
     else {
-		// else, move towards player only if lightening has not been prepared
-        if (!wizard.isPreparingLightening) {
-            wizard.aiming = false;
-            animationController.changeState(entity, AnimationState::Running);
-            moveTowardsPlayer(entity, playerPosition, elapsed_ms);
-        }
+        moveTowardsPlayer(entity, playerPosition, elapsed_ms);
     }
+}
 
-	// cooldown to shoot again
-    if (wizard.shooting) {
-		wizard.shoot_cooldown += elapsed_ms;
-		if (wizard.shoot_cooldown > SHOT_COOLDOWN) {
-			wizard.shooting = false;
-		}
-        return;
-    }
+void AISystem::processWizardAiming(Entity entity, vec3 playerPosition, float elapsed_ms) {
+    const float EDGE_BUFFER = 300;
 
-	// if wizard is aiming, prepare to attack
-	if (wizard.aiming) {
-		// check if wizard has been preparing lightening
-        if (wizard.isPreparingLightening) {
-			// make a decision to trigger lightening or keep preparing
-			makeLighteningDecision(wizard, LIGHTNING_PREPARE_TIME, elapsed_ms);
-        }
-        else {
-            // select attack
-            selectWizardAttack(entity, playerPosition, EDGE_BUFFER, elapsed_ms);
-        }
+    float rand = uniform_dist(rng);
+    Motion& motion = registry.motions.get(entity);
+    Wizard& wizard = registry.wizards.get(entity);
+    motion.facing = normalize(vec2(playerPosition) - vec2(motion.position));
+
+    bool farFromEdge =
+        playerPosition.x > leftBound + EDGE_BUFFER &&
+        playerPosition.x < rightBound - EDGE_BUFFER &&
+        playerPosition.y > topBound + EDGE_BUFFER &&
+        playerPosition.y < bottomBound - EDGE_BUFFER;
+
+    // choose a random attack (fireball OR lightening)
+    if (rand < 0.5 && farFromEdge) {
+        // start preparing for lightening
+        createTargetArea(playerPosition, LIGHTENING_RADIUS);
+        wizard.locked_target = playerPosition;
+        wizard.state = WizardState::Preparing;
     }
     else {
-		wizard.prepareLighteningTime = 0;
+        shootFireball(entity, playerPosition);
+        wizard.shoot_cooldown = 0;
+        wizard.state = WizardState::Shooting;
+    }
+}
+
+void AISystem::processWizardPreparing(Entity entity, vec3 playerPosition, float elapsed_ms) {
+    const float LIGHTNING_PREPARE_TIME = 3000;
+
+    Wizard& wizard = registry.wizards.get(entity);
+    Motion& motion = registry.motions.get(entity);
+
+    // make a decision to trigger lightening or keep preparing
+    if (wizard.prepareLighteningTime > LIGHTNING_PREPARE_TIME) {
+        triggerLightening(wizard.locked_target);
+        wizard.state = WizardState::Shooting;
+        wizard.prepareLighteningTime = 0;
+        wizard.shoot_cooldown = 0;
+    }
+    else {
+        wizard.prepareLighteningTime += elapsed_ms;
+    }
+}
+
+void AISystem::processWizardShooting(Entity entity, vec3 playerPosition, float elapsed_ms) {
+    const float SHOT_COOLDOWN = 7000;
+
+    Wizard& wizard = registry.wizards.get(entity);
+    Motion& motion = registry.motions.get(entity);
+
+    if (wizard.shoot_cooldown > SHOT_COOLDOWN) {
+        wizard.state = WizardState::Moving;
+    }
+    else {
+        wizard.shoot_cooldown += elapsed_ms;
     }
 }
 
@@ -457,58 +504,6 @@ void AISystem::triggerLightening(vec3 target_pos) {
 
 		createLightening(pos);
     }
-}
-
-// Helper
-void AISystem::makeLighteningDecision(Wizard& wizard, float LIGHTNING_PREPARE_TIME, float elapsed_ms) {
-    // Lightening is ready
-    if (wizard.prepareLighteningTime > LIGHTNING_PREPARE_TIME) {
-		// time to trigger lightening
-        wizard.isPreparingLightening = false;
-		wizard.aiming = false;
-        wizard.shooting = true;
-
-		// reset times
-        wizard.shoot_cooldown = 0;
-        wizard.prepareLighteningTime = 0;
-        // lightening around the locked target (allows player to move around)
-        triggerLightening(wizard.locked_target);
-    }
-    else {
-        wizard.prepareLighteningTime += elapsed_ms;
-    }
-}
-// Helper
-void AISystem::selectWizardAttack(Entity& entity, vec3 playerPosition, float EDGE_BUFFER, float elapsed_ms) {
-    float rand = uniform_dist(rng);
-	Motion& motion = registry.motions.get(entity);
-	Wizard& wizard = registry.wizards.get(entity);
-    motion.facing = normalize(vec2(playerPosition) - vec2(motion.position));
-
-    bool farFromEdge =
-        playerPosition.x > leftBound + EDGE_BUFFER &&
-        playerPosition.x < rightBound - EDGE_BUFFER &&
-        playerPosition.y > topBound + EDGE_BUFFER &&
-        playerPosition.y < bottomBound - EDGE_BUFFER;
-
-    // choose a random attack (fireball OR lightening)
-    if (rand > 0.5 && farFromEdge) {
-        // start preparing lightening
-        wizard.isPreparingLightening = true;
-        wizard.prepareLighteningTime += elapsed_ms;
-
-		// Associate the target area with the wizard
-        createTargetArea(playerPosition, LIGHTENING_RADIUS);
-    }
-    else {
-        // cast fireball
-		wizard.aiming = false;
-        wizard.shooting = true;
-        wizard.shoot_cooldown = 0;
-        shootFireball(entity, playerPosition);
-    }
-	// set target to shoot lightening around
-    wizard.locked_target = playerPosition;
 }
 
 void AISystem::step(float elapsed_ms)

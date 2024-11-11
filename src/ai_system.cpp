@@ -389,7 +389,7 @@ void AISystem::wizardBehaviour(Entity entity, vec3 playerPosition, float elapsed
 }
 
 void AISystem::processWizardMoving(Entity entity, vec3 playerPosition, float elapsed_ms) {
-    const float WIZARD_RANGE = 800;
+    const float WIZARD_RANGE = 600;
 
     Motion& motion = registry.motions.get(entity);
     Wizard& wizard = registry.wizards.get(entity);
@@ -439,7 +439,6 @@ void AISystem::processWizardPreparing(Entity entity, vec3 playerPosition, float 
     const float LIGHTNING_PREPARE_TIME = 3000;
 
     Wizard& wizard = registry.wizards.get(entity);
-    Motion& motion = registry.motions.get(entity);
 
     // make a decision to trigger lightening or keep preparing
     if (wizard.prepareLighteningTime > LIGHTNING_PREPARE_TIME) {
@@ -454,10 +453,9 @@ void AISystem::processWizardPreparing(Entity entity, vec3 playerPosition, float 
 }
 
 void AISystem::processWizardShooting(Entity entity, vec3 playerPosition, float elapsed_ms) {
-    const float SHOT_COOLDOWN = 7000;
+    const float SHOT_COOLDOWN = 5000;
 
     Wizard& wizard = registry.wizards.get(entity);
-    Motion& motion = registry.motions.get(entity);
 
     if (wizard.shoot_cooldown > SHOT_COOLDOWN) {
         wizard.state = WizardState::Moving;

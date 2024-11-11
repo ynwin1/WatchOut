@@ -71,7 +71,8 @@ struct StaminaBar {
 // Collectible Component
 struct Collectible
 {
-	float timer = 5000.f; // 5 seconds until it disappears
+	float duration = 5000.f; // 5 seconds until it disappears
+	float timer = duration; 
 	vec2 position = { 0, 0 };
 	vec2 scale = { 3, 3 };
 };

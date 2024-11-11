@@ -111,13 +111,7 @@ Entity createCollectibleTrap(vec2 pos)
 
 	registry.collectibles.emplace(entity);
 
-	registry.renderRequests.insert(
-	entity,
-	{
-		TEXTURE_ASSET_ID::TRAPCOLLECTABLE,
-		EFFECT_ASSET_ID::TEXTURED,
-		GEOMETRY_BUFFER_ID::SPRITE
-	});
+	initTrapBottleAnimationController(entity);
 
 	registry.midgrounds.emplace(entity);
 
@@ -141,13 +135,7 @@ Entity createHeart(vec2 pos)
 
 	registry.collectibles.emplace(entity);
 
-	registry.renderRequests.insert(
-	entity,
-	{
-		TEXTURE_ASSET_ID::HEART,
-		EFFECT_ASSET_ID::TEXTURED,
-		GEOMETRY_BUFFER_ID::SPRITE
-	});
+	initHeartAnimationController(entity);
 
 	registry.midgrounds.emplace(entity);
 

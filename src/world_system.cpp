@@ -648,9 +648,13 @@ void WorldSystem::despawn_collectibles(float elapsed_ms) {
 	for (auto& collectibleEntity : registry.collectibles.entities) {
 		Collectible& collectible = registry.collectibles.get(collectibleEntity);
 		collectible.timer -= elapsed_ms;
-		if (collectible.timer < 0) {
+
+        if (collectible.timer < 0) {
 			registry.remove_all_components_of(collectibleEntity);
-		}
+		} else if(collectible.timer <= collectible.duration / 2) {
+            AnimationController& animatedCollectible = registry.animationControllers.get(collectibleEntity);
+            animatedCollectible.changeState(collectibleEntity, AnimationState::Fading);
+        }
 	}
 }
 

@@ -386,10 +386,12 @@ void AISystem::wizardBehaviour(Entity entity, vec3 playerPosition, float elapsed
         animationController.changeState(entity, AnimationState::Idle);
     }
     else {
-		// else, move towards player
-		wizard.aiming = false;
-        animationController.changeState(entity, AnimationState::Running);
-        moveTowardsPlayer(entity, playerPosition, elapsed_ms);
+		// else, move towards player only if not preparing lightening
+        if (!wizard.isPreparingLightening) {
+            wizard.aiming = false;
+            animationController.changeState(entity, AnimationState::Running);
+            moveTowardsPlayer(entity, playerPosition, elapsed_ms);
+        }
     }
 
 	// cooldown to shoot again

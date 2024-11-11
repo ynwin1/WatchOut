@@ -411,10 +411,14 @@ void WorldSystem::update_cooldown(float elapsed_ms) {
 		cooldown.remaining -= elapsed_ms;
 
         if (cooldown.remaining <= 0) {
-            // remove lightening completly
+            // remove lightening
             if (registry.damagings.has(cooldownEntity) && registry.damagings.get(cooldownEntity).type == "lightening") {
                 registry.remove_all_components_of(cooldownEntity);
             }
+			// remove target area
+            else if (registry.targetAreas.has(cooldownEntity)) {
+                registry.remove_all_components_of(cooldownEntity);
+            } 
             else {
                 registry.cooldowns.remove(cooldownEntity);
             }

@@ -396,8 +396,8 @@ void AISystem::wizardBehaviour(Entity entity, vec3 playerPosition, float elapsed
 
 	// cooldown to shoot again
     if (wizard.shooting) {
-		wizard.shootTime += elapsed_ms;
-		if (wizard.shootTime > SHOT_COOLDOWN) {
+		wizard.shoot_cooldown += elapsed_ms;
+		if (wizard.shoot_cooldown > SHOT_COOLDOWN) {
 			wizard.shooting = false;
 		}
         return;
@@ -407,7 +407,7 @@ void AISystem::wizardBehaviour(Entity entity, vec3 playerPosition, float elapsed
 	if (wizard.aiming) {
 		// check if wizard has been preparing lightening
         if (wizard.isPreparingLightening) {
-			// make a decision to trigger lightening or not
+			// make a decision to trigger lightening or keep preparing
 			makeLighteningDecision(wizard, LIGHTNING_PREPARE_TIME, elapsed_ms);
         }
         else {
@@ -469,7 +469,7 @@ void AISystem::makeLighteningDecision(Wizard& wizard, float LIGHTNING_PREPARE_TI
         wizard.shooting = true;
 
 		// reset times
-        wizard.shootTime = 0;
+        wizard.shoot_cooldown = 0;
         wizard.prepareLighteningTime = 0;
         // lightening around the locked target (allows player to move around)
         triggerLightening(wizard.locked_target);
@@ -504,7 +504,7 @@ void AISystem::selectWizardAttack(Entity& entity, vec3 playerPosition, float EDG
         // cast fireball
 		wizard.aiming = false;
         wizard.shooting = true;
-        wizard.shootTime = 0;
+        wizard.shoot_cooldown = 0;
         shootFireball(entity, playerPosition);
     }
 	// set target to shoot lightening around

@@ -52,7 +52,7 @@ private:
 	const unsigned int MAX_HEARTS = 1;
 	const unsigned int MAX_TRAPS = 1;
 
-	const float DIFFICULTY_INTERVAL = 45000.0f;
+	const float DIFFICULTY_INTERVAL = 50000.0f;
 	const unsigned int MAX_TOTAL_ENEMIES = 8;
 
 	// GLFW Window handle

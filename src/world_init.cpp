@@ -450,6 +450,8 @@ Entity createTargetArea(vec3 position, float radius) {
 
 	registry.midgrounds.emplace(entity);
 	registry.targetAreas.emplace(entity);
+	Cooldown& cooldown = registry.cooldowns.emplace(entity);
+	cooldown.remaining = 5000.f; // 5s
 
 	printf("Target area created\n");
 	return entity;

@@ -568,22 +568,37 @@ Entity createGameTimerText(vec2 windowSize) {
 }
 
 Entity createTrapsCounterText(vec2 windowSize) {
-	auto entity = Entity();
+	auto textE = Entity();
 
-	Text& text = registry.texts.emplace(entity);
-	text.value = "Traps: 00";
-	text.position = {(windowSize.x / 2) - 250.0f, windowSize.y - 80.0f}; 
+	vec2 position = {(windowSize.x / 2) - 210.0f, windowSize.y - 80.0f};
+
+	Text& text = registry.texts.emplace(textE);
+	text.position = position;
 	text.scale = 1.5f;
 
 	registry.renderRequests.insert(
-		entity, 
+		textE, 
 		{
 			TEXTURE_ASSET_ID::NONE,
 			EFFECT_ASSET_ID::FONT,
 			GEOMETRY_BUFFER_ID::TEXT
 		});
+
+	auto iconE = Entity();
+
+	Foreground& icon = registry.foregrounds.emplace(iconE);
+	icon.scale = { TRAP_COLLECTABLE_BB_WIDTH * 1.25, TRAP_COLLECTABLE_BB_WIDTH * 1.25 };
+	icon.position = {position.x - 20.0f, position.y + 16.0f};
+
+	registry.renderRequests.insert(
+		iconE, 
+		{
+			TEXTURE_ASSET_ID::TRAPCOLLECTABLE,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
 	
-	return entity;
+	return textE;
 }
 
 Entity createMapTile(vec2 position, vec2 size) {

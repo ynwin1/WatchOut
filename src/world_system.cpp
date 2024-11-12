@@ -123,7 +123,13 @@ void WorldSystem::updateTrapsCounterText() {
     Text& text = registry.texts.get(trapsCounter.textEntity);
     std::stringstream ss;
     ss << std::setw(2) << std::setfill('0') << trapsCounter.count;
-    text.value = "Traps: " + ss.str();
+    text.value = "*" + ss.str();
+
+    if(trapsCounter.count == 0) {
+        text.colour = {0.8f, 0.8f, 0.0f};
+    } else {
+        text.colour = {1.0f, 1.0f, 1.0f};
+    }
 }
 
 bool WorldSystem::step(float elapsed_ms)

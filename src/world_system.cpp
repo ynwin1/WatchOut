@@ -190,6 +190,12 @@ void WorldSystem::handle_collisions()
             else if (registry.damagings.has(entity_other)) {
                 entity_damaging_collision(entity, entity_other, was_damaged);
             }
+            // check if was trapped but is no longer colliding with a trap
+            else if(registry.players.get(entity).isTrapped) {
+                Player& player = registry.players.get(entity);
+                player.isTrapped = false; 
+                player.speed = player.defaultSpeed;
+            }
         }
         else if (registry.enemies.has(entity)) {
             if (registry.traps.has(entity_other)) {
@@ -203,11 +209,11 @@ void WorldSystem::handle_collisions()
             else if (registry.damagings.has(entity_other)) {
                 entity_damaging_collision(entity, entity_other, was_damaged);
             }
-            // check if was slowed but is no longer colliding with a trap
-            else if(registry.enemies.get(entity).isSlowed) {
+            // check if was trapped but is no longer colliding with a trap
+            else if(registry.enemies.get(entity).isTrapped) {
                 Enemy& enemy = registry.enemies.get(entity);
-                enemy.isSlowed = false; 
-                enemy.speed = enemy.originalSpeed;
+                enemy.isTrapped = false; 
+                enemy.speed = enemy.defaultSpeed;
             }
         }
     }
@@ -314,7 +320,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
                 }
                 break;
             case GLFW_KEY_D:
-                if (pressed) {
+                if (pressed && !player_comp.isTrapped) {
                     if (player_stamina.stamina > 0) { 
                         const float dashDistance = 300;
                         // Start dashing if player is moving
@@ -327,7 +333,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
                 break;
 		    case GLFW_KEY_SPACE:
                 // Jump
-                if (pressed) {
+                if (pressed && !player_comp.isTrapped) {
                     const float min_stamina_for_jump = 10.0f;
                     if (player_stamina.stamina >= min_stamina_for_jump && !player_comp.tryingToJump) {
                         player_comp.tryingToJump = true;
@@ -533,15 +539,32 @@ void WorldSystem::entity_trap_collision(Entity entity, Entity entity_other, std:
     Trap& trap = registry.traps.get(entity_other);
 
     if (registry.players.has(entity)) {
-        // printf("Player hit a trap\n");
+        printf("Player hit a trap\n");
+        Player& player = registry.players.get(playerEntity);
 
-        // // reduce player health
-        // Player& player = registry.players.get(entity);
-        // int new_health = player.health - trap.damage;
-        // player.health = new_health < 0 ? 0 : new_health;
-		// was_damaged.push_back(entity);
-        // printf("Player health reduced by trap from %d to %d\n", player.health + trap.damage, player.health);
-        // checkAndHandlePlayerDeath(entity);
+        // entity can only be damaged once per trap
+        bool alreadyDamaged = trap.damagedEntities.find(entity) != trap.damagedEntities.end();
+        if(!alreadyDamaged) {
+            // reduce player health
+            int new_health = player.health - trap.damage;
+            player.health = new_health < 0 ? 0 : new_health;
+            was_damaged.push_back(entity);
+            trap.damagedEntities.insert(entity);
+            printf("Player health reduced by trap from %d to %d\n", player.health + trap.damage, player.health);
+        }
+
+        if(!player.isTrapped) {
+            // apply slow effect
+            player.isTrapped = true;
+            player.speed *= trap.slowFactor;
+
+            // if player is dashing, stop mid-dash 
+            if(registry.dashers.has(entity)) {
+                registry.dashers.get(entity).isDashing = false;
+            }
+        }
+
+        checkAndHandlePlayerDeath(entity);
 	}
 	else if (registry.enemies.has(entity)) {
         printf("Enemy hit a trap\n");
@@ -558,10 +581,9 @@ void WorldSystem::entity_trap_collision(Entity entity, Entity entity_other, std:
             printf("Enemy health reduced from %d to %d\n", enemy.health + trap.damage, enemy.health);
         }
 
-        if(!enemy.isSlowed) {
+        if(!enemy.isTrapped) {
             // apply slow effect
-            enemy.isSlowed = true;
-            enemy.originalSpeed = enemy.speed;
+            enemy.isTrapped = true;
             enemy.speed *= trap.slowFactor;
 
             // if boar is charging, stop mid-charge 

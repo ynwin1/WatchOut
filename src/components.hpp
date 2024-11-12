@@ -16,6 +16,9 @@ struct Player {
 	bool goingRight;	// Key for going right is held down
 	bool tryingToJump;	// Key for jumping is held down
 	bool isMoving;		// Indicates if any movement keys are pressed
+	float defaultSpeed  = 0.5;
+	float speed = 0.5;
+	bool isTrapped = false;
 };
 
 //Stamina
@@ -43,10 +46,10 @@ struct Enemy
 	unsigned int damage = 10;
 	std::string type;
 	unsigned int cooldown = 0;
-	float originalSpeed  = 0;
+	float defaultSpeed  = 0;
 	float speed = 0;
 	float pathfindTime = 0;
-	bool isSlowed = false;
+	bool isTrapped = false;
 };
 
 struct Damaging {

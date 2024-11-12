@@ -361,6 +361,69 @@ void AISystem::archerBehaviour(Entity entity, vec3 playerPosition, float elapsed
         moveTowardsPlayer(entity, playerPosition, elapsed_ms);
     }
 }
+void AISystem::moveIndividualBird(Entity bird, vec3 targetPosition, bool inAttackMode, float elapsed_ms) {
+    const float SWARM_SPEED = 0.5f;
+    const float ATTACK_SPEED_MULTIPLIER = 2.0f;
+
+    // Access the bird's Motion and AnimationController components
+    Motion& birdMotion = registry.motions.get(bird);
+    AnimationController& animationController = registry.animationControllers.get(bird);
+
+    // Determine movement direction: towards the target position
+    vec2 targetDirection = glm::normalize(vec2(targetPosition) - vec2(birdMotion.position));
+
+    // Set velocity and animation state based on the attack mode
+    if (inAttackMode) {
+        birdMotion.velocity = vec3(targetDirection * SWARM_SPEED * ATTACK_SPEED_MULTIPLIER, 0.0f);
+        animationController.changeState(bird, AnimationState::Dead);
+    } else {
+        birdMotion.velocity = vec3(targetDirection * SWARM_SPEED, 0.0f);
+    }
+
+    // Apply a slight random jitter for more natural movement
+    birdMotion.velocity += vec3(randomDirection() * 0.1f, 0.0f);
+}
+
+// void AISystem::moveBirdSwarmTowardsPlayer(std::vector<Entity>& birds, vec3 playerPosition, float elapsed_ms) {
+//     const float BIRD_SWARM_RADIUS = 50.0f;
+//     const float ATTACK_RADIUS = 300.0f;
+
+//     // Calculate the swarm's center position
+//     vec2 swarmCenter(0.0f, 0.0f);
+//     for (Entity bird : birds) {
+//         swarmCenter += vec2(registry.motions.get(bird).position);
+//     }
+//     swarmCenter /= birds.size();
+
+//     // Check if the swarm should be in attack mode
+//     float distanceToPlayer = glm::distance(vec2(playerPosition), swarmCenter);
+//     bool inAttackMode = (distanceToPlayer < ATTACK_RADIUS);
+
+//     // Move each bird individually towards the target position (swarm center or player)
+//     vec3 targetPosition = inAttackMode ? vec3(playerPosition) : vec3(swarmCenter, 0.0f);
+//     for (Entity bird : birds) {
+//         moveIndividualBird(bird, targetPosition, inAttackMode, elapsed_ms);
+//     }
+// }
+
+// void AISystem::birdSwarmBehaviour(std::vector<Entity>& birds, vec3 playerPosition, float elapsed_ms) {
+//     // Filter out inactive birds and handle idle state for dead birds
+//     std::vector<Entity> activeBirds;
+//     for (Entity bird : birds) {
+//         if (!registry.deathTimers.has(bird)) {
+//             activeBirds.push_back(bird);
+//         } else {
+//             // Birds marked as dead switch to Idle state
+//             AnimationController& animationController = registry.animationControllers.get(bird);
+//             animationController.changeState(bird, AnimationState::Idle);
+//         }
+//     }
+
+//     // Control active birds' swarm behavior
+//     moveBirdSwarmTowardsPlayer(activeBirds, playerPosition, elapsed_ms);
+// }
+
+
 
 
 void AISystem::step(float elapsed_ms)
@@ -380,6 +443,9 @@ void AISystem::step(float elapsed_ms)
         }
         else if (registry.archers.has(enemy)) {
             archerBehaviour(enemy, playerPosition, elapsed_ms);
+        }
+        else if (registry.birds.has(enemy)) {
+            moveIndividualBird(enemy, playerPosition, false, elapsed_ms);
         }
     }
 }

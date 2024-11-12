@@ -20,6 +20,11 @@ private:
 	void archerBehaviour(Entity entity, vec3 playerPosition, float elapsed_ms);
 	void shootArrow(Entity shooter, vec3 targetPos);
 
+	void birdSwarmBehaviour(std::vector<Entity>& birds, vec3 playerPosition, float elapsed_ms);
+	void moveBirdSwarmTowardsPlayer(std::vector<Entity>& birds, vec3 playerPosition, float elapsed_ms);
+	void moveIndividualBird(Entity bird, vec3 targetPosition, bool inAttackMode, float elapsed_ms);
+	void birdBehaviour(Entity bird, vec3 playerPosition, float elapsed_ms);
+
 	vec2 randomDirection();
 
 	// C++ random number generator

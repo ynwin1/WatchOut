@@ -6,3 +6,4 @@ AnimationController& initJeffAnimationController(Entity& jeff);
 AnimationController& initBarbarianAnimationController(Entity& entity);
 AnimationController& initBoarAnimationController(Entity& entity);
 AnimationController& initArcherAnimationController(Entity& entity);
+AnimationController& initBirdAnimationController(Entity& entity);

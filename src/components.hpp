@@ -239,11 +239,11 @@ struct Jumper
 
 // Enemy types
 struct Boar {
-	float cooldownTimer = 0;        // Tracks time remaining in cooldown
-    float prepareTimer = 0;         // Tracks time for preparation phase (shaking)
-    float chargeTimer = 0;          // Tracks remaining time for charge duration
-    bool preparing = false;         // Indicates if the boar is in the preparation phase
-    bool charging = false;          // Indicates if the boar is actively charging
+	float cooldownTimer = 0;        
+    float prepareTimer = 0;         
+    float chargeTimer = 0;          
+    bool preparing = false;         
+    bool charging = false;          
 
     vec2 chargeDirection = vec2(0);
 };
@@ -252,6 +252,7 @@ struct Archer {
 	float drawArrowTime = 0;
 	bool aiming = false;
 };
+struct Bird {};
 
 // Collectible types
 struct Heart { unsigned int health = 20; };

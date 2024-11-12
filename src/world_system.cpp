@@ -12,6 +12,7 @@ WorldSystem::WorldSystem(std::default_random_engine& rng) :
         {"boar", createBoar},
         {"barbarian", createBarbarian},
         {"archer", createArcher},
+        {"bird", createBird},
         {"heart", createHeart},
 		{"collectible_trap", createCollectibleTrap}
         }),
@@ -19,6 +20,7 @@ WorldSystem::WorldSystem(std::default_random_engine& rng) :
         {"boar", ORIGINAL_BOAR_SPAWN_DELAY},
         {"barbarian", ORIGINAL_BABARIAN_SPAWN_DELAY},
         {"archer", ORIGINAL_ARCHER_SPAWN_DELAY},
+        {"bird", ORIGINAL_BIRD_SPAWN_DELAY},
 		{"heart", ORIGINAL_HEART_SPAWN_DELAY},
 		{"collectible_trap", ORIGINAL_TRAP_SPAWN_DELAY}
         }),
@@ -26,6 +28,7 @@ WorldSystem::WorldSystem(std::default_random_engine& rng) :
         {"boar", 2},
         {"barbarian", 2},
         {"archer", 1},
+        {"bird", 1},
         {"heart", 1},
         {"collectible_trap", 1}
         })
@@ -70,6 +73,7 @@ void WorldSystem::restart_game()
         "barbarian",
         "boar",
         "archer",
+        "bird",
         "heart",
         "collectible_trap"
     };
@@ -778,6 +782,7 @@ void WorldSystem::resetSpawnSystem() {
 	spawn_delays.at("boar") = ORIGINAL_BOAR_SPAWN_DELAY;
 	spawn_delays.at("barbarian") = ORIGINAL_BABARIAN_SPAWN_DELAY;
 	spawn_delays.at("archer") = ORIGINAL_ARCHER_SPAWN_DELAY;
+    spawn_delays.at("bird") = ORIGINAL_BIRD_SPAWN_DELAY;
 	spawn_delays.at("heart") = ORIGINAL_HEART_SPAWN_DELAY;
 	spawn_delays.at("collectible_trap") = ORIGINAL_TRAP_SPAWN_DELAY;
 
@@ -785,6 +790,7 @@ void WorldSystem::resetSpawnSystem() {
 	max_entities.at("boar") = MAX_BOARS;
 	max_entities.at("barbarian") = MAX_BABARIANS;
 	max_entities.at("archer") = MAX_ARCHERS;
+    max_entities.at("bird") = MAX_BIRDS;
 	max_entities.at("heart") = MAX_HEARTS;
 	max_entities.at("collectible_trap") = MAX_TRAPS;
 }

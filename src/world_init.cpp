@@ -96,6 +96,37 @@ Entity createArcher(vec2 pos)
 	return entity;
 };
 
+// Bird creation
+Entity createBird(vec2 pos)
+{
+    auto entity = Entity();
+
+    // Setting initial motion values
+    Motion& motion = registry.motions.emplace(entity);
+
+    // Set bird to fly above the tree height
+    motion.position = vec3(pos, getElevation(pos) + TREE_BB_HEIGHT + BIRD_BB_HEIGHT / 2 + 10.0f); // 10.0f offset to hover above tree
+    motion.angle = 0.f;
+    motion.scale = { BIRD_BB_WIDTH, BIRD_BB_HEIGHT };
+    motion.hitbox = { BIRD_BB_WIDTH, BIRD_BB_HEIGHT, BIRD_BB_HEIGHT / zConversionFactor };
+    motion.solid = true;
+
+    Enemy& enemy = registry.enemies.emplace(entity);
+    enemy.damage = 20;
+    enemy.cooldown = 2000.f; // 2s
+    enemy.speed = BIRD_SPEED;
+
+    registry.birds.emplace(entity);
+
+    initBirdAnimationController(entity);
+    registry.midgrounds.emplace(entity);
+
+    createHealthBar(entity, vec3(1.0f, 0.0f, 0.0f));
+
+    return entity;
+}
+
+
 // Collectible trap creation
 Entity createCollectibleTrap(vec2 pos)
 {

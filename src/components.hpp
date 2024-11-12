@@ -80,6 +80,10 @@ struct Collectible
 	vec2 scale = { 3, 3 };
 };
 
+struct Collected {
+	float duration = 2500;
+};
+
 // Trap Component
 struct Trap
 {

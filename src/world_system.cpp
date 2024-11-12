@@ -124,6 +124,16 @@ void WorldSystem::updateTrapsCounterText() {
     text.value = "Traps: " + ss.str();
 }
 
+void WorldSystem::updateCollectedTimer(float elapsed_ms) {
+    for (Entity entity : registry.collected.entities) {
+        Collected& collected = registry.collected.get(entity);
+        collected.duration -= elapsed_ms;
+        if (collected.duration < 0) {
+            registry.remove_all_components_of(entity);
+        }
+    }
+}
+
 bool WorldSystem::step(float elapsed_ms)
 {
     adjustSpawnSystem(elapsed_ms);
@@ -137,6 +147,7 @@ bool WorldSystem::step(float elapsed_ms)
     updateTrapsCounterText();
     toggleMesh();
     despawnTraps(elapsed_ms);
+    updateCollectedTimer(elapsed_ms);
 
     if (camera->isToggled()) {
         Motion& playerMotion = registry.motions.get(playerEntity);
@@ -494,16 +505,20 @@ void WorldSystem::entity_collectible_collision(Entity entity, Entity entity_othe
 
     // handle different collectibles
     Player& player = registry.players.get(entity);
+    Motion& playerM = registry.motions.get(entity);
+    Motion& collectibleM = registry.motions.get(entity_other);
 	Collectible& collectible = registry.collectibles.get(entity_other);
 
     if (registry.collectibleTraps.has(entity_other)) {
         trapsCounter.count++;
+        createCollected(playerM, collectibleM.scale, TEXTURE_ASSET_ID::TRAPCOLLECTABLE);
         printf("Player collected a trap. Trap count is now %d\n", trapsCounter.count);
     }
     else if (registry.hearts.has(entity_other)) {
         unsigned int health = registry.hearts.get(entity_other).health;
         unsigned int addOn = player.health <= 80 ? health : 100 - player.health;
         player.health += addOn;
+        createCollected(playerM, collectibleM.scale, TEXTURE_ASSET_ID::HEART);
 		printf("Player collected a heart\n");
 	}
 	else {

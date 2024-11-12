@@ -142,6 +142,27 @@ Entity createHeart(vec2 pos)
 	return entity;
 };
 
+Entity createCollected(Motion& playerM, vec2 size, TEXTURE_ASSET_ID assetID)
+{
+	auto entity = Entity();
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.scale = { size.x * 0.7, size.y * 0.7};
+
+	registry.collected.emplace(entity);
+	registry.midgrounds.emplace(entity);
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			assetID,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	return entity;
+};
+
 // Damage trap creation
 Entity createDamageTrap(vec2 pos)
 {

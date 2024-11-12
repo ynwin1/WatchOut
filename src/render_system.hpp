@@ -132,6 +132,8 @@ private:
 
 	void updateEntityFacing();
 
+	void updateCollectedPosition();
+
 	// Window handle
 	GLFWwindow* window;
 };

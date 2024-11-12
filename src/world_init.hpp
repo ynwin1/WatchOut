@@ -72,6 +72,9 @@ Entity createCollectibleTrap(vec2 pos);
 // The collectible heart
 Entity createHeart(vec2 pos);
 
+// indicator showing the collected item
+Entity createCollected(Motion& playerM, vec2 size, TEXTURE_ASSET_ID assetID);
+
 // The damage trap
 Entity createDamageTrap(vec2 pos);
 

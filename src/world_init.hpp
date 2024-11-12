@@ -99,7 +99,7 @@ Entity createTrapsCounterText(vec2 windowSize);
 // GameOver
 Entity createGameOver(vec2 pos);
 
-void createHealthBar(Entity characterEntity, vec3 color);
+void createHealthBar(Entity characterEntity, vec4 color);
 void createPlayerHealthBar(Entity characterEntity, vec2 windowSize);
 void createPlayerStaminaBar(Entity characterEntity, vec2 windowSize);
 

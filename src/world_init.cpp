@@ -35,7 +35,7 @@ Entity createBoar(vec2 pos)
 	initBoarAnimationController(entity);
 	registry.midgrounds.emplace(entity);
 
-	createHealthBar(entity, vec3(1.0f, 0.0f, 0.0f));
+	createHealthBar(entity, vec4(1.0f, 0.0f, 0.0f, 1.0f));
 	
 	return entity;
 };
@@ -63,7 +63,7 @@ Entity createBarbarian(vec2 pos)
 	initBarbarianAnimationController(entity);
 	registry.midgrounds.emplace(entity);
 
-	createHealthBar(entity, vec3(1.0f, 0.0f, 0.0f));
+	createHealthBar(entity, vec4(1.0f, 0.0f, 0.0f, 1.0f));
 
 	return entity;
 };
@@ -91,7 +91,7 @@ Entity createArcher(vec2 pos)
 	initArcherAnimationController(entity);
 	registry.midgrounds.emplace(entity);
 
-	createHealthBar(entity, vec3(1.0f, 0.0f, 0.0f));
+	createHealthBar(entity, vec4(1.0f, 0.0f, 0.0f, 1.0f));
 	
 	return entity;
 };
@@ -306,7 +306,7 @@ void createPlayerStaminaBar(Entity characterEntity, vec2 windowSize) {
 	fg.position = position;
 	fg.scale = { width, height };
 
-	vec3 colour = vec3(0.0f, 0.0f, 1.0f);
+	vec4 colour = vec4(0.0f, 0.0f, 1.0f, 1.0f);
 	registry.colours.insert(meshE, colour);
 
 	registry.renderRequests.insert(
@@ -334,8 +334,9 @@ void createPlayerStaminaBar(Entity characterEntity, vec2 windowSize) {
 
 	auto textE = Entity();
 	Text& text = registry.texts.emplace(textE);
-	text.scale = 0.8f;
-	text.position = {position.x - 100.0f, position.y};
+	Foreground& textFg = registry.foregrounds.emplace(textE);
+	textFg.scale = {0.8f, 0.8f};
+	textFg.position = {position.x - 100.0f, position.y};
 	registry.renderRequests.insert(
 		textE,
 		{
@@ -361,7 +362,7 @@ void createPlayerHealthBar(Entity characterEntity, vec2 windowSize) {
 	fg.position = position;
 	fg.scale = {width, height};
 
-	vec3 green = vec3(0.0f, 1.0f, 0.0f);
+	vec4 green = vec4(0.0f, 1.0f, 0.0f, 1.0f);
 
 	registry.colours.insert(meshE, green);
 
@@ -390,8 +391,9 @@ void createPlayerHealthBar(Entity characterEntity, vec2 windowSize) {
 
 	auto textE = Entity();
 	Text& text = registry.texts.emplace(textE);
-	text.scale = 0.8f;
-	text.position = {position.x - 32.0f, position.y};
+	Foreground& textFg = registry.foregrounds.emplace(textE);
+	textFg.scale = {0.8f, 0.8f};
+	textFg.position = {position.x - 32.0f, position.y};
 	registry.renderRequests.insert(
 		textE,
 		{
@@ -405,7 +407,7 @@ void createPlayerHealthBar(Entity characterEntity, vec2 windowSize) {
 	hpbar.textEntity = textE;
 }
 
-void createHealthBar(Entity characterEntity, vec3 color) {
+void createHealthBar(Entity characterEntity, vec4 color) {
 	auto meshEntity = Entity();
 
 	const float width = 60.0f;
@@ -455,8 +457,9 @@ Entity createPauseHelpText(vec2 windowSize) {
 
 	Text& text = registry.texts.emplace(entity);
 	text.value = "PAUSE/PLAY(P)    HELP (H)";
-	text.position = {windowSize.x - 550, windowSize.y - 70.0f};
-	text.scale = 1.5f;
+	Foreground& fg = registry.foregrounds.emplace(entity);
+	fg.position = {windowSize.x - 550, windowSize.y - 70.0f};
+	fg.scale = {1.5f, 1.5f};
 
 	registry.renderRequests.insert(
 		entity, 
@@ -534,8 +537,9 @@ Entity createFPSText(vec2 windowSize) {
 	Text& text = registry.texts.emplace(entity);
 	text.value = "00 fps";
 	// text position based on screen coordinates
-	text.position = {30.0f, windowSize.y - 40.0f};
-	text.scale = 0.8f;
+	Foreground& fg = registry.foregrounds.emplace(entity);
+	fg.position = {30.0f, windowSize.y - 40.0f};
+	fg.scale = {0.8f, 0.8f};
 
 	registry.renderRequests.insert(
 			entity, 
@@ -553,8 +557,9 @@ Entity createGameTimerText(vec2 windowSize) {
 
 	Text& text = registry.texts.emplace(entity);
 	text.value = "00:00:00";
-	text.position = {(windowSize.x / 2) + 50.0f, windowSize.y - 80.0f}; 
-	text.scale = 2.0f;
+	Foreground& fg = registry.foregrounds.emplace(entity);
+	fg.position = {(windowSize.x / 2) + 50.0f, windowSize.y - 80.0f};
+	fg.scale = {2.0f, 2.0f};
 
 	registry.renderRequests.insert(
 		entity, 
@@ -573,8 +578,9 @@ Entity createTrapsCounterText(vec2 windowSize) {
 	vec2 position = {(windowSize.x / 2) - 210.0f, windowSize.y - 80.0f};
 
 	Text& text = registry.texts.emplace(textE);
-	text.position = position;
-	text.scale = 1.5f;
+	Foreground& fg = registry.foregrounds.emplace(textE);
+	fg.position = position;
+	fg.scale = {1.5f, 1.5f};
 
 	registry.renderRequests.insert(
 		textE, 
@@ -778,39 +784,57 @@ void createMapTiles() {
 }
 
 void createGameOverText(vec2 windowSize) {
+	auto backdrop = Entity();
+	Foreground& backdropFg = registry.foregrounds.emplace(backdrop);
+	backdropFg.position = {0.0f, 0.0f};
+	backdropFg.scale = {windowSize.x, windowSize.y};
+
+	vec4 black = vec4(0.0f, 0.0f, 0.0f, 0.6f);
+	registry.colours.insert(backdrop, black);
+	registry.renderRequests.insert(
+		backdrop,
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::UNTEXTURED,
+			GEOMETRY_BUFFER_ID::RECTANGLE
+		});
+
 	GameTimer& gameTimer = registry.gameTimer;
 	std::vector<Entity> entities;
 
 	auto entity1 = Entity();
 	Text& text1 = registry.texts.emplace(entity1);
+	Foreground& text1Fg = registry.foregrounds.emplace(entity1);
 	text1.value = "GAME OVER";
-	text1.position = {windowSize.x / 2 - 315.0f, windowSize.y / 2 + 50.0f};
-	text1.scale = 4.0f;
-	text1.colour = {0.85f, 0.0f, 0.0f};
+	text1Fg.position = {windowSize.x / 2 - 315.0f, windowSize.y / 2 + 50.0f};
+	text1Fg.scale = {4.0f, 4.0f};
+	registry.colours.insert(entity1, {0.85f, 0.0f, 0.0f, 1.0f});
 	
 	auto entity2 = Entity();
 	Text& text2 = registry.texts.emplace(entity2);
-	text2.position = {windowSize.x / 2 - 160.f, windowSize.y / 2};
-	text2.scale = 1.0f;
-	text2.colour = {1.0f, 0.85f, 0.0f};
+	Foreground& text2Fg = registry.foregrounds.emplace(entity2);
+	text2Fg.position = {windowSize.x / 2 - 160.f, windowSize.y / 2};
+	text2Fg.scale = {1.0f, 1.0f};
+	registry.colours.insert(entity2, {1.0f, 0.85f, 0.0f, 1.0f});
 	std::ostringstream oss;
     oss << "You survived for ";
     if (gameTimer.hours > 0) {
         oss << gameTimer.hours << "h ";
-		text2.position.x -= 20.f;
+		text2Fg.position.x -= 20.f;
     }
     if (gameTimer.minutes > 0 || gameTimer.hours > 0) {
         oss << gameTimer.minutes << "m ";
-		text2.position.x -= 40.f;
+		text2Fg.position.x -= 40.f;
     }
     oss << gameTimer.seconds << "s";
 	text2.value = oss.str();
 
 	auto entity3 = Entity();
 	Text& text3 = registry.texts.emplace(entity3);
-	text3.position = {windowSize.x / 2 - 165.f, windowSize.y / 2 - 80.f};
-	text3.scale = 0.8f;
 	text3.value = "Press ENTER to play again";
+	Foreground& text3Fg = registry.foregrounds.emplace(entity3);
+	text3Fg.position = {windowSize.x / 2 - 165.f, windowSize.y / 2 - 80.f};
+	text3Fg.scale = {0.8f, 0.8f};
 
 	entities.push_back(entity1);
 	entities.push_back(entity2);

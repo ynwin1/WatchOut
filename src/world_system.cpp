@@ -126,9 +126,9 @@ void WorldSystem::updateTrapsCounterText() {
     text.value = "*" + ss.str();
 
     if(trapsCounter.count == 0) {
-        text.colour = {0.8f, 0.8f, 0.0f};
+        registry.colours.insert(trapsCounter.textEntity, {0.8f, 0.8f, 0.0f, 1.0f});
     } else {
-        text.colour = {1.0f, 1.0f, 1.0f};
+        registry.colours.remove(trapsCounter.textEntity);
     }
 }
 

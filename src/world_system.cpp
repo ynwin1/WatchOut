@@ -532,12 +532,24 @@ void WorldSystem::entity_trap_collision(Entity entity, Entity entity_other, std:
         printf("Enemy hit a trap\n");
         Enemy& enemy = registry.enemies.get(entity);
 
+        // entity can only be damaged once per trap
+        bool alreadyDamaged = trap.damagedEntities.find(entity) != trap.damagedEntities.end();
+        if(!alreadyDamaged) {
+            // reduce enemy health
+            int new_health = enemy.health - trap.damage;
+            enemy.health = new_health < 0 ? 0 : new_health;
+            was_damaged.push_back(entity);
+            trap.damagedEntities.insert(entity);
+            printf("Enemy health reduced from %d to %d\n", enemy.health + trap.damage, enemy.health);
+        }
+
         if(!enemy.isSlowed) {
+            // apply slow effect
             enemy.isSlowed = true;
             enemy.originalSpeed = enemy.speed;
             enemy.speed *= trap.slowFactor;
 
-            // stop boar charging
+            // if boar is charging, stop mid-charge 
             if(registry.boars.has(entity)) {
                 registry.boars.get(entity).charging = false;
             }

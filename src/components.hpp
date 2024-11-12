@@ -2,6 +2,7 @@
 #include "common.hpp"
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 
 
 // PlayerComponents 
@@ -42,8 +43,10 @@ struct Enemy
 	unsigned int damage = 10;
 	std::string type;
 	unsigned int cooldown = 0;
+	float originalSpeed  = 0;
 	float speed = 0;
 	float pathfindTime = 0;
+	bool isSlowed = false;
 };
 
 struct Damaging {
@@ -84,13 +87,9 @@ struct Trap
 	vec2 position = { 0, 0 };
 	vec2 scale = { 3, 3 };
 	unsigned int damage = 15.0;
-};
-
-struct Slowed {
-	float initialEntitySpeed;
+	float duration = 5000;
 	float slowFactor = 0.1f;
-	float duration = 3500;
-	float timer = 0;
+	std::unordered_set<int> damagedEntities;
 };
 
 // All data relevant to the shape and motion of entities

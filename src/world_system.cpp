@@ -136,7 +136,7 @@ bool WorldSystem::step(float elapsed_ms)
     updateGameTimer(elapsed_ms);
     updateTrapsCounterText();
     toggleMesh();
-    updatedSlowedEntities(elapsed_ms);
+    despawnTraps(elapsed_ms);
 
     if (camera->isToggled()) {
         Motion& playerMotion = registry.motions.get(playerEntity);
@@ -191,6 +191,12 @@ void WorldSystem::handle_collisions()
             }
             else if (registry.damagings.has(entity_other)) {
                 entity_damaging_collision(entity, entity_other, was_damaged);
+            }
+            // check if was slowed but is no longer colliding with a trap
+            else if(registry.enemies.get(entity).isSlowed) {
+                Enemy& enemy = registry.enemies.get(entity);
+                enemy.isSlowed = false; 
+                enemy.speed = enemy.originalSpeed;
             }
         }
     }
@@ -394,17 +400,12 @@ void WorldSystem::update_player_facing(Player& player, Motion& motion)
     }
 }
 
-void WorldSystem::updatedSlowedEntities(float elapsed_ms) {
-    for (Entity& entity : registry.slowed.entities) {
-        Slowed& slowed = registry.slowed.get(entity);
-        slowed.timer += elapsed_ms;
-
-        if(slowed.timer >= slowed.duration) {
-            if(registry.enemies.has(entity)) {
-                Enemy& enemy = registry.enemies.get(entity);
-                enemy.speed = slowed.initialEntitySpeed;
-            }
-            registry.slowed.remove(entity);
+void WorldSystem::despawnTraps(float elapsed_ms) {
+    for (Entity& trapE : registry.traps.entities) {
+        Trap& trap = registry.traps.get(trapE);
+        trap.duration -= elapsed_ms;
+        if (trap.duration <= 0) {
+            registry.remove_all_components_of(trapE);
         }
     }
 }
@@ -517,31 +518,24 @@ void WorldSystem::entity_trap_collision(Entity entity, Entity entity_other, std:
     Trap& trap = registry.traps.get(entity_other);
 
     if (registry.players.has(entity)) {
-        printf("Player hit a trap\n");
+        // printf("Player hit a trap\n");
 
-        // reduce player health
-        Player& player = registry.players.get(entity);
-        int new_health = player.health - trap.damage;
-        player.health = new_health < 0 ? 0 : new_health;
-		was_damaged.push_back(entity);
-        printf("Player health reduced by trap from %d to %d\n", player.health + trap.damage, player.health);
-        checkAndHandlePlayerDeath(entity);
+        // // reduce player health
+        // Player& player = registry.players.get(entity);
+        // int new_health = player.health - trap.damage;
+        // player.health = new_health < 0 ? 0 : new_health;
+		// was_damaged.push_back(entity);
+        // printf("Player health reduced by trap from %d to %d\n", player.health + trap.damage, player.health);
+        // checkAndHandlePlayerDeath(entity);
 	}
 	else if (registry.enemies.has(entity)) {
         printf("Enemy hit a trap\n");
-        
-        // reduce enemy health
         Enemy& enemy = registry.enemies.get(entity);
-        int new_health = enemy.health - trap.damage;
-        enemy.health = new_health < 0 ? 0 : new_health;
-        was_damaged.push_back(entity);
-        printf("Enemy health reduced from %d to %d\n", enemy.health + trap.damage, enemy.health);
 
-        //apply slow effect
-        if(!registry.slowed.has(entity)) {
-            Slowed& slowed = registry.slowed.emplace(entity);
-            slowed.initialEntitySpeed = enemy.speed;
-            enemy.speed *= slowed.slowFactor;
+        if(!enemy.isSlowed) {
+            enemy.isSlowed = true;
+            enemy.originalSpeed = enemy.speed;
+            enemy.speed *= trap.slowFactor;
 
             // stop boar charging
             if(registry.boars.has(entity)) {
@@ -555,9 +549,6 @@ void WorldSystem::entity_trap_collision(Entity entity, Entity entity_other, std:
 		printf("Entity is not a player or enemy\n");
 		return;
 	}
-
-    // destroy the trap
-    registry.remove_all_components_of(entity_other);
 }
 
 void WorldSystem::entity_damaging_collision(Entity entity, Entity entity_other, std::vector<Entity>& was_damaged)

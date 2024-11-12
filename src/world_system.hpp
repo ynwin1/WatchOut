@@ -95,7 +95,8 @@ private:
 	void toggleMesh();
 	void adjustSpawnSystem(float elapsed_ms);
 	void resetSpawnSystem();
-	void updatedSlowedEntities(float elapsed_ms);
+	void updateSlowedEntities(float elapsed_ms);
+	void despawnTraps(float elapsed_ms);
 
 	// Collision functions
 	void entity_collectible_collision(Entity entity, Entity collectible);

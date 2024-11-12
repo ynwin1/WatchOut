@@ -185,7 +185,7 @@ void AISystem::boarBehaviour(Entity boar, vec3 playerPosition, float elapsed_ms)
 {
 
     // boar can't charge if slowed
-    if(registry.slowed.has(boar)) {
+    if(registry.enemies.has(boar) && registry.enemies.get(boar).isSlowed) {
         moveTowardsPlayer(boar, playerPosition, elapsed_ms);
         return;
     }

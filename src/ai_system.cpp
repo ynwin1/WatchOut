@@ -379,9 +379,11 @@ void AISystem::moveIndividualBird(Entity bird, vec3 targetPosition, bool inAttac
     } else {
         birdMotion.velocity = vec3(targetDirection * SWARM_SPEED, 0.0f);
     }
-
+    vec2 direction = chooseDirection(birdMotion, targetPosition);
     // Apply a slight random jitter for more natural movement
     birdMotion.velocity += vec3(randomDirection() * 0.1f, 0.0f);
+    birdMotion.facing = direction;
+    
 }
 
 // void AISystem::moveBirdSwarmTowardsPlayer(std::vector<Entity>& birds, vec3 playerPosition, float elapsed_ms) {

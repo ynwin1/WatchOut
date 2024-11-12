@@ -86,6 +86,13 @@ struct Trap
 	unsigned int damage = 15.0;
 };
 
+struct Slowed {
+	float initialEntitySpeed;
+	float slowFactor = 0.1f;
+	float duration = 3500;
+	float timer = 0;
+};
+
 // All data relevant to the shape and motion of entities
 struct Motion {
 	vec3 position = { 0, 0, 0 };

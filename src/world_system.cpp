@@ -136,6 +136,7 @@ bool WorldSystem::step(float elapsed_ms)
     updateGameTimer(elapsed_ms);
     updateTrapsCounterText();
     toggleMesh();
+    updatedSlowedEntities(elapsed_ms);
 
     if (camera->isToggled()) {
         Motion& playerMotion = registry.motions.get(playerEntity);
@@ -393,6 +394,21 @@ void WorldSystem::update_player_facing(Player& player, Motion& motion)
     }
 }
 
+void WorldSystem::updatedSlowedEntities(float elapsed_ms) {
+    for (Entity& entity : registry.slowed.entities) {
+        Slowed& slowed = registry.slowed.get(entity);
+        slowed.timer += elapsed_ms;
+
+        if(slowed.timer >= slowed.duration) {
+            if(registry.enemies.has(entity)) {
+                Enemy& enemy = registry.enemies.get(entity);
+                enemy.speed = slowed.initialEntitySpeed;
+            }
+            registry.slowed.remove(entity);
+        }
+    }
+}
+
 void WorldSystem::update_cooldown(float elapsed_ms) {
     for (auto& cooldownEntity : registry.cooldowns.entities) {
         Cooldown& cooldown = registry.cooldowns.get(cooldownEntity);
@@ -513,13 +529,26 @@ void WorldSystem::entity_trap_collision(Entity entity, Entity entity_other, std:
 	}
 	else if (registry.enemies.has(entity)) {
         printf("Enemy hit a trap\n");
-
+        
         // reduce enemy health
         Enemy& enemy = registry.enemies.get(entity);
         int new_health = enemy.health - trap.damage;
         enemy.health = new_health < 0 ? 0 : new_health;
         was_damaged.push_back(entity);
         printf("Enemy health reduced from %d to %d\n", enemy.health + trap.damage, enemy.health);
+
+        //apply slow effect
+        if(!registry.slowed.has(entity)) {
+            Slowed& slowed = registry.slowed.emplace(entity);
+            slowed.initialEntitySpeed = enemy.speed;
+            enemy.speed *= slowed.slowFactor;
+
+            // stop boar charging
+            if(registry.boars.has(entity)) {
+                registry.boars.get(entity).charging = false;
+            }
+        }
+      
 		checkAndHandleEnemyDeath(entity);
 	}
 	else {

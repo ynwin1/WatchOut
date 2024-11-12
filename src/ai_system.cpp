@@ -183,6 +183,13 @@ bool AISystem::pathClear(Motion& motion, vec2 direction, float howFar, const std
 
 void AISystem::boarBehaviour(Entity boar, vec3 playerPosition, float elapsed_ms)
 {
+
+    // boar can't charge if slowed
+    if(registry.slowed.has(boar)) {
+        moveTowardsPlayer(boar, playerPosition, elapsed_ms);
+        return;
+    }
+
     const float BOAR_AGGRO_RANGE = 500;
     const float BOAR_DISENGAGE_RANGE = 700;
     const float BOAR_PREPARE_TIME = 500; 

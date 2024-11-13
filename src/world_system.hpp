@@ -52,7 +52,7 @@ private:
 	const unsigned int MAX_TRAPS = 1;
 
 	const float DIFFICULTY_INTERVAL = 45000.0f;
-	const unsigned int MAX_TOTAL_ENEMIES = 8;
+	const unsigned int MAX_TOTAL_ENEMIES = 100;
 
 	// GLFW Window handle
 	GLFWwindow* window;

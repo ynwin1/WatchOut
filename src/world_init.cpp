@@ -723,7 +723,7 @@ Entity createHighScoreText(vec2 windowSize, int hours, int minutes, int seconds)
 	text.position = {windowSize.x / 2 - 165.f, windowSize.y / 2 - 80.f};
 	text.scale = 0.8f;
 	text.colour = {1.0f, 0.85f, 0.0f};
-    text.value = "Your HighScore is " + std::to_string(hours) + "h " + std::to_string(minutes) + "m " + std::to_string(seconds) + "s ";
+    text.value = "Your High Score is  " + std::to_string(hours) + "h " + std::to_string(minutes) + "m " + std::to_string(seconds) + "s ";
 
 	registry.renderRequests.insert(
 		entity, 

@@ -24,3 +24,12 @@ public:
 private:
 	Mix_Music* backgroundMusic;
 };
+
+/*
+Sound credits
+- Background music: https://freesound.org/people/NoiseCollector/sounds/57027/
+- Arrow: 
+- Boar charge: https://freesound.org/people/Robinhood76/sounds/76796/
+
+
+*/

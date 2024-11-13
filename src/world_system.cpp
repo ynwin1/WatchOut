@@ -431,6 +431,11 @@ void WorldSystem::handle_deaths(float elapsed_ms) {
         DeathTimer& deathTimer = registry.deathTimers.get(deathEntity);
         deathTimer.timer -= elapsed_ms;
         if (deathTimer.timer < 0) {
+            // Remove
+            if (registry.motions.has(deathEntity)) {
+                Motion& motion = registry.motions.get(deathEntity);
+                createHeart({ motion.position.x, motion.position.y });
+            }
             registry.remove_all_components_of(deathEntity);
         }
     }
@@ -672,6 +677,7 @@ void WorldSystem::checkAndHandleEnemyDeath(Entity enemy) {
         Motion& motion = registry.motions.get(enemy);
         motion.velocity = { 0, 0, motion.velocity.z }; // Stop enemy movement
         motion.angle = 1.57f; // Rotate enemy 90 degrees
+        motion.hitbox = { motion.hitbox.z, motion.hitbox.y, motion.hitbox.x }; // Change hitbox to be on its side
         printf("Enemy %d died with health %d\n", (unsigned int)enemy, enemyData.health);
 
         if (registry.animationControllers.has(enemy)) {

@@ -25,9 +25,10 @@ int main()
 	WorldSystem world = WorldSystem(rng);
 	RenderSystem renderer;
 	PhysicsSystem physics;
-	AISystem ai = AISystem(rng);
-	Camera camera;
 	SoundSystem sound;
+	AISystem ai = AISystem(rng, &sound);
+	Camera camera;
+	
 
 	// Initializing window
 	GLFWwindow* window = renderer.create_window();

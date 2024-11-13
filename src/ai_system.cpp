@@ -1,6 +1,7 @@
 #include "ai_system.hpp"
 #include "world_init.hpp"
 #include "physics_system.hpp"
+#include "sound_system.hpp"
 
 
 const float BOAR_AGGRO_RANGE = 500;
@@ -11,9 +12,10 @@ const float BOAR_COOLDOWN_TIME = 500;
 const float BOAR_CHARGE_SPEED = 1.0f;
 
 
-AISystem::AISystem(std::default_random_engine& rng)
+AISystem::AISystem(std::default_random_engine& rng, SoundSystem* sound)
 {
     this->rng = rng;
+	this->sound = sound;
 }
 
 vec2 AISystem::randomDirection()
@@ -330,6 +332,7 @@ void AISystem::shootArrow(Entity shooter, vec3 targetPos)
     vec2 horizontal_velocity = velocity * cos(ARROW_ANGLE) * horizontal_direction;
     float vertical_velocity = velocity * sin(ARROW_ANGLE);
     createArrow(pos, vec3(horizontal_velocity, vertical_velocity));
+	sound->playSoundEffect(audio_path("arrow.wav"), 0);
 }
 
 void AISystem::archerBehaviour(Entity entity, vec3 playerPosition, float elapsed_ms)

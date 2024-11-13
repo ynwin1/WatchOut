@@ -46,7 +46,7 @@ void SoundSystem::playMusic(std::string path, int duration)
 	// Mix_FreeMusic(music);
 }
 
-// count - number of times to play the sound
+// count - number of times to play the sound, 0 means once, -1 means infinite loop
 void SoundSystem::playSoundEffect(std::string path, int count)
 {
 	Mix_Chunk* sound = Mix_LoadWAV(path.c_str());

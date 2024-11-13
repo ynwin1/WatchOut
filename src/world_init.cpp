@@ -399,13 +399,6 @@ Entity createPauseMenu(vec2 cameraPosition) {
 	return entity;
 }
 
-
-void exitPauseMenu() {
-	for (auto& entity: registry.pauseMenuComponents.entities) {
-		registry.remove_all_components_of(entity);
-	}
-}
-
 Entity createHelpMenu(vec2 cameraPosition) {
 	auto entity = Entity();
 

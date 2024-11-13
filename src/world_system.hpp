@@ -7,7 +7,7 @@
 // internal 
 #include <render_system.hpp>
 #include <physics_system.hpp>
-#include<game_state_controller.hpp>
+#include "game_state_controller.hpp"
 
 // Container for all our entities and game logic
 class WorldSystem
@@ -21,7 +21,7 @@ public:
 	// Releases all associated resources
 	~WorldSystem();
 
-	GameStateController gameStateController = GameStateController(GAME_STATE::PLAYING);
+	GameStateController gameStateController;
 
 	// Steps the game ahead by ms milliseconds
 	bool step(float elapsed_ms);
@@ -33,6 +33,8 @@ public:
 
 	// Should the game be over ?
 	bool is_over()const;
+
+	friend class GameStateController;
 
 private:
 	// CONSTANTS
@@ -109,5 +111,8 @@ private:
 
 	// C++ random number generator
 	std::default_random_engine rng;
-	std::uniform_real_distribution<float> uniform_dist; // number between 0..1
+	std::uniform_real_distribution<float> uniform_dist;
+
+	void exitPauseMenu();
+    // number between 0..1
 };

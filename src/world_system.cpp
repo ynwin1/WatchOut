@@ -30,6 +30,7 @@ WorldSystem::WorldSystem(std::default_random_engine& rng) :
         {"collectible_trap", 1}
         })
 {
+    this->gameStateController = GameStateController(GAME_STATE::PLAYING, this);
     this->rng = rng;
 }
 
@@ -139,7 +140,7 @@ bool WorldSystem::step(float elapsed_ms)
 
     if (camera->isToggled()) {
         Motion& playerMotion = registry.motions.get(playerEntity);
-        camera->followPosition(vec2(playerMotion.position.x, playerMotion.position.y * yConversionFactor));
+        camera->followPosition(worldToVisual(playerMotion.position));
     }
 
 
@@ -241,7 +242,6 @@ void WorldSystem::on_key(int key, int, int action, int mod)
             createPauseMenu(camera->getPosition());
             gameStateController.setGameState(GAME_STATE::PAUSED);
         } else{
-            exitPauseMenu();
             gameStateController.setGameState(GAME_STATE::PLAYING);
         }
         

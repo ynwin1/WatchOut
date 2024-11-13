@@ -252,7 +252,9 @@ struct Archer {
 	float drawArrowTime = 0;
 	bool aiming = false;
 };
-struct Bird {};
+struct Bird {
+	float swarmSpeed = 0.3f;
+};
 
 // Collectible types
 struct Heart { unsigned int health = 20; };

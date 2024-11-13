@@ -361,72 +361,92 @@ void AISystem::archerBehaviour(Entity entity, vec3 playerPosition, float elapsed
         moveTowardsPlayer(entity, playerPosition, elapsed_ms);
     }
 }
-void AISystem::moveIndividualBird(Entity bird, vec3 targetPosition, bool inAttackMode, float elapsed_ms) {
-    const float SWARM_SPEED = 0.5f;
-    const float ATTACK_SPEED_MULTIPLIER = 2.0f;
+// steer to avoid crowding local flockmates
+vec2 separation(const Motion& motion, const std::vector<Motion>& flockMates) {
+    vec2 separationForce = vec2(0, 0);
+    const float SEPARATION_RADIUS = 50.0f;  
+    const float SEPARATION_WEIGHT = 1.5f;   
 
-    // Access the bird's Motion and AnimationController components
-    Motion& birdMotion = registry.motions.get(bird);
-    AnimationController& animationController = registry.animationControllers.get(bird);
-
-    // Determine movement direction: towards the target position
-    vec2 targetDirection = glm::normalize(vec2(targetPosition) - vec2(birdMotion.position));
-
-    // Set velocity and animation state based on the attack mode
-    if (inAttackMode) {
-        birdMotion.velocity = vec3(targetDirection * SWARM_SPEED * ATTACK_SPEED_MULTIPLIER, 0.0f);
-        animationController.changeState(bird, AnimationState::Dead);
-    } else {
-        birdMotion.velocity = vec3(targetDirection * SWARM_SPEED, 0.0f);
+    for (const auto& mate : flockMates) {
+        float distanceToMate = distance(motion.position, mate.position);
+        if (distanceToMate > 0 && distanceToMate < SEPARATION_RADIUS) {
+            vec2 directionAway = normalize(vec2(motion.position) - vec2(mate.position));
+            separationForce += directionAway / distanceToMate; 
+        }
     }
-    vec2 direction = chooseDirection(birdMotion, targetPosition);
-    // Apply a slight random jitter for more natural movement
-    birdMotion.velocity += vec3(randomDirection() * 0.1f, 0.0f);
-    birdMotion.facing = direction;
-    
+
+    return separationForce * SEPARATION_WEIGHT;
 }
 
-// void AISystem::moveBirdSwarmTowardsPlayer(std::vector<Entity>& birds, vec3 playerPosition, float elapsed_ms) {
-//     const float BIRD_SWARM_RADIUS = 50.0f;
-//     const float ATTACK_RADIUS = 300.0f;
+// steer towards the average heading of local flockmates
+vec2 alignment(const Motion& motion, const std::vector<Motion>& flockMates) {
+    vec2 alignmentForce = vec2(0, 0);
+    const float ALIGNMENT_RADIUS = 10.0f;  
+    const float ALIGNMENT_WEIGHT = 1.0f;    
 
-//     // Calculate the swarm's center position
-//     vec2 swarmCenter(0.0f, 0.0f);
-//     for (Entity bird : birds) {
-//         swarmCenter += vec2(registry.motions.get(bird).position);
-//     }
-//     swarmCenter /= birds.size();
+    for (const auto& mate : flockMates) {
+        float distanceToMate = glm::length(motion.position - mate.position); 
 
-//     // Check if the swarm should be in attack mode
-//     float distanceToPlayer = glm::distance(vec2(playerPosition), swarmCenter);
-//     bool inAttackMode = (distanceToPlayer < ATTACK_RADIUS);
+        if (distanceToMate > 0 && distanceToMate < ALIGNMENT_RADIUS) {
+            alignmentForce += vec2(mate.velocity.x, motion.velocity.y);
+        }
+    }
 
-//     // Move each bird individually towards the target position (swarm center or player)
-//     vec3 targetPosition = inAttackMode ? vec3(playerPosition) : vec3(swarmCenter, 0.0f);
-//     for (Entity bird : birds) {
-//         moveIndividualBird(bird, targetPosition, inAttackMode, elapsed_ms);
-//     }
-// }
+    return alignmentForce * ALIGNMENT_WEIGHT;
+}
 
-// void AISystem::birdSwarmBehaviour(std::vector<Entity>& birds, vec3 playerPosition, float elapsed_ms) {
-//     // Filter out inactive birds and handle idle state for dead birds
-//     std::vector<Entity> activeBirds;
-//     for (Entity bird : birds) {
-//         if (!registry.deathTimers.has(bird)) {
-//             activeBirds.push_back(bird);
-//         } else {
-//             // Birds marked as dead switch to Idle state
-//             AnimationController& animationController = registry.animationControllers.get(bird);
-//             animationController.changeState(bird, AnimationState::Idle);
-//         }
-//     }
+// steer to move toward the average position of local flockmates
+vec2 cohesion(const Motion& motion, const std::vector<Motion>& flockMates) {
+    vec2 cohesionForce = vec2(0, 0);
+    const float COHESION_RADIUS = 10.0f; 
+    const float COHESION_WEIGHT = 1.0f;    
 
-//     // Control active birds' swarm behavior
-//     moveBirdSwarmTowardsPlayer(activeBirds, playerPosition, elapsed_ms);
-// }
+    for (const auto& mate : flockMates) {
+        float distanceToMate = glm::length(motion.position - mate.position);
+        
+        if (distanceToMate > 0 && distanceToMate < COHESION_RADIUS) {
+            cohesionForce += vec2(mate.position.x, mate.position.y) - vec2(motion.position.x, motion.position.y);
+        }
+    }
+
+    return cohesionForce * COHESION_WEIGHT;
+}
 
 
+void AISystem::birdBehaviour(Entity bird, vec3 playerPosition, float elapsed_ms) {
+    Motion& birdMotion = registry.motions.get(bird);
+    std::vector<Motion> flockMates;
+    for (const auto& entity : registry.birds.entities) {
+        if (entity.getId() != bird.getId() && registry.motions.has(entity)) {
+            flockMates.push_back(registry.motions.get(entity));
+        }
+    }
 
+    // BOIDS: Separation, Alignment, Cohesion
+    vec2 separationForce = separation(birdMotion, flockMates);
+    vec2 alignmentForce = alignment(birdMotion, flockMates);
+    vec2 cohesionForce = cohesion(birdMotion, flockMates);
+    vec2 birdPosition2D = vec2(birdMotion.position.x, birdMotion.position.y);
+    vec2 playerPosition2D = vec2(playerPosition.x, playerPosition.y);
+    vec2 directionToPlayer = normalize(playerPosition2D - birdPosition2D);
+    const float SEPARATION_WEIGHT = 0.5f;
+    const float ALIGNMENT_WEIGHT = 0.3f;
+    const float COHESION_WEIGHT = 0.5f;
+    const float PLAYER_ATTRACTION_WEIGHT = 0.2f;
+    
+    vec2 flockingForce = 
+        separationForce * SEPARATION_WEIGHT + 
+        alignmentForce * ALIGNMENT_WEIGHT + 
+        cohesionForce * COHESION_WEIGHT;
+    
+    vec2 movementForce = flockingForce + directionToPlayer * PLAYER_ATTRACTION_WEIGHT;
+    float speed = registry.birds.get(bird).swarmSpeed;
+    if (length(movementForce) > 0) {
+        movementForce = normalize(movementForce) * speed;
+    }
+    birdMotion.velocity = vec3(movementForce, 0.0f);
+    birdMotion.facing = normalize(movementForce);
+}
 
 void AISystem::step(float elapsed_ms)
 {
@@ -435,7 +455,6 @@ void AISystem::step(float elapsed_ms)
         return;
     }
     vec3 playerPosition = registry.motions.get(registry.players.entities.at(0)).position;
-
     for (Entity enemy : registry.enemies.entities) {
         if (registry.boars.has(enemy)) {
             boarBehaviour(enemy, playerPosition, elapsed_ms);
@@ -445,9 +464,8 @@ void AISystem::step(float elapsed_ms)
         }
         else if (registry.archers.has(enemy)) {
             archerBehaviour(enemy, playerPosition, elapsed_ms);
-        }
-        else if (registry.birds.has(enemy)) {
-            moveIndividualBird(enemy, playerPosition, false, elapsed_ms);
+        } else if (registry.birds.has(enemy)){
+            birdBehaviour(enemy, playerPosition, elapsed_ms);
         }
     }
 }

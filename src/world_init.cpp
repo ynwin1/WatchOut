@@ -20,7 +20,6 @@ Entity createBoar(vec2 pos)
 
 	Enemy& enemy = registry.enemies.emplace(entity);
 	enemy.damage = 20;
-	enemy.cooldown = 1500.f; // 1.5s
 	enemy.speed = BOAR_SPEED;
 
 	registry.boars.emplace(entity);
@@ -55,7 +54,7 @@ Entity createBarbarian(vec2 pos)
 	
 	Enemy& enemy = registry.enemies.emplace(entity);
 	enemy.damage = 30;
-	enemy.cooldown = 2000.f; // 2s
+	enemy.cooldown = 1000;
 	enemy.speed = BARBARIAN_SPEED;
 
 	registry.barbarians.emplace(entity);
@@ -83,7 +82,6 @@ Entity createArcher(vec2 pos)
 
 	Enemy& enemy = registry.enemies.emplace(entity);
 	enemy.damage = 40;
-	enemy.cooldown = 3000.f; // 3s
 	enemy.speed = ARCHER_SPEED;
 
 	registry.archers.emplace(entity);

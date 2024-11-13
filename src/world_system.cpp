@@ -36,12 +36,13 @@ WorldSystem::WorldSystem(std::default_random_engine& rng) :
     this->rng = rng;
 }
 
-void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics)
+void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics, AISystem* ai)
 {
     this->renderer = renderer;
     this->window = window;
     this->camera = camera;
     this->physics = physics;
+    this->ai = ai;
 
     // Setting callbacks to member functions (that's why the redirect is needed)
     // Input is handled using GLFW, for more info see
@@ -163,6 +164,17 @@ void WorldSystem::handle_collisions()
         Entity entity = physics->collisions[i].first;
         Entity entity_other = physics->collisions[i].second;
 
+
+        float COOLDOWN_TIME = 1000;
+        std::pair<int, int> pair = { entity, entity_other };
+        if (collisionCooldowns.find(pair) != collisionCooldowns.end()) {
+            collisionCooldowns[pair] = COOLDOWN_TIME;
+            continue;
+        }
+        else {
+            collisionCooldowns[pair] = COOLDOWN_TIME;
+        }
+
         // If the entity is a player
         if (registry.players.has(entity)) {
             // If the entity is colliding with a collectible
@@ -192,6 +204,9 @@ void WorldSystem::handle_collisions()
             }
             else if (registry.damagings.has(entity_other)) {
                 entity_damaging_collision(entity, entity_other, was_damaged);
+            }
+            else if (registry.obstacles.has(entity_other)) {
+                entity_obstacle_collision(entity, entity_other, was_damaged);
             }
         }
     }
@@ -295,21 +310,23 @@ void WorldSystem::on_key(int key, int, int action, int mod)
                 break;
             case GLFW_KEY_D:
                 if (pressed) {
-                    if (player_stamina.stamina > 0) { 
+                    const float DASH_STAMINA = 40;
+                    if (player_stamina.stamina > DASH_STAMINA) { 
                         const float dashDistance = 300;
                         // Start dashing if player is moving
                         player_dash.isDashing = true;
                         player_dash.dashStartPosition = vec2(player_motion.position);
                         player_dash.dashTargetPosition = player_dash.dashStartPosition + player_motion.facing * dashDistance;
                         player_dash.dashTimer = 0.0f; // Reset timer
+                        player_stamina.stamina -= DASH_STAMINA;
                     }
                 }
                 break;
 		    case GLFW_KEY_SPACE:
                 // Jump
                 if (pressed) {
-                    const float min_stamina_for_jump = 10.0f;
-                    if (player_stamina.stamina >= min_stamina_for_jump && !player_comp.tryingToJump) {
+                    const float JUMP_STAMINA = 20;
+                    if (player_stamina.stamina >= JUMP_STAMINA && !player_comp.tryingToJump) {
                         player_comp.tryingToJump = true;
                         if (registry.jumpers.has(playerEntity)) {
                             Jumper& jumper = registry.jumpers.get(playerEntity);
@@ -317,7 +334,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
                                 jumper.isJumping = true; 
                                 player_comp.tryingToJump = true;
                                 player_motion.velocity.z = jumper.speed; 
-                                player_stamina.stamina -= min_stamina_for_jump;
+                                player_stamina.stamina -= JUMP_STAMINA;
                                 if (player_stamina.stamina < 0) {
                                     player_stamina.stamina = 0;
                                 }
@@ -326,14 +343,6 @@ void WorldSystem::on_key(int key, int, int action, int mod)
                     }
                 } else { 
                     player_comp.tryingToJump = false;
-                }
-                //Handles player jumping too far up
-                if (player_motion.velocity.z <= 0 && player_comp.tryingToJump) {
-                    player_comp.tryingToJump = false;
-                    if (registry.jumpers.has(playerEntity)) {
-                        Jumper& jumper = registry.jumpers.get(playerEntity);
-                        jumper.isJumping = false;
-                    }
                 }
                 break;
             default:
@@ -397,9 +406,20 @@ void WorldSystem::update_cooldown(float elapsed_ms) {
         float new_remaining = cooldown.remaining - elapsed_ms;
         cooldown.remaining = new_remaining < 0 ? 0 : new_remaining;
 
-        // Avaialble to attack again
+        // Available to attack again
         if (cooldown.remaining == 0) {
             registry.cooldowns.remove(cooldownEntity);
+        }
+    }
+
+    auto it = collisionCooldowns.begin();
+    while (it != collisionCooldowns.end()) {
+        it->second -= elapsed_ms;
+        if (it->second <= 0) {
+            it = collisionCooldowns.erase(it);
+        }
+        else {
+            it++;
         }
     }
 }
@@ -559,6 +579,24 @@ void WorldSystem::entity_damaging_collision(Entity entity, Entity entity_other, 
     registry.remove_all_components_of(entity_other);
 }
 
+void WorldSystem::entity_obstacle_collision(Entity entity, Entity obstacle, std::vector<Entity>& was_damaged)
+{
+    if (registry.boars.has(entity)) {
+        Boar& boar = registry.boars.get(entity);
+        if (boar.charging) {
+           Enemy& enemy = registry.enemies.get(entity);
+            // Boar hurts itself
+           int newHealth = enemy.health - enemy.damage;
+           enemy.health = std::max(newHealth, 0);
+           ai->boarReset(entity);
+           boar.cooldownTimer = 1000; // stunned for 1 second
+           
+           was_damaged.push_back(entity);
+           checkAndHandleEnemyDeath(entity);
+        }
+    }
+}
+
 void WorldSystem::moving_entities_collision(Entity entity, Entity entityOther, std::vector<Entity>& was_damaged) {
     if (registry.players.has(entity)) {
         processPlayerEnemyCollision(entity, entityOther, was_damaged);
@@ -579,8 +617,11 @@ void WorldSystem::processPlayerEnemyCollision(Entity player, Entity enemy, std::
         was_damaged.push_back(player);
         printf("Player health reduced by enemy from %d to %d\n", playerData.health + enemyData.damage, playerData.health);
 
-        Cooldown& cooldown = registry.cooldowns.emplace(enemy);
-        cooldown.remaining = enemyData.cooldown;
+        // Check if enemy can have an attack cooldown
+        if (enemyData.cooldown > 0) {
+            Cooldown& cooldown = registry.cooldowns.emplace(enemy);
+            cooldown.remaining = enemyData.cooldown;
+        }
 
 		checkAndHandlePlayerDeath(player);
     }
@@ -616,8 +657,10 @@ void WorldSystem::handleEnemyCollision(Entity attacker, Entity target, std::vect
         was_damaged.push_back(target);
         printf("Enemy %d's health reduced from %d to %d\n", (unsigned int)target, targetData.health + attackerData.damage, targetData.health);
 
-        Cooldown& cooldown = registry.cooldowns.emplace(attacker);
-        cooldown.remaining = attackerData.cooldown;
+        if (attackerData.cooldown > 0) {
+            Cooldown& cooldown = registry.cooldowns.emplace(attacker);
+            cooldown.remaining = attackerData.cooldown;
+        }
     }
 }
 
@@ -697,7 +740,7 @@ void WorldSystem::handle_stamina(float elapsed_ms) {
         Dash& dash_comp = registry.dashers.get(staminaEntity);
         Jumper& player_jump = registry.jumpers.get(staminaEntity);
     
-        if ((player_comp.isRunning || dash_comp.isDashing || player_comp.isRolling || player_jump.isJumping) && stamina.stamina > 0) {
+        if (player_comp.isRunning && stamina.stamina > 0) {
             stamina.stamina -= elapsed_ms / 1000.0f * stamina.stamina_loss_rate;
 
             if (stamina.stamina < 0) {

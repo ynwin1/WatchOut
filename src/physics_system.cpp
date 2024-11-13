@@ -87,11 +87,15 @@ void PhysicsSystem::checkCollisions()
 				if (registry.meshPtrs.has(entity_i)) {
 					if (meshCollides(entity_i, entity_j)) {
 						handle_mesh_collision(entity_i, entity_j);
+						collisions.push_back(std::make_pair(entity_i, entity_j));
+						collisions.push_back(std::make_pair(entity_j, entity_i));
 					}
 				}
 				else if (registry.meshPtrs.has(entity_j)) {
 					if (meshCollides(entity_j, entity_i)) {
 						handle_mesh_collision(entity_j, entity_i);
+						collisions.push_back(std::make_pair(entity_i, entity_j));
+						collisions.push_back(std::make_pair(entity_j, entity_i));
 					}
 				}
 				else {
@@ -322,9 +326,6 @@ float calculate_x_overlap(Entity entity1, Entity entity2) {
 	float x1_half_scale = motion1.hitbox.x / 2;
 	float x2_half_scale = motion2.hitbox.x / 2;
 
-	// print x of entity1 and 2
-	// std::cout << "x1: " << motion1.position.x << " x2: " << motion2.position.x << std::endl;
-
 	// Determine the edges of the hitboxes for x
 	float left1 = motion1.position.x - x1_half_scale;
 	float right1 = motion1.position.x + x1_half_scale;
@@ -355,8 +356,6 @@ float calculate_y_overlap(Entity entity1, Entity entity2) {
 void PhysicsSystem::handle_mesh_collision(Entity mesh, Entity entity) 
 {
 
-	float PUSH_BACK = 5.f;
-
 	Motion& meshMotion = registry.motions.get(mesh);
 	Motion& entityMotion = registry.motions.get(entity);
 
@@ -365,13 +364,25 @@ void PhysicsSystem::handle_mesh_collision(Entity mesh, Entity entity)
 		return;
 	}
 
-	// direction of the collision
-	float x_direction = meshMotion.position.x < entityMotion.position.x ? 1 : -1;
-	float y_direction = meshMotion.position.y < entityMotion.position.y ? 1 : -1;
+	float x_overlap = max(0.f, (meshMotion.hitbox.x / 8 + entityMotion.hitbox.x / 2) - abs(meshMotion.position.x - entityMotion.position.x));
+	float y_overlap = max(0.f, (meshMotion.hitbox.y / 8 + entityMotion.hitbox.y / 2) - abs(meshMotion.position.y - entityMotion.position.y));;
 
-	entityMotion.position.x += x_direction * PUSH_BACK;
-	entityMotion.position.y += y_direction * PUSH_BACK;
-	entityMotion.velocity.z = 0;
+	// Calculate the direction of the collision
+	float x_direction = meshMotion.position.x < entityMotion.position.x ? -1 : 1;
+	float y_direction = meshMotion.position.y < entityMotion.position.y ? -1 : 1;
+
+	// Apply the recoil (direction * magnitude)
+	const float RECOIL_STRENGTH = 0.5;
+	if (y_overlap < x_overlap) {
+		entityMotion.position.y -= y_direction * y_overlap * RECOIL_STRENGTH;
+	}
+	else {
+		entityMotion.position.x -= x_direction * x_overlap * RECOIL_STRENGTH;
+	}
+
+	if (entityMotion.velocity.z > 0) {
+		entityMotion.velocity.z = 0;
+	}
 }
 
 void PhysicsSystem::handle_obstacle_collision(Entity obstacle, Entity entity) 
@@ -389,30 +400,18 @@ void PhysicsSystem::handle_obstacle_collision(Entity obstacle, Entity entity)
 	// Calculate y overlap
 	float y_overlap = calculate_y_overlap(obstacle, entity);
 
-	// print mesh collision position
-	// std::cout << "mesh collision position: " << meshCollisionPosition.x << " " << meshCollisionPosition.y << " " << meshCollisionPosition.z << std::endl;
-
-	// print the overlap
-	// std::cout << "x overlap: " << x_overlap << " y overlap: " << y_overlap << std::endl;
-
 	// Calculate the direction of the collision
-	float x_direction = obstacleM.position.x < entityM.position.x ? 1 : -1;
-	float y_direction = obstacleM.position.y < entityM.position.y ? 1 : -1;
+	float x_direction = obstacleM.position.x < entityM.position.x ? -1 : 1;
+	float y_direction = obstacleM.position.y < entityM.position.y ? -1 : 1;
 
-	// print mesh position
-	// std::cout << "obstacle position: " << obstacleM.position.x << " " << obstacleM.position.y << " " << obstacleM.position.z << std::endl;
-
-	// print entity position
-	// std::cout << "entity position before: " << entityM.position.x << " " << entityM.position.y << " " << entityM.position.z << std::endl;
+	// Apply the recoil (direction * magnitude)
+	const float RECOIL_STRENGTH = 0.5;
 	if (y_overlap < x_overlap) {
-		entityM.position.y += y_direction * y_overlap;
+		entityM.position.y -= y_direction * y_overlap * RECOIL_STRENGTH;
 	}
 	else {
-		entityM.position.x += x_direction * x_overlap;
+		entityM.position.x -= x_direction * x_overlap * RECOIL_STRENGTH;
 	}
-
-	// print entity position
-	// std::cout << "entity position after: " << entityM.position.x << " " << entityM.position.y << entityM.position.z << std::endl;
 
 	if(registry.dashers.has(entity)) {
 		registry.dashers.get(entity).isDashing = false;

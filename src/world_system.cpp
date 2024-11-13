@@ -3,6 +3,7 @@
 #include "common.hpp"
 #include "world_init.hpp"
 #include "physics_system.hpp"
+#include "game_state_controller.hpp"
 #include <iostream>
 #include <iomanip> 
 #include <sstream>
@@ -30,7 +31,8 @@ WorldSystem::WorldSystem(std::default_random_engine& rng) :
         {"collectible_trap", 1}
         })
 {
-    this->gameStateController = GameStateController(GAME_STATE::PLAYING, this);
+    this->gameStateController = GameStateController();
+    this->gameStateController.init(GAME_STATE::PLAYING, this);
     this->rng = rng;
 }
 

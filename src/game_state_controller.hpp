@@ -16,15 +16,13 @@ class WorldSystem;
 class GameStateController
 {
 public:
-    GameStateController(GAME_STATE initialGameState, WorldSystem *world);
+    void init(GAME_STATE initialGameState, WorldSystem *world);
 
     void setGameState(GAME_STATE newGameState);
 
     void onExitState(GAME_STATE oldState);
 
-    const GAME_STATE getGameState() const {
-        return currentGameState;
-    }
+    const GAME_STATE getGameState() const;
 
 private:
     GAME_STATE currentGameState;

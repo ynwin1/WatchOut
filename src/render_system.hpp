@@ -69,7 +69,8 @@ class RenderSystem {
 		shader_path("untextured"), 
 		shader_path("animated"), 
 		shader_path("font"), 
-		shader_path("tree")
+		shader_path("tree"),
+		shader_path("particle")
 	};
 
 	std::array<GLuint, geometry_count> vertex_buffers;

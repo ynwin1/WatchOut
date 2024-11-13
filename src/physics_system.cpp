@@ -3,14 +3,25 @@
 #include "render_system.hpp"
 #include <iostream>
 
-bool collides(const Entity& a, const Entity& b)
+static std::vector<vec2> getPolygonOfBoundingBox(const Motion& motion)
+{
+	std::vector<vec2> polygon;
+	vec2 pos = { motion.position.x, motion.position.z };
+	polygon.push_back(pos + rotate(vec2(+motion.hitbox.x, +motion.hitbox.z) / 2.f, motion.angle));
+	polygon.push_back(pos + rotate(vec2(-motion.hitbox.x, +motion.hitbox.z) / 2.f, motion.angle));
+	polygon.push_back(pos + rotate(vec2(-motion.hitbox.x, -motion.hitbox.z) / 2.f, motion.angle));
+	polygon.push_back(pos + rotate(vec2(+motion.hitbox.x, -motion.hitbox.z) / 2.f, motion.angle));
+	return polygon;
+}
+
+static bool collides(const Entity& a, const Entity& b)
 {
 	Motion& motionA = registry.motions.get(a);
 	Motion& motionB = registry.motions.get(b);
 	// position represents the center of the entity
 	vec3 a_position = motionA.position;
 	vec3 b_position = motionB.position;
-	// dimension represents the width and height of entity
+	// dimension represents the width, height, and depth of entity
 	vec3 a_dimension = motionA.hitbox;
 	vec3 b_dimension = motionB.hitbox;
 
@@ -22,26 +33,10 @@ bool collides(const Entity& a, const Entity& b)
 	if (a_position.y + ((a_dimension.y + b_dimension.y) / 2.0f) < b_position.y) {
 		return false;
 	}
-	// If a's right is to the left of b's left
-	if (a_position.x > b_position.x + ((b_dimension.x + a_dimension.x) / 2.0f)) {
-		return false;
-	}
-	// Check if a's left is to the right of b's right
-	if (a_position.x + ((a_dimension.x + b_dimension.x) / 2.0f) < b_position.x) {
-		return false;
-	}
-		
-	// Z dimension checks
-	if (a_position.z > b_position.z + ((b_dimension.z + a_dimension.z) / 2.0f)) {
-		return false;
-	}
-		
-	if (a_position.z + ((a_dimension.z + b_dimension.z) / 2.0f) < b_position.z) {
-		return false;
-	}
-		
 
-	return true;
+	std::vector<vec2> polygonA = getPolygonOfBoundingBox(motionA);
+	std::vector<vec2> polygonB = getPolygonOfBoundingBox(motionB);
+	return polygonsCollide(polygonA, polygonB);
 }
 
 void PhysicsSystem::handleBoundsCheck() {

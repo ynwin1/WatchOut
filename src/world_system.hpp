@@ -115,11 +115,15 @@ private:
 	void handleEnemyCollision(Entity attacker, Entity target, std::vector<Entity>& was_damaged);
 	void checkAndHandleEnemyDeath(Entity entity);
 
+	// Help/Pause Menu functions
+	Entity createHelpMenu(vec2 cameraPosition);
+    void exitHelpMenu();
+    Entity createPauseMenu(vec2 cameraPosition);
+    void exitPauseMenu();
+
 
 	// C++ random number generator
 	std::default_random_engine rng;
 	std::uniform_real_distribution<float> uniform_dist;
-
-	void exitPauseMenu();
     // number between 0..1
 };

@@ -374,57 +374,7 @@ Entity createPauseHelpText(vec2 windowSize) {
 	return entity;
 }
 
-Entity createPauseMenu(vec2 cameraPosition) {
-	auto entity = Entity();
 
-	registry.pauseMenuComponents.emplace(entity);
-
-	registry.foregrounds.emplace(entity);
-
-	Motion& motion = registry.motions.emplace(entity);
-	motion.position = {cameraPosition, 0};
-	motion.angle = 0.f;
-	motion.scale = { 960, 540 };
-
-	registry.renderRequests.insert(
-		entity, 
-		{
-			TEXTURE_ASSET_ID::MENU_PAUSED,
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE
-		});
-
-	return entity;
-}
-
-Entity createHelpMenu(vec2 cameraPosition) {
-	auto entity = Entity();
-
-	registry.pauseMenuComponents.emplace(entity);
-
-	registry.foregrounds.emplace(entity);
-
-	Motion& motion = registry.motions.emplace(entity);
-	motion.position = {cameraPosition, 0};
-	motion.angle = 0.f;
-	motion.scale = { 960, 540 };
-
-	registry.renderRequests.insert(
-		entity, 
-		{
-			TEXTURE_ASSET_ID::MENU_HELP,
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE
-		});
-
-	return entity;
-}
-
-void exitHelpMenu() {
-	for (auto& entity: registry.pauseMenuComponents.entities) {
-		registry.remove_all_components_of(entity);
-	}
-}
 
 Entity createFPSText(vec2 windowSize) {
 	auto entity = Entity();

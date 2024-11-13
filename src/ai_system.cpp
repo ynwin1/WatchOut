@@ -213,7 +213,6 @@ void AISystem::boarBehaviour(Entity boar, vec3 playerPosition, float elapsed_ms)
     if (distanceToPlayer < BOAR_AGGRO_RANGE && boars.cooldownTimer <= 0 && !boars.preparing && !boars.charging &&
             pathClear(motion, directionToPlayer, distanceToPlayer, registry.obstacles.entities, clearDistance)) {
         boars.preparing = true;
-        sound->playSoundEffect(audio_path("boar_charge.wav"), 0);
         boars.prepareTimer = BOAR_PREPARE_TIME;
         boars.chargeTimer = BOAR_CHARGE_DURATION;
         animationController.changeState(boar, AnimationState::Idle);
@@ -243,6 +242,7 @@ void AISystem::boarBehaviour(Entity boar, vec3 playerPosition, float elapsed_ms)
                 boars.charging = true;
                 boars.chargeDirection = directionToPlayer;
                 motion.velocity = vec3(boars.chargeDirection * BOAR_CHARGE_SPEED, 0);
+                sound->playSoundEffect(audio_path("boar_charge.wav"), 0);
             }
         }
     }

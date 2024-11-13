@@ -173,9 +173,6 @@ void WorldSystem::loadAndSaveHighScore(bool save) {
             highScoreHours = gameTimer.hours;
             highScoreMinutes = gameTimer.minutes;
             highScoreSeconds = gameTimer.seconds;
-            gameTimer.highScoreHours = highScoreHours;
-            gameTimer.highScoreMinutes = highScoreMinutes;
-            gameTimer.highScoreSeconds = highScoreSeconds;
 
             std::ofstream file(filename);
             if (file.is_open()) {

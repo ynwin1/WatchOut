@@ -149,9 +149,6 @@ struct GameTimer {
 	int seconds = 0;
 	float ms = 0;
 	float elapsed = 0;
-	int highScoreHours = 0;
-	int highScoreMinutes = 0;
-	int highScoreSeconds = 0;
 	Entity textEntity;
 	void update(float elapsedTime) {
 		ms += elapsedTime;

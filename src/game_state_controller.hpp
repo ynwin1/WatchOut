@@ -22,6 +22,8 @@ public:
 
     void onExitState(GAME_STATE oldState);
 
+    void beforeEnterState(GAME_STATE newState);
+
     const GAME_STATE getGameState() const;
 
 private:

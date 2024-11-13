@@ -148,7 +148,6 @@ bool WorldSystem::step(float elapsed_ms)
 
     Player& player = registry.players.get(playerEntity);
     if(player.health == 0) {
-        createGameOverText(camera->getSize());
         gameStateController.setGameState(GAME_STATE::GAMEOVER);
     }
 
@@ -241,7 +240,6 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     // Handle EP to pause gameplay
     if (action == GLFW_PRESS && key == GLFW_KEY_P) {
         if(gameStateController.getGameState() != GAME_STATE::PAUSED){
-            createPauseMenu(camera->getPosition());
             gameStateController.setGameState(GAME_STATE::PAUSED);
         } else{
             gameStateController.setGameState(GAME_STATE::PLAYING);
@@ -252,10 +250,8 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     // Handle EP to display help menu
     if (action == GLFW_PRESS && key == GLFW_KEY_H) {
         if(gameStateController.getGameState() != GAME_STATE::HELP){
-            createHelpMenu(camera->getPosition());
             gameStateController.setGameState(GAME_STATE::HELP);
         } else{
-            exitHelpMenu();
             gameStateController.setGameState(GAME_STATE::PLAYING);
         }
         

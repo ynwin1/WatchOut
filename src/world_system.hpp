@@ -8,6 +8,7 @@
 #include <render_system.hpp>
 #include <physics_system.hpp>
 #include <ai_system.hpp>
+#include <sound_system.hpp>
 #include<game_state_controller.hpp>
 
 // Container for all our entities and game logic
@@ -17,7 +18,7 @@ public:
 	WorldSystem(std::default_random_engine& rng);
 
 	// starts the game
-	void init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics, AISystem* ai);
+	void init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics, AISystem* ai, SoundSystem* sound);
 
 	// Releases all associated resources
 	~WorldSystem();
@@ -60,6 +61,7 @@ private:
 	PhysicsSystem* physics;
 	AISystem* ai;
 	Camera* camera;
+	SoundSystem* sound;
 	TrapsCounter trapsCounter;
 
 	bool isWindowed = false;

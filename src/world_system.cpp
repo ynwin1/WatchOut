@@ -3,6 +3,7 @@
 #include "common.hpp"
 #include "world_init.hpp"
 #include "physics_system.hpp"
+#include "sound_system.hpp"
 #include <iostream>
 #include <iomanip> 
 #include <sstream>
@@ -33,13 +34,14 @@ WorldSystem::WorldSystem(std::default_random_engine& rng) :
     this->rng = rng;
 }
 
-void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics, AISystem* ai)
+void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics, AISystem* ai, SoundSystem* sound)
 {
     this->renderer = renderer;
     this->window = window;
     this->camera = camera;
     this->physics = physics;
     this->ai = ai;
+	this->sound = sound;
 
     // Setting callbacks to member functions (that's why the redirect is needed)
     // Input is handled using GLFW, for more info see
@@ -82,6 +84,11 @@ void WorldSystem::restart_game()
     show_mesh = false;
     resetSpawnSystem();
     initText();
+
+    // init sound system
+	sound->init();
+	// play background music
+	sound->playMusic(audio_path("background.wav"), -1);
 
     next_spawns = spawn_delays;
 }

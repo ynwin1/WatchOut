@@ -6,6 +6,7 @@
 #include <iostream>
 #include <iomanip> 
 #include <sstream>
+#include <fstream> 
 
 WorldSystem::WorldSystem(std::default_random_engine& rng) :
     spawn_functions({
@@ -35,11 +36,14 @@ WorldSystem::WorldSystem(std::default_random_engine& rng) :
 
 void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics, AISystem* ai)
 {
+    
     this->renderer = renderer;
     this->window = window;
     this->camera = camera;
     this->physics = physics;
     this->ai = ai;
+
+    loadAndSaveHighScore(false);
 
     // Setting callbacks to member functions (that's why the redirect is needed)
     // Input is handled using GLFW, for more info see
@@ -84,6 +88,7 @@ void WorldSystem::restart_game()
     initText();
 
     next_spawns = spawn_delays;
+    loadAndSaveHighScore(false);
 }
 
 void WorldSystem::updateGameTimer(float elapsed_ms) {
@@ -146,11 +151,50 @@ bool WorldSystem::step(float elapsed_ms)
 
     Player& player = registry.players.get(playerEntity);
     if(player.health == 0) {
+        loadAndSaveHighScore(true);
         createGameOverText(camera->getSize());
+        Entity highScoreText = createHighScoreText(camera->getSize(), highScoreHours, highScoreMinutes, highScoreSeconds);
+
         gameStateController.setGameState(GAME_STATE::GAMEOVER);
     }
 
     return !is_over();
+}
+
+void WorldSystem::loadAndSaveHighScore(bool save) {
+    std::string filename = "highscore.txt";
+    GameTimer& gameTimer = registry.gameTimer;
+    if (save) {
+        if (gameTimer.hours > highScoreHours || 
+            (gameTimer.hours == highScoreHours && gameTimer.minutes > highScoreMinutes) ||
+            (gameTimer.hours == highScoreHours && gameTimer.minutes == highScoreMinutes && gameTimer.seconds > highScoreSeconds)) {
+            
+            // Update high score
+            highScoreHours = gameTimer.hours;
+            highScoreMinutes = gameTimer.minutes;
+            highScoreSeconds = gameTimer.seconds;
+            gameTimer.highScoreHours = highScoreHours;
+            gameTimer.highScoreMinutes = highScoreMinutes;
+            gameTimer.highScoreSeconds = highScoreSeconds;
+
+            std::ofstream file(filename);
+            if (file.is_open()) {
+                file << highScoreHours << " " << highScoreMinutes << " " << highScoreSeconds;
+                file.close();
+            }
+        }
+    } else {
+        std::ifstream file(filename);
+        if (file.is_open()) {
+            file >> highScoreHours >> highScoreMinutes >> highScoreSeconds;
+            file.close();
+        } else {
+            //if file doesnt exist (shouldn't be an issue)
+            highScoreHours = 0;
+            highScoreMinutes = 0;
+            highScoreSeconds = 0;
+        }
+    }
 }
 
 void WorldSystem::handle_collisions()

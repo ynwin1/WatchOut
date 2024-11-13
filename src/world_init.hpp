@@ -93,6 +93,7 @@ Entity createFPSText(vec2 windowSize);
 // Game over UI
 void createGameOverText(vec2 windowSize);
 Entity createGameTimerText(vec2 windowSize);
+Entity createHighScoreText(vec2 windowSize, int hours, int minutes, int seconds);
 
 Entity createTrapsCounterText(vec2 windowSize);
 

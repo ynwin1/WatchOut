@@ -447,7 +447,7 @@ void AISystem::swoopAttack(Entity bird, vec3 playerPosition, float elapsed_ms) {
 
     // Swoop towards player
     if (birdComponent.isSwooping) {
-        animationController.changeState(bird, AnimationState::Dead);
+        animationController.changeState(bird, AnimationState::Swooping);
         vec2 swoopForce = birdComponent.swoopDirection * birdComponent.swoopSpeed;
         birdMotion.velocity = vec3(swoopForce, -1.0f);
         birdComponent.swoopTimer -= elapsed_ms;

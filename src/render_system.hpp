@@ -60,7 +60,7 @@ class RenderSystem {
 	  	textures_path("menu/HelpMenu.png"),           // MENU_HELP
 		textures_path("menu/PauseMenu.png"),           // MENU_PAUSED
 		textures_path("bird/bird_fly.png"),				 // BIRD FLY
-		textures_path("bird/bird_idle.png"),				 // BIRD IDLE
+		textures_path("bird/bird_swoop.png"),			// BIRD SWOOP
 		textures_path("bird/bird_dead.png")				 // BIRD DEAD
 	};
 

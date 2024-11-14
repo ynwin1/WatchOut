@@ -438,7 +438,7 @@ Entity createTargetArea(vec3 position, float radius) {
 
 	float ogRadius = 170.f;
 	float scaledFactor = radius / ogRadius;
-	motion.scale = { 2 * ogRadius * scaledFactor, 2 * ogRadius * scaledFactor };
+	motion.scale = { 2 * ogRadius * scaledFactor, 2 * ogRadius * scaledFactor * zConversionFactor };
 
 	registry.renderRequests.insert(
 		entity,
@@ -448,7 +448,7 @@ Entity createTargetArea(vec3 position, float radius) {
 			GEOMETRY_BUFFER_ID::SPRITE
 		});
 
-	registry.midgrounds.emplace(entity);
+	registry.backgrounds.emplace(entity);
 	registry.targetAreas.emplace(entity);
 	Cooldown& cooldown = registry.cooldowns.emplace(entity);
 	cooldown.remaining = 5000.f; // 5s

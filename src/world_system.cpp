@@ -27,8 +27,8 @@ WorldSystem::WorldSystem(std::default_random_engine& rng) :
     max_entities({
         {"boar", 2},
         {"barbarian", 2},
-        {"archer", 0},
-        {"bird", 4},
+        {"archer", 1},
+        {"bird", 7},
         {"heart", 1},
         {"collectible_trap", 1}
         })

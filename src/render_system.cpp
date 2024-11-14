@@ -88,6 +88,9 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection, const mat4& p
 		Motion& motion = registry.motions.get(entity);
 		if (registry.midgrounds.has(entity)) {
 			vec2 visualPos = worldToVisual(vec3(motion.position.x, motion.position.y, motion.position.z));
+			if (registry.meshPtrs.has(entity)) {
+				visualPos.y += motion.scale.y / 20; // corrects the render location of the tree sprite
+			}
 			transform.translate(visualPos);
 		}
 		else {

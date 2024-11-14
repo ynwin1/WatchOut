@@ -437,6 +437,11 @@ void WorldSystem::handle_deaths(float elapsed_ms) {
         DeathTimer& deathTimer = registry.deathTimers.get(deathEntity);
         deathTimer.timer -= elapsed_ms;
         if (deathTimer.timer < 0) {
+            // Remove
+            if (registry.motions.has(deathEntity)) {
+                Motion& motion = registry.motions.get(deathEntity);
+                createHeart({ motion.position.x, motion.position.y });
+            }
             registry.remove_all_components_of(deathEntity);
         }
     }
@@ -677,7 +682,8 @@ void WorldSystem::checkAndHandleEnemyDeath(Entity enemy) {
     if (enemyData.health == 0 && !registry.deathTimers.has(enemy)) {
         Motion& motion = registry.motions.get(enemy);
         motion.velocity = { 0, 0, motion.velocity.z }; // Stop enemy movement
-        motion.angle = 1.57f; // Rotate enemy 90 degrees
+        motion.angle = M_PI / 2; // Rotate enemy 90 degrees
+        motion.hitbox = { motion.hitbox.z, motion.hitbox.y, motion.hitbox.x }; // Change hitbox to be on its side
         printf("Enemy %d died with health %d\n", (unsigned int)enemy, enemyData.health);
 
         if (registry.animationControllers.has(enemy)) {
@@ -707,7 +713,8 @@ void WorldSystem::despawn_collectibles(float elapsed_ms) {
 void WorldSystem::checkAndHandlePlayerDeath(Entity& entity) {
 	if (registry.players.get(entity).health == 0) {
 		Motion& motion = registry.motions.get(entity);
-		motion.angle = 1.57f; // Rotate player 90 degrees
+		motion.angle = M_PI / 2; // Rotate player 90 degrees
+        motion.hitbox = { motion.hitbox.z, motion.hitbox.y, motion.hitbox.x }; // Change hitbox to be on its side
 		printf("Player died\n");
 	}
 }

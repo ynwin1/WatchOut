@@ -258,7 +258,7 @@ struct Bird {
 	bool isSwooping = false;
 	float swoopTimer = 500;
 	vec2 swoopDirection = {0,0};
-	float originalZ = 0;
+	float originalZ = 721;
 	float swoopCooldown = 2000;
 };
 

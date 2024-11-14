@@ -11,8 +11,7 @@ const float BOAR_COOLDOWN_TIME = 500;
 const float BOAR_CHARGE_SPEED = 1.0f;
 
 //Bird constants
-const float BIRD_AGGRO_RANGE = 100;
-const float BIRD_ORIGINAL_Z = 721;     
+const float BIRD_AGGRO_RANGE = 100;   
 const float BIRD_SWOOP_DURATION = 500; 
 const float BIRD_COOLDOWN_TIME = 4000;
 
@@ -429,6 +428,7 @@ vec2 cohesion(const Motion& motion, const std::vector<Motion>& flockMates) {
 
     return cohesionForce * COHESION_WEIGHT;
 }
+
 void AISystem::swoopAttack(Entity bird, vec3 playerPosition, float elapsed_ms) {
     Motion& birdMotion = registry.motions.get(bird);
     Bird& birdComponent = registry.birds.get(bird);
@@ -443,7 +443,6 @@ void AISystem::swoopAttack(Entity bird, vec3 playerPosition, float elapsed_ms) {
         birdComponent.isSwooping = true;
         birdComponent.swoopTimer = BIRD_SWOOP_DURATION;
         birdComponent.swoopDirection = normalize(playerPosition2D - birdPosition2D);
-        birdComponent.originalZ = BIRD_ORIGINAL_Z;  // Store original height
     }
 
     // Swoop towards player
@@ -466,8 +465,6 @@ void AISystem::swoopAttack(Entity bird, vec3 playerPosition, float elapsed_ms) {
         return;
     }
 }
-
-
 
 void AISystem::birdBehaviour(Entity bird, vec3 playerPosition, float elapsed_ms) {
     Motion& birdMotion = registry.motions.get(bird);

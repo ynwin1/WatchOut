@@ -80,7 +80,6 @@ Entity createArrow(vec3 pos, vec3 velocity);
 
 // Pause UI
 Entity createPauseMenu(vec2 windowSize);
-void exitPauseMenu();
 
 // Help Menu UI
 Entity createHelpMenu(vec2 windowSize);

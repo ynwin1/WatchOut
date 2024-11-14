@@ -400,6 +400,7 @@ void AISystem::processWizardMoving(Entity entity, vec3 playerPosition, float ela
         wizard.state = WizardState::Aiming;
         motion.velocity.x = 0;
         motion.velocity.y = 0;
+		motion.facing = normalize(vec2(playerPosition) - vec2(motion.position));
         animationController.changeState(entity, AnimationState::Idle);
     }
     else {
@@ -437,9 +438,11 @@ void AISystem::processWizardAiming(Entity entity, vec3 playerPosition, float ela
 
 void AISystem::processWizardPreparing(Entity entity, vec3 playerPosition, float elapsed_ms) {
     const float LIGHTNING_PREPARE_TIME = 3000;
-
     Wizard& wizard = registry.wizards.get(entity);
 
+	// face the player when preparing
+	Motion& motion = registry.motions.get(entity);
+	motion.facing = normalize(vec2(playerPosition) - vec2(motion.position));
     // make a decision to trigger lightening or keep preparing
     if (wizard.prepareLighteningTime > LIGHTNING_PREPARE_TIME) {
         triggerLightening(wizard.locked_target);

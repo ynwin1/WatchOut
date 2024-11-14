@@ -625,6 +625,8 @@ void WorldSystem::processPlayerEnemyCollision(Entity player, Entity enemy, std::
         }
 
 		checkAndHandlePlayerDeath(player);
+
+        knock(player, enemy);
     }
 }
 
@@ -652,7 +654,7 @@ void WorldSystem::handleEnemyCollision(Entity attacker, Entity target, std::vect
          // (boars can be colliding with others while walking)
         if(!boar.charging) return;
 
-        const int DAMAGE_MULTIPLIER = 3;
+        const int DAMAGE_MULTIPLIER = 1;
         int newHealth = targetData.health - attackerData.damage * DAMAGE_MULTIPLIER;
         targetData.health = std::max(newHealth, 0);
         was_damaged.push_back(target);
@@ -662,6 +664,8 @@ void WorldSystem::handleEnemyCollision(Entity attacker, Entity target, std::vect
             Cooldown& cooldown = registry.cooldowns.emplace(attacker);
             cooldown.remaining = attackerData.cooldown;
         }
+
+        knock(target, attacker);
     }
 }
 
@@ -684,6 +688,24 @@ void WorldSystem::checkAndHandleEnemyDeath(Entity enemy) {
         registry.enemies.remove(enemy);
         registry.deathTimers.emplace(enemy);
     }
+}
+
+void WorldSystem::knock(Entity knocked, Entity knocker)
+{
+    const float KNOCK_ANGLE = M_PI / 4;  // 45 degrees
+    float strength = 1;
+
+    // Skip if entity being knocked is not knockable
+    if (!registry.knockables.has(knocked)) {
+        return;
+    }
+
+    Motion& knockedMotion = registry.motions.get(knocked);
+    Motion& knockerMotion = registry.motions.get(knocker);
+    vec2 horizontal_direction = normalize(vec2(knockedMotion.position) - vec2(knockerMotion.position));
+    vec3 d = normalize(vec3(horizontal_direction * cos(KNOCK_ANGLE), sin(KNOCK_ANGLE)));
+    knockedMotion.velocity = d * strength;
+    knockedMotion.position.z += 1; // move a little over ground to prevent being considered "on the ground" for this frame
 }
 
 void WorldSystem::despawn_collectibles(float elapsed_ms) {

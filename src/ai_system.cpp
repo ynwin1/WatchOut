@@ -24,6 +24,13 @@ vec2 AISystem::randomDirection()
 
 void AISystem::moveTowardsPlayer(Entity enemy, vec3 playerPosition, float elapsed_ms)
 {
+    Motion& enemyMotion = registry.motions.get(enemy);
+
+    // Skip if in the air
+    if (enemyMotion.position.z - enemyMotion.hitbox.z / 2 > getElevation(vec2(enemyMotion.position)) + 1) {
+        return;
+    }
+    
     float& pathfindTime = registry.enemies.get(enemy).pathfindTime;
     pathfindTime -= elapsed_ms;
     if (pathfindTime > 0) {
@@ -31,7 +38,6 @@ void AISystem::moveTowardsPlayer(Entity enemy, vec3 playerPosition, float elapse
     }
     pathfindTime = 100 + uniform_dist(rng) * 400;
 
-    Motion& enemyMotion = registry.motions.get(enemy);
     vec2 direction = chooseDirection(enemyMotion, playerPosition);
     enemyMotion.facing = direction;
     float speed = registry.enemies.get(enemy).speed;

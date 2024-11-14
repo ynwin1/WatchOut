@@ -35,6 +35,8 @@ Entity createBoar(vec2 pos)
 	registry.midgrounds.emplace(entity);
 
 	createHealthBar(entity, vec3(1.0f, 0.0f, 0.0f));
+
+	registry.knockables.emplace(entity);
 	
 	return entity;
 };
@@ -64,6 +66,8 @@ Entity createBarbarian(vec2 pos)
 
 	createHealthBar(entity, vec3(1.0f, 0.0f, 0.0f));
 
+	registry.knockables.emplace(entity);
+
 	return entity;
 };
 
@@ -90,6 +94,8 @@ Entity createArcher(vec2 pos)
 	registry.midgrounds.emplace(entity);
 
 	createHealthBar(entity, vec3(1.0f, 0.0f, 0.0f));
+
+	registry.knockables.emplace(entity);
 	
 	return entity;
 };
@@ -220,7 +226,8 @@ Entity createJeff(vec2 position)
 
 	createHealthBar(entity, vec3(0.0f, 1.0f, 0.0f));
 	createStaminaBar(entity, vec3(0.0f, 0.0f, 1.0f));
-	
+
+	registry.knockables.emplace(entity);
 	
 	return entity;
 }

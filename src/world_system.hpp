@@ -112,6 +112,7 @@ private:
 	void processEnemyEnemyCollision(Entity enemy1, Entity enemy2, std::vector<Entity>& was_damaged);
 	void handleEnemyCollision(Entity attacker, Entity target, std::vector<Entity>& was_damaged);
 	void checkAndHandleEnemyDeath(Entity entity);
+	void knock(Entity knocked, Entity knocker);
 
 
 	// C++ random number generator

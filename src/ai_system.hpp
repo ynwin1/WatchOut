@@ -22,7 +22,9 @@ private:
 	void archerBehaviour(Entity entity, vec3 playerPosition, float elapsed_ms);
 	void shootArrow(Entity shooter, vec3 targetPos);
 
+	// Bird functions
 	void birdBehaviour(Entity bird, vec3 playerPosition, float elapsed_ms);
+	void swoopAttack(Entity bird, vec3 playerPosition, float elapsed_ms);
 
 	vec2 randomDirection();
 

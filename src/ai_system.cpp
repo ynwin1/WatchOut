@@ -2,13 +2,19 @@
 #include "world_init.hpp"
 #include "physics_system.hpp"
 
-
+//Boar constants
 const float BOAR_AGGRO_RANGE = 500;
 const float BOAR_DISENGAGE_RANGE = 700;
 const float BOAR_PREPARE_TIME = 500;
 const float BOAR_CHARGE_DURATION = 1000;
 const float BOAR_COOLDOWN_TIME = 500;
 const float BOAR_CHARGE_SPEED = 1.0f;
+
+//Bird constants
+const float BIRD_AGGRO_RANGE = 100;
+const float BIRD_ORIGINAL_Z = 721;     
+const float BIRD_SWOOP_DURATION = 500; 
+const float BIRD_COOLDOWN_TIME = 4000;
 
 
 AISystem::AISystem(std::default_random_engine& rng)
@@ -423,15 +429,63 @@ vec2 cohesion(const Motion& motion, const std::vector<Motion>& flockMates) {
 
     return cohesionForce * COHESION_WEIGHT;
 }
+void AISystem::swoopAttack(Entity bird, vec3 playerPosition, float elapsed_ms) {
+    Motion& birdMotion = registry.motions.get(bird);
+    Bird& birdComponent = registry.birds.get(bird);
+    AnimationController& animationController = registry.animationControllers.get(bird);
+
+    // Initiate swoop when within range
+    vec2 birdPosition2D = vec2(birdMotion.position.x, birdMotion.position.y);
+    vec2 playerPosition2D = vec2(playerPosition.x, playerPosition.y);
+    float distanceToPlayer = distance(birdPosition2D, playerPosition2D);
+
+    if (!birdComponent.isSwooping && birdComponent.swoopCooldown <= 0 && distanceToPlayer < BIRD_AGGRO_RANGE) {
+        birdComponent.isSwooping = true;
+        birdComponent.swoopTimer = BIRD_SWOOP_DURATION;
+        birdComponent.swoopDirection = normalize(playerPosition2D - birdPosition2D);
+        birdComponent.originalZ = BIRD_ORIGINAL_Z;  // Store original height
+    }
+
+    // Swoop towards player
+    if (birdComponent.isSwooping) {
+        animationController.changeState(bird, AnimationState::Dead);
+        vec2 swoopForce = birdComponent.swoopDirection * birdComponent.swoopSpeed;
+        birdMotion.velocity = vec3(swoopForce, -1.0f);
+        birdComponent.swoopTimer -= elapsed_ms;
+        if (birdComponent.swoopTimer <= 0) {
+            if (birdMotion.position.z < birdComponent.originalZ) {
+                animationController.changeState(bird, AnimationState::Flying);
+                birdMotion.velocity.z = 1.0f;  
+            } else {
+                birdMotion.position.z = birdComponent.originalZ;
+                birdComponent.isSwooping = false;
+                birdMotion.velocity.z = 0; 
+                birdComponent.swoopCooldown = BIRD_COOLDOWN_TIME;
+            }
+        }
+        return;
+    }
+}
+
 
 
 void AISystem::birdBehaviour(Entity bird, vec3 playerPosition, float elapsed_ms) {
     Motion& birdMotion = registry.motions.get(bird);
+    Bird& birdComponent = registry.birds.get(bird);
+    AnimationController& animationController = registry.animationControllers.get(bird);
     std::vector<Motion> flockMates;
     for (const auto& entity : registry.birds.entities) {
         if (entity.getId() != bird.getId() && registry.motions.has(entity)) {
             flockMates.push_back(registry.motions.get(entity));
         }
+    }
+    // Swoop Attack
+    swoopAttack(bird, playerPosition, elapsed_ms);
+    if (birdComponent.isSwooping) {
+        return;
+    }
+    if (birdComponent.swoopCooldown > 0) {
+        birdComponent.swoopCooldown -= elapsed_ms;
     }
 
     // BOIDS: Separation, Alignment, Cohesion
@@ -440,6 +494,8 @@ void AISystem::birdBehaviour(Entity bird, vec3 playerPosition, float elapsed_ms)
     vec2 cohesionForce = cohesion(birdMotion, flockMates);
     vec2 birdPosition2D = vec2(birdMotion.position.x, birdMotion.position.y);
     vec2 playerPosition2D = vec2(playerPosition.x, playerPosition.y);
+    float distanceToPlayer = distance(birdPosition2D, playerPosition2D);
+
     vec2 directionToPlayer = normalize(playerPosition2D - birdPosition2D);
     const float SEPARATION_WEIGHT = 0.5f;
     const float ALIGNMENT_WEIGHT = 0.3f;
@@ -456,6 +512,7 @@ void AISystem::birdBehaviour(Entity bird, vec3 playerPosition, float elapsed_ms)
     if (length(movementForce) > 0) {
         movementForce = normalize(movementForce) * speed;
     }
+    animationController.changeState(bird, AnimationState::Flying);
     birdMotion.velocity = vec3(movementForce, 0.0f);
     birdMotion.facing = normalize(movementForce);
 }

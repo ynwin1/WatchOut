@@ -3,6 +3,14 @@
 #include "physics_system.hpp"
 
 
+const float BOAR_AGGRO_RANGE = 500;
+const float BOAR_DISENGAGE_RANGE = 700;
+const float BOAR_PREPARE_TIME = 500;
+const float BOAR_CHARGE_DURATION = 1000;
+const float BOAR_COOLDOWN_TIME = 500;
+const float BOAR_CHARGE_SPEED = 1.0f;
+
+
 AISystem::AISystem(std::default_random_engine& rng)
 {
     this->rng = rng;
@@ -149,7 +157,7 @@ bool AISystem::pathClear(Motion& motion, vec2 direction, float howFar, const std
         [&polygon](Entity obstacle) {
             float hitboxFactor = 1;
             if (registry.meshPtrs.has(obstacle)) {
-                hitboxFactor = 0.5;
+                hitboxFactor = 0.2;
             }
 
             Motion& obstacleMotion = registry.motions.get(obstacle);
@@ -183,19 +191,13 @@ bool AISystem::pathClear(Motion& motion, vec2 direction, float howFar, const std
 
 void AISystem::boarBehaviour(Entity boar, vec3 playerPosition, float elapsed_ms)
 {
-    const float BOAR_AGGRO_RANGE = 500;
-    const float BOAR_DISENGAGE_RANGE = 700;
-    const float BOAR_PREPARE_TIME = 500; 
-    const float BOAR_CHARGE_DURATION = 1000; 
-    const float BOAR_COOLDOWN_TIME = 500; 
-    const float BOAR_CHARGE_SPEED = 1.0f; 
-
     if (registry.deathTimers.has(boar)) {
         return;
     }
 
     Motion& motion = registry.motions.get(boar);
     Boar& boars = registry.boars.get(boar);
+    AnimationController& animationController = registry.animationControllers.get(boar);
     float distanceToPlayer = distance(motion.position, playerPosition);
     vec2 directionToPlayer = normalize(vec2(playerPosition) - vec2(motion.position));
 
@@ -205,10 +207,13 @@ void AISystem::boarBehaviour(Entity boar, vec3 playerPosition, float elapsed_ms)
     }
 
     // Set state based on distance
-    if (distanceToPlayer < BOAR_AGGRO_RANGE && boars.cooldownTimer <= 0 && !boars.preparing && !boars.charging) {
+    float clearDistance;
+    if (distanceToPlayer < BOAR_AGGRO_RANGE && boars.cooldownTimer <= 0 && !boars.preparing && !boars.charging &&
+            pathClear(motion, directionToPlayer, distanceToPlayer, registry.obstacles.entities, clearDistance)) {
         boars.preparing = true;
         boars.prepareTimer = BOAR_PREPARE_TIME;
         boars.chargeTimer = BOAR_CHARGE_DURATION;
+        animationController.changeState(boar, AnimationState::Idle);
     } else if (distanceToPlayer > BOAR_DISENGAGE_RANGE) {
         boars.preparing = false;
         boars.charging = false;
@@ -218,8 +223,6 @@ void AISystem::boarBehaviour(Entity boar, vec3 playerPosition, float elapsed_ms)
         // Preparation shake
         motion.facing = directionToPlayer;
         if (boars.prepareTimer > 0) {
-            AnimationController& animationController = registry.animationControllers.get(boar);
-            animationController.changeState(boar, AnimationState::Idle);
             boars.prepareTimer -= elapsed_ms;
 
             float shakeMagnitude = 5.0f;
@@ -231,30 +234,39 @@ void AISystem::boarBehaviour(Entity boar, vec3 playerPosition, float elapsed_ms)
             motion.velocity = vec3(0, 0, 0);
 
         } else {
-            AnimationController& animationController = registry.animationControllers.get(boar);
-            animationController.changeState(boar, AnimationState::Running);
-            boars.preparing = false; 
-            boars.charging = true;
-            boars.chargeDirection = directionToPlayer;
-            motion.velocity = vec3(boars.chargeDirection * BOAR_CHARGE_SPEED, 0);
+            boars.preparing = false;
+            if (pathClear(motion, directionToPlayer, distanceToPlayer, registry.obstacles.entities, clearDistance)) {
+                animationController.changeState(boar, AnimationState::Running);
+                boars.charging = true;
+                boars.chargeDirection = directionToPlayer;
+                motion.velocity = vec3(boars.chargeDirection * BOAR_CHARGE_SPEED, 0);
+            }
         }
     }
 
     if (boars.charging) {
-        AnimationController& animationController = registry.animationControllers.get(boar);
         if (boars.chargeTimer > 0) {
-            animationController.changeState(boar, AnimationState::Running);
             boars.chargeTimer -= elapsed_ms;
-
-        } else {
-            animationController.changeState(boar, AnimationState::Idle);
-            boars.charging = false;
-            boars.cooldownTimer = BOAR_COOLDOWN_TIME;
-            motion.velocity = vec3(0, 0, 0);
+        } 
+        else {
+            boarReset(boar);
         }
-    } else if (!boars.preparing) {
+    } 
+    else if (!boars.preparing) {
         moveTowardsPlayer(boar, playerPosition, elapsed_ms);
+        animationController.changeState(boar, AnimationState::Running);
     }
+}
+
+void AISystem::boarReset(Entity boar)
+{
+    AnimationController& animationController = registry.animationControllers.get(boar);
+    Motion& motion = registry.motions.get(boar);
+    Boar& boars = registry.boars.get(boar);
+    animationController.changeState(boar, AnimationState::Idle);
+    boars.charging = false;
+    boars.cooldownTimer = BOAR_COOLDOWN_TIME;
+    motion.velocity = vec3(0, 0, 0);
 }
 
 void AISystem::barbarianBehaviour(Entity barbarian, vec3 playerPosition, float elapsed_ms)

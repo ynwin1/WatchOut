@@ -80,6 +80,8 @@ void WorldSystem::restart_game()
     
     // Create player entity
     playerEntity = createJeff(vec2(world_size_x / 2.f, world_size_y / 2.f));
+    createPlayerHealthBar(playerEntity, camera->getSize());
+    createPlayerStaminaBar(playerEntity, camera->getSize());
 
     gameStateController.setGameState(GAME_STATE::PLAYING);
     show_mesh = false;
@@ -125,7 +127,13 @@ void WorldSystem::updateTrapsCounterText() {
     Text& text = registry.texts.get(trapsCounter.textEntity);
     std::stringstream ss;
     ss << std::setw(2) << std::setfill('0') << trapsCounter.count;
-    text.value = "Traps: " + ss.str();
+    text.value = "*" + ss.str();
+
+    if(trapsCounter.count == 0) {
+        text.colour = {0.8f, 0.8f, 0.0f};
+    } else {
+        text.colour = {1.0f, 1.0f, 1.0f};
+    }
 }
 
 bool WorldSystem::step(float elapsed_ms)
@@ -679,6 +687,7 @@ void WorldSystem::checkAndHandleEnemyDeath(Entity enemy) {
 
         HealthBar& hpbar = registry.healthBars.get(enemy);
         registry.remove_all_components_of(hpbar.meshEntity);
+        registry.remove_all_components_of(hpbar.frameEntity);
         registry.healthBars.remove(enemy);
         registry.enemies.remove(enemy);
         registry.deathTimers.emplace(enemy);

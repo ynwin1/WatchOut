@@ -400,7 +400,6 @@ void AISystem::processWizardMoving(Entity entity, vec3 playerPosition, float ela
         wizard.state = WizardState::Aiming;
         motion.velocity.x = 0;
         motion.velocity.y = 0;
-		motion.facing = normalize(vec2(playerPosition) - vec2(motion.position));
         animationController.changeState(entity, AnimationState::Idle);
     }
     else {
@@ -438,11 +437,9 @@ void AISystem::processWizardAiming(Entity entity, vec3 playerPosition, float ela
 
 void AISystem::processWizardPreparing(Entity entity, vec3 playerPosition, float elapsed_ms) {
     const float LIGHTNING_PREPARE_TIME = 3000;
+
     Wizard& wizard = registry.wizards.get(entity);
 
-	// face the player when preparing
-	Motion& motion = registry.motions.get(entity);
-	motion.facing = normalize(vec2(playerPosition) - vec2(motion.position));
     // make a decision to trigger lightening or keep preparing
     if (wizard.prepareLighteningTime > LIGHTNING_PREPARE_TIME) {
         triggerLightening(wizard.locked_target);
@@ -480,10 +477,21 @@ void AISystem::shootFireball(Entity shooter, vec3 targetPos) {
     // Start position of the fireball
     vec3 pos = motion.position;
     // Set offset to avoid collision with the shooter
-    const float maxFireballDimension = max(FIREBALL_BB_HEIGHT, FIREBALL_BB_WIDTH);
-    const float maxShooterDimension = max(motion.hitbox.x / 4, motion.hitbox.y / 4);
-    vec3 offset = vec3(direction * (maxFireballDimension + maxShooterDimension), 0);
-    pos += offset;
+    float x_offset = FIREBALL_HITBOX_WIDTH + motion.hitbox.x / 2;
+    float y_offset = FIREBALL_HITBOX_WIDTH + motion.hitbox.y / 2;
+    if (abs(direction.x) > abs(direction.y)) {
+        y_offset = 0;
+    }
+    else if (abs(direction.x) < abs(direction.y)) {
+        x_offset = 0;
+    }
+    if (direction.x < 0) {
+        x_offset = -x_offset;
+    }
+    if (direction.y < 0) {
+        y_offset = -y_offset;
+    }
+    pos += vec3(x_offset, y_offset, 0);
 
     direction = normalize(vec2(targetPos) - vec2(pos));
 

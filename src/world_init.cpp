@@ -331,7 +331,7 @@ Entity createFireball(vec3 pos, vec3 velocity, vec2 direction) {
 	motion.velocity = velocity;
 	motion.angle = atan2(direction.y, direction.x);
 	motion.scale = { FIREBALL_BB_WIDTH, FIREBALL_BB_HEIGHT };
-	motion.hitbox = { FIREBALL_BB_WIDTH / 2, FIREBALL_BB_WIDTH / 2, FIREBALL_BB_HEIGHT / (2*zConversionFactor) };
+	motion.hitbox = { FIREBALL_HITBOX_WIDTH, FIREBALL_HITBOX_WIDTH, FIREBALL_HITBOX_WIDTH };
 
 	Damaging& damaging = registry.damagings.emplace(entity);
 	damaging.type = "fireball";

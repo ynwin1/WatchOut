@@ -43,6 +43,8 @@ const float FIREBALL_BB_HEIGHT = 24.f * SPRITE_SCALE;
 const float LIGHTENING_BB_WIDTH = 48.f * SPRITE_SCALE;
 const float LIGHTENING_BB_HEIGHT = 300.f * SPRITE_SCALE;
 
+const float FIREBALL_HITBOX_WIDTH = 10.f * SPRITE_SCALE;
+
 const float BOAR_SPEED = 0.2;
 const float BARBARIAN_SPEED = 0.3;
 const float ARCHER_SPEED = 0.2;

@@ -60,16 +60,26 @@ struct Projectile {
 
 struct HealthBar {
 	Entity meshEntity;
+	Entity frameEntity;
+	Entity textEntity;
 	float width;
 	float height;
-	HealthBar(Entity& meshEntity) { this->meshEntity = meshEntity; };
+	HealthBar(Entity& meshEntity, Entity& frameEntity) { 
+		this->meshEntity = meshEntity; 
+		this->frameEntity = frameEntity; 
+	}
 };
 
 struct StaminaBar {
 	Entity meshEntity;
+	Entity frameEntity;
+	Entity textEntity;
 	float width;
 	float height;
-	StaminaBar(Entity& meshEntity) { this->meshEntity = meshEntity; };
+	StaminaBar(Entity& meshEntity, Entity& frameEntity) { 
+		this->meshEntity = meshEntity; 
+		this->frameEntity = frameEntity; 
+	};
 };
 
 // Collectible Component

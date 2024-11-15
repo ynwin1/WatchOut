@@ -1,3 +1,8 @@
+#pragma once
+
+#include "common.hpp"
+
+
 enum class GAME_STATE
 {
     PLAYING,
@@ -6,20 +11,22 @@ enum class GAME_STATE
     HELP
 };
 
+class WorldSystem;
+
 class GameStateController
 {
 public:
-    GameStateController(GAME_STATE initialGameState){
-        currentGameState = initialGameState;
-    }
+    void init(GAME_STATE initialGameState, WorldSystem *world);
 
-    const GAME_STATE getGameState() {
-        return currentGameState;
-    }
+    void setGameState(GAME_STATE newGameState);
 
-    void setGameState(GAME_STATE newGameState) {
-        currentGameState = newGameState;
-    }
+    void onExitState(GAME_STATE oldState);
+
+    void beforeEnterState(GAME_STATE newState);
+
+    const GAME_STATE getGameState() const;
+
 private:
     GAME_STATE currentGameState;
+    WorldSystem* world;
 };

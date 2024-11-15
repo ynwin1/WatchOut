@@ -84,7 +84,6 @@ Entity createArrow(vec3 pos, vec3 velocity);
 
 // Pause UI
 Entity createPauseMenu(vec2 windowSize);
-void exitPauseMenu();
 
 // Help Menu UI
 Entity createHelpMenu(vec2 windowSize);
@@ -104,6 +103,8 @@ Entity createTrapsCounterText(vec2 windowSize);
 Entity createGameOver(vec2 pos);
 
 void createHealthBar(Entity characterEntity, vec3 color);
+void createPlayerHealthBar(Entity characterEntity, vec2 windowSize);
+void createPlayerStaminaBar(Entity characterEntity, vec2 windowSize);
 
 void createMapTiles();
 Entity createMapTile(vec2 position, vec2 scale);
@@ -115,8 +116,6 @@ void createCliffs(GLFWwindow* window);
 Entity createBottomCliff(vec2 position, vec2 scale);
 Entity createSideCliff(vec2 position, vec2 scale);
 Entity createTopCliff(vec2 position, vec2 scale);
-
-void createStaminaBar(Entity characterEntity, vec3 color);
 
 void createTrees(RenderSystem* renderer);
 

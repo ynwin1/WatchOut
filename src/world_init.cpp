@@ -349,13 +349,15 @@ Entity createFireball(vec3 pos, vec3 velocity, vec2 direction) {
 	return entity;
 }
 
-Entity createLightening(vec3 pos) {
+Entity createLightening(vec2 pos) {
 	auto entity = Entity();
 
 	Motion& motion = registry.motions.emplace(entity);
-	motion.position = pos;
+	
+	// add half the hitbox size to the vec2 pos
 	motion.scale = { LIGHTENING_BB_WIDTH, LIGHTENING_BB_HEIGHT };
 	motion.hitbox = { LIGHTENING_BB_WIDTH, LIGHTENING_BB_WIDTH, LIGHTENING_BB_HEIGHT / zConversionFactor };
+	motion.position = vec3(pos, motion.hitbox.z / 2);
 
 	Damaging& damaging = registry.damagings.emplace(entity);
 	damaging.type = "lightening";
@@ -451,7 +453,7 @@ Entity createTargetArea(vec3 position, float radius) {
 	registry.backgrounds.emplace(entity);
 	registry.targetAreas.emplace(entity);
 	Cooldown& cooldown = registry.cooldowns.emplace(entity);
-	cooldown.remaining = 5000.f; // 5s
+	cooldown.remaining = 3000.f; // 5s
 
 	printf("Target area created\n");
 	return entity;

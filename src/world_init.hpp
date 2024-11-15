@@ -92,7 +92,7 @@ Entity createArrow(vec3 pos, vec3 velocity);
 Entity createFireball(vec3 pos, vec3 velocity, vec2 direction);
 
 // Lightening bolt from the sky
-Entity createLightening(vec3 pos);
+Entity createLightening(vec2 pos);
 
 // Pause UI
 Entity createPauseMenu(vec2 windowSize);

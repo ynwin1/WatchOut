@@ -421,22 +421,35 @@ void AISystem::processWizardAiming(Entity entity, vec3 playerPosition, float ela
         playerPosition.y > topBound + EDGE_BUFFER &&
         playerPosition.y < bottomBound - EDGE_BUFFER;
 
+    // calculate if path is clear
+	vec2 direction = normalize(vec2(playerPosition) - vec2(motion.position));
+	float howFar = distance(motion.position, playerPosition);
+	std::vector<Entity> obstacles = registry.obstacles.entities;
+    float clearDistance;
+    bool clear = pathClear(motion, direction, howFar, obstacles, clearDistance);
+
+	// face the shooter towards the player
+    motion.facing = direction;
+
     // choose a random attack (fireball OR lightening)
-    if (rand < 0.5 && farFromEdge) {
-        // start preparing for lightening
-        createTargetArea(playerPosition, LIGHTENING_RADIUS);
-        wizard.locked_target = playerPosition;
-        wizard.state = WizardState::Preparing;
-    }
-    else {
-        shootFireball(entity, playerPosition);
-        wizard.shoot_cooldown = 0;
-        wizard.state = WizardState::Shooting;
-    }
+    if (rand < 0.5 && clear) {
+		shootFireball(entity, playerPosition);
+		wizard.shoot_cooldown = 0;
+		wizard.state = WizardState::Shooting;
+	}
+	else if (farFromEdge) {
+		// start preparing for lightening
+		createTargetArea(playerPosition, LIGHTENING_RADIUS);
+		wizard.locked_target = playerPosition;
+		wizard.state = WizardState::Preparing;
+	}
+	else {
+		wizard.state = WizardState::Moving;
+	}
 }
 
 void AISystem::processWizardPreparing(Entity entity, vec3 playerPosition, float elapsed_ms) {
-    const float LIGHTNING_PREPARE_TIME = 3000;
+    const float LIGHTNING_PREPARE_TIME = 1500;
 
     Wizard& wizard = registry.wizards.get(entity);
 
@@ -454,6 +467,10 @@ void AISystem::processWizardPreparing(Entity entity, vec3 playerPosition, float 
 
 void AISystem::processWizardShooting(Entity entity, vec3 playerPosition, float elapsed_ms) {
     const float SHOT_COOLDOWN = 5000;
+
+	Motion& motion = registry.motions.get(entity);
+	vec2 direction = normalize(vec2(playerPosition) - vec2(motion.position));
+    motion.facing = direction;
 
     Wizard& wizard = registry.wizards.get(entity);
 

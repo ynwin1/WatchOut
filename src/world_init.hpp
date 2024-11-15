@@ -40,6 +40,7 @@ const float ARROW_BB_HEIGHT = 7 * SPRITE_SCALE;
 const float BOAR_SPEED = 0.2;
 const float BARBARIAN_SPEED = 0.3;
 const float ARCHER_SPEED = 0.2;
+const float PLAYER_SPEED = 0.5;
 
 const std::unordered_map<std::string, vec2> entity_sizes = {
 	{"boar", { BOAR_BB_WIDTH, BOAR_BB_HEIGHT }},

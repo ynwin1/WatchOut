@@ -16,7 +16,6 @@ struct Player {
 	bool goingRight;	// Key for going right is held down
 	bool tryingToJump;	// Key for jumping is held down
 	bool isMoving;		// Indicates if any movement keys are pressed
-	float defaultSpeed  = 0.5;
 	float speed = 0.5;
 	bool isTrapped = false;
 };
@@ -46,7 +45,6 @@ struct Enemy
 	unsigned int damage = 10;
 	std::string type;
 	unsigned int cooldown = 0;
-	float defaultSpeed  = 0;
 	float speed = 0;
 	float pathfindTime = 0;
 	bool isTrapped = false;
@@ -94,9 +92,8 @@ struct Trap
 	vec2 position = { 0, 0 };
 	vec2 scale = { 3, 3 };
 	unsigned int damage = 15.0;
-	float duration = 5000;
+	float duration = 10000;
 	float slowFactor = 0.1f;
-	std::unordered_set<int> damagedEntities;
 };
 
 // All data relevant to the shape and motion of entities

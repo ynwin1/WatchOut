@@ -97,6 +97,7 @@ private:
 	void resetSpawnSystem();
 	void despawnTraps(float elapsed_ms);
 	void updateCollectedTimer(float elapsed_ms);
+	void resetTrappedEntities();
 
 	// Collision functions
 	void entity_collectible_collision(Entity entity, Entity collectible);
@@ -107,7 +108,6 @@ private:
 	void processEnemyEnemyCollision(Entity enemy1, Entity enemy2, std::vector<Entity>& was_damaged);
 	void handleEnemyCollision(Entity attacker, Entity target, std::vector<Entity>& was_damaged);
 	void checkAndHandleEnemyDeath(Entity entity);
-
 
 	// C++ random number generator
 	std::default_random_engine rng;

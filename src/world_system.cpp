@@ -148,6 +148,7 @@ bool WorldSystem::step(float elapsed_ms)
     toggleMesh();
     despawnTraps(elapsed_ms);
     updateCollectedTimer(elapsed_ms);
+    resetTrappedEntities();
 
     if (camera->isToggled()) {
         Motion& playerMotion = registry.motions.get(playerEntity);
@@ -190,12 +191,6 @@ void WorldSystem::handle_collisions()
             else if (registry.damagings.has(entity_other)) {
                 entity_damaging_collision(entity, entity_other, was_damaged);
             }
-            // check if was trapped but is no longer colliding with a trap
-            else if(registry.players.get(entity).isTrapped) {
-                Player& player = registry.players.get(entity);
-                player.isTrapped = false; 
-                player.speed = player.defaultSpeed;
-            }
         }
         else if (registry.enemies.has(entity)) {
             if (registry.traps.has(entity_other)) {
@@ -209,18 +204,30 @@ void WorldSystem::handle_collisions()
             else if (registry.damagings.has(entity_other)) {
                 entity_damaging_collision(entity, entity_other, was_damaged);
             }
-            // check if was trapped but is no longer colliding with a trap
-            else if(registry.enemies.get(entity).isTrapped) {
-                Enemy& enemy = registry.enemies.get(entity);
-                enemy.isTrapped = false; 
-                enemy.speed = enemy.defaultSpeed;
-            }
         }
     }
 
     // Clear all collisions
     renderer->turn_damaged_red(was_damaged);
     physics->collisions.clear();
+}
+
+void WorldSystem::resetTrappedEntities() {
+    Player& player = registry.players.get(playerEntity);
+    player.isTrapped = false;
+    player.speed = PLAYER_SPEED;
+
+    for(auto& entity : registry.enemies.entities) {
+        Enemy& enemy = registry.enemies.get(entity);
+        enemy.isTrapped = false;
+        if(registry.boars.has(entity)) {
+            enemy.speed = BOAR_SPEED;
+        } else if(registry.barbarians.has(entity)) {
+            enemy.speed = BARBARIAN_SPEED;
+        } else if(registry.archers.has(entity)) {
+            enemy.speed = ARCHER_SPEED;
+        }
+    }
 }
 
 // Should the game be over ?
@@ -320,7 +327,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
                 }
                 break;
             case GLFW_KEY_D:
-                if (pressed && !player_comp.isTrapped) {
+                if (pressed) {
                     if (player_stamina.stamina > 0) { 
                         const float dashDistance = 300;
                         // Start dashing if player is moving
@@ -539,49 +546,22 @@ void WorldSystem::entity_trap_collision(Entity entity, Entity entity_other, std:
     Trap& trap = registry.traps.get(entity_other);
 
     if (registry.players.has(entity)) {
-        printf("Player hit a trap\n");
         Player& player = registry.players.get(playerEntity);
 
-        // entity can only be damaged once per trap
-        bool alreadyDamaged = trap.damagedEntities.find(entity) != trap.damagedEntities.end();
-        if(!alreadyDamaged) {
-            // reduce player health
-            int new_health = player.health - trap.damage;
-            player.health = new_health < 0 ? 0 : new_health;
-            was_damaged.push_back(entity);
-            trap.damagedEntities.insert(entity);
-            printf("Player health reduced by trap from %d to %d\n", player.health + trap.damage, player.health);
-        }
-
         if(!player.isTrapped) {
+            printf("Player hit a trap\n");
             // apply slow effect
             player.isTrapped = true;
             player.speed *= trap.slowFactor;
-
-            // if player is dashing, stop mid-dash 
-            if(registry.dashers.has(entity)) {
-                registry.dashers.get(entity).isDashing = false;
-            }
         }
 
         checkAndHandlePlayerDeath(entity);
 	}
 	else if (registry.enemies.has(entity)) {
-        printf("Enemy hit a trap\n");
         Enemy& enemy = registry.enemies.get(entity);
 
-        // entity can only be damaged once per trap
-        bool alreadyDamaged = trap.damagedEntities.find(entity) != trap.damagedEntities.end();
-        if(!alreadyDamaged) {
-            // reduce enemy health
-            int new_health = enemy.health - trap.damage;
-            enemy.health = new_health < 0 ? 0 : new_health;
-            was_damaged.push_back(entity);
-            trap.damagedEntities.insert(entity);
-            printf("Enemy health reduced from %d to %d\n", enemy.health + trap.damage, enemy.health);
-        }
-
         if(!enemy.isTrapped) {
+            printf("Enemy hit a trap\n");
             // apply slow effect
             enemy.isTrapped = true;
             enemy.speed *= trap.slowFactor;

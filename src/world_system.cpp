@@ -857,5 +857,5 @@ void WorldSystem::soundSetUp() {
     // init sound system
     sound->init();
     // play background music
-    sound->playMusic(sound->BACKGROUND_MUSIC, audio_path("background.wav"), -1);
+    sound->playMusic(sound->BACKGROUND_MUSIC, audio_path("choir_background.wav"), -1);
 }

@@ -89,6 +89,7 @@ private:
 	// restart level
 	void restart_game();
 	void initText();
+	void soundSetUp();
 
 	// Actions performed for each step
 	void spawn(float elapsed_ms);

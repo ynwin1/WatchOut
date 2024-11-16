@@ -89,11 +89,7 @@ void WorldSystem::restart_game()
     show_mesh = false;
     resetSpawnSystem();
     initText();
-
-    // init sound system
-	sound->init();
-	// play background music
-	sound->playMusic(audio_path("background.wav"), -1);
+    soundSetUp();
 
     next_spawns = spawn_delays;
 }
@@ -722,7 +718,9 @@ void WorldSystem::checkAndHandlePlayerDeath(Entity& entity) {
 		Motion& motion = registry.motions.get(entity);
 		motion.angle = M_PI / 2; // Rotate player 90 degrees
         motion.hitbox = { motion.hitbox.z, motion.hitbox.y, motion.hitbox.x }; // Change hitbox to be on its side
-		printf("Player died\n");
+
+		sound->stopMusic(sound->BACKGROUND_MUSIC);
+		sound->playSoundEffect(sound->PLAYER_DEATH_MUSIC, audio_path("playerDeath.wav"), -1);
 	}
 }
 
@@ -851,4 +849,13 @@ void WorldSystem::resetSpawnSystem() {
 	max_entities.at("archer") = MAX_ARCHERS;
 	max_entities.at("heart") = MAX_HEARTS;
 	max_entities.at("collectible_trap") = MAX_TRAPS;
+}
+
+void WorldSystem::soundSetUp() {
+    // stop all sounds first
+    sound->stopAllSounds();
+    // init sound system
+    sound->init();
+    // play background music
+    sound->playMusic(sound->BACKGROUND_MUSIC, audio_path("background.wav"), -1);
 }

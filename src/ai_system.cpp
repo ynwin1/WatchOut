@@ -242,7 +242,7 @@ void AISystem::boarBehaviour(Entity boar, vec3 playerPosition, float elapsed_ms)
                 boars.charging = true;
                 boars.chargeDirection = directionToPlayer;
                 motion.velocity = vec3(boars.chargeDirection * BOAR_CHARGE_SPEED, 0);
-                sound->playSoundEffect(audio_path("boar_charge.wav"), 0);
+                sound->playSoundEffect(sound->BOAR_CHARGE_SOUND, audio_path("boar_charge.wav"), 0);
             }
         }
     }
@@ -333,7 +333,7 @@ void AISystem::shootArrow(Entity shooter, vec3 targetPos)
     vec2 horizontal_velocity = velocity * cos(ARROW_ANGLE) * horizontal_direction;
     float vertical_velocity = velocity * sin(ARROW_ANGLE);
     createArrow(pos, vec3(horizontal_velocity, vertical_velocity));
-	sound->playSoundEffect(audio_path("arrow.wav"), 0);
+	sound->playSoundEffect(sound->ARROW_SOUND,audio_path("arrow.wav"), 0);
 }
 
 void AISystem::archerBehaviour(Entity entity, vec3 playerPosition, float elapsed_ms)

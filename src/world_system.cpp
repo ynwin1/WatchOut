@@ -529,8 +529,6 @@ void WorldSystem::entity_collectible_collision(Entity entity, Entity entity_othe
 	else {
 		printf("Unknown collectible type\n");
 	}
-
-	sound->playSoundEffect(sound->COLLECTING_SOUND, audio_path("collecting.wav"), 0);
     // destroy the collectible
     registry.remove_all_components_of(entity_other);
 }
@@ -836,6 +834,7 @@ void WorldSystem::adjustSpawnSystem(float elapsed_ms) {
 			maxEntity.second++;
 		}
 		gameTimer.elapsed = 0;
+        sound->playSoundEffect(sound->LEVELUP_SOUND, audio_path("levelUp.wav"), 0);
 	}
 }
 

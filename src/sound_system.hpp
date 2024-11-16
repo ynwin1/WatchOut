@@ -26,7 +26,7 @@ public:
 	std::string WALKING_SOUND = "walking_sound";
 	std::string JUMPING_SOUND = "jumping_sound";
 	std::string DASHING_SOUND = "dashing_sound";
-	std::string COLLECTING_SOUND = "collecting_sound";
+	std::string LEVELUP_SOUND = "levelup_sound";
 
 
 	// FUNCTIONS

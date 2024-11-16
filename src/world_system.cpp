@@ -263,6 +263,10 @@ void WorldSystem::resetTrappedEntities() {
             enemy.speed = BARBARIAN_SPEED;
         } else if(registry.archers.has(entity)) {
             enemy.speed = ARCHER_SPEED;
+        } else if(registry.wizards.has(entity)){
+            enemy.speed = WIZARD_SPEED;
+        } else if(registry.birds.has(entity)){
+            enemy.speed = BIRD_SPEED;
         }
     }
 }

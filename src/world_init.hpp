@@ -51,7 +51,7 @@ const float FIREBALL_ACCELERATION = 0.5f;
 const float BOAR_SPEED = 0.2;
 const float BARBARIAN_SPEED = 0.3;
 const float ARCHER_SPEED = 0.2;
-const float BIRD_SPEED = 0.1;
+const float BIRD_SPEED = 0.3;
 const float WIZARD_SPEED = 0.1;
 const float PLAYER_SPEED = 0.5;
 

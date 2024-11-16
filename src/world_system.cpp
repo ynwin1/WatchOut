@@ -185,6 +185,9 @@ void WorldSystem::handle_collisions()
         Entity entity = physics->collisions[i].first;
         Entity entity_other = physics->collisions[i].second;
 
+        if (registry.traps.has(entity_other) && (registry.players.has(entity) || registry.enemies.has(entity))) {
+            entity_trap_collision(entity, entity_other, was_damaged);
+        }
 
         float COOLDOWN_TIME = 1000;
         std::pair<int, int> pair = { entity, entity_other };
@@ -202,10 +205,6 @@ void WorldSystem::handle_collisions()
             if (registry.collectibles.has(entity_other)) {
 				entity_collectible_collision(entity, entity_other);
             }
-            else if (registry.traps.has(entity_other)) {
-				// Collision between player and trap
-				entity_trap_collision(entity, entity_other, was_damaged);
-            }
             else if (registry.enemies.has(entity_other)) {
 				// Collision between player and enemy
 				moving_entities_collision(entity, entity_other, was_damaged);
@@ -215,11 +214,7 @@ void WorldSystem::handle_collisions()
             }
         }
         else if (registry.enemies.has(entity)) {
-            if (registry.traps.has(entity_other)) {
-				// Collision between enemy and trap
-				entity_trap_collision(entity, entity_other, was_damaged);
-            }
-            else if (registry.enemies.has(entity_other)) {
+            if (registry.enemies.has(entity_other)) {
 				// Collision between two enemies
 				moving_entities_collision(entity, entity_other, was_damaged);
             }

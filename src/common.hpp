@@ -29,10 +29,10 @@ inline std::string textures_path(const std::string& name) { return data_path() +
 inline std::string audio_path(const std::string& name) { return data_path() + "/audio/" + std::string(name); };
 inline std::string mesh_path(const std::string& name) { return data_path() + "/meshes/" + std::string(name); };
 
-const int world_size_x = 4200;//3200
-const int world_size_y = 3000;//2000
+const int world_size_x = 4200;
+const int world_size_y = 3000;
 const int leftBound = 500;
-const int rightBound = world_size_x - 500; // 4000 - 100 = 3900
+const int rightBound = world_size_x - 500;
 const int topBound = 500;
 const int bottomBound = world_size_y - 500;
 

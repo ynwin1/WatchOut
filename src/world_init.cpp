@@ -577,15 +577,15 @@ void createObstacles() {
 
 	int numShrubs = 20;
 	while(numShrubs != 0) {
-    	float posX = (uniform_dist(rng) * world_size_x);
-		float posY = (uniform_dist(rng) * world_size_y);
+		float posX = uniform_dist(rng) * (rightBound - leftBound) + leftBound;
+		float posY = uniform_dist(rng) * (bottomBound - topBound) + topBound;
 		createObstacle({posX, posY}, {SHRUB_BB_WIDTH, SHRUB_BB_HEIGHT}, TEXTURE_ASSET_ID::SHRUB);
 		numShrubs--;
     }
 	int numRocks = 15;
 	while(numRocks != 0) {
-    	float posX = (uniform_dist(rng) * world_size_x);
-		float posY = (uniform_dist(rng) * world_size_y);
+		float posX = uniform_dist(rng) * (rightBound - leftBound) + leftBound;
+		float posY = uniform_dist(rng) * (bottomBound - topBound) + topBound;
 		createObstacle({posX, posY}, {ROCK_BB_WIDTH, ROCK_BB_HEIGHT}, TEXTURE_ASSET_ID::ROCK);
 		numRocks--;
     }
@@ -783,8 +783,8 @@ void createTrees(RenderSystem* renderer) {
 	rng = std::default_random_engine(std::random_device()());
 
 	while (numTrees != 0) {
-		float posX = (uniform_dist(rng) * world_size_x);
-		float posY = (uniform_dist(rng) * world_size_y);
+		float posX = uniform_dist(rng) * (rightBound - leftBound) + leftBound;
+		float posY = uniform_dist(rng) * (bottomBound - topBound) + topBound;
 		createTree(renderer, { posX, posY });
 		numTrees--;
 	}

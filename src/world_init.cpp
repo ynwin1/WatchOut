@@ -336,25 +336,25 @@ Entity createFireball(vec3 pos, vec2 direction) {
 	return entity;
 }
 
-Entity createLightening(vec2 pos) {
+Entity createLightning(vec2 pos) {
 	auto entity = Entity();
 
 	Motion& motion = registry.motions.emplace(entity);
 	
 	// add half the hitbox size to the vec2 pos
-	motion.scale = { LIGHTENING_BB_WIDTH, LIGHTENING_BB_HEIGHT };
-	motion.hitbox = { LIGHTENING_BB_WIDTH, LIGHTENING_BB_WIDTH, LIGHTENING_BB_HEIGHT / zConversionFactor };
+	motion.scale = { LIGHTNING_BB_WIDTH, LIGHTNING_BB_HEIGHT };
+	motion.hitbox = { LIGHTNING_BB_WIDTH, LIGHTNING_BB_WIDTH, LIGHTNING_BB_HEIGHT / zConversionFactor };
 	motion.position = vec3(pos, motion.hitbox.z / 2);
 
 	Damaging& damaging = registry.damagings.emplace(entity);
-	damaging.type = "lightening";
+	damaging.type = "lightning";
 	damaging.damage = 20;
 	registry.midgrounds.emplace(entity);
 
 	Cooldown& duration = registry.cooldowns.emplace(entity);
 	duration.remaining = 1500.f;
 
-	initLighteningAnimationController(entity);
+	initLightningAnimationController(entity);
 	return entity;
 }
 

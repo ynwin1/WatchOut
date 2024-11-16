@@ -11,7 +11,7 @@ public:
 	void boarReset(Entity boar);
 
 private:
-	const float LIGHTENING_RADIUS = 200.f;
+	const float LIGHTNING_RADIUS = 200.f;
 
 	void moveTowardsPlayer(Entity enemy, vec3 playerPosition, float elapsed_ms);
 	vec2 chooseDirection(Motion& motion, vec3 playerPosition);
@@ -27,7 +27,7 @@ private:
 	// Wizard functions
 	void wizardBehaviour(Entity entity, vec3 playerPosition, float elapsed_ms);
 	void shootFireball(Entity shooter, vec3 targetPos);
-	void triggerLightening(vec3 targetPos);
+	void triggerLightning(vec3 targetPos);
 
 	// Wizard State Processing
 	void processWizardMoving(Entity wizard, vec3 playerPosition, float elapsed_ms);

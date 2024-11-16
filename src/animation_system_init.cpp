@@ -35,8 +35,8 @@ const int WIZARD_IDLE_NUM_FRAMES = 4;
 const int WIZARD_IDLE_FRAME_TIME = 200;
 const int WIZARD_DEAD_NUM_FRAMES = 6;
 const int WIZARD_DEAD_FRAME_TIME = 600;
-const int LIGHTENING_NUM_FRAMES = 9;
-const int LIGHTENING_FRAME_TIME = 50;
+const int LIGHTNING_NUM_FRAMES = 9;
+const int LIGHTNING_FRAME_TIME = 50;
 const int FIREBALL_NUM_FRAMES = 6;
 const int FIREBALL_FRAME_TIME = 50;
 
@@ -135,14 +135,14 @@ AnimationController& initWizardAnimationController(Entity& entity) {
 	return animationcontroller;
 }
 
-AnimationController& initLighteningAnimationController(Entity& entity) {
+AnimationController& initLightningAnimationController(Entity& entity) {
 	AnimationController& animationcontroller = registry.animationControllers.emplace(entity);
-	animationcontroller.addAnimation(AnimationState::Attack, LIGHTENING_FRAME_TIME, LIGHTENING_NUM_FRAMES, TEXTURE_ASSET_ID::LIGHTENING);
+	animationcontroller.addAnimation(AnimationState::Attack, LIGHTNING_FRAME_TIME, LIGHTNING_NUM_FRAMES, TEXTURE_ASSET_ID::LIGHTNING);
 
 	registry.renderRequests.insert(
 		entity,
 		{
-			TEXTURE_ASSET_ID::LIGHTENING,
+			TEXTURE_ASSET_ID::LIGHTNING,
 			EFFECT_ASSET_ID::ANIMATED,
 			GEOMETRY_BUFFER_ID::SPRITE
 		});

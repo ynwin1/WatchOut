@@ -443,15 +443,15 @@ void AISystem::processWizardAiming(Entity entity, vec3 playerPosition, float ela
 	// face the shooter towards the player
     motion.facing = direction;
 
-    // choose a random attack (fireball OR lightening)
+    // choose a random attack (fireball OR lightning)
     if (rand < 0.5 && clear) {
 		shootFireball(entity, playerPosition);
 		wizard.shoot_cooldown = 0;
 		wizard.state = WizardState::Shooting;
 	}
 	else if (farFromEdge) {
-		// start preparing for lightening
-		createTargetArea(playerPosition, LIGHTENING_RADIUS);
+		// start preparing for lightning
+		createTargetArea(playerPosition, LIGHTNING_RADIUS);
 		wizard.locked_target = playerPosition;
 		wizard.state = WizardState::Preparing;
     }
@@ -467,15 +467,15 @@ void AISystem::processWizardPreparing(Entity entity, vec3 playerPosition, float 
 
     Wizard& wizard = registry.wizards.get(entity);
 
-    // make a decision to trigger lightening or keep preparing
-    if (wizard.prepareLighteningTime > LIGHTNING_PREPARE_TIME) {
-        triggerLightening(wizard.locked_target);
+    // make a decision to trigger lightning or keep preparing
+    if (wizard.prepareLightningTime > LIGHTNING_PREPARE_TIME) {
+        triggerLightning(wizard.locked_target);
         wizard.state = WizardState::Shooting;
-        wizard.prepareLighteningTime = 0;
+        wizard.prepareLightningTime = 0;
         wizard.shoot_cooldown = 0;
     }
     else {
-        wizard.prepareLighteningTime += elapsed_ms;
+        wizard.prepareLightningTime += elapsed_ms;
     }
 }
 
@@ -534,17 +534,17 @@ void AISystem::shootFireball(Entity shooter, vec3 targetPos) {
     createFireball(pos, direction);
 }
 
-void AISystem::triggerLightening(vec3 target_pos) {
-    const float LIGHTENING_COUNT = 3;
-    for (int i = 0; i < LIGHTENING_COUNT; i++) {
+void AISystem::triggerLightning(vec3 target_pos) {
+    const float LIGHTNING_COUNT = 3;
+    for (int i = 0; i < LIGHTNING_COUNT; i++) {
 		float angle = uniform_dist(rng) * 2 * M_PI;
-		float radius = uniform_dist(rng) * LIGHTENING_RADIUS;
+		float radius = uniform_dist(rng) * LIGHTNING_RADIUS;
 
 		float x = radius * cos(angle);
 		float y = radius * sin(angle);
 		vec3 pos = target_pos + vec3(x, y, 0);
 
-		createLightening(pos);
+		createLightning(pos);
     }
 }
 

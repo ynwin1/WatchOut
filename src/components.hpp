@@ -269,7 +269,7 @@ enum WizardState { Moving, Aiming, Preparing, Shooting };
 struct Wizard {
 	WizardState state = WizardState::Moving;
 	float shoot_cooldown = 0;
-	float prepareLighteningTime = 0;
+	float prepareLightningTime = 0;
 	
 	vec3 locked_target = vec3(0, 0, 0);
 };

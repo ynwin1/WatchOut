@@ -10,6 +10,7 @@
 
 // STD
 #include <algorithm>
+#include <sstream>
 
 void RenderSystem::drawText(Entity entity) {
 	const Text& text = registry.texts.get(entity);
@@ -21,8 +22,6 @@ void RenderSystem::drawText(Entity entity) {
 
 	// Setting shaders
 	glUseProgram(program);
-
-    glUniform3f(glGetUniformLocation(program, "textColor"), 1.0f, 1.0f, 1.0f);
 
 	glActiveTexture(GL_TEXTURE0);
 
@@ -79,7 +78,7 @@ void RenderSystem::drawText(Entity entity) {
     }
 }
 
-void RenderSystem::drawMesh(Entity entity, const mat3& projection)
+void RenderSystem::drawMesh(Entity entity, const mat3& projection, const mat4& projection_screen)
 {
 	// Transformation code, see Rendering and Transformation in the template
 	// specification for more info Incrementally updates transformation matrix,
@@ -253,24 +252,53 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection)
 	glUniform3fv(colour_uloc, 1, (float*)&colour);
 	gl_has_errors();
 
-	// Get number of indices from index buffer, which has elements uint16_t
-	GLint size = 0;
-	glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
-	gl_has_errors();
-
-	GLsizei num_indices = size / sizeof(uint16_t);
-	// GLsizei num_triangles = num_indices / 3;
-
 	GLint currProgram;
 	glGetIntegerv(GL_CURRENT_PROGRAM, &currProgram);
-	// Setting uniform values to the currently bound program
-	GLuint transform_loc = glGetUniformLocation(currProgram, "transform");
-	glUniformMatrix3fv(transform_loc, 1, GL_FALSE, (float*)&transform.mat);
-	GLuint projection_loc = glGetUniformLocation(currProgram, "projection");
-	glUniformMatrix3fv(projection_loc, 1, GL_FALSE, (float*)&projection);
-	gl_has_errors();
-	// Drawing of num_indices/3 triangles specified in the index buffer
-	glDrawElements(GL_TRIANGLES, num_indices, GL_UNSIGNED_SHORT, nullptr);
+
+	GLuint toScreen = glGetUniformLocation(currProgram, "toScreen");
+
+	if(registry.foregrounds.has(entity)) { // screen space
+		glUniform1i(toScreen, 1);
+		GLuint projection_loc = glGetUniformLocation(currProgram, "projection4");
+		glUniformMatrix4fv(projection_loc, 1, GL_FALSE, value_ptr(projection_screen));
+		gl_has_errors();
+
+		// apply transformations
+		Foreground& fg = registry.foregrounds.get(entity);
+		glm::mat4 transform4 = glm::translate(glm::mat4(1.0f), glm::vec3(fg.position.x, fg.position.y, 0.0f));
+		glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(fg.scale.x, fg.scale.y, 1.0f));
+		transform4 = transform4 * scale;
+
+		unsigned int transformLoc = glGetUniformLocation(currProgram, "transform4");
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, value_ptr(transform4));
+		gl_has_errors();
+	} else {
+		glUniform1i(toScreen, 0);
+		// Setting uniform values to the currently bound program
+		GLuint transform_loc = glGetUniformLocation(currProgram, "transform");
+		glUniformMatrix3fv(transform_loc, 1, GL_FALSE, (float*)&transform.mat);
+		GLuint projection_loc = glGetUniformLocation(currProgram, "projection");
+		glUniformMatrix3fv(projection_loc, 1, GL_FALSE, (float*)&projection);
+		gl_has_errors();
+	}
+
+	if(render_request.primitive_type == PRIMITIVE_TYPE::LINES) {
+		GLint buffer_size = 0;
+		glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &buffer_size);
+		gl_has_errors();
+		GLsizei num_vertices = buffer_size / sizeof(UntexturedVertex);
+		glDrawArrays(GL_LINE_LOOP, 0, num_vertices);
+	} else {
+		// Get number of indices from index buffer, which has elements uint16_t
+		GLint size = 0;
+		glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+		gl_has_errors();
+
+		// Drawing of num_indices/3 triangles specified in the index buffer
+		GLsizei num_indices = size / sizeof(uint16_t);
+		glDrawElements(GL_TRIANGLES, num_indices, GL_UNSIGNED_SHORT, nullptr);
+	}
+
 	gl_has_errors();
 }
 
@@ -315,10 +343,11 @@ void RenderSystem::draw()
 	// sprites back to front
 	gl_has_errors();
 	mat3 projection_2D = createProjectionMatrix();
+	mat4 projection_screen = createProjectionToScreenSpace();
 
 	// Draw all background textures
 	for (Entity entity : registry.backgrounds.entities) {
-		drawMesh(entity, projection_2D);
+		drawMesh(entity, projection_2D, projection_screen);
 	}
 	
 	// Copy entities and sort
@@ -326,12 +355,12 @@ void RenderSystem::draw()
 	std::sort(renderOrder.begin(), renderOrder.end(), renderComparison);
 	// Draw all midground textured meshes that have a position and size component
 	for (Entity entity : renderOrder) {
-		drawMesh(entity, projection_2D);
+		drawMesh(entity, projection_2D, projection_screen);
 	}
 
 	// Draw all foreground textures
 	for (Entity entity : registry.foregrounds.entities) {
-		drawMesh(entity, projection_2D);
+		drawMesh(entity, projection_2D, projection_screen);
 	}
 
 	// Draw all text
@@ -442,10 +471,8 @@ void RenderSystem::turn_damaged_red(std::vector<Entity>& was_damaged)
 }
 
 void handleHpBarBoundsCheck() {
-	ComponentContainer<HealthBar> &hpbars = registry.healthBars;
-
-	for(uint i = 0; i < hpbars.components.size(); i++) {
-		HealthBar& hpbar = hpbars.components[i];
+	for(Entity& entity : registry.enemies.entities) {
+		HealthBar& hpbar = registry.healthBars.get(entity);
 		Motion& motion = registry.motions.get(hpbar.meshEntity);
 		float halfScaleX = motion.scale.x / 2;
 		float halfScaleY = visualToWorldY(motion.scale.y) / 2;
@@ -462,6 +489,9 @@ void handleHpBarBoundsCheck() {
 		} else if(motion.position.y + halfScaleY > world_size_y) {
 			motion.position.y = world_size_y - halfScaleY;
 		}
+
+		Motion& hpFrameMotion = registry.motions.get(hpbar.frameEntity);
+		hpFrameMotion.position = motion.position;
 	}
 }
 
@@ -472,9 +502,11 @@ void updateHpBarPositionHelper(const std::vector<Entity>& entities) {
         Motion& healthBarMotion =  registry.motions.get(healthBar.meshEntity);
          // place above character
         float topOffset = 25;
-		healthBarMotion.position.x = motion.position.x;
+		healthBarMotion.position.x = motion.position.x - (healthBarMotion.scale.x / 2);
         healthBarMotion.position.y = motion.position.y;
 		healthBarMotion.position.z = motion.position.z + visualToWorldY(motion.scale.y) / 2 + topOffset;
+		Motion& hpFrameMotion =  registry.motions.get(healthBar.frameEntity);
+		hpFrameMotion.position = healthBarMotion.position;
     }   
 }
 
@@ -482,8 +514,12 @@ void updateHpBarMeter() {
 	for (Entity entity : registry.players.entities) {
 		Player& player = registry.players.get(entity);
 		HealthBar& hpbar = registry.healthBars.get(entity);
-		Motion& motion = registry.motions.get(hpbar.meshEntity);
-		motion.scale.x = hpbar.width * player.health/100.f;
+		Foreground& fg = registry.foregrounds.get(hpbar.meshEntity);
+		fg.scale.x = hpbar.width * player.health/100.f;
+		Text& text = registry.texts.get(hpbar.textEntity);
+		std::stringstream ss;
+		ss << "HP" << std::string(8, ' ') << std::to_string(player.health) << "/100";
+		text.value = ss.str();
 	}
 	for (Entity entity : registry.enemies.entities) {
 		Enemy& enemy = registry.enemies.get(entity);
@@ -494,7 +530,6 @@ void updateHpBarMeter() {
 }
 
 void updateHpBarPosition() {
-    updateHpBarPositionHelper(registry.players.entities);
     updateHpBarPositionHelper(registry.enemies.entities);
 }
 
@@ -504,44 +539,18 @@ void RenderSystem::update_hpbars() {
 	handleHpBarBoundsCheck();
 }
 
-void handleStaminaBarBoundsCheck() {
-	ComponentContainer<StaminaBar> &staminabars = registry.staminaBars;
-
-	for(uint i = 0; i < staminabars.components.size(); i++) {
-		StaminaBar& staminabar = staminabars.components[i];
-		Motion& motion = registry.motions.get(staminabar.meshEntity);
-		float halfScaleX = motion.scale.x / 2;
-		float halfScaleY = visualToWorldY(motion.scale.y) / 2;
-
-		if(motion.position.x - halfScaleX  < 0) {
-			motion.position.x = halfScaleX;
-		} else if(motion.position.x + halfScaleX > world_size_x) {
-			motion.position.x = world_size_x - halfScaleX;
-		}
-
-		if(motion.position.y - halfScaleY - motion.position.z < 0) {
-			motion.position.y = halfScaleY;
-			motion.position.z = 0;
-		} else if(motion.position.y + halfScaleY > world_size_y) {
-			motion.position.y = world_size_y - halfScaleY;
-		}
-	}
-}
-
 void RenderSystem::update_staminabars() {
 	for (Entity entity : registry.players.entities) {
 		Player& player = registry.players.get(entity);
 		Stamina& stamina = registry.staminas.get(entity);
 		StaminaBar& staminabar = registry.staminaBars.get(entity);
-		Motion& motion = registry.motions.get(entity);
-		Motion& staminaBarMotion = registry.motions.get(staminabar.meshEntity);
-		staminaBarMotion.scale.x = staminabar.width * stamina.stamina/100.f;
-		float topOffset = 40;
-		staminaBarMotion.position.x = motion.position.x;
-        staminaBarMotion.position.y = motion.position.y;
-		staminaBarMotion.position.z = motion.position.z + visualToWorldY(motion.scale.y) / 2 + topOffset;
+		Foreground& fg = registry.foregrounds.get(staminabar.meshEntity);
+		fg.scale.x = staminabar.width * stamina.stamina/100.f;
+		Text& text = registry.texts.get(staminabar.textEntity);
+		std::stringstream ss;
+		ss << "Stamina" << std::string(8, ' ') << std::to_string((int)stamina.stamina) << "/100";
+		text.value = ss.str();
 	}
-	handleStaminaBarBoundsCheck();
 }
 
 void RenderSystem::updateEntityFacing() {
@@ -555,6 +564,9 @@ void RenderSystem::updateEntityFacing() {
 	}
 }
 
+mat4 RenderSystem::createProjectionToScreenSpace()  {
+	return glm::ortho(0.0f, static_cast<float>(camera->getSize().x), 0.0f, static_cast<float>(camera->getSize().y));
+}
 
 mat3 RenderSystem::createProjectionMatrix() 
 {

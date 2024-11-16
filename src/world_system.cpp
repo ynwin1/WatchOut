@@ -424,30 +424,31 @@ void WorldSystem::update_player_facing(Player& player, Motion& motion)
 void WorldSystem::update_cooldown(float elapsed_ms) {
     for (auto& cooldownEntity : registry.cooldowns.entities) {
         Cooldown& cooldown = registry.cooldowns.get(cooldownEntity);
-		cooldown.remaining -= elapsed_ms;
+        cooldown.remaining -= elapsed_ms;
 
         if (cooldown.remaining <= 0) {
             // remove lightening
             if (registry.damagings.has(cooldownEntity) && registry.damagings.get(cooldownEntity).type == "lightening") {
                 registry.remove_all_components_of(cooldownEntity);
             }
-			// remove target area
+            // remove target area
             else if (registry.targetAreas.has(cooldownEntity)) {
                 registry.remove_all_components_of(cooldownEntity);
-            } 
+            }
             else {
                 registry.cooldowns.remove(cooldownEntity);
             }
-    }
-
-    auto it = collisionCooldowns.begin();
-    while (it != collisionCooldowns.end()) {
-        it->second -= elapsed_ms;
-        if (it->second <= 0) {
-            it = collisionCooldowns.erase(it);
         }
-        else {
-            it++;
+
+        auto it = collisionCooldowns.begin();
+        while (it != collisionCooldowns.end()) {
+            it->second -= elapsed_ms;
+            if (it->second <= 0) {
+                it = collisionCooldowns.erase(it);
+            }
+            else {
+                it++;
+            }
         }
     }
 }

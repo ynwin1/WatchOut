@@ -209,8 +209,6 @@ void RenderSystem::initializeGlGeometryBuffers()
 	bindVBOandIBO(GEOMETRY_BUFFER_ID::GAME_SPACE, game_space_vertices, game_space_indices);
 
 	initMapTileBuffer();
-	initHealthBarBuffer();
-	initStaminaBarBuffer();
 	initRectangleBuffer();
 	
 	initText();
@@ -240,17 +238,6 @@ void RenderSystem::initRectangleBuffer() {
 
     const std::vector<uint16_t> rectangle_indices = { 0, 1, 2, 0, 2, 3 };
     bindVBOandIBO(GEOMETRY_BUFFER_ID::RECTANGLE, rectangle_vertices, rectangle_indices);
-}
-
-void RenderSystem::initStaminaBarBuffer() {
-    std::vector<UntexturedVertex> health_bar_vertices(4);
-    health_bar_vertices[0].position = { -0.5f, -0.5f, 0.0f };
-    health_bar_vertices[1].position = {  0.5f, -0.5f, 0.0f };
-    health_bar_vertices[2].position = { -0.5f,  0.5f, 0.0f };
-    health_bar_vertices[3].position = {  0.5f,  0.5f, 0.0f };
-
-    const std::vector<uint16_t> health_bar_indices = { 0, 1, 2, 1, 2, 3 };
-    bindVBOandIBO(GEOMETRY_BUFFER_ID::STAMINA_BAR, health_bar_vertices, health_bar_indices);
 }
 
 void RenderSystem::initText() {

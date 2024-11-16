@@ -100,9 +100,6 @@ public:
 
 	void initializeGlGeometryBuffers();
 
-	void initHealthBarBuffer();
-	void initStaminaBarBuffer();
-	void initTargetAreaBuffer();
 	void initRectangleBuffer();
 
 	void initText();

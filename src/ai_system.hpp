@@ -1,3 +1,4 @@
+#pragma once
 
 #include "tiny_ecs_registry.hpp"
 
@@ -7,6 +8,7 @@ class AISystem {
 public:
 	AISystem(std::default_random_engine& rng);
 	void step(float elapsed_ms);
+	void boarReset(Entity boar);
 
 private:
 	const float LIGHTENING_RADIUS = 200.f;

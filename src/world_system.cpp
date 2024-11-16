@@ -3,6 +3,7 @@
 #include "common.hpp"
 #include "world_init.hpp"
 #include "physics_system.hpp"
+#include "game_state_controller.hpp"
 #include <iostream>
 #include <iomanip> 
 #include <sstream>
@@ -33,15 +34,18 @@ WorldSystem::WorldSystem(std::default_random_engine& rng) :
         {"collectible_trap", MAX_TRAPS}
         })
 {
+    this->gameStateController = GameStateController();
+    this->gameStateController.init(GAME_STATE::PLAYING, this);
     this->rng = rng;
 }
 
-void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics)
+void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics, AISystem* ai)
 {
     this->renderer = renderer;
     this->window = window;
     this->camera = camera;
     this->physics = physics;
+    this->ai = ai;
 
     // Setting callbacks to member functions (that's why the redirect is needed)
     // Input is handled using GLFW, for more info see
@@ -80,6 +84,8 @@ void WorldSystem::restart_game()
     
     // Create player entity
     playerEntity = createJeff(vec2(world_size_x / 2.f, world_size_y / 2.f));
+    createPlayerHealthBar(playerEntity, camera->getSize());
+    createPlayerStaminaBar(playerEntity, camera->getSize());
 
     gameStateController.setGameState(GAME_STATE::PLAYING);
     show_mesh = false;
@@ -125,7 +131,13 @@ void WorldSystem::updateTrapsCounterText() {
     Text& text = registry.texts.get(trapsCounter.textEntity);
     std::stringstream ss;
     ss << std::setw(2) << std::setfill('0') << trapsCounter.count;
-    text.value = "Traps: " + ss.str();
+    text.value = "*" + ss.str();
+
+    if(trapsCounter.count == 0) {
+        text.colour = {0.8f, 0.8f, 0.0f};
+    } else {
+        text.colour = {1.0f, 1.0f, 1.0f};
+    }
 }
 
 bool WorldSystem::step(float elapsed_ms)
@@ -151,7 +163,6 @@ bool WorldSystem::step(float elapsed_ms)
 
     Player& player = registry.players.get(playerEntity);
     if(player.health == 0) {
-        createGameOverText(camera->getSize());
         gameStateController.setGameState(GAME_STATE::GAMEOVER);
     }
 
@@ -166,6 +177,17 @@ void WorldSystem::handle_collisions()
         // The entity and its collider
         Entity entity = physics->collisions[i].first;
         Entity entity_other = physics->collisions[i].second;
+
+
+        float COOLDOWN_TIME = 1000;
+        std::pair<int, int> pair = { entity, entity_other };
+        if (collisionCooldowns.find(pair) != collisionCooldowns.end()) {
+            collisionCooldowns[pair] = COOLDOWN_TIME;
+            continue;
+        }
+        else {
+            collisionCooldowns[pair] = COOLDOWN_TIME;
+        }
 
         // If the entity is a player
         if (registry.players.has(entity)) {
@@ -196,6 +218,9 @@ void WorldSystem::handle_collisions()
             }
             else if (registry.damagings.has(entity_other)) {
                 entity_damaging_collision(entity, entity_other, was_damaged);
+            }
+            else if (registry.obstacles.has(entity_other)) {
+                entity_obstacle_collision(entity, entity_other, was_damaged);
             }
         }
         else if (registry.damagings.has(entity)) {
@@ -251,10 +276,8 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     // Handle EP to pause gameplay
     if (action == GLFW_PRESS && key == GLFW_KEY_P) {
         if(gameStateController.getGameState() != GAME_STATE::PAUSED){
-            createPauseMenu(camera->getPosition());
             gameStateController.setGameState(GAME_STATE::PAUSED);
         } else{
-            exitPauseMenu();
             gameStateController.setGameState(GAME_STATE::PLAYING);
         }
         
@@ -263,10 +286,8 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     // Handle EP to display help menu
     if (action == GLFW_PRESS && key == GLFW_KEY_H) {
         if(gameStateController.getGameState() != GAME_STATE::HELP){
-            createHelpMenu(camera->getPosition());
             gameStateController.setGameState(GAME_STATE::HELP);
         } else{
-            exitHelpMenu();
             gameStateController.setGameState(GAME_STATE::PLAYING);
         }
         
@@ -310,21 +331,23 @@ void WorldSystem::on_key(int key, int, int action, int mod)
                 break;
             case GLFW_KEY_D:
                 if (pressed) {
-                    if (player_stamina.stamina > 0) { 
+                    const float DASH_STAMINA = 40;
+                    if (player_stamina.stamina > DASH_STAMINA) { 
                         const float dashDistance = 300;
                         // Start dashing if player is moving
                         player_dash.isDashing = true;
                         player_dash.dashStartPosition = vec2(player_motion.position);
                         player_dash.dashTargetPosition = player_dash.dashStartPosition + player_motion.facing * dashDistance;
                         player_dash.dashTimer = 0.0f; // Reset timer
+                        player_stamina.stamina -= DASH_STAMINA;
                     }
                 }
                 break;
 		    case GLFW_KEY_SPACE:
                 // Jump
                 if (pressed) {
-                    const float min_stamina_for_jump = 10.0f;
-                    if (player_stamina.stamina >= min_stamina_for_jump && !player_comp.tryingToJump) {
+                    const float JUMP_STAMINA = 20;
+                    if (player_stamina.stamina >= JUMP_STAMINA && !player_comp.tryingToJump) {
                         player_comp.tryingToJump = true;
                         if (registry.jumpers.has(playerEntity)) {
                             Jumper& jumper = registry.jumpers.get(playerEntity);
@@ -332,7 +355,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
                                 jumper.isJumping = true; 
                                 player_comp.tryingToJump = true;
                                 player_motion.velocity.z = jumper.speed; 
-                                player_stamina.stamina -= min_stamina_for_jump;
+                                player_stamina.stamina -= JUMP_STAMINA;
                                 if (player_stamina.stamina < 0) {
                                     player_stamina.stamina = 0;
                                 }
@@ -341,14 +364,6 @@ void WorldSystem::on_key(int key, int, int action, int mod)
                     }
                 } else { 
                     player_comp.tryingToJump = false;
-                }
-                //Handles player jumping too far up
-                if (player_motion.velocity.z <= 0 && player_comp.tryingToJump) {
-                    player_comp.tryingToJump = false;
-                    if (registry.jumpers.has(playerEntity)) {
-                        Jumper& jumper = registry.jumpers.get(playerEntity);
-                        jumper.isJumping = false;
-                    }
                 }
                 break;
             default:
@@ -423,6 +438,16 @@ void WorldSystem::update_cooldown(float elapsed_ms) {
             else {
                 registry.cooldowns.remove(cooldownEntity);
             }
+    }
+
+    auto it = collisionCooldowns.begin();
+    while (it != collisionCooldowns.end()) {
+        it->second -= elapsed_ms;
+        if (it->second <= 0) {
+            it = collisionCooldowns.erase(it);
+        }
+        else {
+            it++;
         }
     }
 }
@@ -432,6 +457,11 @@ void WorldSystem::handle_deaths(float elapsed_ms) {
         DeathTimer& deathTimer = registry.deathTimers.get(deathEntity);
         deathTimer.timer -= elapsed_ms;
         if (deathTimer.timer < 0) {
+            // Remove
+            if (registry.motions.has(deathEntity)) {
+                Motion& motion = registry.motions.get(deathEntity);
+                createHeart({ motion.position.x, motion.position.y });
+            }
             registry.remove_all_components_of(deathEntity);
         }
     }
@@ -586,6 +616,24 @@ void WorldSystem::damaging_obstacle_collision(Entity damaging) {
     // Currently, there is only fireball
 	registry.remove_all_components_of(damaging);
 }
+  
+void WorldSystem::entity_obstacle_collision(Entity entity, Entity obstacle, std::vector<Entity>& was_damaged)
+{
+    if (registry.boars.has(entity)) {
+        Boar& boar = registry.boars.get(entity);
+        if (boar.charging) {
+           Enemy& enemy = registry.enemies.get(entity);
+            // Boar hurts itself
+           int newHealth = enemy.health - enemy.damage;
+           enemy.health = std::max(newHealth, 0);
+           ai->boarReset(entity);
+           boar.cooldownTimer = 1000; // stunned for 1 second
+           
+           was_damaged.push_back(entity);
+           checkAndHandleEnemyDeath(entity);
+        }
+    }
+}
 
 void WorldSystem::moving_entities_collision(Entity entity, Entity entityOther, std::vector<Entity>& was_damaged) {
     if (registry.players.has(entity)) {
@@ -607,8 +655,11 @@ void WorldSystem::processPlayerEnemyCollision(Entity player, Entity enemy, std::
         was_damaged.push_back(player);
         printf("Player health reduced by enemy from %d to %d\n", playerData.health + enemyData.damage, playerData.health);
 
-        Cooldown& cooldown = registry.cooldowns.emplace(enemy);
-        cooldown.remaining = enemyData.cooldown;
+        // Check if enemy can have an attack cooldown
+        if (enemyData.cooldown > 0) {
+            Cooldown& cooldown = registry.cooldowns.emplace(enemy);
+            cooldown.remaining = enemyData.cooldown;
+        }
 
 		checkAndHandlePlayerDeath(player);
     }
@@ -644,8 +695,10 @@ void WorldSystem::handleEnemyCollision(Entity attacker, Entity target, std::vect
         was_damaged.push_back(target);
         printf("Enemy %d's health reduced from %d to %d\n", (unsigned int)target, targetData.health + attackerData.damage, targetData.health);
 
-        Cooldown& cooldown = registry.cooldowns.emplace(attacker);
-        cooldown.remaining = attackerData.cooldown;
+        if (attackerData.cooldown > 0) {
+            Cooldown& cooldown = registry.cooldowns.emplace(attacker);
+            cooldown.remaining = attackerData.cooldown;
+        }
     }
 }
 
@@ -654,10 +707,14 @@ void WorldSystem::checkAndHandleEnemyDeath(Entity enemy) {
     if (enemyData.health == 0 && !registry.deathTimers.has(enemy)) {
         Motion& motion = registry.motions.get(enemy);
         motion.velocity = { 0, 0, motion.velocity.z }; // Stop enemy movement
+      
         // Do not rotate wizard
         if (!registry.wizards.has(enemy)) {
             motion.angle = 1.57f; // Rotate enemy 90 degrees
         }
+      
+        motion.angle = M_PI / 2; // Rotate enemy 90 degrees
+        motion.hitbox = { motion.hitbox.z, motion.hitbox.y, motion.hitbox.x }; // Change hitbox to be on its side
         printf("Enemy %d died with health %d\n", (unsigned int)enemy, enemyData.health);
 
         if (registry.animationControllers.has(enemy)) {
@@ -667,6 +724,7 @@ void WorldSystem::checkAndHandleEnemyDeath(Entity enemy) {
 
         HealthBar& hpbar = registry.healthBars.get(enemy);
         registry.remove_all_components_of(hpbar.meshEntity);
+        registry.remove_all_components_of(hpbar.frameEntity);
         registry.healthBars.remove(enemy);
         registry.enemies.remove(enemy);
         registry.deathTimers.emplace(enemy);
@@ -707,7 +765,8 @@ void WorldSystem::destroyDamagings() {
 void WorldSystem::checkAndHandlePlayerDeath(Entity& entity) {
 	if (registry.players.get(entity).health == 0) {
 		Motion& motion = registry.motions.get(entity);
-		motion.angle = 1.57f; // Rotate player 90 degrees
+		motion.angle = M_PI / 2; // Rotate player 90 degrees
+        motion.hitbox = { motion.hitbox.z, motion.hitbox.y, motion.hitbox.x }; // Change hitbox to be on its side
 		printf("Player died\n");
 	}
 }
@@ -749,7 +808,7 @@ void WorldSystem::handle_stamina(float elapsed_ms) {
         Dash& dash_comp = registry.dashers.get(staminaEntity);
         Jumper& player_jump = registry.jumpers.get(staminaEntity);
     
-        if ((player_comp.isRunning || dash_comp.isDashing || player_comp.isRolling || player_jump.isJumping) && stamina.stamina > 0) {
+        if (player_comp.isRunning && stamina.stamina > 0) {
             stamina.stamina -= elapsed_ms / 1000.0f * stamina.stamina_loss_rate;
 
             if (stamina.stamina < 0) {

@@ -211,7 +211,7 @@ void RenderSystem::initializeGlGeometryBuffers()
 	initMapTileBuffer();
 	initHealthBarBuffer();
 	initStaminaBarBuffer();
-	// initTargetAreaBuffer();
+	initRectangleBuffer();
 	
 	initText();
 }
@@ -231,15 +231,15 @@ void RenderSystem::initMapTileBuffer() {
 	bindVBOandIBO(GEOMETRY_BUFFER_ID::MAP_TILE, map_tile_vertices, map_tile_indices);
 }
 
-void RenderSystem::initHealthBarBuffer() {
-    std::vector<UntexturedVertex> health_bar_vertices(4);
-    health_bar_vertices[0].position = { -0.5f, -0.5f, 0.0f };
-    health_bar_vertices[1].position = {  0.5f, -0.5f, 0.0f };
-    health_bar_vertices[2].position = { -0.5f,  0.5f, 0.0f };
-    health_bar_vertices[3].position = {  0.5f,  0.5f, 0.0f };
+void RenderSystem::initRectangleBuffer() {
+    std::vector<UntexturedVertex> rectangle_vertices(4);
+    rectangle_vertices[0].position = { 0.0f, 0.0f, 0.0f };
+    rectangle_vertices[1].position = { 0.0f, 1.0f, 0.0f };
+    rectangle_vertices[2].position = { 1.0f,  1.0f, 0.0f };
+    rectangle_vertices[3].position = { 1.0f,  0.0f, 0.0f };
 
-    const std::vector<uint16_t> health_bar_indices = { 0, 1, 2, 1, 2, 3 };
-    bindVBOandIBO(GEOMETRY_BUFFER_ID::HEALTH_BAR, health_bar_vertices, health_bar_indices);
+    const std::vector<uint16_t> rectangle_indices = { 0, 1, 2, 0, 2, 3 };
+    bindVBOandIBO(GEOMETRY_BUFFER_ID::RECTANGLE, rectangle_vertices, rectangle_indices);
 }
 
 void RenderSystem::initStaminaBarBuffer() {
@@ -252,23 +252,6 @@ void RenderSystem::initStaminaBarBuffer() {
     const std::vector<uint16_t> health_bar_indices = { 0, 1, 2, 1, 2, 3 };
     bindVBOandIBO(GEOMETRY_BUFFER_ID::STAMINA_BAR, health_bar_vertices, health_bar_indices);
 }
-
-//void RenderSystem::initTargetAreaBuffer() {
-//	// target area is circular
-//	std::vector<UntexturedVertex> target_area_vertices(360);
-//	for (int i = 0; i < 360; i++) {
-//		float angle = i * M_PI / 180.f;
-//		target_area_vertices[i].position = { cos(angle), sin(angle), 0.0f };
-//	}
-//
-//	std::vector<uint16_t> target_area_indices(360);
-//	for (int i = 0; i < 360; i++) {
-//		target_area_indices[i] = i;
-//	}
-//
-//	bindVBOandIBO(GEOMETRY_BUFFER_ID::TARGET_AREA, target_area_vertices, target_area_indices);
-//}
-
 
 void RenderSystem::initText() {
 	FT_Library ft;
@@ -289,9 +272,6 @@ void RenderSystem::initText() {
     FT_Set_Pixel_Sizes(face, 0, 48);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-	glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	for (unsigned char c = 0; c < 128; c++) {
    	 // load character glyph 

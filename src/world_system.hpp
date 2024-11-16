@@ -7,7 +7,8 @@
 // internal 
 #include <render_system.hpp>
 #include <physics_system.hpp>
-#include<game_state_controller.hpp>
+#include <ai_system.hpp>
+#include "game_state_controller.hpp"
 
 // Container for all our entities and game logic
 class WorldSystem
@@ -16,12 +17,12 @@ public:
 	WorldSystem(std::default_random_engine& rng);
 
 	// starts the game
-	void init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics);
+	void init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics, AISystem* ai);
 
 	// Releases all associated resources
 	~WorldSystem();
 
-	GameStateController gameStateController = GameStateController(GAME_STATE::PLAYING);
+	GameStateController gameStateController;
 
 	// Steps the game ahead by ms milliseconds
 	bool step(float elapsed_ms);
@@ -33,6 +34,8 @@ public:
 
 	// Should the game be over ?
 	bool is_over()const;
+
+	friend class GameStateController;
 
 private:
 	// CONSTANTS
@@ -52,13 +55,14 @@ private:
 	const unsigned int MAX_HEARTS = 2;
 	const unsigned int MAX_TRAPS = 1;
 
-	const float DIFFICULTY_INTERVAL = 50000.0f;
-	const unsigned int MAX_TOTAL_ENEMIES = 8;
+	const float DIFFICULTY_INTERVAL = 45000.0f;
+	const unsigned int MAX_TOTAL_ENEMIES = 100;
 
 	// GLFW Window handle
 	GLFWwindow* window;
 	RenderSystem* renderer;
 	PhysicsSystem* physics;
+	AISystem* ai;
 	Camera* camera;
 	TrapsCounter trapsCounter;
 
@@ -72,6 +76,10 @@ private:
 
 	using spawn_func = Entity(*)(vec2);
 	const std::unordered_map<std::string, spawn_func> spawn_functions;
+
+	// Keeps track of what collisions have been handled recently.
+	// Key uses entities cast to ints for comparisons.
+	std::map<std::pair<int, int>, float> collisionCooldowns;
 
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);
@@ -104,6 +112,7 @@ private:
 	void entity_collectible_collision(Entity entity, Entity collectible);
 	void entity_trap_collision(Entity entity, Entity trap, std::vector<Entity>& was_damaged);
 	void entity_damaging_collision(Entity entity, Entity trap, std::vector<Entity>& was_damaged);
+	void entity_obstacle_collision(Entity entity, Entity obstacle, std::vector<Entity>& was_damaged);
 	void moving_entities_collision(Entity entity, Entity entityOther, std::vector<Entity>& was_damaged);
 	void damaging_obstacle_collision(Entity entity);
 	void processPlayerEnemyCollision(Entity player, Entity enemy, std::vector<Entity>& was_damaged);
@@ -111,8 +120,15 @@ private:
 	void handleEnemyCollision(Entity attacker, Entity target, std::vector<Entity>& was_damaged);
 	void checkAndHandleEnemyDeath(Entity entity);
 
+	// Help/Pause Menu functions
+	Entity createHelpMenu(vec2 cameraPosition);
+    void exitHelpMenu();
+    Entity createPauseMenu(vec2 cameraPosition);
+    void exitPauseMenu();
+
 
 	// C++ random number generator
 	std::default_random_engine rng;
-	std::uniform_real_distribution<float> uniform_dist; // number between 0..1
+	std::uniform_real_distribution<float> uniform_dist;
+    // number between 0..1
 };

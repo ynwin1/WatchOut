@@ -6,7 +6,13 @@ SoundSystem::SoundSystem() : backgroundMusic(nullptr), musicTracks(), soundEffec
 
 SoundSystem::~SoundSystem()
 {
+	stopAllSounds();
 	Mix_CloseAudio();
+}
+
+void handleError(const std::string& message)
+{
+	std::cerr << message << " SDL_mixer Error: " << Mix_GetError() << std::endl;
 }
 
 bool SoundSystem::init()
@@ -14,14 +20,14 @@ bool SoundSystem::init()
 	// Initialize SDL
 	if (SDL_Init(SDL_INIT_AUDIO) < 0)
 	{
-		std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
+		handleError("SDL could not initialize!");
 		return false;
 	}
 
 	// Initialize SDL_mixer
 	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
 	{
-		std::cerr << "SDL_mixer could not initialize! SDL_mixer Error: " << Mix_GetError() << std::endl;
+		handleError("SDL_mixer could not initialize!");
 		return false;
 	}
 
@@ -33,12 +39,14 @@ void SoundSystem::playMusic(const std::string& key, std::string path, int durati
 	Mix_Music* music = Mix_LoadMUS(path.c_str());
 	if (music == nullptr)
 	{
-		std::cerr << "Failed to load sound! SDL_mixer Error: " << Mix_GetError() << std::endl;
+		handleError("Failed to load music!");
+		return;
 	}
 	int channel = Mix_PlayMusic(music, duration);
 	if (channel == -1)
 	{
-		std::cerr << "Failed to play sound! SDL_mixer Error: " << Mix_GetError() << std::endl;
+		handleError("Failed to play music!");
+		return;
 	}
 	musicTracks[key] = std::make_pair(music, channel);
 }
@@ -49,12 +57,14 @@ void SoundSystem::playSoundEffect(const std::string& key, std::string path, int 
 	Mix_Chunk* sound = Mix_LoadWAV(path.c_str());
 	if (sound == nullptr)
 	{
-		std::cerr << "Failed to load sound! SDL_mixer Error: " << Mix_GetError() << std::endl;
+		handleError("Failed to load sound effect!");
+		return;
 	}
 	int channel = Mix_PlayChannel(-1, sound, count);
 	if (channel == -1)
 	{
-		std::cerr << "Failed to play sound! SDL_mixer Error: " << Mix_GetError() << std::endl;
+		handleError("Failed to play sound effect!");
+		return;
 	}
 	soundEffects[key] = std::make_pair(sound, channel);
 };
@@ -84,6 +94,7 @@ void SoundSystem::stopAllMusic() {
 		Mix_HaltChannel(music.second);
 		Mix_FreeMusic(music.first);
 	}
+	musicTracks.clear();
 }
 
 // stop all sound effects
@@ -93,6 +104,7 @@ void SoundSystem::stopAllSoundEffects() {
 		Mix_HaltChannel(sound.second);
 		Mix_FreeChunk(sound.first);
 	}
+	soundEffects.clear();
 }
 
 // stop all sounds (music and sound effects)

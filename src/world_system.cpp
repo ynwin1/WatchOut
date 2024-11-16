@@ -357,6 +357,11 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     // Handle EP to pause gameplay
     if (action == GLFW_PRESS && key == GLFW_KEY_P) {
         if(gameStateController.getGameState() != GAME_STATE::PAUSED){
+            // sound
+            isMovingSoundPlaying = false;
+			isBirdFlockSoundPlaying = false;
+            sound->stopAllSoundEffects();
+
             gameStateController.setGameState(GAME_STATE::PAUSED);
         } else{
             gameStateController.setGameState(GAME_STATE::PLAYING);
@@ -873,7 +878,7 @@ void WorldSystem::checkAndHandlePlayerDeath(Entity& entity) {
 		motion.angle = M_PI / 2; // Rotate player 90 degrees
         motion.hitbox = { motion.hitbox.z, motion.hitbox.y, motion.hitbox.x }; // Change hitbox to be on its side
 
-		sound->stopMusic(sound->BACKGROUND_MUSIC);
+        sound->stopAllMusic();
 		sound->playSoundEffect(sound->PLAYER_DEATH_MUSIC, audio_path("playerDeath.wav"), -1);
 	}
 }
@@ -1046,23 +1051,36 @@ void WorldSystem::soundSetUp() {
 }
 
 void WorldSystem::inGameSounds() {
-    // check game state
-    if (gameStateController.getGameState() != GAME_STATE::PAUSED || gameStateController.getGameState() != GAME_STATE::GAMEOVER) {
-        Player& player = registry.players.get(playerEntity);
-        // monitoring player movement
-        if (player.isMoving) {
-            if (!isMovingSoundPlaying) {
-                // walking sound
-                sound->playSoundEffect(sound->WALKING_SOUND, audio_path("walking.wav"), -1);
-                isMovingSoundPlaying = true;
-            }
+	Player& player = registry.players.get(playerEntity);
+    // monitoring player movement
+    if (player.isMoving) {
+        if (!isMovingSoundPlaying) {
+            // walking sound
+            sound->playSoundEffect(sound->WALKING_SOUND, audio_path("walking.wav"), -1);
+            isMovingSoundPlaying = true;
         }
-        else {
-            if (isMovingSoundPlaying) {
-                // stop walking sound
-                sound->stopSoundEffect(sound->WALKING_SOUND);
-                isMovingSoundPlaying = false;
-            }
+    }
+    else {
+        if (isMovingSoundPlaying) {
+            // stop walking sound
+            sound->stopSoundEffect(sound->WALKING_SOUND);
+            isMovingSoundPlaying = false;
+        }
+    }
+
+    // monitoring birds movement
+    if (registry.birds.size() > 0) {
+        if (!isBirdFlockSoundPlaying) {
+            // birds sound
+            sound->playSoundEffect(sound->BIRD_FLOCK_SOUND, audio_path("birds_flock.wav"), -1);
+            isBirdFlockSoundPlaying = true;
+        }
+    }
+    else {
+        if (isBirdFlockSoundPlaying) {
+            // stop birds sound
+            sound->stopSoundEffect(sound->BIRD_FLOCK_SOUND);
+            isBirdFlockSoundPlaying = false;
         }
     }
 }

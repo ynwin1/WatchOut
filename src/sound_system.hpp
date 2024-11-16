@@ -29,6 +29,8 @@ public:
 	std::string LEVELUP_SOUND = "levelup_sound";
 	std::string FIREBALL_SOUND = "fireball_sound";
 	std::string COLLECT_SOUND = "collect_sound";
+	std::string BIRD_FLOCK_SOUND = "bird_flock_sound";
+	std::string BIRD_ATTACK_SOUND = "bird_attack_sound";
 
 
 	// FUNCTIONS
@@ -74,4 +76,6 @@ Sound credits
 - Level Up: https://freesound.org/people/gsb1039/sounds/415061/
 - Fireball: https://freesound.org/people/LiamG_SFX/sounds/334235/
 - Collect: https://freesound.org/people/METKIR/sounds/623593/
+- Bird Flock: https://www.youtube.com/watch?v=22dZEAMmxpk
+- Bird Attack: https://freesound.org/people/dinodilopho/sounds/263530/
 */

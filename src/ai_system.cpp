@@ -389,6 +389,7 @@ void AISystem::archerBehaviour(Entity entity, vec3 playerPosition, float elapsed
         moveTowardsPlayer(entity, playerPosition, elapsed_ms);
     }
 }
+
 // steer to avoid crowding local flockmates
 vec2 separation(const Motion& motion, const std::vector<Motion>& flockMates) {
     vec2 separationForce = vec2(0, 0);
@@ -460,6 +461,10 @@ void AISystem::swoopAttack(Entity bird, vec3 playerPosition, float elapsed_ms, c
     if (birdComponent.isSwooping) {
         animationController.changeState(bird, AnimationState::Swooping);
 
+		if (birdComponent.swoopTimer == BIRD_SWOOP_DURATION) {
+			sound->playSoundEffect(sound->BIRD_ATTACK_SOUND, audio_path("bird_attack.wav"), 0);
+		}
+
         // BOID while swooping
         vec2 separationForce = separation(birdMotion, flockMates) * 0.5f;
         vec2 alignmentForce = alignment(birdMotion, flockMates) * 0.3f;
@@ -483,7 +488,6 @@ void AISystem::swoopAttack(Entity bird, vec3 playerPosition, float elapsed_ms, c
         }
     }
 }
-
 
 void AISystem::birdBehaviour(Entity bird, vec3 playerPosition, float elapsed_ms) {
     Motion& birdMotion = registry.motions.get(bird);
@@ -532,6 +536,7 @@ void AISystem::birdBehaviour(Entity bird, vec3 playerPosition, float elapsed_ms)
     birdMotion.velocity = vec3(movementForce, 0.0f);
     birdMotion.facing = normalize(movementForce);
 }
+
 void AISystem::wizardBehaviour(Entity entity, vec3 playerPosition, float elapsed_ms) {
     
 	if (registry.deathTimers.has(entity)) {

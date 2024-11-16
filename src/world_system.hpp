@@ -51,10 +51,10 @@ private:
 	const float ORIGINAL_TRAP_SPAWN_DELAY = 7000.0f;
 
 	// Max entities at start
-	const unsigned int MAX_BOARS = 0;
-	const unsigned int MAX_BABARIANS = 0;
+	const unsigned int MAX_BOARS = 1;
+	const unsigned int MAX_BABARIANS = 1;
 	const unsigned int MAX_ARCHERS = 0;
-	const unsigned int MAX_BIRD_FLOCKS = 0;
+	const unsigned int MAX_BIRD_FLOCKS = -1;
 	const unsigned int MAX_WIZARDS = -1;
 	const unsigned int MAX_HEARTS = 2;
 	const unsigned int MAX_TRAPS = 1;
@@ -93,6 +93,7 @@ private:
 
 	// Sound variables
 	bool isMovingSoundPlaying = false;
+	bool isBirdFlockSoundPlaying = false;
 
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);

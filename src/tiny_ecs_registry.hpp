@@ -36,6 +36,7 @@ public:
 	ComponentContainer<Obstacle> obstacles;
 	ComponentContainer<Projectile> projectiles;
 	ComponentContainer<Mesh*> meshPtrs;
+	ComponentContainer<Collected> collected;
 	
 	ComponentContainer<PauseMenuComponent> pauseMenuComponents;
 	ComponentContainer<HelpMenuComponent> helpMenuComponents;
@@ -80,6 +81,7 @@ public:
 		registry_list.push_back(&mapTiles);
 		registry_list.push_back(&obstacles);
 		registry_list.push_back(&meshPtrs);
+		registry_list.push_back(&collected);
 		
 		registry_list.push_back(&healthBars);
 		registry_list.push_back(&staminaBars);

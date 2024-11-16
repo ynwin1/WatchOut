@@ -108,8 +108,13 @@ private:
 	void toggleMesh();
 	void adjustSpawnSystem(float elapsed_ms);
 	void resetSpawnSystem();
+
 	void loadAndSaveHighScore(bool save);
 	void on_window_focus(int focused);
+	void despawnTraps(float elapsed_ms);
+	void updateCollectedTimer(float elapsed_ms);
+	void resetTrappedEntities();
+
 
 	// Collision functions
 	void entity_collectible_collision(Entity entity, Entity collectible);
@@ -127,7 +132,6 @@ private:
     void exitHelpMenu();
     Entity createPauseMenu(vec2 cameraPosition);
     void exitPauseMenu();
-
 
 	// C++ random number generator
 	std::default_random_engine rng;

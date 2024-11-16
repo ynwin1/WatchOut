@@ -109,13 +109,7 @@ Entity createCollectibleTrap(vec2 pos)
 
 	registry.collectibles.emplace(entity);
 
-	registry.renderRequests.insert(
-	entity,
-	{
-		TEXTURE_ASSET_ID::TRAPCOLLECTABLE,
-		EFFECT_ASSET_ID::TEXTURED,
-		GEOMETRY_BUFFER_ID::SPRITE
-	});
+	initTrapBottleAnimationController(entity);
 
 	registry.midgrounds.emplace(entity);
 
@@ -139,15 +133,30 @@ Entity createHeart(vec2 pos)
 
 	registry.collectibles.emplace(entity);
 
-	registry.renderRequests.insert(
-	entity,
-	{
-		TEXTURE_ASSET_ID::HEART,
-		EFFECT_ASSET_ID::TEXTURED,
-		GEOMETRY_BUFFER_ID::SPRITE
-	});
+	initHeartAnimationController(entity);
 
 	registry.midgrounds.emplace(entity);
+
+	return entity;
+};
+
+Entity createCollected(Motion& playerM, vec2 size, TEXTURE_ASSET_ID assetID)
+{
+	auto entity = Entity();
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.scale = { size.x * 0.7, size.y * 0.7};
+
+	registry.collected.emplace(entity);
+	registry.midgrounds.emplace(entity);
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			assetID,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
 
 	return entity;
 };

@@ -49,6 +49,7 @@ struct Enemy
 };
 
 struct Damaging {
+	std::string type = "arrow"; // default type
 	unsigned int damage = 10;
 };
 
@@ -145,6 +146,11 @@ struct DeathTimer
 	float timer = 3000;
 };
 
+struct Knockable
+{
+
+};
+
 struct TrapsCounter {
 	int count = 0;
 	Entity textEntity;
@@ -160,6 +166,9 @@ struct MapTile {
 
 struct Obstacle {
 
+};
+
+struct TargetArea {
 };
 
 struct GameTimer {
@@ -247,8 +256,6 @@ struct Debug {
 };
 extern Debug debugging;
 
-
-
 // Entity can jump
 struct Jumper
 {
@@ -258,11 +265,11 @@ struct Jumper
 
 // Enemy types
 struct Boar {
-	float cooldownTimer = 0;        // Tracks time remaining in cooldown
-    float prepareTimer = 0;         // Tracks time for preparation phase (shaking)
-    float chargeTimer = 0;          // Tracks remaining time for charge duration
-    bool preparing = false;         // Indicates if the boar is in the preparation phase
-    bool charging = false;          // Indicates if the boar is actively charging
+	float cooldownTimer = 0;        
+    float prepareTimer = 0;         
+    float chargeTimer = 0;          
+    bool preparing = false;         
+    bool charging = false;          
 
     vec2 chargeDirection = vec2(0);
 };
@@ -270,6 +277,24 @@ struct Barbarian {};
 struct Archer {
 	float drawArrowTime = 0;
 	bool aiming = false;
+};
+struct Bird {
+	float swarmSpeed = 0.3f;
+	float swoopSpeed = 0.2f;
+	bool isSwooping = false;
+	float swoopTimer = 500;
+	vec2 swoopDirection = {0,0};
+	float originalZ = 480;
+	float swoopCooldown = 2000;
+};
+
+enum WizardState { Moving, Aiming, Preparing, Shooting };
+struct Wizard {
+	WizardState state = WizardState::Moving;
+	float shoot_cooldown = 0;
+	float prepareLightningTime = 0;
+	
+	vec3 locked_target = vec3(0, 0, 0);
 };
 
 // Collectible types

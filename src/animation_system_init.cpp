@@ -29,6 +29,23 @@ const int ARCHER_DEAD_FRAME_TIME = 1000;
 const int ARCHER_BOWDRAW_NUM_FRAMES = 10;
 const int ARCHER_BOWDRAW_FRAME_TIME = 100;
 
+const int BIRD_FLY_NUM_FRAMES = 7;
+const int BIRD_FLY_FRAME_TIME = 150;
+const int BIRD_SWOOP_NUM_FRAMES = 1;
+const int BIRD_SWOOP_FRAME_TIME = 1000;
+const int BIRD_DEAD_NUM_FRAMES = 1;
+const int BIRD_DEAD_FRAME_TIME = 1000;
+const int WIZARD_RUN_NUM_FRAMES = 6;
+const int WIZARD_RUN_FRAME_TIME = 200;
+const int WIZARD_IDLE_NUM_FRAMES = 4;
+const int WIZARD_IDLE_FRAME_TIME = 200;
+const int WIZARD_DEAD_NUM_FRAMES = 6;
+const int WIZARD_DEAD_FRAME_TIME = 600;
+const int LIGHTNING_NUM_FRAMES = 9;
+const int LIGHTNING_FRAME_TIME = 50;
+const int FIREBALL_NUM_FRAMES = 6;
+const int FIREBALL_FRAME_TIME = 50;
+
 const int COLLECTIBLE_IDLE_FRAME_TIME = 0;
 const int COLLECTIBLE_IDLE_NUM_FRAMES = 1;
 const int COLLECTIBLE_FADE_FRAME_TIME = 100;
@@ -108,6 +125,77 @@ AnimationController& initArcherAnimationController(Entity& entity) {
 	animationcontroller.changeState(entity, AnimationState::Running);
 
     return animationcontroller;
+}
+
+AnimationController& initBirdAnimationController(Entity& entity) {
+    AnimationController& animationcontroller = registry.animationControllers.emplace(entity);
+	animationcontroller.addAnimation(AnimationState::Swooping, BIRD_SWOOP_FRAME_TIME, BIRD_SWOOP_NUM_FRAMES, TEXTURE_ASSET_ID::BIRD_SWOOP);
+    animationcontroller.addAnimation(AnimationState::Flying, BIRD_FLY_FRAME_TIME, BIRD_FLY_NUM_FRAMES, TEXTURE_ASSET_ID::BIRD_FLY);
+	animationcontroller.addAnimation(AnimationState::Dead, BIRD_DEAD_FRAME_TIME, BIRD_DEAD_NUM_FRAMES, TEXTURE_ASSET_ID::BIRD_DEAD);
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::BIRD_FLY,
+			EFFECT_ASSET_ID::ANIMATED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+	animationcontroller.changeState(entity, AnimationState::Flying);
+
+	return animationcontroller;
+}
+
+AnimationController& initWizardAnimationController(Entity& entity) {
+	AnimationController& animationcontroller = registry.animationControllers.emplace(entity);
+	animationcontroller.addAnimation(AnimationState::Idle, WIZARD_IDLE_FRAME_TIME, WIZARD_IDLE_NUM_FRAMES, TEXTURE_ASSET_ID::WIZARD_IDLE);
+	animationcontroller.addAnimation(AnimationState::Running, WIZARD_RUN_FRAME_TIME, WIZARD_RUN_NUM_FRAMES, TEXTURE_ASSET_ID::WIZARD_RUN);
+	animationcontroller.addAnimation(AnimationState::Dead, WIZARD_DEAD_FRAME_TIME, WIZARD_DEAD_NUM_FRAMES, TEXTURE_ASSET_ID::WIZARD_DEAD);
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::WIZARD_RUN,
+			EFFECT_ASSET_ID::ANIMATED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	animationcontroller.changeState(entity, AnimationState::Running);
+
+	return animationcontroller;
+}
+
+AnimationController& initLightningAnimationController(Entity& entity) {
+	AnimationController& animationcontroller = registry.animationControllers.emplace(entity);
+	animationcontroller.addAnimation(AnimationState::Attack, LIGHTNING_FRAME_TIME, LIGHTNING_NUM_FRAMES, TEXTURE_ASSET_ID::LIGHTNING);
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::LIGHTNING,
+			EFFECT_ASSET_ID::ANIMATED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	animationcontroller.changeState(entity, AnimationState::Attack);
+
+	return animationcontroller;
+}
+
+AnimationController& initFireballAnimationController(Entity& entity) {
+	AnimationController& animationcontroller = registry.animationControllers.emplace(entity);
+	animationcontroller.addAnimation(AnimationState::Attack, FIREBALL_FRAME_TIME, FIREBALL_NUM_FRAMES, TEXTURE_ASSET_ID::FIREBALL);
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::FIREBALL,
+			EFFECT_ASSET_ID::ANIMATED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	animationcontroller.changeState(entity, AnimationState::Attack);
+
+	return animationcontroller;
 }
 
 AnimationController& initHeartAnimationController(Entity& entity) {

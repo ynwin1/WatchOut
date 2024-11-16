@@ -7,12 +7,15 @@
 #include <iostream>
 #include <iomanip> 
 #include <sstream>
+#include <fstream> 
 
 WorldSystem::WorldSystem(std::default_random_engine& rng) :
     spawn_functions({
         {"boar", createBoar},
         {"barbarian", createBarbarian},
         {"archer", createArcher},
+        {"bird", createBirdFlock},
+	    {"wizard", createWizard},
         {"heart", createHeart},
 		{"collectible_trap", createCollectibleTrap}
         }),
@@ -20,15 +23,19 @@ WorldSystem::WorldSystem(std::default_random_engine& rng) :
         {"boar", ORIGINAL_BOAR_SPAWN_DELAY},
         {"barbarian", ORIGINAL_BABARIAN_SPAWN_DELAY},
         {"archer", ORIGINAL_ARCHER_SPAWN_DELAY},
+        {"bird", ORIGINAL_BIRD_SPAWN_DELAY},
+		{"wizard", ORIGINAL_WIZARD_SPAWN_DELAY},
 		{"heart", ORIGINAL_HEART_SPAWN_DELAY},
 		{"collectible_trap", ORIGINAL_TRAP_SPAWN_DELAY}
         }),
     max_entities({
-        {"boar", 2},
-        {"barbarian", 2},
-        {"archer", 1},
-        {"heart", 1},
-        {"collectible_trap", 1}
+        {"boar", MAX_BOARS},
+        {"barbarian", MAX_BABARIANS},
+        {"archer", MAX_ARCHERS},
+		{"wizard", MAX_WIZARDS},
+        {"bird", MAX_BIRD_FLOCKS},
+        {"heart", MAX_HEARTS},
+        {"collectible_trap", MAX_TRAPS}
         })
 {
     this->gameStateController = GameStateController();
@@ -38,6 +45,7 @@ WorldSystem::WorldSystem(std::default_random_engine& rng) :
 
 void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics, AISystem* ai)
 {
+    
     this->renderer = renderer;
     this->window = window;
     this->camera = camera;
@@ -52,6 +60,9 @@ void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camer
     auto cursor_pos_redirect = [](GLFWwindow* wnd, double _0, double _1) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse_move({ _0, _1 }); };
     glfwSetKeyCallback(window, key_redirect);
     glfwSetCursorPosCallback(window, cursor_pos_redirect);
+    // Window focus callback
+    auto focus_redirect = [](GLFWwindow* wnd, int focused) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_window_focus(focused); };
+    glfwSetWindowFocusCallback(window, focus_redirect);
 
     restart_game();
 }
@@ -74,6 +85,8 @@ void WorldSystem::restart_game()
         "barbarian",
         "boar",
         "archer",
+        "bird",
+        "wizard",
         "heart",
         "collectible_trap"
     };
@@ -89,6 +102,7 @@ void WorldSystem::restart_game()
     initText();
 
     next_spawns = spawn_delays;
+    loadAndSaveHighScore(false);
 }
 
 void WorldSystem::updateGameTimer(float elapsed_ms) {
@@ -153,11 +167,13 @@ bool WorldSystem::step(float elapsed_ms)
     update_cooldown(elapsed_ms);
     handle_deaths(elapsed_ms);
     despawn_collectibles(elapsed_ms);
+	destroyDamagings();
     handle_stamina(elapsed_ms);
     trackFPS(elapsed_ms);
     updateGameTimer(elapsed_ms);
     updateTrapsCounterText();
     toggleMesh();
+    accelerateFireballs(elapsed_ms);
     despawnTraps(elapsed_ms);
     updateCollectedTimer(elapsed_ms);
     resetTrappedEntities();
@@ -170,10 +186,47 @@ bool WorldSystem::step(float elapsed_ms)
 
     Player& player = registry.players.get(playerEntity);
     if(player.health == 0) {
+
+        loadAndSaveHighScore(true);
+        createGameOverText(camera->getSize());
+        Entity highScoreText = createHighScoreText(camera->getSize(), highScoreHours, highScoreMinutes, highScoreSeconds);
         gameStateController.setGameState(GAME_STATE::GAMEOVER);
     }
 
     return !is_over();
+}
+
+void WorldSystem::loadAndSaveHighScore(bool save) {
+    std::string filename = "highscore.txt";
+    GameTimer& gameTimer = registry.gameTimer;
+    if (save) {
+        if (gameTimer.hours > highScoreHours || 
+            (gameTimer.hours == highScoreHours && gameTimer.minutes > highScoreMinutes) ||
+            (gameTimer.hours == highScoreHours && gameTimer.minutes == highScoreMinutes && gameTimer.seconds > highScoreSeconds)) {
+            
+            // Update high score
+            highScoreHours = gameTimer.hours;
+            highScoreMinutes = gameTimer.minutes;
+            highScoreSeconds = gameTimer.seconds;
+
+            std::ofstream file(filename);
+            if (file.is_open()) {
+                file << highScoreHours << " " << highScoreMinutes << " " << highScoreSeconds;
+                file.close();
+            }
+        }
+    } else {
+        std::ifstream file(filename);
+        if (file.is_open()) {
+            file >> highScoreHours >> highScoreMinutes >> highScoreSeconds;
+            file.close();
+        } else {
+            //if file doesnt exist (shouldn't be an issue)
+            highScoreHours = 0;
+            highScoreMinutes = 0;
+            highScoreSeconds = 0;
+        }
+    }
 }
 
 void WorldSystem::handle_collisions()
@@ -192,7 +245,6 @@ void WorldSystem::handle_collisions()
         float COOLDOWN_TIME = 1000;
         std::pair<int, int> pair = { entity, entity_other };
         if (collisionCooldowns.find(pair) != collisionCooldowns.end()) {
-            collisionCooldowns[pair] = COOLDOWN_TIME;
             continue;
         }
         else {
@@ -225,6 +277,13 @@ void WorldSystem::handle_collisions()
                 entity_obstacle_collision(entity, entity_other, was_damaged);
             }
         }
+        else if (registry.damagings.has(entity)) {
+			Damaging& damaging = registry.damagings.get(entity);
+            if (damaging.type == "fireball" && registry.obstacles.has(entity_other)) {
+				// Collision between damaging and obstacle
+                damaging_obstacle_collision(entity);
+            }
+        }
     }
 
     // Clear all collisions
@@ -246,6 +305,10 @@ void WorldSystem::resetTrappedEntities() {
             enemy.speed = BARBARIAN_SPEED;
         } else if(registry.archers.has(entity)) {
             enemy.speed = ARCHER_SPEED;
+        } else if(registry.wizards.has(entity)){
+            enemy.speed = WIZARD_SPEED;
+        } else if(registry.birds.has(entity)){
+            enemy.speed = BIRD_SPEED;
         }
     }
 }
@@ -447,23 +510,31 @@ void WorldSystem::despawnTraps(float elapsed_ms) {
 void WorldSystem::update_cooldown(float elapsed_ms) {
     for (auto& cooldownEntity : registry.cooldowns.entities) {
         Cooldown& cooldown = registry.cooldowns.get(cooldownEntity);
-        float new_remaining = cooldown.remaining - elapsed_ms;
-        cooldown.remaining = new_remaining < 0 ? 0 : new_remaining;
+        cooldown.remaining -= elapsed_ms;
 
-        // Available to attack again
-        if (cooldown.remaining == 0) {
-            registry.cooldowns.remove(cooldownEntity);
+        if (cooldown.remaining <= 0) {
+            // remove lightning
+            if (registry.damagings.has(cooldownEntity) && registry.damagings.get(cooldownEntity).type == "lightning") {
+                registry.remove_all_components_of(cooldownEntity);
+            }
+            // remove target area
+            else if (registry.targetAreas.has(cooldownEntity)) {
+                registry.remove_all_components_of(cooldownEntity);
+            }
+            else {
+                registry.cooldowns.remove(cooldownEntity);
+            }
         }
-    }
 
-    auto it = collisionCooldowns.begin();
-    while (it != collisionCooldowns.end()) {
-        it->second -= elapsed_ms;
-        if (it->second <= 0) {
-            it = collisionCooldowns.erase(it);
-        }
-        else {
-            it++;
+        auto it = collisionCooldowns.begin();
+        while (it != collisionCooldowns.end()) {
+            it->second -= elapsed_ms;
+            if (it->second <= 0) {
+                it = collisionCooldowns.erase(it);
+            }
+            else {
+                it++;
+            }
         }
     }
 }
@@ -487,10 +558,11 @@ void WorldSystem::spawn(float elapsed_ms)
 {
     for (std::string& entity_type : entity_types) {
         next_spawns.at(entity_type) -= elapsed_ms;
+        int maxEntitySize = max_entities.at(entity_type);
+		int currentEntitySize = registry.spawnable_lists.at(entity_type)->size();
         if (registry.enemies.size() < MAX_TOTAL_ENEMIES && 
             next_spawns.at(entity_type) < 0 && 
-            registry.spawnable_lists.at(entity_type)->size() < max_entities.at(entity_type))
-        {
+            currentEntitySize < maxEntitySize) {
             vec2 spawnLocation = get_spawn_location(entity_type);
             spawn_func f = spawn_functions.at(entity_type);
             (*f)(spawnLocation);
@@ -632,6 +704,11 @@ void WorldSystem::entity_damaging_collision(Entity entity, Entity entity_other, 
     registry.remove_all_components_of(entity_other);
 }
 
+void WorldSystem::damaging_obstacle_collision(Entity damaging) {
+    // Currently, there is only fireball
+	registry.remove_all_components_of(damaging);
+}
+  
 void WorldSystem::entity_obstacle_collision(Entity entity, Entity obstacle, std::vector<Entity>& was_damaged)
 {
     if (registry.boars.has(entity)) {
@@ -677,6 +754,8 @@ void WorldSystem::processPlayerEnemyCollision(Entity player, Entity enemy, std::
         }
 
 		checkAndHandlePlayerDeath(player);
+
+        knock(player, enemy);
     }
 }
 
@@ -714,6 +793,8 @@ void WorldSystem::handleEnemyCollision(Entity attacker, Entity target, std::vect
             Cooldown& cooldown = registry.cooldowns.emplace(attacker);
             cooldown.remaining = attackerData.cooldown;
         }
+
+        knock(target, attacker);
     }
 }
 
@@ -721,9 +802,11 @@ void WorldSystem::checkAndHandleEnemyDeath(Entity enemy) {
     Enemy& enemyData = registry.enemies.get(enemy);
     if (enemyData.health == 0 && !registry.deathTimers.has(enemy)) {
         Motion& motion = registry.motions.get(enemy);
-        motion.velocity = { 0, 0, motion.velocity.z }; // Stop enemy movement
-        motion.angle = M_PI / 2; // Rotate enemy 90 degrees
-        motion.hitbox = { motion.hitbox.z, motion.hitbox.y, motion.hitbox.x }; // Change hitbox to be on its side
+        // Do not rotate wizard
+        if (!registry.wizards.has(enemy)) {
+            motion.angle = M_PI / 2; // Rotate enemy 90 degrees
+            motion.hitbox = { motion.hitbox.z, motion.hitbox.y, motion.hitbox.x }; // Change hitbox to be on its side
+        }
         printf("Enemy %d died with health %d\n", (unsigned int)enemy, enemyData.health);
 
         if (registry.animationControllers.has(enemy)) {
@@ -740,6 +823,24 @@ void WorldSystem::checkAndHandleEnemyDeath(Entity enemy) {
     }
 }
 
+void WorldSystem::knock(Entity knocked, Entity knocker)
+{
+    const float KNOCK_ANGLE = M_PI / 4;  // 45 degrees
+    float strength = 1;
+
+    // Skip if entity being knocked is not knockable
+    if (!registry.knockables.has(knocked)) {
+        return;
+    }
+
+    Motion& knockedMotion = registry.motions.get(knocked);
+    Motion& knockerMotion = registry.motions.get(knocker);
+    vec2 horizontal_direction = normalize(vec2(knockedMotion.position) - vec2(knockerMotion.position));
+    vec3 d = normalize(vec3(horizontal_direction * cos(KNOCK_ANGLE), sin(KNOCK_ANGLE)));
+    knockedMotion.velocity = d * strength;
+    knockedMotion.position.z += 1; // move a little over ground to prevent being considered "on the ground" for this frame
+}
+
 void WorldSystem::despawn_collectibles(float elapsed_ms) {
 	for (auto& collectibleEntity : registry.collectibles.entities) {
 		Collectible& collectible = registry.collectibles.get(collectibleEntity);
@@ -752,6 +853,27 @@ void WorldSystem::despawn_collectibles(float elapsed_ms) {
             animatedCollectible.changeState(collectibleEntity, AnimationState::Fading);
         }
 	}
+}
+
+void WorldSystem::destroyDamagings() {
+    for (auto& damagingEntity : registry.damagings.entities) {
+        Damaging& damaging = registry.damagings.get(damagingEntity);
+        Motion& motion = registry.motions.get(damagingEntity);
+
+        // half scale
+		float halfScaleX = abs(motion.scale.x) / 2;
+		float halfScaleY = abs(motion.scale.y) / 2;
+
+		bool collidesWithLeft = motion.position.x - halfScaleX <= leftBound;
+		bool collidesWithRight = motion.position.x + halfScaleX >= rightBound;
+		bool collidesWithTop = motion.position.y - halfScaleY <= topBound;
+		bool collidesWithBottom = motion.position.y + halfScaleY >= bottomBound;
+
+		// Destroy if it collides with the map bounds (fireball)
+        if (collidesWithLeft || collidesWithRight || collidesWithTop || collidesWithBottom) {
+            registry.remove_all_components_of(damagingEntity);
+        }
+    }
 }
 
 void WorldSystem::checkAndHandlePlayerDeath(Entity& entity) {
@@ -879,6 +1001,7 @@ void WorldSystem::resetSpawnSystem() {
 	spawn_delays.at("boar") = ORIGINAL_BOAR_SPAWN_DELAY;
 	spawn_delays.at("barbarian") = ORIGINAL_BABARIAN_SPAWN_DELAY;
 	spawn_delays.at("archer") = ORIGINAL_ARCHER_SPAWN_DELAY;
+    spawn_delays.at("bird") = ORIGINAL_BIRD_SPAWN_DELAY;
 	spawn_delays.at("heart") = ORIGINAL_HEART_SPAWN_DELAY;
 	spawn_delays.at("collectible_trap") = ORIGINAL_TRAP_SPAWN_DELAY;
 
@@ -886,6 +1009,34 @@ void WorldSystem::resetSpawnSystem() {
 	max_entities.at("boar") = MAX_BOARS;
 	max_entities.at("barbarian") = MAX_BABARIANS;
 	max_entities.at("archer") = MAX_ARCHERS;
+    max_entities.at("bird") = MAX_BIRD_FLOCKS;
+	max_entities.at("wizard") = MAX_WIZARDS;
 	max_entities.at("heart") = MAX_HEARTS;
 	max_entities.at("collectible_trap") = MAX_TRAPS;
+}
+
+// Pause the game when the window loses focus
+void WorldSystem::on_window_focus(int focused) {
+    if (focused == GLFW_FALSE) {
+        if (gameStateController.getGameState() == GAME_STATE::PLAYING) {
+            gameStateController.setGameState(GAME_STATE::PAUSED);
+        }
+    }
+}
+
+void WorldSystem::accelerateFireballs(float elapsed_ms) {
+    for (auto entity : registry.damagings.entities) {
+        Damaging& dmgEntity = registry.damagings.get(entity);
+        if (dmgEntity.type == "fireball") {
+            Motion& fireballMotion = registry.motions.get(entity);
+
+            // calculate direction from angle
+            vec2 direction = vec2(cos(fireballMotion.angle), sin(fireballMotion.angle));
+            direction = normalize(direction);
+
+            // accelerate in the calculated direction
+            fireballMotion.velocity.x += (direction.x) * FIREBALL_ACCELERATION * (elapsed_ms/1000);
+            fireballMotion.velocity.y += (direction.y) * FIREBALL_ACCELERATION * (elapsed_ms/1000);
+        }
+    }
 }

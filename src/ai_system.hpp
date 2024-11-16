@@ -11,6 +11,8 @@ public:
 	void boarReset(Entity boar);
 
 private:
+	const float LIGHTNING_RADIUS = 200.f;
+
 	void moveTowardsPlayer(Entity enemy, vec3 playerPosition, float elapsed_ms);
 	vec2 chooseDirection(Motion& motion, vec3 playerPosition);
 	bool pathClear(Motion& motion, vec2 direction, float howFar, const std::vector<Entity> &obstacles, float& clearDistance);
@@ -21,6 +23,21 @@ private:
 	// Archer functions
 	void archerBehaviour(Entity entity, vec3 playerPosition, float elapsed_ms);
 	void shootArrow(Entity shooter, vec3 targetPos);
+
+	// Bird functions
+	void birdBehaviour(Entity bird, vec3 playerPosition, float elapsed_ms);
+	void swoopAttack(Entity bird, vec3 playerPosition, float elapsed_ms, const std::vector<Motion>& flockMates);
+	
+	// Wizard functions
+	void wizardBehaviour(Entity entity, vec3 playerPosition, float elapsed_ms);
+	void shootFireball(Entity shooter, vec3 targetPos);
+	void triggerLightning(vec3 targetPos);
+
+	// Wizard State Processing
+	void processWizardMoving(Entity wizard, vec3 playerPosition, float elapsed_ms);
+	void processWizardPreparing(Entity wizard, vec3 playerPosition, float elapsed_ms);
+	void processWizardAiming(Entity wizard, vec3 playerPosition, float elapsed_ms);
+	void processWizardShooting(Entity wizard, vec3 playerPosition, float elapsed_ms);
 
 	vec2 randomDirection();
 

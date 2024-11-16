@@ -14,6 +14,10 @@ const float BARBARIAN_BB_WIDTH = 19.f * SPRITE_SCALE;
 const float BARBARIAN_BB_HEIGHT = 34.f * SPRITE_SCALE;
 const float ARCHER_BB_WIDTH = 32.f * SPRITE_SCALE;
 const float ARCHER_BB_HEIGHT = 32.f * SPRITE_SCALE;
+const float BIRD_BB_WIDTH = 23.f * SPRITE_SCALE;
+const float BIRD_BB_HEIGHT = 13.f * SPRITE_SCALE;
+const float WIZARD_BB_WIDTH = 32.f * SPRITE_SCALE;
+const float WIZARD_BB_HEIGHT = 32.f * SPRITE_SCALE;
 const float JEFF_BB_WIDTH   = 20.f * SPRITE_SCALE;
 const float JEFF_BB_HEIGHT  = 28.f * SPRITE_SCALE;
 const float JEFF_RUN_BB_WIDTH   = 24.f * SPRITE_SCALE;
@@ -34,18 +38,29 @@ const float SHRUB_BB_WIDTH = 30.f * SPRITE_SCALE;
 const float SHRUB_BB_HEIGHT = 33.f * SPRITE_SCALE;
 const float ROCK_BB_WIDTH = 30.f * SPRITE_SCALE;
 const float ROCK_BB_HEIGHT = 35.f * SPRITE_SCALE;
-const float ARROW_BB_WIDTH = 16 * SPRITE_SCALE;
-const float ARROW_BB_HEIGHT = 7 * SPRITE_SCALE;
+const float ARROW_BB_WIDTH = 16.f * SPRITE_SCALE;
+const float ARROW_BB_HEIGHT = 7.f * SPRITE_SCALE;
+const float FIREBALL_BB_WIDTH = 48.f * SPRITE_SCALE;
+const float FIREBALL_BB_HEIGHT = 24.f * SPRITE_SCALE;
+const float LIGHTNING_BB_WIDTH = 48.f * SPRITE_SCALE;
+const float LIGHTNING_BB_HEIGHT = 400.f * SPRITE_SCALE;
+
+const float FIREBALL_HITBOX_WIDTH = 10.f * SPRITE_SCALE;
+const float FIREBALL_ACCELERATION = 0.5f;
 
 const float BOAR_SPEED = 0.2;
 const float BARBARIAN_SPEED = 0.3;
 const float ARCHER_SPEED = 0.2;
+const float BIRD_SPEED = 0.3;
+const float WIZARD_SPEED = 0.1;
 const float PLAYER_SPEED = 0.5;
 
 const std::unordered_map<std::string, vec2> entity_sizes = {
 	{"boar", { BOAR_BB_WIDTH, BOAR_BB_HEIGHT }},
 	{"barbarian", { BARBARIAN_BB_WIDTH, BARBARIAN_BB_WIDTH }},
 	{"archer", { ARCHER_BB_WIDTH, ARCHER_BB_WIDTH }},
+	{"bird", { BIRD_BB_WIDTH, BIRD_BB_WIDTH }},
+	{"wizard", { WIZARD_BB_WIDTH, WIZARD_BB_HEIGHT }},
 	{"heart", { HEART_BB_WIDTH, HEART_BB_WIDTH }},
 	{"collectible_trap", {TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_WIDTH}}
 };
@@ -55,9 +70,6 @@ Entity createJeff(vec2 position);
 
 Entity createTree(RenderSystem* renderer, vec2 position);
 
-// Running Jeff 
-Entity createRunningJeff(RenderSystem* renderer, vec2 position);
-
 // The boar
 Entity createBoar(vec2 pos);
 
@@ -66,6 +78,11 @@ Entity createBarbarian(vec2 pos);
 
 // The archer
 Entity createArcher(vec2 pos);
+
+// The birds
+Entity createBirdFlock(vec2 pos);
+// The wizard
+Entity createWizard(vec2 pos);
 
 // The collectible trap
 Entity createCollectibleTrap(vec2 pos);
@@ -82,6 +99,12 @@ Entity createDamageTrap(vec2 pos);
 // Arrows fired by the archer
 Entity createArrow(vec3 pos, vec3 velocity);
 
+// Fireballs fired by the wizard
+Entity createFireball(vec3 pos, vec2 direction);
+
+// Lightning bolt from the sky
+Entity createLightning(vec2 pos);
+
 // Pause UI
 Entity createPauseMenu(vec2 windowSize);
 
@@ -96,27 +119,30 @@ Entity createFPSText(vec2 windowSize);
 // Game over UI
 void createGameOverText(vec2 windowSize);
 Entity createGameTimerText(vec2 windowSize);
+Entity createHighScoreText(vec2 windowSize, int hours, int minutes, int seconds);
 
 Entity createTrapsCounterText(vec2 windowSize);
 
 // GameOver
 Entity createGameOver(vec2 pos);
 
+// Display bars
 void createHealthBar(Entity characterEntity, vec3 color);
 void createPlayerHealthBar(Entity characterEntity, vec2 windowSize);
 void createPlayerStaminaBar(Entity characterEntity, vec2 windowSize);
 
+// Map objects
 void createMapTiles();
 Entity createMapTile(vec2 position, vec2 scale);
 Entity createObstacle(vec2 position, vec2 scale, TEXTURE_ASSET_ID assetID);
 void createObstacles();
+Entity createTargetArea(vec3 position, float radius);
 
-//cliffs
+// Cliffs
 void createCliffs(GLFWwindow* window);
 Entity createBottomCliff(vec2 position, vec2 scale);
 Entity createSideCliff(vec2 position, vec2 scale);
 Entity createTopCliff(vec2 position, vec2 scale);
-
 void createTrees(RenderSystem* renderer);
 
 float getElevation(vec2 xy);

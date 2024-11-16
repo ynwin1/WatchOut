@@ -46,8 +46,6 @@ void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camer
     this->physics = physics;
     this->ai = ai;
 
-    loadAndSaveHighScore(false);
-
     // Setting callbacks to member functions (that's why the redirect is needed)
     // Input is handled using GLFW, for more info see
     // http://www.glfw.org/docs/latest/input_guide.html
@@ -56,6 +54,9 @@ void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camer
     auto cursor_pos_redirect = [](GLFWwindow* wnd, double _0, double _1) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse_move({ _0, _1 }); };
     glfwSetKeyCallback(window, key_redirect);
     glfwSetCursorPosCallback(window, cursor_pos_redirect);
+    // Window focus callback
+    auto focus_redirect = [](GLFWwindow* wnd, int focused) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_window_focus(focused); };
+    glfwSetWindowFocusCallback(window, focus_redirect);
 
     restart_game();
 }
@@ -870,4 +871,13 @@ void WorldSystem::resetSpawnSystem() {
 	max_entities.at("archer") = MAX_ARCHERS;
 	max_entities.at("heart") = MAX_HEARTS;
 	max_entities.at("collectible_trap") = MAX_TRAPS;
+}
+
+// Pause the game when the window loses focus
+void WorldSystem::on_window_focus(int focused) {
+    if (focused == GLFW_FALSE) {
+        if (gameStateController.getGameState() == GAME_STATE::PLAYING) {
+            gameStateController.setGameState(GAME_STATE::PAUSED);
+        }
+    }
 }

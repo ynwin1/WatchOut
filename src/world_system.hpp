@@ -109,6 +109,7 @@ private:
 	void adjustSpawnSystem(float elapsed_ms);
 	void resetSpawnSystem();
 	void loadAndSaveHighScore(bool save);
+	void on_window_focus(int focused);
 
 	// Collision functions
 	void entity_collectible_collision(Entity entity, Entity collectible);

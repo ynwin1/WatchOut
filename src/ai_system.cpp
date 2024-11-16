@@ -408,7 +408,7 @@ void AISystem::processWizardMoving(Entity entity, vec3 playerPosition, float ela
 }
 
 void AISystem::processWizardAiming(Entity entity, vec3 playerPosition, float elapsed_ms) {
-    const float EDGE_BUFFER = 300;
+	const float EDGE_BUFFER = 500;
 
     float rand = uniform_dist(rng);
     Motion& motion = registry.motions.get(entity);
@@ -442,10 +442,12 @@ void AISystem::processWizardAiming(Entity entity, vec3 playerPosition, float ela
 		createTargetArea(playerPosition, LIGHTENING_RADIUS);
 		wizard.locked_target = playerPosition;
 		wizard.state = WizardState::Preparing;
-	}
-	else {
-		wizard.state = WizardState::Moving;
-	}
+    }
+    else {
+        shootFireball(entity, playerPosition);
+        wizard.shoot_cooldown = 0;
+        wizard.state = WizardState::Shooting;
+    }
 }
 
 void AISystem::processWizardPreparing(Entity entity, vec3 playerPosition, float elapsed_ms) {

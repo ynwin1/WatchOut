@@ -1041,7 +1041,7 @@ void WorldSystem::accelerateFireballs(float elapsed_ms) {
 }
 
 void WorldSystem::soundSetUp() {
-    int VOLUME = 3;
+    int VOLUME = 10;
     // stop all sounds first
     sound->stopAllSounds();
     // init sound system

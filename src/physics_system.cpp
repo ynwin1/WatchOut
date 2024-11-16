@@ -291,6 +291,11 @@ void PhysicsSystem::updatePositions(float elapsed_ms)
 					registry.damagings.remove(entity);
 				}
 			}
+
+			// Stop dead things when they hit the ground
+			if (registry.deathTimers.has(entity)) {
+				motion.velocity = { 0, 0, 0 };
+			}
 		}
 
 		// Dashing overwrites normal movement

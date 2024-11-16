@@ -81,8 +81,8 @@ void WorldSystem::restart_game()
     createMapTiles();
     createCliffs(window);
     createTrees(renderer);
-
     createObstacles();
+
     entity_types = {
         "barbarian",
         "boar",
@@ -249,7 +249,6 @@ void WorldSystem::handle_collisions()
         float COOLDOWN_TIME = 1000;
         std::pair<int, int> pair = { entity, entity_other };
         if (collisionCooldowns.find(pair) != collisionCooldowns.end()) {
-            collisionCooldowns[pair] = COOLDOWN_TIME;
             continue;
         }
         else {
@@ -585,40 +584,39 @@ void WorldSystem::spawn(float elapsed_ms)
 
 vec2 WorldSystem::get_spawn_location(const std::string& entity_type)
 {
-    int side = (int)(uniform_dist(rng) * 4);
     vec2 size = entity_sizes.at(entity_type);
     vec2 spawn_location{};
 
-    // spawn heart
+    // spawn collectibles
 	if (entity_type == "heart" || entity_type == "collectible_trap") {
 		// spawn at random location on the map
-		spawn_location.x = uniform_dist(rng) * (world_size_x - (size.x + 10.0f) / 2.f);
-		spawn_location.y = uniform_dist(rng) * (world_size_y - (size.y + 10.0f) / 2.f);
+        float posX = uniform_dist(rng) * (rightBound - leftBound) + leftBound;
+        float posY = uniform_dist(rng) * (bottomBound - topBound) + topBound;
+        spawn_location = { posX, posY };
     }
     else 
 	// spawn enemies
     {
-        float loc = uniform_dist(rng);
-        if (side == 0) {
-            // Spawn north
-            spawn_location.x = size.x / 2.f + (world_size_x - size.x / 2.f) * loc;
-            spawn_location.y = size.y / 2.f;
+        // Do not spawn within camera's view (with some margins)
+        float exclusionTop = (camera->getPosition().y - camera->getSize().y / 2) / yConversionFactor - 100;
+        float exclusionBottom = (camera->getPosition().y + camera->getSize().y / 2) / yConversionFactor + 100;
+        float exclusionLeft = camera->getPosition().x - camera->getSize().x / 2 - 100;
+        float exclusionRight = camera->getPosition().x + camera->getSize().x / 2 + 100;
+
+        float posX = uniform_dist(rng) * (rightBound - leftBound) + leftBound;
+        float posY = uniform_dist(rng) * (bottomBound - topBound) + topBound;
+        // Spawning in exclusion zone
+        if (posX < exclusionRight && posX > exclusionLeft &&
+            posY < exclusionBottom && posY > exclusionTop)
+        {
+            if (exclusionTop > topBound) {
+                posY = exclusionTop;
+            }
+            else {
+                posY = exclusionBottom;
+            }
         }
-        else if (side == 1) {
-            // Spawn south
-            spawn_location.x = size.x / 2.f + (world_size_x - size.x / 2.f) * loc;
-            spawn_location.y = world_size_y - (size.y / 2.f);
-        }
-        else if (side == 2) {
-            // Spawn west
-            spawn_location.x = size.x / 2.f;
-            spawn_location.y = size.y / 2.f + (world_size_y - size.y / 2.f) * loc;
-        }
-        else {
-            // Spawn east
-            spawn_location.x = world_size_x - (size.x / 2.f);
-            spawn_location.y = size.y / 2.f + (world_size_y - size.y / 2.f) * loc;
-        }
+        spawn_location = { posX, posY };
     }
     return spawn_location;
 }
@@ -768,6 +766,8 @@ void WorldSystem::processPlayerEnemyCollision(Entity player, Entity enemy, std::
         }
 
 		checkAndHandlePlayerDeath(player);
+
+        knock(player, enemy);
     }
 }
 
@@ -805,6 +805,8 @@ void WorldSystem::handleEnemyCollision(Entity attacker, Entity target, std::vect
             Cooldown& cooldown = registry.cooldowns.emplace(attacker);
             cooldown.remaining = attackerData.cooldown;
         }
+
+        knock(target, attacker);
     }
 }
 
@@ -812,15 +814,11 @@ void WorldSystem::checkAndHandleEnemyDeath(Entity enemy) {
     Enemy& enemyData = registry.enemies.get(enemy);
     if (enemyData.health == 0 && !registry.deathTimers.has(enemy)) {
         Motion& motion = registry.motions.get(enemy);
-        motion.velocity = { 0, 0, motion.velocity.z }; // Stop enemy movement
-      
         // Do not rotate wizard
         if (!registry.wizards.has(enemy)) {
-            motion.angle = 1.57f; // Rotate enemy 90 degrees
+            motion.angle = M_PI / 2; // Rotate enemy 90 degrees
+            motion.hitbox = { motion.hitbox.z, motion.hitbox.y, motion.hitbox.x }; // Change hitbox to be on its side
         }
-      
-        motion.angle = M_PI / 2; // Rotate enemy 90 degrees
-        motion.hitbox = { motion.hitbox.z, motion.hitbox.y, motion.hitbox.x }; // Change hitbox to be on its side
         printf("Enemy %d died with health %d\n", (unsigned int)enemy, enemyData.health);
 
         if (registry.animationControllers.has(enemy)) {
@@ -835,6 +833,24 @@ void WorldSystem::checkAndHandleEnemyDeath(Entity enemy) {
         registry.enemies.remove(enemy);
         registry.deathTimers.emplace(enemy);
     }
+}
+
+void WorldSystem::knock(Entity knocked, Entity knocker)
+{
+    const float KNOCK_ANGLE = M_PI / 4;  // 45 degrees
+    float strength = 1;
+
+    // Skip if entity being knocked is not knockable
+    if (!registry.knockables.has(knocked)) {
+        return;
+    }
+
+    Motion& knockedMotion = registry.motions.get(knocked);
+    Motion& knockerMotion = registry.motions.get(knocker);
+    vec2 horizontal_direction = normalize(vec2(knockedMotion.position) - vec2(knockerMotion.position));
+    vec3 d = normalize(vec3(horizontal_direction * cos(KNOCK_ANGLE), sin(KNOCK_ANGLE)));
+    knockedMotion.velocity = d * strength;
+    knockedMotion.position.z += 1; // move a little over ground to prevent being considered "on the ground" for this frame
 }
 
 void WorldSystem::despawn_collectibles(float elapsed_ms) {

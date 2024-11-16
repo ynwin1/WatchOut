@@ -146,6 +146,11 @@ struct DeathTimer
 	float timer = 3000;
 };
 
+struct Knockable
+{
+
+};
+
 struct TrapsCounter {
 	int count = 0;
 	Entity textEntity;

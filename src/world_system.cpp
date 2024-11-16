@@ -79,8 +79,8 @@ void WorldSystem::restart_game()
     createMapTiles();
     createCliffs(window);
     createTrees(renderer);
-
     createObstacles();
+
     entity_types = {
         "barbarian",
         "boar",
@@ -573,40 +573,39 @@ void WorldSystem::spawn(float elapsed_ms)
 
 vec2 WorldSystem::get_spawn_location(const std::string& entity_type)
 {
-    int side = (int)(uniform_dist(rng) * 4);
     vec2 size = entity_sizes.at(entity_type);
     vec2 spawn_location{};
 
-    // spawn heart
+    // spawn collectibles
 	if (entity_type == "heart" || entity_type == "collectible_trap") {
 		// spawn at random location on the map
-		spawn_location.x = uniform_dist(rng) * (world_size_x - (size.x + 10.0f) / 2.f);
-		spawn_location.y = uniform_dist(rng) * (world_size_y - (size.y + 10.0f) / 2.f);
+        float posX = uniform_dist(rng) * (rightBound - leftBound) + leftBound;
+        float posY = uniform_dist(rng) * (bottomBound - topBound) + topBound;
+        spawn_location = { posX, posY };
     }
     else 
 	// spawn enemies
     {
-        float loc = uniform_dist(rng);
-        if (side == 0) {
-            // Spawn north
-            spawn_location.x = size.x / 2.f + (world_size_x - size.x / 2.f) * loc;
-            spawn_location.y = size.y / 2.f;
+        // Do not spawn within camera's view (with some margins)
+        float exclusionTop = (camera->getPosition().y - camera->getSize().y / 2) / yConversionFactor - 100;
+        float exclusionBottom = (camera->getPosition().y + camera->getSize().y / 2) / yConversionFactor + 100;
+        float exclusionLeft = camera->getPosition().x - camera->getSize().x / 2 - 100;
+        float exclusionRight = camera->getPosition().x + camera->getSize().x / 2 + 100;
+
+        float posX = uniform_dist(rng) * (rightBound - leftBound) + leftBound;
+        float posY = uniform_dist(rng) * (bottomBound - topBound) + topBound;
+        // Spawning in exclusion zone
+        if (posX < exclusionRight && posX > exclusionLeft &&
+            posY < exclusionBottom && posY > exclusionTop)
+        {
+            if (exclusionTop > topBound) {
+                posY = exclusionTop;
+            }
+            else {
+                posY = exclusionBottom;
+            }
         }
-        else if (side == 1) {
-            // Spawn south
-            spawn_location.x = size.x / 2.f + (world_size_x - size.x / 2.f) * loc;
-            spawn_location.y = world_size_y - (size.y / 2.f);
-        }
-        else if (side == 2) {
-            // Spawn west
-            spawn_location.x = size.x / 2.f;
-            spawn_location.y = size.y / 2.f + (world_size_y - size.y / 2.f) * loc;
-        }
-        else {
-            // Spawn east
-            spawn_location.x = world_size_x - (size.x / 2.f);
-            spawn_location.y = size.y / 2.f + (world_size_y - size.y / 2.f) * loc;
-        }
+        spawn_location = { posX, posY };
     }
     return spawn_location;
 }

@@ -237,7 +237,6 @@ bool PhysicsSystem::meshCollides(Entity& mesh_entity, Entity& other_entity) {
 	return false;
 }
 
-
 void PhysicsSystem::updatePositions(float elapsed_ms)
 {
 	for (Entity entity : registry.motions.entities) {
@@ -265,6 +264,10 @@ void PhysicsSystem::updatePositions(float elapsed_ms)
 
 		// Apply gravity
 		if (motion.position.z > groundZ) {
+			// Don't apply gravity to fireballs
+			if (registry.damagings.has(entity) && registry.damagings.get(entity).type == "fireball") {
+				continue;
+			}
 			motion.velocity.z -= GRAVITATIONAL_CONSTANT * elapsed_ms;
 		}
 
@@ -356,6 +359,13 @@ void PhysicsSystem::handle_mesh_collision(Entity mesh, Entity entity)
 
 	if (registry.projectiles.has(entity)) {
 		entityMotion.velocity = vec3(0);
+		return;
+	}
+
+	// Example - fireball
+	if (registry.damagings.has(entity)) {
+		// Destroy the damaging
+		registry.remove_all_components_of(entity);
 		return;
 	}
 

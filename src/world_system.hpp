@@ -69,6 +69,11 @@ private:
 	TrapsCounter trapsCounter;
 
 	bool isWindowed = false;
+	
+	//HighScore
+	int highScoreHours = 0;
+	int highScoreMinutes = 0;
+	int highScoreSeconds = 0;
 
 	Entity playerEntity;
 	std::vector<std::string> entity_types;
@@ -107,11 +112,15 @@ private:
 	void toggleMesh();
 	void adjustSpawnSystem(float elapsed_ms);
 	void resetSpawnSystem();
+
+	void loadAndSaveHighScore(bool save);
+	void on_window_focus(int focused);
 	void destroyDamagings();
 	void accelerateFireballs(float elapsed_ms);
 	void despawnTraps(float elapsed_ms);
 	void updateCollectedTimer(float elapsed_ms);
 	void resetTrappedEntities();
+
 
 	// Collision functions
 	void entity_collectible_collision(Entity entity, Entity collectible);

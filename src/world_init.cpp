@@ -890,7 +890,7 @@ void createGameOverText(vec2 windowSize) {
 
 	auto entity3 = Entity();
 	Text& text3 = registry.texts.emplace(entity3);
-	text3.position = {windowSize.x / 2 - 165.f, windowSize.y / 2 - 80.f};
+	text3.position = {windowSize.x / 2 - 165.f, windowSize.y / 2 - 150.f};
 	text3.scale = 0.8f;
 	text3.value = "Press ENTER to play again";
 
@@ -906,6 +906,26 @@ void createGameOverText(vec2 windowSize) {
 			GEOMETRY_BUFFER_ID::TEXT
 		});
 	}
+}
+
+Entity createHighScoreText(vec2 windowSize, int hours, int minutes, int seconds){
+	auto entity = Entity();
+
+	Text& text = registry.texts.emplace(entity);
+	text.position = {windowSize.x / 2 - 165.f, windowSize.y / 2 - 80.f};
+	text.scale = 0.8f;
+	text.colour = {1.0f, 0.85f, 0.0f};
+    text.value = "Your High Score is  " + std::to_string(hours) + "h " + std::to_string(minutes) + "m " + std::to_string(seconds) + "s ";
+
+	registry.renderRequests.insert(
+		entity, 
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::FONT,
+			GEOMETRY_BUFFER_ID::TEXT
+		});
+
+	return entity;
 }
 
 void createTrees(RenderSystem* renderer) {

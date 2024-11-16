@@ -414,6 +414,7 @@ void RenderSystem::step(float elapsed_ms)
 	update_hpbars();
 	update_staminabars();
 	updateEntityFacing();
+	updateCollectedPosition();
 }
 
 void RenderSystem::update_animations() {
@@ -507,6 +508,20 @@ void updateHpBarPositionHelper(const std::vector<Entity>& entities) {
 		healthBarMotion.position.z = motion.position.z + visualToWorldY(motion.scale.y) / 2 + topOffset;
 		Motion& hpFrameMotion =  registry.motions.get(healthBar.frameEntity);
 		hpFrameMotion.position = healthBarMotion.position;
+    }   
+}
+
+void RenderSystem::updateCollectedPosition() {
+	Entity& playerE = registry.players.entities[0];
+	Motion& playerM = registry.motions.get(playerE);
+
+    for (Entity entity : registry.collected.entities) {
+        Motion& collectedM =  registry.motions.get(entity);
+        // place above character
+        float topOffset = 40;
+		collectedM.position.x = playerM.position.x;
+        collectedM.position.y = playerM.position.y;
+		collectedM.position.z = playerM.position.z + visualToWorldY(playerM.scale.y) / 2 + topOffset;
     }   
 }
 

@@ -40,6 +40,11 @@ const int LIGHTNING_FRAME_TIME = 50;
 const int FIREBALL_NUM_FRAMES = 6;
 const int FIREBALL_FRAME_TIME = 50;
 
+const int COLLECTIBLE_IDLE_FRAME_TIME = 0;
+const int COLLECTIBLE_IDLE_NUM_FRAMES = 1;
+const int COLLECTIBLE_FADE_FRAME_TIME = 100;
+const int COLLECTIBLE_FADE_NUM_FRAMES = 2;
+
 AnimationController& initJeffAnimationController(Entity& jeff) {
     AnimationController& animationcontroller = registry.animationControllers.emplace(jeff);
 	animationcontroller.addAnimation(AnimationState::Idle, JEFF_IDLE_FRAME_TIME, JEFF_IDLE_NUM_FRAMES, TEXTURE_ASSET_ID::JEFF_IDLE);
@@ -126,7 +131,7 @@ AnimationController& initWizardAnimationController(Entity& entity) {
 		entity,
 		{
 			TEXTURE_ASSET_ID::WIZARD_RUN,
-			EFFECT_ASSET_ID::ANIMATED,
+      EFFECT_ASSET_ID::ANIMATED,
 			GEOMETRY_BUFFER_ID::SPRITE
 		});
 
@@ -167,4 +172,40 @@ AnimationController& initFireballAnimationController(Entity& entity) {
 	animationcontroller.changeState(entity, AnimationState::Attack);
 
 	return animationcontroller;
+}
+
+AnimationController& initHeartAnimationController(Entity& entity) {
+    AnimationController& animationcontroller = registry.animationControllers.emplace(entity);
+	animationcontroller.addAnimation(AnimationState::Idle, COLLECTIBLE_IDLE_FRAME_TIME, COLLECTIBLE_IDLE_NUM_FRAMES, TEXTURE_ASSET_ID::HEART);
+	animationcontroller.addAnimation(AnimationState::Fading, COLLECTIBLE_FADE_FRAME_TIME, COLLECTIBLE_FADE_NUM_FRAMES, TEXTURE_ASSET_ID::HEART_FADE);
+
+    registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::HEART,
+			EFFECT_ASSET_ID::ANIMATED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	animationcontroller.changeState(entity, AnimationState::Idle);
+
+    return animationcontroller;
+}
+
+AnimationController& initTrapBottleAnimationController(Entity& entity) {
+    AnimationController& animationcontroller = registry.animationControllers.emplace(entity);
+	animationcontroller.addAnimation(AnimationState::Idle, COLLECTIBLE_IDLE_FRAME_TIME, COLLECTIBLE_IDLE_NUM_FRAMES, TEXTURE_ASSET_ID::TRAPCOLLECTABLE);
+	animationcontroller.addAnimation(AnimationState::Fading, COLLECTIBLE_FADE_FRAME_TIME, COLLECTIBLE_FADE_NUM_FRAMES, TEXTURE_ASSET_ID::TRAPCOLLECTABLE_FADE);
+
+    registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::TRAPCOLLECTABLE,
+			EFFECT_ASSET_ID::ANIMATED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	animationcontroller.changeState(entity, AnimationState::Idle);
+
+    return animationcontroller;
 }

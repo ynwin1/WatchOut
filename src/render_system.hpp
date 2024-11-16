@@ -54,7 +54,9 @@ class RenderSystem {
 		textures_path("jeff/32Idle.png"),             // JEFF_IDLE
 		textures_path("jeff/32Jump.png"),             // JEFF_JUMP
 		textures_path("collectables/heart.png"),      // HEART
+		textures_path("collectables/heart_fade.png"),
 		textures_path("collectables/trapbottle.png"), // TRAPCOLLECTABLE
+		textures_path("collectables/trapbottle_fade.png"),
 		textures_path("collectables/trap.png"),       // TRAP
 		textures_path("grass_tile/grass_tile.png"),   // GRASS_TILE
 		textures_path("tree/tree.png"),               // TREE
@@ -135,6 +137,8 @@ private:
 	void initMapTileBuffer();
 
 	void updateEntityFacing();
+
+	void updateCollectedPosition();
 
 	// Window handle
 	GLFWwindow* window;

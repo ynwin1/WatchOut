@@ -44,11 +44,19 @@ class RenderSystem {
 		textures_path("archer/Dead-1f-32x36.png"),    // ARCHER_DEAD
 		textures_path("archer/BowDraw-10f-33x34.png"),// ARCHER_BOW_DRAW
 		textures_path("archer/arrow.png"),            // ARROW
+		textures_path("wizard/Idle-4f-96x35.png"),    // WIZARD_IDLE
+		textures_path("wizard/Run-6f-96x35-Sheet.png"),// WIZARD_RUN
+		textures_path("wizard/Death-Sheet-6f-96x35.png"),// WIZARD_DEAD
+		textures_path("wizard/fireball-6f.png"),         // FIREBALL Source: https://nyknck.itch.io/pixelarteffectfx017
+		textures_path("wizard/lightning.png"),       // LIGHTNING Source: https://sanctumpixel.itch.io/lightning-lines-pixel-art-effect
+		textures_path("wizard/target.png"),           // TARGET AREA
 		textures_path("jeff/32Run.png"),              // JEFF_RUN
 		textures_path("jeff/32Idle.png"),             // JEFF_IDLE
 		textures_path("jeff/32Jump.png"),             // JEFF_JUMP
 		textures_path("collectables/heart.png"),      // HEART
+		textures_path("collectables/heart_fade.png"),
 		textures_path("collectables/trapbottle.png"), // TRAPCOLLECTABLE
+		textures_path("collectables/trapbottle_fade.png"),
 		textures_path("collectables/trap.png"),       // TRAP
 		textures_path("grass_tile/grass_tile.png"),   // GRASS_TILE
 		textures_path("tree/tree.png"),               // TREE
@@ -129,6 +137,8 @@ private:
 	void initMapTileBuffer();
 
 	void updateEntityFacing();
+
+	void updateCollectedPosition();
 
 	// Window handle
 	GLFWwindow* window;

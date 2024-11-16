@@ -1,7 +1,6 @@
 #pragma once
 #include "common.hpp"
 #include <vector>
-#include <unordered_map>
 
 
 // PlayerComponents 
@@ -15,6 +14,8 @@ struct Player {
 	bool goingRight;	// Key for going right is held down
 	bool tryingToJump;	// Key for jumping is held down
 	bool isMoving;		// Indicates if any movement keys are pressed
+	float speed = 0.5;
+	bool isTrapped = false;
 };
 
 //Stamina
@@ -44,9 +45,11 @@ struct Enemy
 	unsigned int cooldown = 0;
 	float speed = 0;
 	float pathfindTime = 0;
+	bool isTrapped = false;
 };
 
 struct Damaging {
+	std::string type = "arrow"; // default type
 	unsigned int damage = 10;
 };
 
@@ -81,9 +84,14 @@ struct StaminaBar {
 // Collectible Component
 struct Collectible
 {
-	float timer = 5000.f; // 5 seconds until it disappears
+	float duration = 5000.f; // 5 seconds until it disappears
+	float timer = duration; 
 	vec2 position = { 0, 0 };
 	vec2 scale = { 3, 3 };
+};
+
+struct Collected {
+	float duration = 2500;
 };
 
 // Trap Component
@@ -93,6 +101,8 @@ struct Trap
 	vec2 position = { 0, 0 };
 	vec2 scale = { 3, 3 };
 	unsigned int damage = 15.0;
+	float duration = 10000;
+	float slowFactor = 0.1f;
 };
 
 // All data relevant to the shape and motion of entities
@@ -151,6 +161,9 @@ struct MapTile {
 
 struct Obstacle {
 
+};
+
+struct TargetArea {
 };
 
 struct GameTimer {
@@ -238,8 +251,6 @@ struct Debug {
 };
 extern Debug debugging;
 
-
-
 // Entity can jump
 struct Jumper
 {
@@ -261,6 +272,15 @@ struct Barbarian {};
 struct Archer {
 	float drawArrowTime = 0;
 	bool aiming = false;
+};
+
+enum WizardState { Moving, Aiming, Preparing, Shooting };
+struct Wizard {
+	WizardState state = WizardState::Moving;
+	float shoot_cooldown = 0;
+	float prepareLightningTime = 0;
+	
+	vec3 locked_target = vec3(0, 0, 0);
 };
 
 // Collectible types

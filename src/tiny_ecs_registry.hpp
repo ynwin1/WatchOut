@@ -36,6 +36,8 @@ public:
 	ComponentContainer<Obstacle> obstacles;
 	ComponentContainer<Projectile> projectiles;
 	ComponentContainer<Mesh*> meshPtrs;
+	ComponentContainer<TargetArea> targetAreas;
+	ComponentContainer<Collected> collected;
 	
 	ComponentContainer<PauseMenuComponent> pauseMenuComponents;
 	ComponentContainer<HelpMenuComponent> helpMenuComponents;
@@ -55,6 +57,7 @@ public:
 	ComponentContainer<Boar> boars;
 	ComponentContainer<Barbarian> barbarians;
 	ComponentContainer<Archer> archers;
+	ComponentContainer<Wizard> wizards;
 	ComponentContainer<Heart> hearts;
 	ComponentContainer<CollectibleTrap> collectibleTraps;
 
@@ -80,12 +83,14 @@ public:
 		registry_list.push_back(&mapTiles);
 		registry_list.push_back(&obstacles);
 		registry_list.push_back(&meshPtrs);
+		registry_list.push_back(&collected);
 		
 		registry_list.push_back(&healthBars);
 		registry_list.push_back(&staminaBars);
 		registry_list.push_back(&texts);
 		registry_list.push_back(&jumpers);
 		registry_list.push_back(&projectiles);
+		registry_list.push_back(&targetAreas);
 
 		registry_list.push_back(&renderRequests);
 		registry_list.push_back(&backgrounds);
@@ -96,6 +101,7 @@ public:
 		registry_list.push_back(&boars);
 		registry_list.push_back(&barbarians);
 		registry_list.push_back(&archers);
+		registry_list.push_back(&wizards);
 		registry_list.push_back(&hearts);
 		registry_list.push_back(&collectibleTraps);
 
@@ -107,6 +113,7 @@ public:
 		spawnable_lists["boar"] = &boars;
 		spawnable_lists["barbarian"] = &barbarians;
 		spawnable_lists["archer"] = &archers;
+		spawnable_lists["wizard"] = &wizards;
 		spawnable_lists["heart"] = &hearts;
 		spawnable_lists["collectible_trap"] = &collectibleTraps;
 	}

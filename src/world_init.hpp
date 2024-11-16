@@ -23,8 +23,8 @@ const float GO_BB_HEIGHT  = 68.f * SPRITE_SCALE;
 const float TREE_BB_HEIGHT = 94 * 2 * SPRITE_SCALE;
 const float TREE_BB_WIDTH = 48 * 2 * SPRITE_SCALE;
 
-const float TRAP_BB_WIDTH = 32.f * SPRITE_SCALE;
-const float TRAP_BB_HEIGHT = 9.f * SPRITE_SCALE;
+const float TRAP_BB_WIDTH = 45.f * SPRITE_SCALE;
+const float TRAP_BB_HEIGHT = 13.f * SPRITE_SCALE;
 const float TRAP_COLLECTABLE_BB_WIDTH = 13.f * SPRITE_SCALE;
 const float TRAP_COLLECTABLE_BB_HEIGHT = 17.f * SPRITE_SCALE;
 const float HEART_BB_WIDTH = 17. * SPRITE_SCALE;
@@ -40,6 +40,7 @@ const float ARROW_BB_HEIGHT = 7 * SPRITE_SCALE;
 const float BOAR_SPEED = 0.2;
 const float BARBARIAN_SPEED = 0.3;
 const float ARCHER_SPEED = 0.2;
+const float PLAYER_SPEED = 0.5;
 
 const std::unordered_map<std::string, vec2> entity_sizes = {
 	{"boar", { BOAR_BB_WIDTH, BOAR_BB_HEIGHT }},
@@ -71,6 +72,9 @@ Entity createCollectibleTrap(vec2 pos);
 
 // The collectible heart
 Entity createHeart(vec2 pos);
+
+// indicator showing the collected item
+Entity createCollected(Motion& playerM, vec2 size, TEXTURE_ASSET_ID assetID);
 
 // The damage trap
 Entity createDamageTrap(vec2 pos);

@@ -508,6 +508,7 @@ void WorldSystem::despawnTraps(float elapsed_ms) {
 }
 
 void WorldSystem::update_cooldown(float elapsed_ms) {
+    // Tick type-specific cooldowns
     for (auto& cooldownEntity : registry.cooldowns.entities) {
         Cooldown& cooldown = registry.cooldowns.get(cooldownEntity);
         cooldown.remaining -= elapsed_ms;
@@ -525,16 +526,17 @@ void WorldSystem::update_cooldown(float elapsed_ms) {
                 registry.cooldowns.remove(cooldownEntity);
             }
         }
+    }
 
-        auto it = collisionCooldowns.begin();
-        while (it != collisionCooldowns.end()) {
-            it->second -= elapsed_ms;
-            if (it->second <= 0) {
-                it = collisionCooldowns.erase(it);
-            }
-            else {
-                it++;
-            }
+    // Tick general collision cooldowns
+    auto it = collisionCooldowns.begin();
+    while (it != collisionCooldowns.end()) {
+        it->second -= elapsed_ms;
+        if (it->second <= 0) {
+            it = collisionCooldowns.erase(it);
+        }
+        else {
+            it++;
         }
     }
 }

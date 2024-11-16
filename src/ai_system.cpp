@@ -517,7 +517,7 @@ void AISystem::shootFireball(Entity shooter, vec3 targetPos) {
     // Velocity of the fireball
     vec3 velocity = vec3(direction * FIREBALL_SPEED, 0);
 
-    createFireball(pos, velocity, direction);
+    createFireball(pos, direction);
 }
 
 void AISystem::triggerLightening(vec3 target_pos) {

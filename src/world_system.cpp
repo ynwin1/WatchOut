@@ -141,6 +141,7 @@ bool WorldSystem::step(float elapsed_ms)
     updateGameTimer(elapsed_ms);
     updateTrapsCounterText();
     toggleMesh();
+    accelerateFireballs(elapsed_ms);
 
     if (camera->isToggled()) {
         Motion& playerMotion = registry.motions.get(playerEntity);
@@ -837,4 +838,21 @@ void WorldSystem::resetSpawnSystem() {
 	max_entities.at("wizard") = MAX_WIZARDS;
 	max_entities.at("heart") = MAX_HEARTS;
 	max_entities.at("collectible_trap") = MAX_TRAPS;
+}
+
+void WorldSystem::accelerateFireballs(float elapsed_ms) {
+    for (auto entity : registry.damagings.entities) {
+        Damaging& dmgEntity = registry.damagings.get(entity);
+        if (dmgEntity.type == "fireball") {
+            Motion& fireballMotion = registry.motions.get(entity);
+
+            // calculate direction from angle
+            vec2 direction = vec2(cos(fireballMotion.angle), sin(fireballMotion.angle));
+            direction = normalize(direction);
+
+            // accelerate in the calculated direction
+            fireballMotion.velocity.x += (direction.x) * FIREBALL_ACCELERATION * (elapsed_ms/1000);
+            fireballMotion.velocity.y += (direction.y) * FIREBALL_ACCELERATION * (elapsed_ms/1000);
+        }
+    }
 }

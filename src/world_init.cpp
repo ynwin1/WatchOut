@@ -323,12 +323,12 @@ Entity createArrow(vec3 pos, vec3 velocity)
 	return entity;
 }
 
-Entity createFireball(vec3 pos, vec3 velocity, vec2 direction) {
+Entity createFireball(vec3 pos, vec2 direction) {
 	auto entity = Entity();
 
 	Motion& motion = registry.motions.emplace(entity);
 	motion.position = pos;
-	motion.velocity = velocity;
+	motion.velocity = vec3(0);
 	motion.angle = atan2(direction.y, direction.x);
 	motion.scale = { FIREBALL_BB_WIDTH, FIREBALL_BB_HEIGHT };
 	motion.hitbox = { FIREBALL_HITBOX_WIDTH, FIREBALL_HITBOX_WIDTH, FIREBALL_HITBOX_WIDTH };

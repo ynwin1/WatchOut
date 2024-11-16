@@ -44,6 +44,7 @@ const float LIGHTENING_BB_WIDTH = 48.f * SPRITE_SCALE;
 const float LIGHTENING_BB_HEIGHT = 400.f * SPRITE_SCALE;
 
 const float FIREBALL_HITBOX_WIDTH = 10.f * SPRITE_SCALE;
+const float FIREBALL_ACCELERATION = 0.5f;
 
 const float BOAR_SPEED = 0.2;
 const float BARBARIAN_SPEED = 0.3;
@@ -89,7 +90,7 @@ Entity createDamageTrap(vec2 pos);
 Entity createArrow(vec3 pos, vec3 velocity);
 
 // Fireballs fired by the wizard
-Entity createFireball(vec3 pos, vec3 velocity, vec2 direction);
+Entity createFireball(vec3 pos, vec2 direction);
 
 // Lightening bolt from the sky
 Entity createLightening(vec2 pos);

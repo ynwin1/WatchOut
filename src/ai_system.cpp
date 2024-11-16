@@ -196,6 +196,12 @@ bool AISystem::pathClear(Motion& motion, vec2 direction, float howFar, const std
 
 void AISystem::boarBehaviour(Entity boar, vec3 playerPosition, float elapsed_ms)
 {
+    // boar can't charge if trapped
+    if(registry.enemies.has(boar) && registry.enemies.get(boar).isTrapped) {
+        moveTowardsPlayer(boar, playerPosition, elapsed_ms);
+        return;
+    }
+
     if (registry.deathTimers.has(boar)) {
         return;
     }

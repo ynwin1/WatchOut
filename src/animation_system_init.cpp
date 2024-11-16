@@ -35,6 +35,10 @@ const int BIRD_SWOOP_NUM_FRAMES = 1;
 const int BIRD_SWOOP_FRAME_TIME = 1000;
 const int BIRD_DEAD_NUM_FRAMES = 1;
 const int BIRD_DEAD_FRAME_TIME = 1000;
+const int COLLECTIBLE_IDLE_FRAME_TIME = 0;
+const int COLLECTIBLE_IDLE_NUM_FRAMES = 1;
+const int COLLECTIBLE_FADE_FRAME_TIME = 100;
+const int COLLECTIBLE_FADE_NUM_FRAMES = 2;
 
 AnimationController& initJeffAnimationController(Entity& jeff) {
     AnimationController& animationcontroller = registry.animationControllers.emplace(jeff);
@@ -118,15 +122,49 @@ AnimationController& initBirdAnimationController(Entity& entity) {
     animationcontroller.addAnimation(AnimationState::Flying, BIRD_FLY_FRAME_TIME, BIRD_FLY_NUM_FRAMES, TEXTURE_ASSET_ID::BIRD_FLY);
 	animationcontroller.addAnimation(AnimationState::Dead, BIRD_DEAD_FRAME_TIME, BIRD_DEAD_NUM_FRAMES, TEXTURE_ASSET_ID::BIRD_DEAD);
 
-    registry.renderRequests.insert(
+	registry.renderRequests.insert(
 		entity,
 		{
 			TEXTURE_ASSET_ID::BIRD_FLY,
 			EFFECT_ASSET_ID::ANIMATED,
 			GEOMETRY_BUFFER_ID::SPRITE
 		});
-
 	animationcontroller.changeState(entity, AnimationState::Flying);
+	return animationcontroller;
+}
+
+AnimationController& initHeartAnimationController(Entity& entity) {
+    AnimationController& animationcontroller = registry.animationControllers.emplace(entity);
+	animationcontroller.addAnimation(AnimationState::Idle, COLLECTIBLE_IDLE_FRAME_TIME, COLLECTIBLE_IDLE_NUM_FRAMES, TEXTURE_ASSET_ID::HEART);
+	animationcontroller.addAnimation(AnimationState::Fading, COLLECTIBLE_FADE_FRAME_TIME, COLLECTIBLE_FADE_NUM_FRAMES, TEXTURE_ASSET_ID::HEART_FADE);
+
+    registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::HEART,
+			EFFECT_ASSET_ID::ANIMATED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	animationcontroller.changeState(entity, AnimationState::Idle);
+
+    return animationcontroller;
+}
+
+AnimationController& initTrapBottleAnimationController(Entity& entity) {
+    AnimationController& animationcontroller = registry.animationControllers.emplace(entity);
+	animationcontroller.addAnimation(AnimationState::Idle, COLLECTIBLE_IDLE_FRAME_TIME, COLLECTIBLE_IDLE_NUM_FRAMES, TEXTURE_ASSET_ID::TRAPCOLLECTABLE);
+	animationcontroller.addAnimation(AnimationState::Fading, COLLECTIBLE_FADE_FRAME_TIME, COLLECTIBLE_FADE_NUM_FRAMES, TEXTURE_ASSET_ID::TRAPCOLLECTABLE_FADE);
+
+    registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::TRAPCOLLECTABLE,
+			EFFECT_ASSET_ID::ANIMATED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	animationcontroller.changeState(entity, AnimationState::Idle);
 
     return animationcontroller;
 }

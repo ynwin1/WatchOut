@@ -29,7 +29,7 @@ WorldSystem::WorldSystem(std::default_random_engine& rng) :
         {"boar", 2},
         {"barbarian", 2},
         {"archer", 1},
-        {"bird", 7},
+        {"bird", 1},
         {"heart", 1},
         {"collectible_trap", 1}
         })

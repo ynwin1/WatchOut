@@ -498,12 +498,14 @@ void AISystem::shootFireball(Entity shooter, vec3 targetPos) {
     // Set offset to avoid collision with the shooter
     float x_offset = FIREBALL_HITBOX_WIDTH + motion.hitbox.x / 2;
     float y_offset = FIREBALL_HITBOX_WIDTH + motion.hitbox.y / 2;
+	// travelling more horizontally so no y offset
     if (abs(direction.x) > abs(direction.y)) {
         y_offset = 0;
     }
     else if (abs(direction.x) < abs(direction.y)) {
         x_offset = 0;
     }
+    // offset must be on the left if travelling left
     if (direction.x < 0) {
         x_offset = -x_offset;
     }

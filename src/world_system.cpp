@@ -4,6 +4,7 @@
 #include "world_init.hpp"
 #include "physics_system.hpp"
 #include "sound_system.hpp"
+#include "game_state_controller.hpp"
 #include <iostream>
 #include <iomanip> 
 #include <sstream>
@@ -31,6 +32,8 @@ WorldSystem::WorldSystem(std::default_random_engine& rng) :
         {"collectible_trap", 1}
         })
 {
+    this->gameStateController = GameStateController();
+    this->gameStateController.init(GAME_STATE::PLAYING, this);
     this->rng = rng;
 }
 
@@ -79,6 +82,8 @@ void WorldSystem::restart_game()
     
     // Create player entity
     playerEntity = createJeff(vec2(world_size_x / 2.f, world_size_y / 2.f));
+    createPlayerHealthBar(playerEntity, camera->getSize());
+    createPlayerStaminaBar(playerEntity, camera->getSize());
 
     gameStateController.setGameState(GAME_STATE::PLAYING);
     show_mesh = false;
@@ -129,7 +134,13 @@ void WorldSystem::updateTrapsCounterText() {
     Text& text = registry.texts.get(trapsCounter.textEntity);
     std::stringstream ss;
     ss << std::setw(2) << std::setfill('0') << trapsCounter.count;
-    text.value = "Traps: " + ss.str();
+    text.value = "*" + ss.str();
+
+    if(trapsCounter.count == 0) {
+        text.colour = {0.8f, 0.8f, 0.0f};
+    } else {
+        text.colour = {1.0f, 1.0f, 1.0f};
+    }
 }
 
 bool WorldSystem::step(float elapsed_ms)
@@ -153,7 +164,6 @@ bool WorldSystem::step(float elapsed_ms)
 
     Player& player = registry.players.get(playerEntity);
     if(player.health == 0) {
-        createGameOverText(camera->getSize());
         gameStateController.setGameState(GAME_STATE::GAMEOVER);
     }
 
@@ -260,10 +270,8 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     // Handle EP to pause gameplay
     if (action == GLFW_PRESS && key == GLFW_KEY_P) {
         if(gameStateController.getGameState() != GAME_STATE::PAUSED){
-            createPauseMenu(camera->getPosition());
             gameStateController.setGameState(GAME_STATE::PAUSED);
         } else{
-            exitPauseMenu();
             gameStateController.setGameState(GAME_STATE::PLAYING);
         }
         
@@ -272,10 +280,8 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     // Handle EP to display help menu
     if (action == GLFW_PRESS && key == GLFW_KEY_H) {
         if(gameStateController.getGameState() != GAME_STATE::HELP){
-            createHelpMenu(camera->getPosition());
             gameStateController.setGameState(GAME_STATE::HELP);
         } else{
-            exitHelpMenu();
             gameStateController.setGameState(GAME_STATE::PLAYING);
         }
         
@@ -438,6 +444,11 @@ void WorldSystem::handle_deaths(float elapsed_ms) {
         DeathTimer& deathTimer = registry.deathTimers.get(deathEntity);
         deathTimer.timer -= elapsed_ms;
         if (deathTimer.timer < 0) {
+            // Remove
+            if (registry.motions.has(deathEntity)) {
+                Motion& motion = registry.motions.get(deathEntity);
+                createHeart({ motion.position.x, motion.position.y });
+            }
             registry.remove_all_components_of(deathEntity);
         }
     }
@@ -678,7 +689,8 @@ void WorldSystem::checkAndHandleEnemyDeath(Entity enemy) {
     if (enemyData.health == 0 && !registry.deathTimers.has(enemy)) {
         Motion& motion = registry.motions.get(enemy);
         motion.velocity = { 0, 0, motion.velocity.z }; // Stop enemy movement
-        motion.angle = 1.57f; // Rotate enemy 90 degrees
+        motion.angle = M_PI / 2; // Rotate enemy 90 degrees
+        motion.hitbox = { motion.hitbox.z, motion.hitbox.y, motion.hitbox.x }; // Change hitbox to be on its side
         printf("Enemy %d died with health %d\n", (unsigned int)enemy, enemyData.health);
 
         if (registry.animationControllers.has(enemy)) {
@@ -688,6 +700,7 @@ void WorldSystem::checkAndHandleEnemyDeath(Entity enemy) {
 
         HealthBar& hpbar = registry.healthBars.get(enemy);
         registry.remove_all_components_of(hpbar.meshEntity);
+        registry.remove_all_components_of(hpbar.frameEntity);
         registry.healthBars.remove(enemy);
         registry.enemies.remove(enemy);
         registry.deathTimers.emplace(enemy);
@@ -707,7 +720,8 @@ void WorldSystem::despawn_collectibles(float elapsed_ms) {
 void WorldSystem::checkAndHandlePlayerDeath(Entity& entity) {
 	if (registry.players.get(entity).health == 0) {
 		Motion& motion = registry.motions.get(entity);
-		motion.angle = 1.57f; // Rotate player 90 degrees
+		motion.angle = M_PI / 2; // Rotate player 90 degrees
+        motion.hitbox = { motion.hitbox.z, motion.hitbox.y, motion.hitbox.x }; // Change hitbox to be on its side
 		printf("Player died\n");
 	}
 }

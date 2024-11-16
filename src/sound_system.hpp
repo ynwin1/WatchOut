@@ -21,6 +21,9 @@ public:
 	// Sound effects
 	std::string ARROW_SOUND = "arrow_sound";
 	std::string BOAR_CHARGE_SOUND = "boar_charge_sound";
+	std::string THUNDER_SOUND = "thunder_sound";
+	std::string STORM_SOUND = "storm_sound";
+	std::string WALKING_SOUND = "walking_sound";
 
 
 	// FUNCTIONS
@@ -28,7 +31,7 @@ public:
 	bool init();
 
 	// Play music; duration = -1 for infinite loop
-	void playMusic(const std::string& key, std::string path, int duration);
+	void playMusic(const std::string& key, std::string path, int duration, int volume);
 
 	// Play sound effect
 	void playSoundEffect(const std::string& key, std::string path, int count);
@@ -63,6 +66,4 @@ Sound credits
 - Thunder: https://freesound.org/people/Robinhood76/sounds/316850/
 - Storm: https://pixabay.com/sound-effects/cyprus-storm-61421/
 - Player Death: https://freesound.org/people/dobroide/sounds/44709/
-
-
 */

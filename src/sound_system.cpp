@@ -34,7 +34,7 @@ bool SoundSystem::init()
 	return true;
 }
 
-void SoundSystem::playMusic(const std::string& key, std::string path, int duration)
+void SoundSystem::playMusic(const std::string& key, std::string path, int duration, int volume)
 {
 	Mix_Music* music = Mix_LoadMUS(path.c_str());
 	if (music == nullptr)
@@ -48,6 +48,7 @@ void SoundSystem::playMusic(const std::string& key, std::string path, int durati
 		handleError("Failed to play music!");
 		return;
 	}
+	Mix_VolumeMusic(volume);
 	musicTracks[key] = std::make_pair(music, channel);
 }
 

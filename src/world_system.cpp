@@ -151,6 +151,7 @@ bool WorldSystem::step(float elapsed_ms)
     updateGameTimer(elapsed_ms);
     updateTrapsCounterText();
     toggleMesh();
+    inGameSounds();
 
     if (camera->isToggled()) {
         Motion& playerMotion = registry.motions.get(playerEntity);
@@ -852,10 +853,29 @@ void WorldSystem::resetSpawnSystem() {
 }
 
 void WorldSystem::soundSetUp() {
+    int VOLUME = 10;
     // stop all sounds first
     sound->stopAllSounds();
     // init sound system
     sound->init();
     // play background music
-    sound->playMusic(sound->BACKGROUND_MUSIC, audio_path("mystery_background.wav"), -1);
+    sound->playMusic(sound->BACKGROUND_MUSIC, audio_path("mystery_background.wav"), -1, VOLUME);
+}
+
+void WorldSystem::inGameSounds() {
+	Player& player = registry.players.get(playerEntity);
+
+	if (player.isMoving) {
+		if (!isPlayerMakingSound) {
+			// walking sound
+            isPlayerMakingSound = true;
+            sound->playSoundEffect(sound->WALKING_SOUND, audio_path("walking.wav"), -1);
+		}
+	}
+	else {
+		if (isPlayerMakingSound) {
+			isPlayerMakingSound = false;
+			sound->stopSoundEffect(sound->WALKING_SOUND);
+		}
+	}
 }

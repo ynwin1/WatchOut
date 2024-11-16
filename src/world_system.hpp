@@ -70,6 +70,7 @@ private:
 	bool isWindowed = false;
 
 	Entity playerEntity;
+	bool isPlayerMakingSound = false;
 	std::vector<std::string> entity_types;
 	std::unordered_map<std::string, float> spawn_delays;
 	std::unordered_map<std::string, unsigned int> max_entities;
@@ -107,6 +108,7 @@ private:
 	void toggleMesh();
 	void adjustSpawnSystem(float elapsed_ms);
 	void resetSpawnSystem();
+	void inGameSounds();
 
 	// Collision functions
 	void entity_collectible_collision(Entity entity, Entity collectible);

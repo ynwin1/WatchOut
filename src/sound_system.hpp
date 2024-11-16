@@ -56,8 +56,9 @@ private:
 
 /*
 Sound credits
-- Background music: https://freesound.org/people/szegvari/sounds/580453/, https://freesound.org/people/NoiseCollector/sounds/57027/
-- Arrow: 
+- Background music: https://freesound.org/people/szegvari/sounds/580453/
+- Mystery background: https://freesound.org/people/danlucaz/sounds/665215/
+- Arrow: https://freesound.org/people/Erdie/sounds/65733/
 - Boar charge: https://freesound.org/people/Robinhood76/sounds/76796/
 - Thunder: https://freesound.org/people/Robinhood76/sounds/316850/
 - Storm: https://pixabay.com/sound-effects/cyprus-storm-61421/

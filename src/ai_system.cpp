@@ -3,13 +3,18 @@
 #include "physics_system.hpp"
 #include "sound_system.hpp"
 
-
+//Boar constants
 const float BOAR_AGGRO_RANGE = 500;
 const float BOAR_DISENGAGE_RANGE = 700;
 const float BOAR_PREPARE_TIME = 500;
 const float BOAR_CHARGE_DURATION = 1000;
 const float BOAR_COOLDOWN_TIME = 500;
 const float BOAR_CHARGE_SPEED = 1.0f;
+
+//Bird constants
+const float BIRD_AGGRO_RANGE = 100;   
+const float BIRD_SWOOP_DURATION = 500; 
+const float BIRD_COOLDOWN_TIME = 4000;
 
 
 AISystem::AISystem(std::default_random_engine& rng, SoundSystem* sound)
@@ -384,7 +389,149 @@ void AISystem::archerBehaviour(Entity entity, vec3 playerPosition, float elapsed
         moveTowardsPlayer(entity, playerPosition, elapsed_ms);
     }
 }
+// steer to avoid crowding local flockmates
+vec2 separation(const Motion& motion, const std::vector<Motion>& flockMates) {
+    vec2 separationForce = vec2(0, 0);
+    const float SEPARATION_RADIUS = 300.0f;  
+    const float SEPARATION_WEIGHT = 5.0f;   
 
+    for (const auto& mate : flockMates) {
+        float distanceToMate = distance(motion.position, mate.position);
+        if (distanceToMate > 0 && distanceToMate < SEPARATION_RADIUS) {
+            vec2 directionAway = normalize(vec2(motion.position) - vec2(mate.position));
+            separationForce += directionAway / distanceToMate; 
+        }
+    }
+
+    return separationForce * SEPARATION_WEIGHT;
+}
+
+// steer towards the average heading of local flockmates
+vec2 alignment(const Motion& motion, const std::vector<Motion>& flockMates) {
+    vec2 alignmentForce = vec2(0, 0);
+    const float ALIGNMENT_RADIUS = 10.0f;  
+    const float ALIGNMENT_WEIGHT = 1.0f;    
+
+    for (const auto& mate : flockMates) {
+        float distanceToMate = glm::length(motion.position - mate.position); 
+
+        if (distanceToMate > 0 && distanceToMate < ALIGNMENT_RADIUS) {
+            alignmentForce += vec2(mate.velocity.x, motion.velocity.y);
+        }
+    }
+
+    return alignmentForce * ALIGNMENT_WEIGHT;
+}
+
+// steer to move toward the average position of local flockmates
+vec2 cohesion(const Motion& motion, const std::vector<Motion>& flockMates) {
+    vec2 cohesionForce = vec2(0, 0);
+    const float COHESION_RADIUS = 10.0f; 
+    const float COHESION_WEIGHT = 1.0f;    
+
+    for (const auto& mate : flockMates) {
+        float distanceToMate = glm::length(motion.position - mate.position);
+        
+        if (distanceToMate > 0 && distanceToMate < COHESION_RADIUS) {
+            cohesionForce += vec2(mate.position.x, mate.position.y) - vec2(motion.position.x, motion.position.y);
+        }
+    }
+
+    return cohesionForce * COHESION_WEIGHT;
+}
+
+void AISystem::swoopAttack(Entity bird, vec3 playerPosition, float elapsed_ms, const std::vector<Motion>& flockMates) {
+    Motion& birdMotion = registry.motions.get(bird);
+    Bird& birdComponent = registry.birds.get(bird);
+    AnimationController& animationController = registry.animationControllers.get(bird);
+
+    // Initiate swoop when within range
+    vec2 birdPosition2D = vec2(birdMotion.position.x, birdMotion.position.y);
+    vec2 playerPosition2D = vec2(playerPosition.x, playerPosition.y);
+    float distanceToPlayer = distance(birdPosition2D, playerPosition2D);
+
+    if (!birdComponent.isSwooping && birdComponent.swoopCooldown <= 0 && distanceToPlayer < BIRD_AGGRO_RANGE) {
+        birdComponent.isSwooping = true;
+        birdComponent.swoopTimer = BIRD_SWOOP_DURATION;
+        birdComponent.swoopDirection = normalize(playerPosition2D - birdPosition2D);
+    }
+
+    // Swoop towards player
+    if (birdComponent.isSwooping) {
+        animationController.changeState(bird, AnimationState::Swooping);
+
+        // BOID while swooping
+        vec2 separationForce = separation(birdMotion, flockMates) * 0.5f;
+        vec2 alignmentForce = alignment(birdMotion, flockMates) * 0.3f;
+        vec2 cohesionForce = cohesion(birdMotion, flockMates) * 0.5f;
+        vec2 swoopForce = birdComponent.swoopDirection * birdComponent.swoopSpeed;
+        vec2 combinedForce = swoopForce + separationForce + alignmentForce + cohesionForce;
+
+        birdMotion.velocity = vec3(normalize(combinedForce) * birdComponent.swoopSpeed, -1.0f);
+
+        birdComponent.swoopTimer -= elapsed_ms;
+        if (birdComponent.swoopTimer <= 0) {
+            if (birdMotion.position.z < birdComponent.originalZ) {
+                animationController.changeState(bird, AnimationState::Flying);
+                birdMotion.velocity.z = 1.0f;
+            } else {
+                birdMotion.position.z = birdComponent.originalZ;
+                birdComponent.isSwooping = false;
+                birdMotion.velocity.z = 0;
+                birdComponent.swoopCooldown = BIRD_COOLDOWN_TIME;
+            }
+        }
+    }
+}
+
+
+void AISystem::birdBehaviour(Entity bird, vec3 playerPosition, float elapsed_ms) {
+    Motion& birdMotion = registry.motions.get(bird);
+    Bird& birdComponent = registry.birds.get(bird);
+    AnimationController& animationController = registry.animationControllers.get(bird);
+    std::vector<Motion> flockMates;
+    for (const auto& entity : registry.birds.entities) {
+        if (entity.getId() != bird.getId() && registry.motions.has(entity)) {
+            flockMates.push_back(registry.motions.get(entity));
+        }
+    }
+    // Swoop Attack
+    swoopAttack(bird, playerPosition, elapsed_ms, flockMates);
+    if (birdComponent.isSwooping) {
+        return;
+    }
+    if (birdComponent.swoopCooldown > 0) {
+        birdComponent.swoopCooldown -= elapsed_ms;
+    }
+
+    // BOIDS: Separation, Alignment, Cohesion
+    vec2 separationForce = separation(birdMotion, flockMates);
+    vec2 alignmentForce = alignment(birdMotion, flockMates);
+    vec2 cohesionForce = cohesion(birdMotion, flockMates);
+    vec2 birdPosition2D = vec2(birdMotion.position.x, birdMotion.position.y);
+    vec2 playerPosition2D = vec2(playerPosition.x, playerPosition.y);
+    float distanceToPlayer = distance(birdPosition2D, playerPosition2D);
+
+    vec2 directionToPlayer = normalize(playerPosition2D - birdPosition2D);
+    const float SEPARATION_WEIGHT = 0.5f;
+    const float ALIGNMENT_WEIGHT = 0.3f;
+    const float COHESION_WEIGHT = 0.5f;
+    const float PLAYER_ATTRACTION_WEIGHT = 0.2f;
+    
+    vec2 flockingForce = 
+        separationForce * SEPARATION_WEIGHT + 
+        alignmentForce * ALIGNMENT_WEIGHT + 
+        cohesionForce * COHESION_WEIGHT;
+    
+    vec2 movementForce = flockingForce + directionToPlayer * PLAYER_ATTRACTION_WEIGHT;
+    float speed = registry.birds.get(bird).swarmSpeed;
+    if (length(movementForce) > 0) {
+        movementForce = normalize(movementForce) * speed;
+    }
+    animationController.changeState(bird, AnimationState::Flying);
+    birdMotion.velocity = vec3(movementForce, 0.0f);
+    birdMotion.facing = normalize(movementForce);
+}
 void AISystem::wizardBehaviour(Entity entity, vec3 playerPosition, float elapsed_ms) {
     
 	if (registry.deathTimers.has(entity)) {
@@ -571,7 +718,6 @@ void AISystem::step(float elapsed_ms)
         return;
     }
     vec3 playerPosition = registry.motions.get(registry.players.entities.at(0)).position;
-
     for (Entity enemy : registry.enemies.entities) {
         if (registry.boars.has(enemy)) {
             boarBehaviour(enemy, playerPosition, elapsed_ms);
@@ -581,6 +727,8 @@ void AISystem::step(float elapsed_ms)
         }
         else if (registry.archers.has(enemy)) {
             archerBehaviour(enemy, playerPosition, elapsed_ms);
+        } else if (registry.birds.has(enemy)){
+            birdBehaviour(enemy, playerPosition, elapsed_ms);
         }
 		else if (registry.wizards.has(enemy)) {
 			wizardBehaviour(enemy, playerPosition, elapsed_ms);

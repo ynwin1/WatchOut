@@ -94,6 +94,47 @@ Entity createArcher(vec2 pos)
 	return entity;
 };
 
+// Bird creation (Flock of 5 birds)
+Entity createBirdFlock(vec2 pos)
+{
+    const int flockSize = 5;
+    const float spacing = 20.f; 
+    Entity repBird;
+
+    for (int i = 0; i < flockSize; ++i)
+    {
+        auto entity = Entity();
+
+        // Spawn birds with spacing
+        vec2 birdPosition = pos + vec2(i * spacing, 0); 
+
+        Motion& motion = registry.motions.emplace(entity);
+        motion.position = vec3(birdPosition, TREE_BB_HEIGHT - BIRD_BB_WIDTH);
+        motion.angle = 0.f;
+        motion.scale = { BIRD_BB_WIDTH, BIRD_BB_HEIGHT };
+        motion.hitbox = { BIRD_BB_WIDTH, BIRD_BB_HEIGHT, BIRD_BB_HEIGHT / zConversionFactor };
+        motion.solid = true;
+
+        Enemy& enemy = registry.enemies.emplace(entity);
+        enemy.damage = 10;
+        enemy.cooldown = 2000.f;
+        enemy.speed = BIRD_SPEED;
+
+        registry.birds.emplace(entity);
+
+        initBirdAnimationController(entity);
+        registry.midgrounds.emplace(entity);
+
+        createHealthBar(entity, vec3(1.0f, 0.0f, 0.0f));
+        if (i == 0)
+        {
+            repBird = entity;
+        }
+    }
+    return repBird;
+}
+
+
 // Wizard creation
 Entity createWizard(vec2 pos) {
 	auto entity = Entity();
@@ -849,7 +890,7 @@ void createGameOverText(vec2 windowSize) {
 
 	auto entity3 = Entity();
 	Text& text3 = registry.texts.emplace(entity3);
-	text3.position = {windowSize.x / 2 - 165.f, windowSize.y / 2 - 80.f};
+	text3.position = {windowSize.x / 2 - 165.f, windowSize.y / 2 - 150.f};
 	text3.scale = 0.8f;
 	text3.value = "Press ENTER to play again";
 
@@ -865,6 +906,26 @@ void createGameOverText(vec2 windowSize) {
 			GEOMETRY_BUFFER_ID::TEXT
 		});
 	}
+}
+
+Entity createHighScoreText(vec2 windowSize, int hours, int minutes, int seconds){
+	auto entity = Entity();
+
+	Text& text = registry.texts.emplace(entity);
+	text.position = {windowSize.x / 2 - 165.f, windowSize.y / 2 - 80.f};
+	text.scale = 0.8f;
+	text.colour = {1.0f, 0.85f, 0.0f};
+    text.value = "Your High Score is  " + std::to_string(hours) + "h " + std::to_string(minutes) + "m " + std::to_string(seconds) + "s ";
+
+	registry.renderRequests.insert(
+		entity, 
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::FONT,
+			GEOMETRY_BUFFER_ID::TEXT
+		});
+
+	return entity;
 }
 
 void createTrees(RenderSystem* renderer) {

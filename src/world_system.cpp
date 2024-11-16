@@ -8,12 +8,14 @@
 #include <iostream>
 #include <iomanip> 
 #include <sstream>
+#include <fstream> 
 
 WorldSystem::WorldSystem(std::default_random_engine& rng) :
     spawn_functions({
         {"boar", createBoar},
         {"barbarian", createBarbarian},
         {"archer", createArcher},
+        {"bird", createBirdFlock},
 	    {"wizard", createWizard},
         {"heart", createHeart},
 		{"collectible_trap", createCollectibleTrap}
@@ -22,6 +24,7 @@ WorldSystem::WorldSystem(std::default_random_engine& rng) :
         {"boar", ORIGINAL_BOAR_SPAWN_DELAY},
         {"barbarian", ORIGINAL_BABARIAN_SPAWN_DELAY},
         {"archer", ORIGINAL_ARCHER_SPAWN_DELAY},
+        {"bird", ORIGINAL_BIRD_SPAWN_DELAY},
 		{"wizard", ORIGINAL_WIZARD_SPAWN_DELAY},
 		{"heart", ORIGINAL_HEART_SPAWN_DELAY},
 		{"collectible_trap", ORIGINAL_TRAP_SPAWN_DELAY}
@@ -31,6 +34,7 @@ WorldSystem::WorldSystem(std::default_random_engine& rng) :
         {"barbarian", MAX_BABARIANS},
         {"archer", MAX_ARCHERS},
 		{"wizard", MAX_WIZARDS},
+        {"bird", MAX_BIRD_FLOCKS},
         {"heart", MAX_HEARTS},
         {"collectible_trap", MAX_TRAPS}
         })
@@ -42,6 +46,7 @@ WorldSystem::WorldSystem(std::default_random_engine& rng) :
 
 void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics, AISystem* ai, SoundSystem* sound)
 {
+    
     this->renderer = renderer;
     this->window = window;
     this->camera = camera;
@@ -57,6 +62,9 @@ void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camer
     auto cursor_pos_redirect = [](GLFWwindow* wnd, double _0, double _1) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse_move({ _0, _1 }); };
     glfwSetKeyCallback(window, key_redirect);
     glfwSetCursorPosCallback(window, cursor_pos_redirect);
+    // Window focus callback
+    auto focus_redirect = [](GLFWwindow* wnd, int focused) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_window_focus(focused); };
+    glfwSetWindowFocusCallback(window, focus_redirect);
 
     restart_game();
 }
@@ -79,6 +87,7 @@ void WorldSystem::restart_game()
         "barbarian",
         "boar",
         "archer",
+        "bird",
         "wizard",
         "heart",
         "collectible_trap"
@@ -96,6 +105,7 @@ void WorldSystem::restart_game()
     soundSetUp();
 
     next_spawns = spawn_delays;
+    loadAndSaveHighScore(false);
 }
 
 void WorldSystem::updateGameTimer(float elapsed_ms) {
@@ -180,10 +190,47 @@ bool WorldSystem::step(float elapsed_ms)
 
     Player& player = registry.players.get(playerEntity);
     if(player.health == 0) {
+
+        loadAndSaveHighScore(true);
+        createGameOverText(camera->getSize());
+        Entity highScoreText = createHighScoreText(camera->getSize(), highScoreHours, highScoreMinutes, highScoreSeconds);
         gameStateController.setGameState(GAME_STATE::GAMEOVER);
     }
 
     return !is_over();
+}
+
+void WorldSystem::loadAndSaveHighScore(bool save) {
+    std::string filename = "highscore.txt";
+    GameTimer& gameTimer = registry.gameTimer;
+    if (save) {
+        if (gameTimer.hours > highScoreHours || 
+            (gameTimer.hours == highScoreHours && gameTimer.minutes > highScoreMinutes) ||
+            (gameTimer.hours == highScoreHours && gameTimer.minutes == highScoreMinutes && gameTimer.seconds > highScoreSeconds)) {
+            
+            // Update high score
+            highScoreHours = gameTimer.hours;
+            highScoreMinutes = gameTimer.minutes;
+            highScoreSeconds = gameTimer.seconds;
+
+            std::ofstream file(filename);
+            if (file.is_open()) {
+                file << highScoreHours << " " << highScoreMinutes << " " << highScoreSeconds;
+                file.close();
+            }
+        }
+    } else {
+        std::ifstream file(filename);
+        if (file.is_open()) {
+            file >> highScoreHours >> highScoreMinutes >> highScoreSeconds;
+            file.close();
+        } else {
+            //if file doesnt exist (shouldn't be an issue)
+            highScoreHours = 0;
+            highScoreMinutes = 0;
+            highScoreSeconds = 0;
+        }
+    }
 }
 
 void WorldSystem::handle_collisions()
@@ -263,6 +310,10 @@ void WorldSystem::resetTrappedEntities() {
             enemy.speed = BARBARIAN_SPEED;
         } else if(registry.archers.has(entity)) {
             enemy.speed = ARCHER_SPEED;
+        } else if(registry.wizards.has(entity)){
+            enemy.speed = WIZARD_SPEED;
+        } else if(registry.birds.has(entity)){
+            enemy.speed = BIRD_SPEED;
         }
     }
 }
@@ -944,6 +995,7 @@ void WorldSystem::resetSpawnSystem() {
 	spawn_delays.at("boar") = ORIGINAL_BOAR_SPAWN_DELAY;
 	spawn_delays.at("barbarian") = ORIGINAL_BABARIAN_SPAWN_DELAY;
 	spawn_delays.at("archer") = ORIGINAL_ARCHER_SPAWN_DELAY;
+    spawn_delays.at("bird") = ORIGINAL_BIRD_SPAWN_DELAY;
 	spawn_delays.at("heart") = ORIGINAL_HEART_SPAWN_DELAY;
 	spawn_delays.at("collectible_trap") = ORIGINAL_TRAP_SPAWN_DELAY;
 
@@ -951,9 +1003,19 @@ void WorldSystem::resetSpawnSystem() {
 	max_entities.at("boar") = MAX_BOARS;
 	max_entities.at("barbarian") = MAX_BABARIANS;
 	max_entities.at("archer") = MAX_ARCHERS;
+    max_entities.at("bird") = MAX_BIRD_FLOCKS;
 	max_entities.at("wizard") = MAX_WIZARDS;
 	max_entities.at("heart") = MAX_HEARTS;
 	max_entities.at("collectible_trap") = MAX_TRAPS;
+}
+
+// Pause the game when the window loses focus
+void WorldSystem::on_window_focus(int focused) {
+    if (focused == GLFW_FALSE) {
+        if (gameStateController.getGameState() == GAME_STATE::PLAYING) {
+            gameStateController.setGameState(GAME_STATE::PAUSED);
+        }
+    }
 }
 
 void WorldSystem::accelerateFireballs(float elapsed_ms) {

@@ -29,6 +29,12 @@ const int ARCHER_DEAD_FRAME_TIME = 1000;
 const int ARCHER_BOWDRAW_NUM_FRAMES = 10;
 const int ARCHER_BOWDRAW_FRAME_TIME = 100;
 
+const int BIRD_FLY_NUM_FRAMES = 7;
+const int BIRD_FLY_FRAME_TIME = 150;
+const int BIRD_SWOOP_NUM_FRAMES = 1;
+const int BIRD_SWOOP_FRAME_TIME = 1000;
+const int BIRD_DEAD_NUM_FRAMES = 1;
+const int BIRD_DEAD_FRAME_TIME = 1000;
 const int WIZARD_RUN_NUM_FRAMES = 6;
 const int WIZARD_RUN_FRAME_TIME = 200;
 const int WIZARD_IDLE_NUM_FRAMES = 4;
@@ -121,6 +127,24 @@ AnimationController& initArcherAnimationController(Entity& entity) {
     return animationcontroller;
 }
 
+AnimationController& initBirdAnimationController(Entity& entity) {
+    AnimationController& animationcontroller = registry.animationControllers.emplace(entity);
+	animationcontroller.addAnimation(AnimationState::Swooping, BIRD_SWOOP_FRAME_TIME, BIRD_SWOOP_NUM_FRAMES, TEXTURE_ASSET_ID::BIRD_SWOOP);
+    animationcontroller.addAnimation(AnimationState::Flying, BIRD_FLY_FRAME_TIME, BIRD_FLY_NUM_FRAMES, TEXTURE_ASSET_ID::BIRD_FLY);
+	animationcontroller.addAnimation(AnimationState::Dead, BIRD_DEAD_FRAME_TIME, BIRD_DEAD_NUM_FRAMES, TEXTURE_ASSET_ID::BIRD_DEAD);
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::BIRD_FLY,
+			EFFECT_ASSET_ID::ANIMATED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+	animationcontroller.changeState(entity, AnimationState::Flying);
+
+	return animationcontroller;
+}
+
 AnimationController& initWizardAnimationController(Entity& entity) {
 	AnimationController& animationcontroller = registry.animationControllers.emplace(entity);
 	animationcontroller.addAnimation(AnimationState::Idle, WIZARD_IDLE_FRAME_TIME, WIZARD_IDLE_NUM_FRAMES, TEXTURE_ASSET_ID::WIZARD_IDLE);
@@ -131,7 +155,7 @@ AnimationController& initWizardAnimationController(Entity& entity) {
 		entity,
 		{
 			TEXTURE_ASSET_ID::WIZARD_RUN,
-      EFFECT_ASSET_ID::ANIMATED,
+			EFFECT_ASSET_ID::ANIMATED,
 			GEOMETRY_BUFFER_ID::SPRITE
 		});
 

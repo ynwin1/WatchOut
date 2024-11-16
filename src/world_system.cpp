@@ -13,6 +13,7 @@ WorldSystem::WorldSystem(std::default_random_engine& rng) :
         {"boar", createBoar},
         {"barbarian", createBarbarian},
         {"archer", createArcher},
+        {"bird", createBirdFlock},
 	    {"wizard", createWizard},
         {"heart", createHeart},
 		{"collectible_trap", createCollectibleTrap}
@@ -21,6 +22,7 @@ WorldSystem::WorldSystem(std::default_random_engine& rng) :
         {"boar", ORIGINAL_BOAR_SPAWN_DELAY},
         {"barbarian", ORIGINAL_BABARIAN_SPAWN_DELAY},
         {"archer", ORIGINAL_ARCHER_SPAWN_DELAY},
+        {"bird", ORIGINAL_BIRD_SPAWN_DELAY},
 		{"wizard", ORIGINAL_WIZARD_SPAWN_DELAY},
 		{"heart", ORIGINAL_HEART_SPAWN_DELAY},
 		{"collectible_trap", ORIGINAL_TRAP_SPAWN_DELAY}
@@ -30,6 +32,7 @@ WorldSystem::WorldSystem(std::default_random_engine& rng) :
         {"barbarian", MAX_BABARIANS},
         {"archer", MAX_ARCHERS},
 		{"wizard", MAX_WIZARDS},
+        {"bird", MAX_BIRD_FLOCKS},
         {"heart", MAX_HEARTS},
         {"collectible_trap", MAX_TRAPS}
         })
@@ -77,6 +80,7 @@ void WorldSystem::restart_game()
         "barbarian",
         "boar",
         "archer",
+        "bird",
         "wizard",
         "heart",
         "collectible_trap"
@@ -259,6 +263,10 @@ void WorldSystem::resetTrappedEntities() {
             enemy.speed = BARBARIAN_SPEED;
         } else if(registry.archers.has(entity)) {
             enemy.speed = ARCHER_SPEED;
+        } else if(registry.wizards.has(entity)){
+            enemy.speed = WIZARD_SPEED;
+        } else if(registry.birds.has(entity)){
+            enemy.speed = BIRD_SPEED;
         }
     }
 }
@@ -934,6 +942,7 @@ void WorldSystem::resetSpawnSystem() {
 	spawn_delays.at("boar") = ORIGINAL_BOAR_SPAWN_DELAY;
 	spawn_delays.at("barbarian") = ORIGINAL_BABARIAN_SPAWN_DELAY;
 	spawn_delays.at("archer") = ORIGINAL_ARCHER_SPAWN_DELAY;
+    spawn_delays.at("bird") = ORIGINAL_BIRD_SPAWN_DELAY;
 	spawn_delays.at("heart") = ORIGINAL_HEART_SPAWN_DELAY;
 	spawn_delays.at("collectible_trap") = ORIGINAL_TRAP_SPAWN_DELAY;
 
@@ -941,6 +950,7 @@ void WorldSystem::resetSpawnSystem() {
 	max_entities.at("boar") = MAX_BOARS;
 	max_entities.at("barbarian") = MAX_BABARIANS;
 	max_entities.at("archer") = MAX_ARCHERS;
+    max_entities.at("bird") = MAX_BIRD_FLOCKS;
 	max_entities.at("wizard") = MAX_WIZARDS;
 	max_entities.at("heart") = MAX_HEARTS;
 	max_entities.at("collectible_trap") = MAX_TRAPS;

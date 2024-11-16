@@ -14,6 +14,8 @@ const float BARBARIAN_BB_WIDTH = 19.f * SPRITE_SCALE;
 const float BARBARIAN_BB_HEIGHT = 34.f * SPRITE_SCALE;
 const float ARCHER_BB_WIDTH = 32.f * SPRITE_SCALE;
 const float ARCHER_BB_HEIGHT = 32.f * SPRITE_SCALE;
+const float BIRD_BB_WIDTH = 23.f * SPRITE_SCALE;
+const float BIRD_BB_HEIGHT = 13.f * SPRITE_SCALE;
 const float WIZARD_BB_WIDTH = 32.f * SPRITE_SCALE;
 const float WIZARD_BB_HEIGHT = 32.f * SPRITE_SCALE;
 const float JEFF_BB_WIDTH   = 20.f * SPRITE_SCALE;
@@ -49,6 +51,7 @@ const float FIREBALL_ACCELERATION = 0.5f;
 const float BOAR_SPEED = 0.2;
 const float BARBARIAN_SPEED = 0.3;
 const float ARCHER_SPEED = 0.2;
+const float BIRD_SPEED = 0.3;
 const float WIZARD_SPEED = 0.1;
 const float PLAYER_SPEED = 0.5;
 
@@ -56,6 +59,7 @@ const std::unordered_map<std::string, vec2> entity_sizes = {
 	{"boar", { BOAR_BB_WIDTH, BOAR_BB_HEIGHT }},
 	{"barbarian", { BARBARIAN_BB_WIDTH, BARBARIAN_BB_WIDTH }},
 	{"archer", { ARCHER_BB_WIDTH, ARCHER_BB_WIDTH }},
+	{"bird", { BIRD_BB_WIDTH, BIRD_BB_WIDTH }},
 	{"wizard", { WIZARD_BB_WIDTH, WIZARD_BB_HEIGHT }},
 	{"heart", { HEART_BB_WIDTH, HEART_BB_WIDTH }},
 	{"collectible_trap", {TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_WIDTH}}
@@ -75,6 +79,8 @@ Entity createBarbarian(vec2 pos);
 // The archer
 Entity createArcher(vec2 pos);
 
+// The birds
+Entity createBirdFlock(vec2 pos);
 // The wizard
 Entity createWizard(vec2 pos);
 

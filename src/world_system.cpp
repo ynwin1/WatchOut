@@ -136,6 +136,16 @@ void WorldSystem::updateTrapsCounterText() {
     }
 }
 
+void WorldSystem::updateCollectedTimer(float elapsed_ms) {
+    for (Entity entity : registry.collected.entities) {
+        Collected& collected = registry.collected.get(entity);
+        collected.duration -= elapsed_ms;
+        if (collected.duration < 0) {
+            registry.remove_all_components_of(entity);
+        }
+    }
+}
+
 bool WorldSystem::step(float elapsed_ms)
 {
     adjustSpawnSystem(elapsed_ms);
@@ -148,6 +158,9 @@ bool WorldSystem::step(float elapsed_ms)
     updateGameTimer(elapsed_ms);
     updateTrapsCounterText();
     toggleMesh();
+    despawnTraps(elapsed_ms);
+    updateCollectedTimer(elapsed_ms);
+    resetTrappedEntities();
 
     if (camera->isToggled()) {
         Motion& playerMotion = registry.motions.get(playerEntity);
@@ -172,6 +185,9 @@ void WorldSystem::handle_collisions()
         Entity entity = physics->collisions[i].first;
         Entity entity_other = physics->collisions[i].second;
 
+        if (registry.traps.has(entity_other) && (registry.players.has(entity) || registry.enemies.has(entity))) {
+            entity_trap_collision(entity, entity_other, was_damaged);
+        }
 
         float COOLDOWN_TIME = 1000;
         std::pair<int, int> pair = { entity, entity_other };
@@ -189,10 +205,6 @@ void WorldSystem::handle_collisions()
             if (registry.collectibles.has(entity_other)) {
 				entity_collectible_collision(entity, entity_other);
             }
-            else if (registry.traps.has(entity_other)) {
-				// Collision between player and trap
-				entity_trap_collision(entity, entity_other, was_damaged);
-            }
             else if (registry.enemies.has(entity_other)) {
 				// Collision between player and enemy
 				moving_entities_collision(entity, entity_other, was_damaged);
@@ -202,11 +214,7 @@ void WorldSystem::handle_collisions()
             }
         }
         else if (registry.enemies.has(entity)) {
-            if (registry.traps.has(entity_other)) {
-				// Collision between enemy and trap
-				entity_trap_collision(entity, entity_other, was_damaged);
-            }
-            else if (registry.enemies.has(entity_other)) {
+            if (registry.enemies.has(entity_other)) {
 				// Collision between two enemies
 				moving_entities_collision(entity, entity_other, was_damaged);
             }
@@ -222,6 +230,24 @@ void WorldSystem::handle_collisions()
     // Clear all collisions
     renderer->turn_damaged_red(was_damaged);
     physics->collisions.clear();
+}
+
+void WorldSystem::resetTrappedEntities() {
+    Player& player = registry.players.get(playerEntity);
+    player.isTrapped = false;
+    player.speed = PLAYER_SPEED;
+
+    for(auto& entity : registry.enemies.entities) {
+        Enemy& enemy = registry.enemies.get(entity);
+        enemy.isTrapped = false;
+        if(registry.boars.has(entity)) {
+            enemy.speed = BOAR_SPEED;
+        } else if(registry.barbarians.has(entity)) {
+            enemy.speed = BARBARIAN_SPEED;
+        } else if(registry.archers.has(entity)) {
+            enemy.speed = ARCHER_SPEED;
+        }
+    }
 }
 
 // Should the game be over ?
@@ -332,7 +358,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
                 break;
 		    case GLFW_KEY_SPACE:
                 // Jump
-                if (pressed) {
+                if (pressed && !player_comp.isTrapped) {
                     const float JUMP_STAMINA = 20;
                     if (player_stamina.stamina >= JUMP_STAMINA && !player_comp.tryingToJump) {
                         player_comp.tryingToJump = true;
@@ -405,6 +431,16 @@ void WorldSystem::update_player_facing(Player& player, Motion& motion)
     else {
         player.isMoving = true;
         motion.facing = normalize(player_facing);
+    }
+}
+
+void WorldSystem::despawnTraps(float elapsed_ms) {
+    for (Entity& trapE : registry.traps.entities) {
+        Trap& trap = registry.traps.get(trapE);
+        trap.duration -= elapsed_ms;
+        if (trap.duration <= 0) {
+            registry.remove_all_components_of(trapE);
+        }
     }
 }
 
@@ -508,16 +544,20 @@ void WorldSystem::entity_collectible_collision(Entity entity, Entity entity_othe
 
     // handle different collectibles
     Player& player = registry.players.get(entity);
+    Motion& playerM = registry.motions.get(entity);
+    Motion& collectibleM = registry.motions.get(entity_other);
 	Collectible& collectible = registry.collectibles.get(entity_other);
 
     if (registry.collectibleTraps.has(entity_other)) {
         trapsCounter.count++;
+        createCollected(playerM, collectibleM.scale, TEXTURE_ASSET_ID::TRAPCOLLECTABLE);
         printf("Player collected a trap. Trap count is now %d\n", trapsCounter.count);
     }
     else if (registry.hearts.has(entity_other)) {
         unsigned int health = registry.hearts.get(entity_other).health;
         unsigned int addOn = player.health <= 80 ? health : 100 - player.health;
         player.health += addOn;
+        createCollected(playerM, collectibleM.scale, TEXTURE_ASSET_ID::HEART);
 		printf("Player collected a heart\n");
 	}
 	else {
@@ -533,33 +573,33 @@ void WorldSystem::entity_trap_collision(Entity entity, Entity entity_other, std:
 
     if (registry.players.has(entity)) {
         printf("Player hit a trap\n");
+        Player& player = registry.players.get(playerEntity);
+    
+        // apply slow effect
+        player.isTrapped = true;
+        player.speed *= trap.slowFactor;
 
-        // reduce player health
-        Player& player = registry.players.get(entity);
-        int new_health = player.health - trap.damage;
-        player.health = new_health < 0 ? 0 : new_health;
-		was_damaged.push_back(entity);
-        printf("Player health reduced by trap from %d to %d\n", player.health + trap.damage, player.health);
         checkAndHandlePlayerDeath(entity);
 	}
 	else if (registry.enemies.has(entity)) {
         printf("Enemy hit a trap\n");
-
-        // reduce enemy health
         Enemy& enemy = registry.enemies.get(entity);
-        int new_health = enemy.health - trap.damage;
-        enemy.health = new_health < 0 ? 0 : new_health;
-        was_damaged.push_back(entity);
-        printf("Enemy health reduced from %d to %d\n", enemy.health + trap.damage, enemy.health);
+
+        // apply slow effect
+        enemy.isTrapped = true;
+        enemy.speed *= trap.slowFactor;
+
+        // if boar is charging, stop mid-charge 
+        if(registry.boars.has(entity)) {
+            registry.boars.get(entity).charging = false;
+        }
+      
 		checkAndHandleEnemyDeath(entity);
 	}
 	else {
 		printf("Entity is not a player or enemy\n");
 		return;
 	}
-
-    // destroy the trap
-    registry.remove_all_components_of(entity_other);
 }
 
 void WorldSystem::entity_damaging_collision(Entity entity, Entity entity_other, std::vector<Entity>& was_damaged)
@@ -704,9 +744,13 @@ void WorldSystem::despawn_collectibles(float elapsed_ms) {
 	for (auto& collectibleEntity : registry.collectibles.entities) {
 		Collectible& collectible = registry.collectibles.get(collectibleEntity);
 		collectible.timer -= elapsed_ms;
-		if (collectible.timer < 0) {
+
+        if (collectible.timer < 0) {
 			registry.remove_all_components_of(collectibleEntity);
-		}
+		} else if(collectible.timer <= collectible.duration / 2) {
+            AnimationController& animatedCollectible = registry.animationControllers.get(collectibleEntity);
+            animatedCollectible.changeState(collectibleEntity, AnimationState::Fading);
+        }
 	}
 }
 

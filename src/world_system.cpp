@@ -654,7 +654,7 @@ void WorldSystem::handleEnemyCollision(Entity attacker, Entity target, std::vect
          // (boars can be colliding with others while walking)
         if(!boar.charging) return;
 
-        const int DAMAGE_MULTIPLIER = 1;
+        const int DAMAGE_MULTIPLIER = 3;
         int newHealth = targetData.health - attackerData.damage * DAMAGE_MULTIPLIER;
         targetData.health = std::max(newHealth, 0);
         was_damaged.push_back(target);
@@ -673,7 +673,6 @@ void WorldSystem::checkAndHandleEnemyDeath(Entity enemy) {
     Enemy& enemyData = registry.enemies.get(enemy);
     if (enemyData.health == 0 && !registry.deathTimers.has(enemy)) {
         Motion& motion = registry.motions.get(enemy);
-        motion.velocity = { 0, 0, motion.velocity.z }; // Stop enemy movement
         motion.angle = 1.57f; // Rotate enemy 90 degrees
         printf("Enemy %d died with health %d\n", (unsigned int)enemy, enemyData.health);
 

@@ -350,6 +350,9 @@ void WorldSystem::helpControls(int key, int action, int mod)
 {
     if (action == GLFW_PRESS) {
         switch (key) {
+        case GLFW_KEY_Q:
+            glfwSetWindowShouldClose(window, true);
+            break;
         case GLFW_KEY_ENTER:
             restart_game();
         case GLFW_KEY_H:

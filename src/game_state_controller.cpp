@@ -32,7 +32,7 @@ void GameStateController::onExitState(GAME_STATE oldState) {
 void GameStateController::beforeEnterState(GAME_STATE newState) {
     // Implement the logic before entering a state
     if (newState == GAME_STATE::PAUSED) {
-       world->createPauseMenu(world->camera->getPosition());
+       world->createPauseMenu(world->camera->getSize());
         return;
     }
     if (newState == GAME_STATE::GAMEOVER) {
@@ -40,7 +40,7 @@ void GameStateController::beforeEnterState(GAME_STATE newState) {
         return;
     }
     if (newState == GAME_STATE::HELP) {
-        world->createHelpMenu(world->camera->getPosition());
+        world->createHelpMenu(world->camera->getSize());
         return;
     }
     return;

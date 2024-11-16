@@ -88,9 +88,8 @@ enum class GEOMETRY_BUFFER_ID
 {
 	SPRITE = 0,
 	GAME_SPACE = SPRITE + 1,
-	HEALTH_BAR = GAME_SPACE + 1,
-	STAMINA_BAR = HEALTH_BAR + 1,
-	TEXT = STAMINA_BAR + 1,
+	RECTANGLE = GAME_SPACE + 1,
+	TEXT = RECTANGLE + 1,
 	TREE = TEXT + 1,
 	MAP_TILE = TREE + 1,
 	OBSTACLE = MAP_TILE + 1,
@@ -98,13 +97,22 @@ enum class GEOMETRY_BUFFER_ID
 };
 const int geometry_count = (int)GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;
 
+enum class PRIMITIVE_TYPE {
+	TRIANGLES,
+	LINES
+};
+
 struct RenderRequest
 {
 	TEXTURE_ASSET_ID used_texture = TEXTURE_ASSET_ID::TEXTURE_COUNT;
 	EFFECT_ASSET_ID used_effect = EFFECT_ASSET_ID::EFFECT_COUNT;
 	GEOMETRY_BUFFER_ID used_geometry = GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;
+	PRIMITIVE_TYPE primitive_type = PRIMITIVE_TYPE::TRIANGLES;
 };
 
 struct Background {};
 struct Midground {};
-struct Foreground {};
+struct Foreground {
+	vec2 position;
+	vec2 scale;
+};

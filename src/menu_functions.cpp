@@ -2,17 +2,14 @@
 
 #include "world_system.hpp"
 
-Entity WorldSystem::createHelpMenu(vec2 cameraPosition) {
+Entity WorldSystem::createHelpMenu(vec2 windowSize) {
 	auto entity = Entity();
 
 	registry.pauseMenuComponents.emplace(entity);
 
-	registry.foregrounds.emplace(entity);
-
-	Motion& motion = registry.motions.emplace(entity);
-	motion.position = {cameraPosition, 0};
-	motion.angle = 0.f;
-	motion.scale = { 960, 540 };
+	Foreground& fg = registry.foregrounds.emplace(entity);
+	fg.position = {windowSize.x / 2, windowSize.y / 2};
+	fg.scale = { 960, 540 };
 
 	registry.renderRequests.insert(
 		entity, 
@@ -31,17 +28,14 @@ void WorldSystem::exitHelpMenu() {
 	}
 }
 
-Entity WorldSystem::createPauseMenu(vec2 cameraPosition) {
+Entity WorldSystem::createPauseMenu(vec2 windowSize) {
 	auto entity = Entity();
 
 	registry.pauseMenuComponents.emplace(entity);
 
-	registry.foregrounds.emplace(entity);
-
-	Motion& motion = registry.motions.emplace(entity);
-	motion.position = {cameraPosition, 0};
-	motion.angle = 0.f;
-	motion.scale = { 960, 540 };
+	Foreground& fg = registry.foregrounds.emplace(entity);
+	fg.position = {windowSize.x / 2, windowSize.y / 2};
+	fg.scale = { 960, 540 };
 
 	registry.renderRequests.insert(
 		entity, 

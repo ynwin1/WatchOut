@@ -49,6 +49,7 @@ struct Enemy
 };
 
 struct Damaging {
+	std::string type = "arrow"; // default type
 	unsigned int damage = 10;
 };
 
@@ -162,6 +163,9 @@ struct Obstacle {
 
 };
 
+struct TargetArea {
+};
+
 struct GameTimer {
 	int hours = 0;
 	int minutes = 0;
@@ -247,8 +251,6 @@ struct Debug {
 };
 extern Debug debugging;
 
-
-
 // Entity can jump
 struct Jumper
 {
@@ -279,6 +281,15 @@ struct Bird {
 	vec2 swoopDirection = {0,0};
 	float originalZ = 480;
 	float swoopCooldown = 2000;
+};
+
+enum WizardState { Moving, Aiming, Preparing, Shooting };
+struct Wizard {
+	WizardState state = WizardState::Moving;
+	float shoot_cooldown = 0;
+	float prepareLightningTime = 0;
+	
+	vec3 locked_target = vec3(0, 0, 0);
 };
 
 // Collectible types

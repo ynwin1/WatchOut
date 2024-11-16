@@ -343,6 +343,7 @@ void AISystem::shootArrow(Entity shooter, vec3 targetPos)
     createArrow(pos, vec3(horizontal_velocity, vertical_velocity));
 }
 
+
 void AISystem::archerBehaviour(Entity entity, vec3 playerPosition, float elapsed_ms)
 {
     const float ARCHER_RANGE = 600;
@@ -527,6 +528,178 @@ void AISystem::birdBehaviour(Entity bird, vec3 playerPosition, float elapsed_ms)
     birdMotion.velocity = vec3(movementForce, 0.0f);
     birdMotion.facing = normalize(movementForce);
 }
+void AISystem::wizardBehaviour(Entity entity, vec3 playerPosition, float elapsed_ms) {
+    
+	if (registry.deathTimers.has(entity)) {
+		return;
+	}
+
+	Wizard& wizard = registry.wizards.get(entity);
+    switch (wizard.state) {
+    case WizardState::Moving:
+        processWizardMoving(entity, playerPosition, elapsed_ms);
+        break;
+    case WizardState::Aiming:
+		processWizardAiming(entity, playerPosition, elapsed_ms);
+        break;
+	case WizardState::Preparing:
+        processWizardPreparing(entity, playerPosition, elapsed_ms);
+        break;
+	case WizardState::Shooting:
+		processWizardShooting(entity, playerPosition, elapsed_ms);
+		break;
+    default:
+        break;
+    }
+}
+
+void AISystem::processWizardMoving(Entity entity, vec3 playerPosition, float elapsed_ms) {
+    const float WIZARD_RANGE = 600;
+
+    Motion& motion = registry.motions.get(entity);
+    Wizard& wizard = registry.wizards.get(entity);
+    AnimationController& animationController = registry.animationControllers.get(entity);
+    float d = distance(motion.position, playerPosition);
+
+    if (d < WIZARD_RANGE) {
+        wizard.state = WizardState::Aiming;
+        motion.velocity.x = 0;
+        motion.velocity.y = 0;
+        animationController.changeState(entity, AnimationState::Idle);
+    }
+    else {
+        moveTowardsPlayer(entity, playerPosition, elapsed_ms);
+    }
+}
+
+void AISystem::processWizardAiming(Entity entity, vec3 playerPosition, float elapsed_ms) {
+	const float EDGE_BUFFER = 500;
+
+    float rand = uniform_dist(rng);
+    Motion& motion = registry.motions.get(entity);
+    Wizard& wizard = registry.wizards.get(entity);
+    motion.facing = normalize(vec2(playerPosition) - vec2(motion.position));
+
+    bool farFromEdge =
+        playerPosition.x > leftBound + EDGE_BUFFER &&
+        playerPosition.x < rightBound - EDGE_BUFFER &&
+        playerPosition.y > topBound + EDGE_BUFFER &&
+        playerPosition.y < bottomBound - EDGE_BUFFER;
+
+    // calculate if path is clear
+	vec2 direction = normalize(vec2(playerPosition) - vec2(motion.position));
+	float howFar = distance(motion.position, playerPosition);
+	std::vector<Entity> obstacles = registry.obstacles.entities;
+    float clearDistance;
+    bool clear = pathClear(motion, direction, howFar, obstacles, clearDistance);
+
+	// face the shooter towards the player
+    motion.facing = direction;
+
+    // choose a random attack (fireball OR lightning)
+    if (rand < 0.5 && clear) {
+		shootFireball(entity, playerPosition);
+		wizard.shoot_cooldown = 0;
+		wizard.state = WizardState::Shooting;
+	}
+	else if (farFromEdge) {
+		// start preparing for lightning
+		createTargetArea(playerPosition, LIGHTNING_RADIUS);
+		wizard.locked_target = playerPosition;
+		wizard.state = WizardState::Preparing;
+    }
+    else {
+        shootFireball(entity, playerPosition);
+        wizard.shoot_cooldown = 0;
+        wizard.state = WizardState::Shooting;
+    }
+}
+
+void AISystem::processWizardPreparing(Entity entity, vec3 playerPosition, float elapsed_ms) {
+    const float LIGHTNING_PREPARE_TIME = 1500;
+
+    Wizard& wizard = registry.wizards.get(entity);
+
+    // make a decision to trigger lightning or keep preparing
+    if (wizard.prepareLightningTime > LIGHTNING_PREPARE_TIME) {
+        triggerLightning(wizard.locked_target);
+        wizard.state = WizardState::Shooting;
+        wizard.prepareLightningTime = 0;
+        wizard.shoot_cooldown = 0;
+    }
+    else {
+        wizard.prepareLightningTime += elapsed_ms;
+    }
+}
+
+void AISystem::processWizardShooting(Entity entity, vec3 playerPosition, float elapsed_ms) {
+    const float SHOT_COOLDOWN = 5000;
+
+	Motion& motion = registry.motions.get(entity);
+	vec2 direction = normalize(vec2(playerPosition) - vec2(motion.position));
+    motion.facing = direction;
+
+    Wizard& wizard = registry.wizards.get(entity);
+
+    if (wizard.shoot_cooldown > SHOT_COOLDOWN) {
+        wizard.state = WizardState::Moving;
+    }
+    else {
+        wizard.shoot_cooldown += elapsed_ms;
+    }
+}
+
+void AISystem::shootFireball(Entity shooter, vec3 targetPos) {
+    // Shoot in a straight line towards the player
+    const float FIREBALL_SPEED = 0.5f;
+
+    Motion& motion = registry.motions.get(shooter);
+
+    // Direction to the player
+    vec2 direction = normalize(vec2(targetPos) - vec2(motion.position));
+
+    // Start position of the fireball
+    vec3 pos = motion.position;
+    // Set offset to avoid collision with the shooter
+    float x_offset = FIREBALL_HITBOX_WIDTH + motion.hitbox.x / 2;
+    float y_offset = FIREBALL_HITBOX_WIDTH + motion.hitbox.y / 2;
+	// travelling more horizontally so no y offset
+    if (abs(direction.x) > abs(direction.y)) {
+        y_offset = 0;
+    }
+    else if (abs(direction.x) < abs(direction.y)) {
+        x_offset = 0;
+    }
+    // offset must be on the left if travelling left
+    if (direction.x < 0) {
+        x_offset = -x_offset;
+    }
+    if (direction.y < 0) {
+        y_offset = -y_offset;
+    }
+    pos += vec3(x_offset, y_offset, 0);
+
+    direction = normalize(vec2(targetPos) - vec2(pos));
+
+    // Velocity of the fireball
+    vec3 velocity = vec3(direction * FIREBALL_SPEED, 0);
+
+    createFireball(pos, direction);
+}
+
+void AISystem::triggerLightning(vec3 target_pos) {
+    const float LIGHTNING_COUNT = 3;
+    for (int i = 0; i < LIGHTNING_COUNT; i++) {
+		float angle = uniform_dist(rng) * 2 * M_PI;
+		float radius = uniform_dist(rng) * LIGHTNING_RADIUS;
+
+		float x = radius * cos(angle);
+		float y = radius * sin(angle);
+		vec3 pos = target_pos + vec3(x, y, 0);
+
+		createLightning(pos);
+    }
+}
 
 void AISystem::step(float elapsed_ms)
 {
@@ -547,5 +720,8 @@ void AISystem::step(float elapsed_ms)
         } else if (registry.birds.has(enemy)){
             birdBehaviour(enemy, playerPosition, elapsed_ms);
         }
+		else if (registry.wizards.has(enemy)) {
+			wizardBehaviour(enemy, playerPosition, elapsed_ms);
+		}
     }
 }

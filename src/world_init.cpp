@@ -135,6 +135,32 @@ Entity createBirdFlock(vec2 pos)
 }
 
 
+// Wizard creation
+Entity createWizard(vec2 pos) {
+	auto entity = Entity();
+
+	// Setting intial motion values
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = vec3(pos, getElevation(pos) + WIZARD_BB_HEIGHT / 2);
+	motion.angle = 0.f;
+	motion.scale = { 96 * SPRITE_SCALE,  35 * SPRITE_SCALE };
+	motion.hitbox = { WIZARD_BB_WIDTH, WIZARD_BB_WIDTH, WIZARD_BB_HEIGHT / zConversionFactor };
+	motion.solid = true;
+
+	Enemy& enemy = registry.enemies.emplace(entity);
+	enemy.damage = 60;
+	enemy.cooldown = 8000.f; // 8s
+	enemy.speed = WIZARD_SPEED;
+
+	registry.wizards.emplace(entity);
+
+	initWizardAnimationController(entity);
+	registry.midgrounds.emplace(entity);
+
+	createHealthBar(entity, vec3(1.0f, 0.0f, 0.0f));
+
+	return entity;
+};
 
 // Collectible trap creation
 Entity createCollectibleTrap(vec2 pos)
@@ -288,9 +314,6 @@ Entity createTree(RenderSystem* renderer, vec2 pos)
 	motion.hitbox = { TREE_BB_WIDTH, TREE_BB_WIDTH, TREE_BB_HEIGHT / zConversionFactor };
 	motion.solid = true;
 
-	// print tree position
-	printf("Tree position: %f, %f, %f\n", pos.x, pos.y, motion.position.z);
-
 	registry.renderRequests.insert(
 		entity, {
 			TEXTURE_ASSET_ID::TREE,
@@ -341,6 +364,47 @@ Entity createArrow(vec3 pos, vec3 velocity)
 			GEOMETRY_BUFFER_ID::SPRITE
 		});
 
+	return entity;
+}
+
+Entity createFireball(vec3 pos, vec2 direction) {
+	auto entity = Entity();
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.velocity = vec3(0);
+	motion.angle = atan2(direction.y, direction.x);
+	motion.scale = { FIREBALL_BB_WIDTH, FIREBALL_BB_HEIGHT };
+	motion.hitbox = { FIREBALL_HITBOX_WIDTH, FIREBALL_HITBOX_WIDTH, FIREBALL_HITBOX_WIDTH };
+
+	Damaging& damaging = registry.damagings.emplace(entity);
+	damaging.type = "fireball";
+	damaging.damage = 30;
+	registry.midgrounds.emplace(entity);
+
+	initFireballAnimationController(entity);
+	return entity;
+}
+
+Entity createLightning(vec2 pos) {
+	auto entity = Entity();
+
+	Motion& motion = registry.motions.emplace(entity);
+	
+	// add half the hitbox size to the vec2 pos
+	motion.scale = { LIGHTNING_BB_WIDTH, LIGHTNING_BB_HEIGHT };
+	motion.hitbox = { LIGHTNING_BB_WIDTH, LIGHTNING_BB_WIDTH, LIGHTNING_BB_HEIGHT / zConversionFactor };
+	motion.position = vec3(pos, motion.hitbox.z / 2);
+
+	Damaging& damaging = registry.damagings.emplace(entity);
+	damaging.type = "lightning";
+	damaging.damage = 20;
+	registry.midgrounds.emplace(entity);
+
+	Cooldown& duration = registry.cooldowns.emplace(entity);
+	duration.remaining = 1500.f;
+
+	initLightningAnimationController(entity);
 	return entity;
 }
 
@@ -499,11 +563,39 @@ void createHealthBar(Entity characterEntity, vec3 color) {
 	hpbar.height = height;
 }
 
+Entity createTargetArea(vec3 position, float radius) {
+	auto entity = Entity();
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = position;
+	motion.position.z = 0.f;
+
+	float ogRadius = 170.f;
+	float scaledFactor = radius / ogRadius;
+	motion.scale = { 2 * ogRadius * scaledFactor, 2 * ogRadius * scaledFactor * zConversionFactor };
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::TARGET_AREA,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	registry.backgrounds.emplace(entity);
+	registry.targetAreas.emplace(entity);
+	Cooldown& cooldown = registry.cooldowns.emplace(entity);
+	cooldown.remaining = 3000.f; // 5s
+
+	printf("Target area created\n");
+	return entity;
+}
+
 Entity createPauseHelpText(vec2 windowSize) {
 	auto entity = Entity();
 
 	Text& text = registry.texts.emplace(entity);
-	text.value = "PAUSE/PLAY(P)    HELP (H)";
+	text.value = "PAUSE/PLAY(P)    HELP(H)";
 	text.position = {windowSize.x - 550, windowSize.y - 70.0f};
 	text.scale = 1.5f;
 
@@ -517,8 +609,6 @@ Entity createPauseHelpText(vec2 windowSize) {
 
 	return entity;
 }
-
-
 
 Entity createFPSText(vec2 windowSize) {
 	auto entity = Entity();

@@ -43,14 +43,16 @@ private:
 	const float ORIGINAL_BOAR_SPAWN_DELAY = 3000.0f;
 	const float ORIGINAL_BABARIAN_SPAWN_DELAY = 5000.0f;
 	const float ORIGINAL_ARCHER_SPAWN_DELAY = 7000.0f;
+	const float ORIGINAL_WIZARD_SPAWN_DELAY = 5000.0f;
 	const float ORIGINAL_HEART_SPAWN_DELAY = 10000.0f;
 	const float ORIGINAL_TRAP_SPAWN_DELAY = 7000.0f;
 
-	// Max entities
+	// Max entities at start
 	const unsigned int MAX_BOARS = 1;
 	const unsigned int MAX_BABARIANS = 1;
 	const unsigned int MAX_ARCHERS = 0;
-	const unsigned int MAX_HEARTS = 1;
+	const unsigned int MAX_WIZARDS = -1;
+	const unsigned int MAX_HEARTS = 2;
 	const unsigned int MAX_TRAPS = 1;
 
 	const float DIFFICULTY_INTERVAL = 45000.0f;
@@ -103,6 +105,8 @@ private:
 	void toggleMesh();
 	void adjustSpawnSystem(float elapsed_ms);
 	void resetSpawnSystem();
+	void destroyDamagings();
+	void accelerateFireballs(float elapsed_ms);
 	void despawnTraps(float elapsed_ms);
 	void updateCollectedTimer(float elapsed_ms);
 	void resetTrappedEntities();
@@ -113,6 +117,7 @@ private:
 	void entity_damaging_collision(Entity entity, Entity trap, std::vector<Entity>& was_damaged);
 	void entity_obstacle_collision(Entity entity, Entity obstacle, std::vector<Entity>& was_damaged);
 	void moving_entities_collision(Entity entity, Entity entityOther, std::vector<Entity>& was_damaged);
+	void damaging_obstacle_collision(Entity entity);
 	void processPlayerEnemyCollision(Entity player, Entity enemy, std::vector<Entity>& was_damaged);
 	void processEnemyEnemyCollision(Entity enemy1, Entity enemy2, std::vector<Entity>& was_damaged);
 	void handleEnemyCollision(Entity attacker, Entity target, std::vector<Entity>& was_damaged);

@@ -592,6 +592,8 @@ void WorldSystem::entity_collectible_collision(Entity entity, Entity entity_othe
 	else {
 		printf("Unknown collectible type\n");
 	}
+
+	sound->playSoundEffect(sound->COLLECT_SOUND, audio_path("collect.wav"), 0);
     // destroy the collectible
     registry.remove_all_components_of(entity_other);
 }
@@ -954,8 +956,25 @@ void WorldSystem::resetSpawnSystem() {
 	max_entities.at("collectible_trap") = MAX_TRAPS;
 }
 
+void WorldSystem::accelerateFireballs(float elapsed_ms) {
+    for (auto entity : registry.damagings.entities) {
+        Damaging& dmgEntity = registry.damagings.get(entity);
+        if (dmgEntity.type == "fireball") {
+            Motion& fireballMotion = registry.motions.get(entity);
+
+            // calculate direction from angle
+            vec2 direction = vec2(cos(fireballMotion.angle), sin(fireballMotion.angle));
+            direction = normalize(direction);
+
+            // accelerate in the calculated direction
+            fireballMotion.velocity.x += (direction.x) * FIREBALL_ACCELERATION * (elapsed_ms / 1000);
+            fireballMotion.velocity.y += (direction.y) * FIREBALL_ACCELERATION * (elapsed_ms / 1000);
+        }
+    }
+}
+
 void WorldSystem::soundSetUp() {
-    int VOLUME = 10;
+    int VOLUME = 3;
     // stop all sounds first
     sound->stopAllSounds();
     // init sound system
@@ -965,21 +984,22 @@ void WorldSystem::soundSetUp() {
 }
 
 void WorldSystem::inGameSounds() {
-	Player& player = registry.players.get(playerEntity);
-
-    // monitoring player movement
-	if (player.isMoving) {
-		if (!isMovingSoundPlaying) {
-			// walking sound
-            sound->playSoundEffect(sound->WALKING_SOUND, audio_path("walking.wav"), -1);
-            isMovingSoundPlaying = true;
-		  }
-    }
-    else {
-        if (isMovingSoundPlaying) {
-            // stop walking sound
-            sound->stopSoundEffect(sound->WALKING_SOUND);
-            isMovingSoundPlaying = false;
+    if (!is_over()) {
+        Player& player = registry.players.get(playerEntity);
+        // monitoring player movement
+        if (player.isMoving) {
+            if (!isMovingSoundPlaying) {
+                // walking sound
+                sound->playSoundEffect(sound->WALKING_SOUND, audio_path("walking.wav"), -1);
+                isMovingSoundPlaying = true;
+            }
+        }
+        else {
+            if (isMovingSoundPlaying) {
+                // stop walking sound
+                sound->stopSoundEffect(sound->WALKING_SOUND);
+                isMovingSoundPlaying = false;
+            }
         }
     }
 }

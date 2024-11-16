@@ -27,6 +27,8 @@ public:
 	std::string JUMPING_SOUND = "jumping_sound";
 	std::string DASHING_SOUND = "dashing_sound";
 	std::string LEVELUP_SOUND = "levelup_sound";
+	std::string FIREBALL_SOUND = "fireball_sound";
+	std::string COLLECT_SOUND = "collect_sound";
 
 
 	// FUNCTIONS
@@ -69,5 +71,7 @@ Sound credits
 - Thunder: https://freesound.org/people/Robinhood76/sounds/316850/
 - Storm: https://pixabay.com/sound-effects/cyprus-storm-61421/
 - Player Death: https://freesound.org/people/dobroide/sounds/44709/
-- Collecting: https://freesound.org/people/gsb1039/sounds/415061/
+- Level Up: https://freesound.org/people/gsb1039/sounds/415061/
+- Fireball: https://freesound.org/people/LiamG_SFX/sounds/334235/
+- Collect: https://freesound.org/people/METKIR/sounds/623593/
 */

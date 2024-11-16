@@ -485,6 +485,9 @@ void AISystem::processWizardPreparing(Entity entity, vec3 playerPosition, float 
         wizard.shoot_cooldown = 0;
     }
     else {
+        if (wizard.prepareLightningTime == 0) {
+			sound->playSoundEffect(sound->STORM_SOUND, audio_path("storm.wav"), 0);
+        }
         wizard.prepareLightningTime += elapsed_ms;
     }
 }
@@ -542,10 +545,13 @@ void AISystem::shootFireball(Entity shooter, vec3 targetPos) {
     vec3 velocity = vec3(direction * FIREBALL_SPEED, 0);
 
     createFireball(pos, direction);
+	sound->playSoundEffect(sound->FIREBALL_SOUND, audio_path("fireball.wav"), 0);
 }
 
 void AISystem::triggerLightning(vec3 target_pos) {
     const float LIGHTNING_COUNT = 3;
+    sound->stopSoundEffect(sound->STORM_SOUND);
+	sound->playSoundEffect(sound->THUNDER_SOUND, audio_path("thunder.wav"), 0);
     for (int i = 0; i < LIGHTNING_COUNT; i++) {
 		float angle = uniform_dist(rng) * 2 * M_PI;
 		float radius = uniform_dist(rng) * LIGHTNING_RADIUS;

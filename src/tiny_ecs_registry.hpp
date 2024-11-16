@@ -26,6 +26,7 @@ public:
 	ComponentContainer<Damaged> damageds;
 	ComponentContainer<Damaging> damagings;
 	ComponentContainer<DeathTimer> deathTimers;
+	ComponentContainer<Knockable> knockables;
 	ComponentContainer<HealthBar> healthBars;
 	ComponentContainer<AnimationController> animationControllers;
 	ComponentContainer<StaminaBar> staminaBars;
@@ -80,6 +81,7 @@ public:
 		registry_list.push_back(&damageds);
 		registry_list.push_back(&damagings);
 		registry_list.push_back(&deathTimers);
+		registry_list.push_back(&knockables);
 		registry_list.push_back(&staminas);
 		registry_list.push_back(&mapTiles);
 		registry_list.push_back(&obstacles);

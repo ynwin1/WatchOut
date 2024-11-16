@@ -245,7 +245,6 @@ void WorldSystem::handle_collisions()
         float COOLDOWN_TIME = 1000;
         std::pair<int, int> pair = { entity, entity_other };
         if (collisionCooldowns.find(pair) != collisionCooldowns.end()) {
-            collisionCooldowns[pair] = COOLDOWN_TIME;
             continue;
         }
         else {
@@ -756,6 +755,8 @@ void WorldSystem::processPlayerEnemyCollision(Entity player, Entity enemy, std::
         }
 
 		checkAndHandlePlayerDeath(player);
+
+        knock(player, enemy);
     }
 }
 
@@ -793,6 +794,8 @@ void WorldSystem::handleEnemyCollision(Entity attacker, Entity target, std::vect
             Cooldown& cooldown = registry.cooldowns.emplace(attacker);
             cooldown.remaining = attackerData.cooldown;
         }
+
+        knock(target, attacker);
     }
 }
 
@@ -800,15 +803,11 @@ void WorldSystem::checkAndHandleEnemyDeath(Entity enemy) {
     Enemy& enemyData = registry.enemies.get(enemy);
     if (enemyData.health == 0 && !registry.deathTimers.has(enemy)) {
         Motion& motion = registry.motions.get(enemy);
-        motion.velocity = { 0, 0, motion.velocity.z }; // Stop enemy movement
-      
         // Do not rotate wizard
         if (!registry.wizards.has(enemy)) {
-            motion.angle = 1.57f; // Rotate enemy 90 degrees
+            motion.angle = M_PI / 2; // Rotate enemy 90 degrees
+            motion.hitbox = { motion.hitbox.z, motion.hitbox.y, motion.hitbox.x }; // Change hitbox to be on its side
         }
-      
-        motion.angle = M_PI / 2; // Rotate enemy 90 degrees
-        motion.hitbox = { motion.hitbox.z, motion.hitbox.y, motion.hitbox.x }; // Change hitbox to be on its side
         printf("Enemy %d died with health %d\n", (unsigned int)enemy, enemyData.health);
 
         if (registry.animationControllers.has(enemy)) {
@@ -823,6 +822,24 @@ void WorldSystem::checkAndHandleEnemyDeath(Entity enemy) {
         registry.enemies.remove(enemy);
         registry.deathTimers.emplace(enemy);
     }
+}
+
+void WorldSystem::knock(Entity knocked, Entity knocker)
+{
+    const float KNOCK_ANGLE = M_PI / 4;  // 45 degrees
+    float strength = 1;
+
+    // Skip if entity being knocked is not knockable
+    if (!registry.knockables.has(knocked)) {
+        return;
+    }
+
+    Motion& knockedMotion = registry.motions.get(knocked);
+    Motion& knockerMotion = registry.motions.get(knocker);
+    vec2 horizontal_direction = normalize(vec2(knockedMotion.position) - vec2(knockerMotion.position));
+    vec3 d = normalize(vec3(horizontal_direction * cos(KNOCK_ANGLE), sin(KNOCK_ANGLE)));
+    knockedMotion.velocity = d * strength;
+    knockedMotion.position.z += 1; // move a little over ground to prevent being considered "on the ground" for this frame
 }
 
 void WorldSystem::despawn_collectibles(float elapsed_ms) {

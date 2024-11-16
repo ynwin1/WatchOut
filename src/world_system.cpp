@@ -12,7 +12,7 @@ WorldSystem::WorldSystem(std::default_random_engine& rng) :
         {"boar", createBoar},
         {"barbarian", createBarbarian},
         {"archer", createArcher},
-        {"bird", createBird},
+        {"bird", createBirdFlock},
         {"heart", createHeart},
 		{"collectible_trap", createCollectibleTrap}
         }),
@@ -833,7 +833,7 @@ void WorldSystem::resetSpawnSystem() {
 	max_entities.at("boar") = MAX_BOARS;
 	max_entities.at("barbarian") = MAX_BABARIANS;
 	max_entities.at("archer") = MAX_ARCHERS;
-    max_entities.at("bird") = MAX_BIRDS;
+    max_entities.at("bird") = MAX_BIRD_FLOCKS;
 	max_entities.at("heart") = MAX_HEARTS;
 	max_entities.at("collectible_trap") = MAX_TRAPS;
 }

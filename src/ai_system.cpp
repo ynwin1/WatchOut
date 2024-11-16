@@ -381,8 +381,8 @@ void AISystem::archerBehaviour(Entity entity, vec3 playerPosition, float elapsed
 // steer to avoid crowding local flockmates
 vec2 separation(const Motion& motion, const std::vector<Motion>& flockMates) {
     vec2 separationForce = vec2(0, 0);
-    const float SEPARATION_RADIUS = 50.0f;  
-    const float SEPARATION_WEIGHT = 1.5f;   
+    const float SEPARATION_RADIUS = 300.0f;  
+    const float SEPARATION_WEIGHT = 5.0f;   
 
     for (const auto& mate : flockMates) {
         float distanceToMate = distance(motion.position, mate.position);

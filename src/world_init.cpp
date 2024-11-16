@@ -94,32 +94,46 @@ Entity createArcher(vec2 pos)
 	return entity;
 };
 
-// Bird creation
-Entity createBird(vec2 pos)
+// Bird creation (Flock of 5 birds)
+Entity createBirdFlock(vec2 pos)
 {
-    auto entity = Entity();
+    const int flockSize = 5;
+    const float spacing = 20.f; 
+    Entity repBird;
 
-    Motion& motion = registry.motions.emplace(entity);
-    motion.position = vec3(pos, TREE_BB_HEIGHT + BIRD_BB_HEIGHT + 100.0f); // 10.0f offset to hover above tree
-    motion.angle = 0.f;
-    motion.scale = { BIRD_BB_WIDTH, BIRD_BB_HEIGHT };
-    motion.hitbox = { BIRD_BB_WIDTH, BIRD_BB_HEIGHT, BIRD_BB_HEIGHT / zConversionFactor };
-    motion.solid = true;
+    for (int i = 0; i < flockSize; ++i)
+    {
+        auto entity = Entity();
 
-    Enemy& enemy = registry.enemies.emplace(entity);
-    enemy.damage = 20;
-    enemy.cooldown = 2000.f; 
-    enemy.speed = BIRD_SPEED;
+        // Spawn birds with spacing
+        vec2 birdPosition = pos + vec2(i * spacing, 0); 
 
-    registry.birds.emplace(entity);
+        Motion& motion = registry.motions.emplace(entity);
+        motion.position = vec3(birdPosition, TREE_BB_HEIGHT - BIRD_BB_WIDTH);
+        motion.angle = 0.f;
+        motion.scale = { BIRD_BB_WIDTH, BIRD_BB_HEIGHT };
+        motion.hitbox = { BIRD_BB_WIDTH, BIRD_BB_HEIGHT, BIRD_BB_HEIGHT / zConversionFactor };
+        motion.solid = true;
 
-    initBirdAnimationController(entity);
-    registry.midgrounds.emplace(entity);
+        Enemy& enemy = registry.enemies.emplace(entity);
+        enemy.damage = 20;
+        enemy.cooldown = 2000.f;
+        enemy.speed = BIRD_SPEED;
 
-    createHealthBar(entity, vec3(1.0f, 0.0f, 0.0f));
+        registry.birds.emplace(entity);
 
-    return entity;
+        initBirdAnimationController(entity);
+        registry.midgrounds.emplace(entity);
+
+        createHealthBar(entity, vec3(1.0f, 0.0f, 0.0f));
+        if (i == 0)
+        {
+            repBird = entity;
+        }
+    }
+    return repBird;
 }
+
 
 
 // Collectible trap creation

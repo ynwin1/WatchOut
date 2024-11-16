@@ -14,8 +14,8 @@ const float BARBARIAN_BB_WIDTH = 19.f * SPRITE_SCALE;
 const float BARBARIAN_BB_HEIGHT = 34.f * SPRITE_SCALE;
 const float ARCHER_BB_WIDTH = 32.f * SPRITE_SCALE;
 const float ARCHER_BB_HEIGHT = 32.f * SPRITE_SCALE;
-const float BIRD_BB_WIDTH = 28.f * SPRITE_SCALE;
-const float BIRD_BB_HEIGHT = 19.f * SPRITE_SCALE;
+const float BIRD_BB_WIDTH = 23.f * SPRITE_SCALE;
+const float BIRD_BB_HEIGHT = 13.f * SPRITE_SCALE;
 const float JEFF_BB_WIDTH   = 20.f * SPRITE_SCALE;
 const float JEFF_BB_HEIGHT  = 28.f * SPRITE_SCALE;
 const float JEFF_RUN_BB_WIDTH   = 24.f * SPRITE_SCALE;
@@ -70,8 +70,8 @@ Entity createBarbarian(vec2 pos);
 // The archer
 Entity createArcher(vec2 pos);
 
-// The bird
-Entity createBird(vec2 pos);
+// The birds
+Entity createBirdFlock(vec2 pos);
 
 // The collectible trap
 Entity createCollectibleTrap(vec2 pos);

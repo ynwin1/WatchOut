@@ -530,6 +530,7 @@ void WorldSystem::entity_collectible_collision(Entity entity, Entity entity_othe
 		printf("Unknown collectible type\n");
 	}
 
+	sound->playSoundEffect(sound->COLLECTING_SOUND, audio_path("collecting.wav"), 0);
     // destroy the collectible
     registry.remove_all_components_of(entity_other);
 }

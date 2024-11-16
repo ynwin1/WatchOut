@@ -26,6 +26,7 @@ public:
 	std::string WALKING_SOUND = "walking_sound";
 	std::string JUMPING_SOUND = "jumping_sound";
 	std::string DASHING_SOUND = "dashing_sound";
+	std::string COLLECTING_SOUND = "collecting_sound";
 
 
 	// FUNCTIONS
@@ -68,4 +69,5 @@ Sound credits
 - Thunder: https://freesound.org/people/Robinhood76/sounds/316850/
 - Storm: https://pixabay.com/sound-effects/cyprus-storm-61421/
 - Player Death: https://freesound.org/people/dobroide/sounds/44709/
+- Collecting: https://freesound.org/people/gsb1039/sounds/415061/
 */

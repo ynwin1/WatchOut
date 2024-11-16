@@ -13,6 +13,7 @@ WorldSystem::WorldSystem(std::default_random_engine& rng) :
         {"boar", createBoar},
         {"barbarian", createBarbarian},
         {"archer", createArcher},
+	    {"wizard", createWizard},
         {"heart", createHeart},
 		{"collectible_trap", createCollectibleTrap}
         }),
@@ -20,15 +21,17 @@ WorldSystem::WorldSystem(std::default_random_engine& rng) :
         {"boar", ORIGINAL_BOAR_SPAWN_DELAY},
         {"barbarian", ORIGINAL_BABARIAN_SPAWN_DELAY},
         {"archer", ORIGINAL_ARCHER_SPAWN_DELAY},
+		{"wizard", ORIGINAL_WIZARD_SPAWN_DELAY},
 		{"heart", ORIGINAL_HEART_SPAWN_DELAY},
 		{"collectible_trap", ORIGINAL_TRAP_SPAWN_DELAY}
         }),
     max_entities({
-        {"boar", 2},
-        {"barbarian", 2},
-        {"archer", 1},
-        {"heart", 1},
-        {"collectible_trap", 1}
+        {"boar", MAX_BOARS},
+        {"barbarian", MAX_BABARIANS},
+        {"archer", MAX_ARCHERS},
+		{"wizard", MAX_WIZARDS},
+        {"heart", MAX_HEARTS},
+        {"collectible_trap", MAX_TRAPS}
         })
 {
     this->gameStateController = GameStateController();
@@ -74,6 +77,7 @@ void WorldSystem::restart_game()
         "barbarian",
         "boar",
         "archer",
+        "wizard",
         "heart",
         "collectible_trap"
     };
@@ -153,11 +157,13 @@ bool WorldSystem::step(float elapsed_ms)
     update_cooldown(elapsed_ms);
     handle_deaths(elapsed_ms);
     despawn_collectibles(elapsed_ms);
+	destroyDamagings();
     handle_stamina(elapsed_ms);
     trackFPS(elapsed_ms);
     updateGameTimer(elapsed_ms);
     updateTrapsCounterText();
     toggleMesh();
+    accelerateFireballs(elapsed_ms);
     despawnTraps(elapsed_ms);
     updateCollectedTimer(elapsed_ms);
     resetTrappedEntities();
@@ -222,6 +228,13 @@ void WorldSystem::handle_collisions()
             }
             else if (registry.obstacles.has(entity_other)) {
                 entity_obstacle_collision(entity, entity_other, was_damaged);
+            }
+        }
+        else if (registry.damagings.has(entity)) {
+			Damaging& damaging = registry.damagings.get(entity);
+            if (damaging.type == "fireball" && registry.obstacles.has(entity_other)) {
+				// Collision between damaging and obstacle
+                damaging_obstacle_collision(entity);
             }
         }
     }
@@ -446,23 +459,31 @@ void WorldSystem::despawnTraps(float elapsed_ms) {
 void WorldSystem::update_cooldown(float elapsed_ms) {
     for (auto& cooldownEntity : registry.cooldowns.entities) {
         Cooldown& cooldown = registry.cooldowns.get(cooldownEntity);
-        float new_remaining = cooldown.remaining - elapsed_ms;
-        cooldown.remaining = new_remaining < 0 ? 0 : new_remaining;
+        cooldown.remaining -= elapsed_ms;
 
-        // Available to attack again
-        if (cooldown.remaining == 0) {
-            registry.cooldowns.remove(cooldownEntity);
+        if (cooldown.remaining <= 0) {
+            // remove lightning
+            if (registry.damagings.has(cooldownEntity) && registry.damagings.get(cooldownEntity).type == "lightning") {
+                registry.remove_all_components_of(cooldownEntity);
+            }
+            // remove target area
+            else if (registry.targetAreas.has(cooldownEntity)) {
+                registry.remove_all_components_of(cooldownEntity);
+            }
+            else {
+                registry.cooldowns.remove(cooldownEntity);
+            }
         }
-    }
 
-    auto it = collisionCooldowns.begin();
-    while (it != collisionCooldowns.end()) {
-        it->second -= elapsed_ms;
-        if (it->second <= 0) {
-            it = collisionCooldowns.erase(it);
-        }
-        else {
-            it++;
+        auto it = collisionCooldowns.begin();
+        while (it != collisionCooldowns.end()) {
+            it->second -= elapsed_ms;
+            if (it->second <= 0) {
+                it = collisionCooldowns.erase(it);
+            }
+            else {
+                it++;
+            }
         }
     }
 }
@@ -486,9 +507,11 @@ void WorldSystem::spawn(float elapsed_ms)
 {
     for (std::string& entity_type : entity_types) {
         next_spawns.at(entity_type) -= elapsed_ms;
+        int maxEntitySize = max_entities.at(entity_type);
+		int currentEntitySize = registry.spawnable_lists.at(entity_type)->size();
         if (registry.enemies.size() < MAX_TOTAL_ENEMIES && 
             next_spawns.at(entity_type) < 0 && 
-            registry.spawnable_lists.at(entity_type)->size() < max_entities.at(entity_type)) {
+            currentEntitySize < maxEntitySize) {
             vec2 spawnLocation = get_spawn_location(entity_type);
             spawn_func f = spawn_functions.at(entity_type);
             (*f)(spawnLocation);
@@ -631,6 +654,11 @@ void WorldSystem::entity_damaging_collision(Entity entity, Entity entity_other, 
     registry.remove_all_components_of(entity_other);
 }
 
+void WorldSystem::damaging_obstacle_collision(Entity damaging) {
+    // Currently, there is only fireball
+	registry.remove_all_components_of(damaging);
+}
+  
 void WorldSystem::entity_obstacle_collision(Entity entity, Entity obstacle, std::vector<Entity>& was_damaged)
 {
     if (registry.boars.has(entity)) {
@@ -724,8 +752,11 @@ void WorldSystem::checkAndHandleEnemyDeath(Entity enemy) {
     Enemy& enemyData = registry.enemies.get(enemy);
     if (enemyData.health == 0 && !registry.deathTimers.has(enemy)) {
         Motion& motion = registry.motions.get(enemy);
-        motion.angle = M_PI / 2; // Rotate enemy 90 degrees
-        motion.hitbox = { motion.hitbox.z, motion.hitbox.y, motion.hitbox.x }; // Change hitbox to be on its side
+        // Do not rotate wizard
+        if (!registry.wizards.has(enemy)) {
+            motion.angle = M_PI / 2; // Rotate enemy 90 degrees
+            motion.hitbox = { motion.hitbox.z, motion.hitbox.y, motion.hitbox.x }; // Change hitbox to be on its side
+        }
         printf("Enemy %d died with health %d\n", (unsigned int)enemy, enemyData.health);
 
         if (registry.animationControllers.has(enemy)) {
@@ -772,6 +803,27 @@ void WorldSystem::despawn_collectibles(float elapsed_ms) {
             animatedCollectible.changeState(collectibleEntity, AnimationState::Fading);
         }
 	}
+}
+
+void WorldSystem::destroyDamagings() {
+    for (auto& damagingEntity : registry.damagings.entities) {
+        Damaging& damaging = registry.damagings.get(damagingEntity);
+        Motion& motion = registry.motions.get(damagingEntity);
+
+        // half scale
+		float halfScaleX = abs(motion.scale.x) / 2;
+		float halfScaleY = abs(motion.scale.y) / 2;
+
+		bool collidesWithLeft = motion.position.x - halfScaleX <= leftBound;
+		bool collidesWithRight = motion.position.x + halfScaleX >= rightBound;
+		bool collidesWithTop = motion.position.y - halfScaleY <= topBound;
+		bool collidesWithBottom = motion.position.y + halfScaleY >= bottomBound;
+
+		// Destroy if it collides with the map bounds (fireball)
+        if (collidesWithLeft || collidesWithRight || collidesWithTop || collidesWithBottom) {
+            registry.remove_all_components_of(damagingEntity);
+        }
+    }
 }
 
 void WorldSystem::checkAndHandlePlayerDeath(Entity& entity) {
@@ -906,6 +958,24 @@ void WorldSystem::resetSpawnSystem() {
 	max_entities.at("boar") = MAX_BOARS;
 	max_entities.at("barbarian") = MAX_BABARIANS;
 	max_entities.at("archer") = MAX_ARCHERS;
+	max_entities.at("wizard") = MAX_WIZARDS;
 	max_entities.at("heart") = MAX_HEARTS;
 	max_entities.at("collectible_trap") = MAX_TRAPS;
+}
+
+void WorldSystem::accelerateFireballs(float elapsed_ms) {
+    for (auto entity : registry.damagings.entities) {
+        Damaging& dmgEntity = registry.damagings.get(entity);
+        if (dmgEntity.type == "fireball") {
+            Motion& fireballMotion = registry.motions.get(entity);
+
+            // calculate direction from angle
+            vec2 direction = vec2(cos(fireballMotion.angle), sin(fireballMotion.angle));
+            direction = normalize(direction);
+
+            // accelerate in the calculated direction
+            fireballMotion.velocity.x += (direction.x) * FIREBALL_ACCELERATION * (elapsed_ms/1000);
+            fireballMotion.velocity.y += (direction.y) * FIREBALL_ACCELERATION * (elapsed_ms/1000);
+        }
+    }
 }

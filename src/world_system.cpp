@@ -331,6 +331,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
                         player_dash.dashTargetPosition = player_dash.dashStartPosition + player_motion.facing * dashDistance;
                         player_dash.dashTimer = 0.0f; // Reset timer
                         player_stamina.stamina -= DASH_STAMINA;
+                        sound->playSoundEffect(sound->DASHING_SOUND, audio_path("dashing.wav"), 0);
                     }
                 }
                 break;
@@ -350,6 +351,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
                                 if (player_stamina.stamina < 0) {
                                     player_stamina.stamina = 0;
                                 }
+                                sound->playSoundEffect(sound->JUMPING_SOUND, audio_path("jumping.wav"), 0);
                             }
                         }
                     }
@@ -865,17 +867,19 @@ void WorldSystem::soundSetUp() {
 void WorldSystem::inGameSounds() {
 	Player& player = registry.players.get(playerEntity);
 
+    // monitoring player movement
 	if (player.isMoving) {
-		if (!isPlayerMakingSound) {
+		if (!isMovingSoundPlaying) {
 			// walking sound
-            isPlayerMakingSound = true;
             sound->playSoundEffect(sound->WALKING_SOUND, audio_path("walking.wav"), -1);
+            isMovingSoundPlaying = true;
 		}
-	}
-	else {
-		if (isPlayerMakingSound) {
-			isPlayerMakingSound = false;
-			sound->stopSoundEffect(sound->WALKING_SOUND);
-		}
-	}
+    }
+    else {
+        if (isMovingSoundPlaying) {
+            // stop walking sound
+            sound->stopSoundEffect(sound->WALKING_SOUND);
+            isMovingSoundPlaying = false;
+        }
+    }
 }

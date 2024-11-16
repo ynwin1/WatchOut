@@ -24,6 +24,8 @@ public:
 	std::string THUNDER_SOUND = "thunder_sound";
 	std::string STORM_SOUND = "storm_sound";
 	std::string WALKING_SOUND = "walking_sound";
+	std::string JUMPING_SOUND = "jumping_sound";
+	std::string DASHING_SOUND = "dashing_sound";
 
 
 	// FUNCTIONS

@@ -70,7 +70,6 @@ private:
 	bool isWindowed = false;
 
 	Entity playerEntity;
-	bool isPlayerMakingSound = false;
 	std::vector<std::string> entity_types;
 	std::unordered_map<std::string, float> spawn_delays;
 	std::unordered_map<std::string, unsigned int> max_entities;
@@ -82,6 +81,9 @@ private:
 	// Keeps track of what collisions have been handled recently.
 	// Key uses entities cast to ints for comparisons.
 	std::map<std::pair<int, int>, float> collisionCooldowns;
+
+	// Sound variables
+	bool isMovingSoundPlaying = false;
 
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);

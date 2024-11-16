@@ -31,6 +31,9 @@ bool SoundSystem::init()
 		return false;
 	}
 
+	int numChannels = 32;
+	Mix_AllocateChannels(numChannels);
+
 	return true;
 }
 
@@ -73,6 +76,11 @@ void SoundSystem::playSoundEffect(const std::string& key, std::string path, int 
 // stop specified music
 void SoundSystem::stopMusic(const std::string& key)
 {
+	if (musicTracks.find(key) == musicTracks.end())
+	{
+		handleError("Music not found!");
+		return;
+	}
 	std::pair<Mix_Music*, int> music = musicTracks[key];
 	Mix_HaltChannel(music.second);
 	Mix_FreeMusic(music.first);
@@ -82,6 +90,11 @@ void SoundSystem::stopMusic(const std::string& key)
 // stop specified sound effect
 void SoundSystem::stopSoundEffect(const std::string& key)
 {
+	if (soundEffects.find(key) == soundEffects.end())
+	{
+		handleError("Sound effect not found!");
+		return;
+	}
 	std::pair<Mix_Chunk*, int> sound = soundEffects[key];
 	Mix_HaltChannel(sound.second);
 	Mix_FreeChunk(sound.first);

@@ -37,6 +37,8 @@ const int WIZARD_DEAD_NUM_FRAMES = 6;
 const int WIZARD_DEAD_FRAME_TIME = 600;
 const int LIGHTENING_NUM_FRAMES = 9;
 const int LIGHTENING_FRAME_TIME = 50;
+const int FIREBALL_NUM_FRAMES = 6;
+const int FIREBALL_FRAME_TIME = 50;
 
 AnimationController& initJeffAnimationController(Entity& jeff) {
     AnimationController& animationcontroller = registry.animationControllers.emplace(jeff);
@@ -141,6 +143,23 @@ AnimationController& initLighteningAnimationController(Entity& entity) {
 		entity,
 		{
 			TEXTURE_ASSET_ID::LIGHTENING,
+			EFFECT_ASSET_ID::ANIMATED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	animationcontroller.changeState(entity, AnimationState::Attack);
+
+	return animationcontroller;
+}
+
+AnimationController& initFireballAnimationController(Entity& entity) {
+	AnimationController& animationcontroller = registry.animationControllers.emplace(entity);
+	animationcontroller.addAnimation(AnimationState::Attack, FIREBALL_FRAME_TIME, FIREBALL_NUM_FRAMES, TEXTURE_ASSET_ID::FIREBALL);
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::FIREBALL,
 			EFFECT_ASSET_ID::ANIMATED,
 			GEOMETRY_BUFFER_ID::SPRITE
 		});

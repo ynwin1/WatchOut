@@ -332,14 +332,7 @@ Entity createFireball(vec3 pos, vec2 direction) {
 	damaging.damage = 30;
 	registry.midgrounds.emplace(entity);
 
-	registry.renderRequests.insert(
-		entity,
-		{
-			TEXTURE_ASSET_ID::FIREBALL,
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE
-		});
-
+	initFireballAnimationController(entity);
 	return entity;
 }
 
@@ -359,9 +352,7 @@ Entity createLightening(vec2 pos) {
 	registry.midgrounds.emplace(entity);
 
 	Cooldown& duration = registry.cooldowns.emplace(entity);
-	duration.remaining = 1500.f; // 1.5s
-
-	printf("Lightening created\n");
+	duration.remaining = 1500.f;
 
 	initLighteningAnimationController(entity);
 	return entity;

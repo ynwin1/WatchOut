@@ -984,7 +984,8 @@ void WorldSystem::soundSetUp() {
 }
 
 void WorldSystem::inGameSounds() {
-    if (!is_over()) {
+    // check game state
+    if (gameStateController.getGameState() != GAME_STATE::PAUSED || gameStateController.getGameState() != GAME_STATE::GAMEOVER) {
         Player& player = registry.players.get(playerEntity);
         // monitoring player movement
         if (player.isMoving) {

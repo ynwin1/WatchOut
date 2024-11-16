@@ -24,7 +24,7 @@ private:
 
 	// Bird functions
 	void birdBehaviour(Entity bird, vec3 playerPosition, float elapsed_ms);
-	void swoopAttack(Entity bird, vec3 playerPosition, float elapsed_ms);
+	void swoopAttack(Entity bird, vec3 playerPosition, float elapsed_ms, const std::vector<Motion>& flockMates);
 
 	vec2 randomDirection();
 

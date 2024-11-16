@@ -429,7 +429,7 @@ vec2 cohesion(const Motion& motion, const std::vector<Motion>& flockMates) {
     return cohesionForce * COHESION_WEIGHT;
 }
 
-void AISystem::swoopAttack(Entity bird, vec3 playerPosition, float elapsed_ms) {
+void AISystem::swoopAttack(Entity bird, vec3 playerPosition, float elapsed_ms, const std::vector<Motion>& flockMates) {
     Motion& birdMotion = registry.motions.get(bird);
     Bird& birdComponent = registry.birds.get(bird);
     AnimationController& animationController = registry.animationControllers.get(bird);
@@ -448,23 +448,31 @@ void AISystem::swoopAttack(Entity bird, vec3 playerPosition, float elapsed_ms) {
     // Swoop towards player
     if (birdComponent.isSwooping) {
         animationController.changeState(bird, AnimationState::Swooping);
+
+        // BOID while swooping
+        vec2 separationForce = separation(birdMotion, flockMates) * 0.5f;
+        vec2 alignmentForce = alignment(birdMotion, flockMates) * 0.3f;
+        vec2 cohesionForce = cohesion(birdMotion, flockMates) * 0.5f;
         vec2 swoopForce = birdComponent.swoopDirection * birdComponent.swoopSpeed;
-        birdMotion.velocity = vec3(swoopForce, -1.0f);
+        vec2 combinedForce = swoopForce + separationForce + alignmentForce + cohesionForce;
+
+        birdMotion.velocity = vec3(normalize(combinedForce) * birdComponent.swoopSpeed, -1.0f);
+
         birdComponent.swoopTimer -= elapsed_ms;
         if (birdComponent.swoopTimer <= 0) {
             if (birdMotion.position.z < birdComponent.originalZ) {
                 animationController.changeState(bird, AnimationState::Flying);
-                birdMotion.velocity.z = 1.0f;  
+                birdMotion.velocity.z = 1.0f;
             } else {
                 birdMotion.position.z = birdComponent.originalZ;
                 birdComponent.isSwooping = false;
-                birdMotion.velocity.z = 0; 
+                birdMotion.velocity.z = 0;
                 birdComponent.swoopCooldown = BIRD_COOLDOWN_TIME;
             }
         }
-        return;
     }
 }
+
 
 void AISystem::birdBehaviour(Entity bird, vec3 playerPosition, float elapsed_ms) {
     Motion& birdMotion = registry.motions.get(bird);
@@ -477,7 +485,7 @@ void AISystem::birdBehaviour(Entity bird, vec3 playerPosition, float elapsed_ms)
         }
     }
     // Swoop Attack
-    swoopAttack(bird, playerPosition, elapsed_ms);
+    swoopAttack(bird, playerPosition, elapsed_ms, flockMates);
     if (birdComponent.isSwooping) {
         return;
     }

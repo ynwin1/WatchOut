@@ -47,8 +47,7 @@ void AISystem::moveTowardsPlayer(Entity enemy, vec3 playerPosition, float elapse
 
     vec2 direction = chooseDirection(enemyMotion, playerPosition);
     enemyMotion.facing = direction;
-    float speed = registry.enemies.get(enemy).speed;
-    enemyMotion.velocity = vec3(direction * speed, enemyMotion.velocity.z);
+    enemyMotion.velocity = vec3(direction * enemyMotion.speed, enemyMotion.velocity.z);
 }
 
 vec2 AISystem::chooseDirection(Motion& motion, vec3 playerPosition)
@@ -205,7 +204,7 @@ bool AISystem::pathClear(Motion& motion, vec2 direction, float howFar, const std
 void AISystem::boarBehaviour(Entity boar, vec3 playerPosition, float elapsed_ms)
 {
     // boar can't charge if trapped
-    if(registry.enemies.has(boar) && registry.enemies.get(boar).isTrapped) {
+    if(registry.enemies.has(boar) && registry.trappables.get(boar).isTrapped) {
         moveTowardsPlayer(boar, playerPosition, elapsed_ms);
         return;
     }
@@ -295,6 +294,14 @@ void AISystem::barbarianBehaviour(Entity barbarian, vec3 playerPosition, float e
         return;
     }
     moveTowardsPlayer(barbarian, playerPosition, elapsed_ms);
+}
+
+void AISystem::trollBehaviour(Entity troll, vec3 playerPosition, float elapsed_ms)
+{
+    if (registry.deathTimers.has(troll)) {
+        return;
+    }
+
 }
 
 void AISystem::shootArrow(Entity shooter, vec3 targetPos)
@@ -738,11 +745,15 @@ void AISystem::step(float elapsed_ms)
         }
         else if (registry.archers.has(enemy)) {
             archerBehaviour(enemy, playerPosition, elapsed_ms);
-        } else if (registry.birds.has(enemy)){
+        } 
+        else if (registry.birds.has(enemy)){
             birdBehaviour(enemy, playerPosition, elapsed_ms);
         }
 		else if (registry.wizards.has(enemy)) {
 			wizardBehaviour(enemy, playerPosition, elapsed_ms);
 		}
+        else if (registry.trolls.has(enemy)) {
+            trollBehaviour(enemy, playerPosition, elapsed_ms);
+        }
     }
 }

@@ -40,18 +40,6 @@ public:
 	friend class GameStateController;
 
 private:
-	// CONSTANTS
-
-	// Max entities at start
-	const unsigned int MAX_BOARS = 1;
-	const unsigned int MAX_BABARIANS = 1;
-	const unsigned int MAX_ARCHERS = 0;
-	const unsigned int MAX_BIRD_FLOCKS = -1;
-	const unsigned int MAX_WIZARDS = -1;
-	const unsigned int MAX_TROLLS = 3;
-	const unsigned int MAX_HEARTS = 2;
-	const unsigned int MAX_TRAPS = 1;
-
 	const float DIFFICULTY_INTERVAL = 45000.0f;
 	const unsigned int MAX_TOTAL_ENEMIES = 100;
 
@@ -93,20 +81,20 @@ private:
 		{"archer", -1},
 		{"bird", -2},
 		{"wizard", -3},
-		{"troll", 3},
+		{"troll", 1},
 		{"heart", 2},
 		{"collectible_trap", 2}
 	};
 
 	const std::unordered_map<std::string, float> initial_spawn_delays = {
-		{"boar", 3000.0f},
-		{"barbarian", 5000.0f},
-		{"archer", 7000.0f},
-		{"bird", 2000.0f},
-		{"wizard", 5000.0f},
-		{"troll", 0.0f},
-		{"heart", 10000.0f},
-		{"collectible_trap", 7000.0f}
+		{"boar", 10000.0f},
+		{"barbarian", 10000.0f},
+		{"archer", 20000.0f},
+		{"bird", 20000.0f},
+		{"wizard", 20000.0f},
+		{"troll", 30000.0f},
+		{"heart", 5000.0f},
+		{"collectible_trap", 5000.0f}
 	};
 
 	using spawn_func = Entity(*)(vec2);
@@ -169,10 +157,8 @@ private:
 	void entity_trap_collision(Entity entity, Entity trap, std::vector<Entity>& was_damaged);
 	void entity_damaging_collision(Entity entity, Entity trap, std::vector<Entity>& was_damaged);
 	void entity_obstacle_collision(Entity entity, Entity obstacle, std::vector<Entity>& was_damaged);
-	void moving_entities_collision(Entity entity, Entity entityOther, std::vector<Entity>& was_damaged);
 	void damaging_obstacle_collision(Entity entity);
 	void processPlayerEnemyCollision(Entity player, Entity enemy, std::vector<Entity>& was_damaged);
-	void processEnemyEnemyCollision(Entity enemy1, Entity enemy2, std::vector<Entity>& was_damaged);
 	void handleEnemyCollision(Entity attacker, Entity target, std::vector<Entity>& was_damaged);
 	void checkAndHandleEnemyDeath(Entity entity);
 	void knock(Entity knocked, Entity knocker);

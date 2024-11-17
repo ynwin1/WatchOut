@@ -20,6 +20,7 @@ private:
 	
 	void boarBehaviour(Entity boar, vec3 playerPosition, float elapsed_ms);
 	void barbarianBehaviour(Entity barbarian, vec3 playerPosition, float elapsed_ms);
+	void trollBehaviour(Entity troll, vec3 playerPosition, float elapsed_ms);
 
 	// Archer functions
 	void archerBehaviour(Entity entity, vec3 playerPosition, float elapsed_ms);

@@ -66,7 +66,10 @@ void WorldSystem::restart_game()
     initText();
     soundSetUp();
 
-    next_spawns = spawn_delays;
+    // Set spawn delays to 1 second, so the first of each type will spawn right away
+    for (auto& name : entity_types) {
+        next_spawns[name] = 1000;
+    }
     loadAndSaveHighScore(false);
 }
 
@@ -225,7 +228,7 @@ void WorldSystem::handle_collisions()
             }
             else if (registry.enemies.has(entity_other)) {
 				// Collision between player and enemy
-				moving_entities_collision(entity, entity_other, was_damaged);
+                processPlayerEnemyCollision(entity, entity_other, was_damaged);
             }
             else if (registry.damagings.has(entity_other)) {
                 entity_damaging_collision(entity, entity_other, was_damaged);
@@ -234,7 +237,7 @@ void WorldSystem::handle_collisions()
         else if (registry.enemies.has(entity)) {
             if (registry.enemies.has(entity_other)) {
 				// Collision between two enemies
-				moving_entities_collision(entity, entity_other, was_damaged);
+				handleEnemyCollision(entity, entity_other, was_damaged);
             }
             else if (registry.damagings.has(entity_other)) {
                 entity_damaging_collision(entity, entity_other, was_damaged);
@@ -250,6 +253,14 @@ void WorldSystem::handle_collisions()
                 damaging_obstacle_collision(entity);
             }
         }
+    }
+
+    // Handle deaths after all collisions are handled
+    for (Entity enemy : registry.enemies.entities) {
+        checkAndHandleEnemyDeath(enemy);
+    }
+    for (Entity player : registry.players.entities) {
+        checkAndHandlePlayerDeath(player);
     }
 
     // Clear all collisions
@@ -695,16 +706,14 @@ void WorldSystem::entity_damaging_collision(Entity entity, Entity entity_other, 
         int new_health = player.health - damaging.damage;
         player.health = new_health < 0 ? 0 : new_health;
         was_damaged.push_back(entity);
-        printf("Player health reduced by trap from %d to %d\n", player.health + damaging.damage, player.health);
-        checkAndHandlePlayerDeath(entity);
+        printf("Player health reduced from %d to %d\n", player.health + damaging.damage, player.health);
     }
     else if (registry.enemies.has(entity)) {
         // reduce enemy health
         Enemy& enemy = registry.enemies.get(entity);
         enemy.health -= damaging.damage;
         was_damaged.push_back(entity);
-        printf("Enemy health reduced from %d to %d\n", enemy.health + damaging.damage, enemy.health);
-        checkAndHandleEnemyDeath(entity);
+        printf("Enemy health reduced from %d to %d by damaging object\n", enemy.health + damaging.damage, enemy.health);
     }
     else {
         printf("Entity is not a player or enemy\n");
@@ -726,22 +735,12 @@ void WorldSystem::entity_obstacle_collision(Entity entity, Entity obstacle, std:
         if (boar.charging) {
            Enemy& enemy = registry.enemies.get(entity);
             // Boar hurts itself
-           enemy.health -= enemy.damage;
+           enemy.health -= enemy.damage / 2; // half damage of what it does to other entities
            ai->boarReset(entity);
            boar.cooldownTimer = 1000; // stunned for 1 second
            
            was_damaged.push_back(entity);
-           checkAndHandleEnemyDeath(entity);
         }
-    }
-}
-
-void WorldSystem::moving_entities_collision(Entity entity, Entity entityOther, std::vector<Entity>& was_damaged) {
-    if (registry.players.has(entity)) {
-        processPlayerEnemyCollision(entity, entityOther, was_damaged);
-    }
-    else if (registry.enemies.has(entity)) {
-        processEnemyEnemyCollision(entity, entityOther, was_damaged);
     }
 }
 
@@ -762,18 +761,8 @@ void WorldSystem::processPlayerEnemyCollision(Entity player, Entity enemy, std::
             cooldown.remaining = enemyData.cooldown;
         }
 
-		checkAndHandlePlayerDeath(player);
-
         knock(player, enemy);
     }
-}
-
-void WorldSystem::processEnemyEnemyCollision(Entity enemy1, Entity enemy2, std::vector<Entity>& was_damaged) {
-    handleEnemyCollision(enemy1, enemy2, was_damaged);
-    handleEnemyCollision(enemy2, enemy1, was_damaged);
-
-    checkAndHandleEnemyDeath(enemy1);
-    checkAndHandleEnemyDeath(enemy2);
 }
 
 void WorldSystem::handleEnemyCollision(Entity attacker, Entity target, std::vector<Entity>& was_damaged) {
@@ -786,15 +775,15 @@ void WorldSystem::handleEnemyCollision(Entity attacker, Entity target, std::vect
             return;
         }
 
-         Boar& boar = registry.boars.get(attacker);
+        Boar& boar = registry.boars.get(attacker);
 
-         // damage should only apply when boar is charging 
-         // (boars can be colliding with others while walking)
+        // damage should only apply when boar is charging 
+        // (boars can be colliding with others while walking)
         if(!boar.charging) return;
 
         targetData.health -= attackerData.damage;
         was_damaged.push_back(target);
-        printf("Enemy %d's health reduced from %d to %d\n", (unsigned int)target, targetData.health + attackerData.damage, targetData.health);
+        printf("Enemy %d's health reduced from %d to %d by enemy\n", (unsigned int)target, targetData.health + attackerData.damage, targetData.health);
 
         if (attackerData.cooldown > 0) {
             Cooldown& cooldown = registry.cooldowns.emplace(attacker);

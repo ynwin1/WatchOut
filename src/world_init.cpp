@@ -313,7 +313,7 @@ Entity createDamageTrap(vec2 pos)
 		GEOMETRY_BUFFER_ID::SPRITE
 	});
 
-	registry.midgrounds.emplace(entity);
+	registry.backgrounds.emplace(entity);
 
 	return entity;
 };

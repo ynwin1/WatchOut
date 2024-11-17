@@ -337,6 +337,9 @@ void WorldSystem::on_key(int key, int, int action, int mod)
         playingControls(key, action, mod);
         break;
     case GAME_STATE::PAUSED:
+        //isMovingSoundPlaying = false;
+        //isBirdFlockSoundPlaying = false;
+        sound->stopAllSoundEffects();
         pauseControls(key, action, mod);
         break;
     case GAME_STATE::GAMEOVER:
@@ -409,9 +412,6 @@ void WorldSystem::playingControls(int key, int action, int mod)
             break;
         case GLFW_KEY_P:
         case GLFW_KEY_ESCAPE:
-            isMovingSoundPlaying = false;
-			      isBirdFlockSoundPlaying = false;
-            sound->stopAllSoundEffects();
             gameStateController.setGameState(GAME_STATE::PAUSED);
             break;
         }
@@ -517,6 +517,9 @@ void WorldSystem::movementControls(int key, int action, int mod)
                 player_dash.dashTargetPosition = player_dash.dashStartPosition + player_motion.facing * dashDistance;
                 player_dash.dashTimer = 0.0f; // Reset timer
                 player_stamina.stamina -= DASH_STAMINA;
+
+                // play dash sound
+				sound->playSoundEffect(sound->DASHING_SOUND, audio_path("dashing.wav"), 0);
             }
         }
         break;
@@ -536,6 +539,8 @@ void WorldSystem::movementControls(int key, int action, int mod)
                         if (player_stamina.stamina < 0) {
                             player_stamina.stamina = 0;
                         }
+                        // play jump sound
+                        sound->playSoundEffect(sound->JUMPING_SOUND, audio_path("jumping.wav"), 0);
                     }
                 }
             }
@@ -953,7 +958,7 @@ void WorldSystem::checkAndHandlePlayerDeath(Entity& entity) {
 		motion.angle = M_PI / 2; // Rotate player 90 degrees
         motion.hitbox = { motion.hitbox.z, motion.hitbox.y, motion.hitbox.x }; // Change hitbox to be on its side
 
-        sound->stopAllMusic();
+        sound->stopAllSounds();
 		sound->playSoundEffect(sound->PLAYER_DEATH_MUSIC, audio_path("playerDeath.wav"), -1);
 	}
 }

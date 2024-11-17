@@ -143,6 +143,14 @@ private:
 	void checkAndHandleEnemyDeath(Entity entity);
 	void knock(Entity knocked, Entity knocker);
 
+	// Controls
+	void allStateControls(int key, int action, int mod);
+	void movementControls(int key, int action, int mod);
+	void playingControls(int key, int action, int mod);
+	void pauseControls(int key, int action, int mod);
+	void gameOverControls(int key, int action, int mod);
+	void helpControls(int key, int action, int mod);
+
 	// Help/Pause Menu functions
 	Entity createHelpMenu(vec2 cameraPosition);
     void exitHelpMenu();

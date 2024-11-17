@@ -247,7 +247,6 @@ void RenderSystem::initText() {
 		std::cerr << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
 		return;
 	}
-    FT_Init_FreeType(&ft);
     
     FT_Face face;
 	std::string font_filename = PROJECT_SOURCE_DIR + std::string("data/fonts/Kenney_Pixel.ttf");

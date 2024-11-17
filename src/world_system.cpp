@@ -794,8 +794,7 @@ void WorldSystem::handleEnemyCollision(Entity attacker, Entity target, std::vect
          // (boars can be colliding with others while walking)
         if(!boar.charging) return;
 
-        const int DAMAGE_MULTIPLIER = 3;
-        int newHealth = targetData.health - attackerData.damage * DAMAGE_MULTIPLIER;
+        int newHealth = targetData.health - attackerData.damage;
         targetData.health = std::max(newHealth, 0);
         was_damaged.push_back(target);
         printf("Enemy %d's health reduced from %d to %d\n", (unsigned int)target, targetData.health + attackerData.damage, targetData.health);

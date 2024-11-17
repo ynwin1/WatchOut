@@ -14,7 +14,6 @@ struct Player {
 	bool goingRight;	// Key for going right is held down
 	bool tryingToJump;	// Key for jumping is held down
 	bool isMoving;		// Indicates if any movement keys are pressed
-	float speed = 0.5;
 };
 
 //Stamina

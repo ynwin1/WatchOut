@@ -37,9 +37,9 @@ struct Dash {
 
 struct Enemy
 {
-	unsigned int health = 100;
-	unsigned int maxHealth = 100;
-	unsigned int damage = 10;
+	int health = 100;
+	int maxHealth = 100;
+	int damage = 10;
 	std::string type;
 	unsigned int cooldown = 0;
 	float pathfindTime = 0;

@@ -701,8 +701,7 @@ void WorldSystem::entity_damaging_collision(Entity entity, Entity entity_other, 
     else if (registry.enemies.has(entity)) {
         // reduce enemy health
         Enemy& enemy = registry.enemies.get(entity);
-        int new_health = enemy.health - damaging.damage;
-        enemy.health = new_health < 0 ? 0 : new_health;
+        enemy.health -= damaging.damage;
         was_damaged.push_back(entity);
         printf("Enemy health reduced from %d to %d\n", enemy.health + damaging.damage, enemy.health);
         checkAndHandleEnemyDeath(entity);
@@ -727,8 +726,7 @@ void WorldSystem::entity_obstacle_collision(Entity entity, Entity obstacle, std:
         if (boar.charging) {
            Enemy& enemy = registry.enemies.get(entity);
             // Boar hurts itself
-           int newHealth = enemy.health - enemy.damage;
-           enemy.health = std::max(newHealth, 0);
+           enemy.health -= enemy.damage;
            ai->boarReset(entity);
            boar.cooldownTimer = 1000; // stunned for 1 second
            
@@ -794,8 +792,7 @@ void WorldSystem::handleEnemyCollision(Entity attacker, Entity target, std::vect
          // (boars can be colliding with others while walking)
         if(!boar.charging) return;
 
-        int newHealth = targetData.health - attackerData.damage;
-        targetData.health = std::max(newHealth, 0);
+        targetData.health -= attackerData.damage;
         was_damaged.push_back(target);
         printf("Enemy %d's health reduced from %d to %d\n", (unsigned int)target, targetData.health + attackerData.damage, targetData.health);
 
@@ -810,7 +807,7 @@ void WorldSystem::handleEnemyCollision(Entity attacker, Entity target, std::vect
 
 void WorldSystem::checkAndHandleEnemyDeath(Entity enemy) {
     Enemy& enemyData = registry.enemies.get(enemy);
-    if (enemyData.health == 0 && !registry.deathTimers.has(enemy)) {
+    if (enemyData.health <= 0 && !registry.deathTimers.has(enemy)) {
         Motion& motion = registry.motions.get(enemy);
         // Do not rotate wizard
         if (!registry.wizards.has(enemy)) {

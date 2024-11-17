@@ -39,6 +39,7 @@ Entity createBoar(vec2 pos)
 	createHealthBar(entity, vec3(1.0f, 0.0f, 0.0f));
 
 	registry.knockables.emplace(entity);
+	registry.knockers.emplace(entity);
 	auto& trappable = registry.trappables.emplace(entity);
 	trappable.originalSpeed = BOAR_SPEED;
 	
@@ -73,6 +74,7 @@ Entity createBarbarian(vec2 pos)
 	createHealthBar(entity, vec3(1.0f, 0.0f, 0.0f));
 
 	registry.knockables.emplace(entity);
+	registry.knockers.emplace(entity);
 	auto& trappable = registry.trappables.emplace(entity);
 	trappable.originalSpeed = BARBARIAN_SPEED;
 
@@ -209,9 +211,9 @@ Entity createTroll(vec2 pos)
 	}
 
 	Enemy& enemy = registry.enemies.emplace(entity);
-	enemy.damage = 10;
+	enemy.damage = 5;
 	enemy.cooldown = 0;
-	motion.speed = 0;
+	motion.speed = TROLL_SPEED;
 	enemy.maxHealth = 200;
 	enemy.health = enemy.maxHealth;
 
@@ -222,6 +224,8 @@ Entity createTroll(vec2 pos)
 	createHealthBar(entity, vec3(1.0f, 0.0f, 0.0f));
 
 	registry.trappables.emplace(entity);
+	Knocker& knocker = registry.knockers.emplace(entity);
+	knocker.strength = 2.f;
 
 	initTrollAnimationController(entity);
 

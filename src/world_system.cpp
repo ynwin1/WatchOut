@@ -774,16 +774,27 @@ void WorldSystem::handleEnemyCollision(Entity attacker, Entity target, std::vect
         Enemy& attackerData = registry.enemies.get(attacker);
         Enemy& targetData = registry.enemies.get(target);
 
-        // collision damage only applies to boars
-        if(!registry.boars.has(attacker)) {
-            return;
+
+        bool apply = false;
+
+        if (registry.boars.has(attacker)) {
+            Boar& boar = registry.boars.get(attacker);
+            if (boar.charging) {
+                // damage should only apply when boar is charging 
+                // (boars can be colliding with others while walking)
+                apply = true;
+            }
+        }
+        else if (registry.trolls.has(attacker)) {
+            apply = true;
+        }
+        else if (registry.birds.has(attacker) && !registry.birds.has(target)) {
+            apply = true;
         }
 
-        Boar& boar = registry.boars.get(attacker);
-
-        // damage should only apply when boar is charging 
-        // (boars can be colliding with others while walking)
-        if(!boar.charging) return;
+        if (!apply) {
+            return;
+        }
 
         targetData.health -= attackerData.damage;
         was_damaged.push_back(target);
@@ -825,13 +836,13 @@ void WorldSystem::checkAndHandleEnemyDeath(Entity enemy) {
 
 void WorldSystem::knock(Entity knocked, Entity knocker)
 {
-    const float KNOCK_ANGLE = M_PI / 4;  // 45 degrees
-    float strength = 1;
-
-    // Skip if entity being knocked is not knockable
-    if (!registry.knockables.has(knocked)) {
+    // Skip if entities are not suitable
+    if (!registry.knockables.has(knocked) || !registry.knockers.has(knocker)) {
         return;
     }
+
+    const float KNOCK_ANGLE = M_PI / 4;  // 45 degrees
+    float strength = registry.knockers.get(knocker).strength;
 
     Motion& knockedMotion = registry.motions.get(knocked);
     Motion& knockerMotion = registry.motions.get(knocker);

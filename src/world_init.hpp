@@ -57,6 +57,7 @@ const float ARCHER_SPEED = 0.2;
 const float BIRD_SPEED = 0.3;
 const float WIZARD_SPEED = 0.1;
 const float PLAYER_SPEED = 0.5;
+const float TROLL_SPEED = 0.3;
 
 const std::unordered_map<std::string, vec2> entity_sizes = {
 	{"boar", { BOAR_BB_WIDTH, BOAR_BB_HEIGHT }},

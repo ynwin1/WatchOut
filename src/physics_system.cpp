@@ -249,7 +249,7 @@ void PhysicsSystem::updatePositions(float elapsed_ms)
 		if (registry.players.has(entity) && motion.position.z <= groundZ) {
 			Player& player_comp = registry.players.get(entity);
 
-			float player_speed = player_comp.speed;
+			float player_speed = motion.speed;
 			if (!player_comp.isMoving) player_speed = 0;
 			else if (player_comp.isRunning) player_speed *= 2;
 

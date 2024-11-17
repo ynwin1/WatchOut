@@ -15,7 +15,6 @@ struct Player {
 	bool tryingToJump;	// Key for jumping is held down
 	bool isMoving;		// Indicates if any movement keys are pressed
 	float speed = 0.5;
-	bool isTrapped = false;
 };
 
 //Stamina
@@ -44,9 +43,12 @@ struct Enemy
 	unsigned int damage = 10;
 	std::string type;
 	unsigned int cooldown = 0;
-	float speed = 0;
 	float pathfindTime = 0;
+};
+
+struct Trappable {
 	bool isTrapped = false;
+	float originalSpeed = 0;
 };
 
 struct Damaging {
@@ -111,6 +113,7 @@ struct Motion {
 	vec3 position = { 0, 0, 0 };
 	float angle = 0;
 	vec3 velocity = { 0, 0, 0 };
+	float speed = 0;			// max voluntary speed
 	vec2 scale = { 10, 10 };	// only for rendering
 	vec2 facing = { 0, 0 };		// direction the entity is facing
 

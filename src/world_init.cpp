@@ -20,7 +20,7 @@ Entity createBoar(vec2 pos)
 
 	Enemy& enemy = registry.enemies.emplace(entity);
 	enemy.damage = 20;
-	enemy.speed = BOAR_SPEED;
+	motion.speed = BOAR_SPEED;
 
 	registry.boars.emplace(entity);
 	
@@ -37,6 +37,8 @@ Entity createBoar(vec2 pos)
 	createHealthBar(entity, vec3(1.0f, 0.0f, 0.0f));
 
 	registry.knockables.emplace(entity);
+	auto& trappable = registry.trappables.emplace(entity);
+	trappable.originalSpeed = BOAR_SPEED;
 	
 	return entity;
 };
@@ -57,7 +59,7 @@ Entity createBarbarian(vec2 pos)
 	Enemy& enemy = registry.enemies.emplace(entity);
 	enemy.damage = 30;
 	enemy.cooldown = 1000;
-	enemy.speed = BARBARIAN_SPEED;
+	motion.speed = BARBARIAN_SPEED;
 
 	registry.barbarians.emplace(entity);
 
@@ -67,6 +69,8 @@ Entity createBarbarian(vec2 pos)
 	createHealthBar(entity, vec3(1.0f, 0.0f, 0.0f));
 
 	registry.knockables.emplace(entity);
+	auto& trappable = registry.trappables.emplace(entity);
+	trappable.originalSpeed = BARBARIAN_SPEED;
 
 	return entity;
 };
@@ -86,7 +90,7 @@ Entity createArcher(vec2 pos)
 
 	Enemy& enemy = registry.enemies.emplace(entity);
 	enemy.damage = 40;
-	enemy.speed = ARCHER_SPEED;
+	motion.speed = ARCHER_SPEED;
 
 	registry.archers.emplace(entity);
 
@@ -96,6 +100,8 @@ Entity createArcher(vec2 pos)
 	createHealthBar(entity, vec3(1.0f, 0.0f, 0.0f));
 
 	registry.knockables.emplace(entity);
+	auto& trappable = registry.trappables.emplace(entity);
+	trappable.originalSpeed = ARCHER_SPEED;
 	
 	return entity;
 };
@@ -124,7 +130,7 @@ Entity createBirdFlock(vec2 pos)
         Enemy& enemy = registry.enemies.emplace(entity);
         enemy.damage = 10;
         enemy.cooldown = 2000.f;
-        enemy.speed = BIRD_SPEED;
+        motion.speed = BIRD_SPEED;
 
         registry.birds.emplace(entity);
 
@@ -156,7 +162,7 @@ Entity createWizard(vec2 pos) {
 	Enemy& enemy = registry.enemies.emplace(entity);
 	enemy.damage = 60;
 	enemy.cooldown = 8000.f; // 8s
-	enemy.speed = WIZARD_SPEED;
+	motion.speed = WIZARD_SPEED;
 
 	registry.wizards.emplace(entity);
 
@@ -164,6 +170,10 @@ Entity createWizard(vec2 pos) {
 	registry.midgrounds.emplace(entity);
 
 	createHealthBar(entity, vec3(1.0f, 0.0f, 0.0f));
+
+	registry.knockables.emplace(entity);
+	auto& trappable = registry.trappables.emplace(entity);
+	trappable.originalSpeed = WIZARD_SPEED;
 
 	return entity;
 }
@@ -183,7 +193,7 @@ Entity createTroll(vec2 pos)
 	Enemy& enemy = registry.enemies.emplace(entity);
 	enemy.damage = 10;
 	enemy.cooldown = 0;
-	enemy.speed = 0;
+	motion.speed = 0;
 	enemy.maxHealth = 200;
 	enemy.health = enemy.maxHealth;
 
@@ -324,6 +334,7 @@ Entity createJeff(vec2 position)
 	motion.scale = vec2({ 32. * SPRITE_SCALE, 32. * SPRITE_SCALE});
 	motion.hitbox = { JEFF_BB_WIDTH, JEFF_BB_WIDTH, JEFF_BB_HEIGHT / zConversionFactor };
 	motion.solid = true;
+	motion.speed = PLAYER_SPEED;
 
 	auto& jumper = registry.jumpers.emplace(entity);
 	jumper.speed = 2;
@@ -333,6 +344,8 @@ Entity createJeff(vec2 position)
 	registry.midgrounds.emplace(entity);
 
 	registry.knockables.emplace(entity);
+	auto& trappable = registry.trappables.emplace(entity);
+	trappable.originalSpeed = PLAYER_SPEED;
 	
 	return entity;
 }

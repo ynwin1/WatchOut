@@ -258,27 +258,11 @@ void WorldSystem::handle_collisions()
 }
 
 void WorldSystem::resetTrappedEntities() {
-    Player& player = registry.players.get(playerEntity);
-    player.isTrapped = false;
-    player.speed = PLAYER_SPEED;
-
-    for (auto& entity : registry.enemies.entities) {
-        Enemy& enemy = registry.enemies.get(entity);
-        enemy.isTrapped = false;
-        if (registry.boars.has(entity)) {
-            enemy.speed = BOAR_SPEED;
-        }
-        else if (registry.barbarians.has(entity)) {
-            enemy.speed = BARBARIAN_SPEED;
-        }
-        else if (registry.archers.has(entity)) {
-            enemy.speed = ARCHER_SPEED;
-        }
-        else if (registry.wizards.has(entity)) {
-            enemy.speed = WIZARD_SPEED;
-        }
-        else if (registry.birds.has(entity)) {
-            enemy.speed = BIRD_SPEED;
+    for (Entity entity : registry.trappables.entities) {
+        if (registry.motions.has(entity)) {
+            Trappable& trappable = registry.trappables.get(entity);
+            trappable.isTrapped = false;
+            registry.motions.get(entity).speed = trappable.originalSpeed;
         }
     }
 }
@@ -428,6 +412,7 @@ void WorldSystem::movementControls(int key, int action, int mod)
     Motion& player_motion = registry.motions.get(playerEntity);
     Dash& player_dash = registry.dashers.get(playerEntity);
     Stamina& player_stamina = registry.staminas.get(playerEntity);
+    Trappable& player_trappable = registry.trappables.get(playerEntity);
 
     if (action != GLFW_PRESS && action != GLFW_RELEASE) {
         return;
@@ -487,7 +472,7 @@ void WorldSystem::movementControls(int key, int action, int mod)
         break;
     case GLFW_KEY_SPACE:
         // Jump
-        if (pressed && !player_comp.isTrapped) {
+        if (pressed && !player_trappable.isTrapped) {
             const float JUMP_STAMINA = 20;
             if (player_stamina.stamina >= JUMP_STAMINA && !player_comp.tryingToJump) {
                 player_comp.tryingToJump = true;
@@ -685,32 +670,18 @@ void WorldSystem::entity_collectible_collision(Entity entity, Entity entity_othe
 void WorldSystem::entity_trap_collision(Entity entity, Entity entity_other, std::vector<Entity>& was_damaged) {
     Trap& trap = registry.traps.get(entity_other);
 
-    if (registry.players.has(entity)) {
-        Player& player = registry.players.get(playerEntity);
-    
-        // apply slow effect
-        player.isTrapped = true;
-        player.speed *= trap.slowFactor;
-
-        checkAndHandlePlayerDeath(entity);
-	}
-	else if (registry.enemies.has(entity)) {
-        Enemy& enemy = registry.enemies.get(entity);
+    if (registry.trappables.has(entity)) {
+        Trappable& trappable = registry.trappables.get(entity);
+        Motion& motion = registry.motions.get(entity);
 
         // apply slow effect
-        enemy.isTrapped = true;
-        enemy.speed *= trap.slowFactor;
+        motion.speed *= trap.slowFactor;
+        trappable.isTrapped = true;
 
         // if boar is charging, stop mid-charge 
         if(registry.boars.has(entity)) {
             registry.boars.get(entity).charging = false;
         }
-      
-		checkAndHandleEnemyDeath(entity);
-	}
-	else {
-		printf("Entity is not a player or enemy\n");
-		return;
 	}
 }
 

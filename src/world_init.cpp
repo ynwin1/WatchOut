@@ -193,7 +193,7 @@ Entity createTroll(vec2 pos)
 
 	createHealthBar(entity, vec3(1.0f, 0.0f, 0.0f));
 
-	initBarbarianAnimationController(entity);
+	initTrollAnimationController(entity);
 
 	return entity;
 }

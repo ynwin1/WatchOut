@@ -107,6 +107,7 @@ public:
 		registry_list.push_back(&archers);
 		registry_list.push_back(&birds);
 		registry_list.push_back(&wizards);
+		registry_list.push_back(&trolls);
 		registry_list.push_back(&hearts);
 		registry_list.push_back(&collectibleTraps);
 

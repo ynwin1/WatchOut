@@ -8,6 +8,8 @@
 #include <render_system.hpp>
 #include <physics_system.hpp>
 #include <ai_system.hpp>
+#include <sound_system.hpp>
+#include<game_state_controller.hpp>
 #include "game_state_controller.hpp"
 
 // Container for all our entities and game logic
@@ -17,7 +19,7 @@ public:
 	WorldSystem(std::default_random_engine& rng);
 
 	// starts the game
-	void init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics, AISystem* ai);
+	void init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics, AISystem* ai, SoundSystem* sound);
 
 	// Releases all associated resources
 	~WorldSystem();
@@ -53,7 +55,7 @@ private:
 	const unsigned int MAX_BOARS = 1;
 	const unsigned int MAX_BABARIANS = 1;
 	const unsigned int MAX_ARCHERS = 0;
-	const unsigned int MAX_BIRD_FLOCKS = 0;
+	const unsigned int MAX_BIRD_FLOCKS = -1;
 	const unsigned int MAX_WIZARDS = -1;
 	const unsigned int MAX_TROLLS = 3;
 	const unsigned int MAX_HEARTS = 2;
@@ -68,6 +70,7 @@ private:
 	PhysicsSystem* physics;
 	AISystem* ai;
 	Camera* camera;
+	SoundSystem* sound;
 	TrapsCounter trapsCounter;
 
 	bool isWindowed = false;
@@ -90,6 +93,10 @@ private:
 	// Key uses entities cast to ints for comparisons.
 	std::map<std::pair<int, int>, float> collisionCooldowns;
 
+	// Sound variables
+	bool isMovingSoundPlaying = false;
+	bool isBirdFlockSoundPlaying = false;
+
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);
 	void on_mouse_move(vec2 mouse_position);
@@ -97,6 +104,7 @@ private:
 	// restart level
 	void restart_game();
 	void initText();
+	void soundSetUp();
 
 	// Actions performed for each step
 	void spawn(float elapsed_ms);
@@ -114,7 +122,7 @@ private:
 	void toggleMesh();
 	void adjustSpawnSystem(float elapsed_ms);
 	void resetSpawnSystem();
-
+	void inGameSounds();
 	void loadAndSaveHighScore(bool save);
 	void on_window_focus(int focused);
 	void destroyDamagings();
@@ -136,6 +144,14 @@ private:
 	void handleEnemyCollision(Entity attacker, Entity target, std::vector<Entity>& was_damaged);
 	void checkAndHandleEnemyDeath(Entity entity);
 	void knock(Entity knocked, Entity knocker);
+
+	// Controls
+	void allStateControls(int key, int action, int mod);
+	void movementControls(int key, int action, int mod);
+	void playingControls(int key, int action, int mod);
+	void pauseControls(int key, int action, int mod);
+	void gameOverControls(int key, int action, int mod);
+	void helpControls(int key, int action, int mod);
 
 	// Help/Pause Menu functions
 	Entity createHelpMenu(vec2 cameraPosition);

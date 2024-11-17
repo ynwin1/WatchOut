@@ -15,6 +15,6 @@ You are the lone survivor trapped in the world of Draugamoor, forced to face Kin
 | Place trap| Q or W|
 | Pause     | P |
 | Restart   | Enter |
-| Quit      | Esc |
+| Quit      | Pause then Q |
 
 

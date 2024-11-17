@@ -1,7 +1,6 @@
 #include "world_system.hpp"
 #include "tiny_ecs_registry.hpp"
 #include "common.hpp"
-#include "world_init.hpp"
 #include "physics_system.hpp"
 #include "sound_system.hpp"
 #include "game_state_controller.hpp"
@@ -10,17 +9,7 @@
 #include <sstream>
 #include <fstream> 
 
-WorldSystem::WorldSystem(std::default_random_engine& rng) :
-    spawn_functions({
-        {"boar", createBoar},
-        {"barbarian", createBarbarian},
-        {"archer", createArcher},
-        {"bird", createBirdFlock},
-	    {"wizard", createWizard},
-        {"troll", createTroll},
-        {"heart", createHeart},
-		{"collectible_trap", createCollectibleTrap}
-        })
+WorldSystem::WorldSystem(std::default_random_engine& rng)
 {
     this->gameStateController = GameStateController();
     this->gameStateController.init(GAME_STATE::PLAYING, this);
@@ -65,17 +54,6 @@ void WorldSystem::restart_game()
     createCliffs(window);
     createTrees(renderer);
     createObstacles();
-
-    entity_types = {
-        "barbarian",
-        "boar",
-        "archer",
-        "bird",
-        "wizard",
-        "troll",
-        "heart",
-        "collectible_trap"
-    };
     
     // Create player entity
     playerEntity = createJeff(vec2(world_size_x / 2.f, world_size_y / 2.f));
@@ -623,7 +601,9 @@ void WorldSystem::spawn(float elapsed_ms)
 		int currentEntitySize = registry.spawnable_lists.at(entity_type)->size();
         if (registry.enemies.size() < MAX_TOTAL_ENEMIES && 
             next_spawns.at(entity_type) < 0 && 
-            currentEntitySize < maxEntitySize) {
+            currentEntitySize < maxEntitySize) 
+        {
+            printf("Spawning: %s\n", entity_type.c_str());
             vec2 spawnLocation = get_spawn_location(entity_type);
             spawn_func f = spawn_functions.at(entity_type);
             (*f)(spawnLocation);
@@ -1061,24 +1041,10 @@ void WorldSystem::adjustSpawnSystem(float elapsed_ms) {
 
 void WorldSystem::resetSpawnSystem() {
 	// Reset spawn delays
-	spawn_delays["boar"] = ORIGINAL_BOAR_SPAWN_DELAY;
-	spawn_delays["barbarian"] = ORIGINAL_BABARIAN_SPAWN_DELAY;
-	spawn_delays["archer"] = ORIGINAL_ARCHER_SPAWN_DELAY;
-    spawn_delays["bird"] = ORIGINAL_BIRD_SPAWN_DELAY;
-    spawn_delays["wizard"] = ORIGINAL_WIZARD_SPAWN_DELAY;
-    spawn_delays["troll"] = ORIGINAL_TROLL_SPAWN_DELAY;
-	spawn_delays["heart"] = ORIGINAL_HEART_SPAWN_DELAY;
-	spawn_delays["collectible_trap"] = ORIGINAL_TRAP_SPAWN_DELAY;
+    spawn_delays = initial_spawn_delays;
 
 	// Reset max entities
-	max_entities["boar"] = MAX_BOARS;
-	max_entities["barbarian"] = MAX_BABARIANS;
-	max_entities["archer"] = MAX_ARCHERS;
-    max_entities["bird"] = MAX_BIRD_FLOCKS;
-	max_entities["wizard"] = MAX_WIZARDS;
-    max_entities["troll"] = MAX_TROLLS;
-	max_entities["heart"] = MAX_HEARTS;
-	max_entities["collectible_trap"] = MAX_TRAPS;
+    max_entities = initial_max_entities;
 }
 
 // Pause the game when the window loses focus

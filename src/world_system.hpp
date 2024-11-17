@@ -9,8 +9,8 @@
 #include <physics_system.hpp>
 #include <ai_system.hpp>
 #include <sound_system.hpp>
-#include<game_state_controller.hpp>
-#include "game_state_controller.hpp"
+#include <world_init.hpp>
+#include <game_state_controller.hpp>
 
 // Container for all our entities and game logic
 class WorldSystem
@@ -41,15 +41,6 @@ public:
 
 private:
 	// CONSTANTS
-	// Spawn delays
-	const float ORIGINAL_BOAR_SPAWN_DELAY = 3000.0f;
-	const float ORIGINAL_BABARIAN_SPAWN_DELAY = 5000.0f;
-	const float ORIGINAL_ARCHER_SPAWN_DELAY = 7000.0f;
-	const float ORIGINAL_BIRD_SPAWN_DELAY = 2000.0f;
-	const float ORIGINAL_WIZARD_SPAWN_DELAY = 5000.0f;
-	const float ORIGINAL_TROLL_SPAWN_DELAY = 0;
-	const float ORIGINAL_HEART_SPAWN_DELAY = 10000.0f;
-	const float ORIGINAL_TRAP_SPAWN_DELAY = 7000.0f;
 
 	// Max entities at start
 	const unsigned int MAX_BOARS = 1;
@@ -81,13 +72,54 @@ private:
 	int highScoreSeconds = 0;
 
 	Entity playerEntity;
-	std::vector<std::string> entity_types;
 	std::unordered_map<std::string, float> spawn_delays;
-	std::unordered_map<std::string, unsigned int> max_entities;
+	std::unordered_map<std::string, int> max_entities;
 	std::unordered_map<std::string, float> next_spawns;
 
+	std::vector<std::string> entity_types = {
+		"boar",
+		"barbarian",
+		"archer",
+		"bird",
+		"wizard",
+		"troll",
+		"heart",
+		"collectible_trap"
+	};
+
+	const std::unordered_map<std::string, int> initial_max_entities = {
+		{"boar", 1},
+		{"barbarian", 1},
+		{"archer", -1},
+		{"bird", -2},
+		{"wizard", -3},
+		{"troll", 3},
+		{"heart", 2},
+		{"collectible_trap", 2}
+	};
+
+	const std::unordered_map<std::string, float> initial_spawn_delays = {
+		{"boar", 3000.0f},
+		{"barbarian", 5000.0f},
+		{"archer", 7000.0f},
+		{"bird", 2000.0f},
+		{"wizard", 5000.0f},
+		{"troll", 0.0f},
+		{"heart", 10000.0f},
+		{"collectible_trap", 7000.0f}
+	};
+
 	using spawn_func = Entity(*)(vec2);
-	const std::unordered_map<std::string, spawn_func> spawn_functions;
+	const std::unordered_map<std::string, spawn_func> spawn_functions = {
+        {"boar", createBoar},
+        {"barbarian", createBarbarian},
+        {"archer", createArcher},
+        {"bird", createBirdFlock},
+	    {"wizard", createWizard},
+        {"troll", createTroll},
+        {"heart", createHeart},
+		{"collectible_trap", createCollectibleTrap}
+    };
 
 	// Keeps track of what collisions have been handled recently.
 	// Key uses entities cast to ints for comparisons.

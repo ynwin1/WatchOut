@@ -570,6 +570,7 @@ void WorldSystem::despawnTraps(float elapsed_ms) {
 }
 
 void WorldSystem::update_cooldown(float elapsed_ms) {
+    // Tick type-specific cooldowns
     for (auto& cooldownEntity : registry.cooldowns.entities) {
         Cooldown& cooldown = registry.cooldowns.get(cooldownEntity);
         cooldown.remaining -= elapsed_ms;
@@ -587,16 +588,17 @@ void WorldSystem::update_cooldown(float elapsed_ms) {
                 registry.cooldowns.remove(cooldownEntity);
             }
         }
+    }
 
-        auto it = collisionCooldowns.begin();
-        while (it != collisionCooldowns.end()) {
-            it->second -= elapsed_ms;
-            if (it->second <= 0) {
-                it = collisionCooldowns.erase(it);
-            }
-            else {
-                it++;
-            }
+    // Tick general collision cooldowns
+    auto it = collisionCooldowns.begin();
+    while (it != collisionCooldowns.end()) {
+        it->second -= elapsed_ms;
+        if (it->second <= 0) {
+            it = collisionCooldowns.erase(it);
+        }
+        else {
+            it++;
         }
     }
 }
@@ -706,7 +708,6 @@ void WorldSystem::entity_trap_collision(Entity entity, Entity entity_other, std:
     Trap& trap = registry.traps.get(entity_other);
 
     if (registry.players.has(entity)) {
-        printf("Player hit a trap\n");
         Player& player = registry.players.get(playerEntity);
     
         // apply slow effect
@@ -716,7 +717,6 @@ void WorldSystem::entity_trap_collision(Entity entity, Entity entity_other, std:
         checkAndHandlePlayerDeath(entity);
 	}
 	else if (registry.enemies.has(entity)) {
-        printf("Enemy hit a trap\n");
         Enemy& enemy = registry.enemies.get(entity);
 
         // apply slow effect

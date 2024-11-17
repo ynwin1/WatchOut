@@ -142,6 +142,10 @@ Entity createBirdFlock(vec2 pos)
         {
             repBird = entity;
         }
+
+		registry.knockables.emplace(entity);
+		auto& trappable = registry.trappables.emplace(entity);
+		trappable.originalSpeed = BIRD_SPEED;
     }
     return repBird;
 }

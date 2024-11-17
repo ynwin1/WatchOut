@@ -3,6 +3,7 @@
 #include "common.hpp"
 #include "world_init.hpp"
 #include "physics_system.hpp"
+#include "sound_system.hpp"
 #include "game_state_controller.hpp"
 #include <iostream>
 #include <iomanip> 
@@ -43,7 +44,7 @@ WorldSystem::WorldSystem(std::default_random_engine& rng) :
     this->rng = rng;
 }
 
-void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics, AISystem* ai)
+void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics, AISystem* ai, SoundSystem* sound)
 {
     
     this->renderer = renderer;
@@ -51,6 +52,7 @@ void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camer
     this->camera = camera;
     this->physics = physics;
     this->ai = ai;
+	this->sound = sound;
 
     // Setting callbacks to member functions (that's why the redirect is needed)
     // Input is handled using GLFW, for more info see
@@ -100,6 +102,7 @@ void WorldSystem::restart_game()
     show_mesh = false;
     resetSpawnSystem();
     initText();
+    soundSetUp();
 
     next_spawns = spawn_delays;
     loadAndSaveHighScore(false);
@@ -173,6 +176,7 @@ bool WorldSystem::step(float elapsed_ms)
     updateGameTimer(elapsed_ms);
     updateTrapsCounterText();
     toggleMesh();
+    inGameSounds();
     accelerateFireballs(elapsed_ms);
     despawnTraps(elapsed_ms);
     updateCollectedTimer(elapsed_ms);
@@ -333,6 +337,9 @@ void WorldSystem::on_key(int key, int, int action, int mod)
         playingControls(key, action, mod);
         break;
     case GAME_STATE::PAUSED:
+        //isMovingSoundPlaying = false;
+        //isBirdFlockSoundPlaying = false;
+        sound->stopAllSoundEffects();
         pauseControls(key, action, mod);
         break;
     case GAME_STATE::GAMEOVER:
@@ -391,7 +398,7 @@ void WorldSystem::playingControls(int key, int action, int mod)
 {
     Player& player_comp = registry.players.get(playerEntity);
     Motion& player_motion = registry.motions.get(playerEntity);
-
+  
     if (action == GLFW_PRESS) {
         switch (key) {
         case GLFW_KEY_W:
@@ -423,6 +430,7 @@ void WorldSystem::gameOverControls(int key, int action, int mod)
         }
     }
 }
+
 
 void WorldSystem::allStateControls(int key, int action, int mod)
 {
@@ -509,6 +517,9 @@ void WorldSystem::movementControls(int key, int action, int mod)
                 player_dash.dashTargetPosition = player_dash.dashStartPosition + player_motion.facing * dashDistance;
                 player_dash.dashTimer = 0.0f; // Reset timer
                 player_stamina.stamina -= DASH_STAMINA;
+
+                // play dash sound
+				sound->playSoundEffect(sound->DASHING_SOUND, audio_path("dashing.wav"), 0);
             }
         }
         break;
@@ -528,6 +539,8 @@ void WorldSystem::movementControls(int key, int action, int mod)
                         if (player_stamina.stamina < 0) {
                             player_stamina.stamina = 0;
                         }
+                        // play jump sound
+                        sound->playSoundEffect(sound->JUMPING_SOUND, audio_path("jumping.wav"), 0);
                     }
                 }
             }
@@ -700,6 +713,7 @@ void WorldSystem::entity_collectible_collision(Entity entity, Entity entity_othe
 		printf("Unknown collectible type\n");
 	}
 
+	sound->playSoundEffect(sound->COLLECT_SOUND, audio_path("collect.wav"), 0);
     // destroy the collectible
     registry.remove_all_components_of(entity_other);
 }
@@ -943,7 +957,9 @@ void WorldSystem::checkAndHandlePlayerDeath(Entity& entity) {
 		Motion& motion = registry.motions.get(entity);
 		motion.angle = M_PI / 2; // Rotate player 90 degrees
         motion.hitbox = { motion.hitbox.z, motion.hitbox.y, motion.hitbox.x }; // Change hitbox to be on its side
-		printf("Player died\n");
+
+        sound->stopAllSounds();
+		sound->playSoundEffect(sound->PLAYER_DEATH_MUSIC, audio_path("playerDeath.wav"), -1);
 	}
 }
 
@@ -1055,6 +1071,7 @@ void WorldSystem::adjustSpawnSystem(float elapsed_ms) {
 			maxEntity.second++;
 		}
 		gameTimer.elapsed = 0;
+        sound->playSoundEffect(sound->LEVELUP_SOUND, audio_path("levelUp.wav"), 0);
 	}
 }
 
@@ -1097,8 +1114,53 @@ void WorldSystem::accelerateFireballs(float elapsed_ms) {
             direction = normalize(direction);
 
             // accelerate in the calculated direction
-            fireballMotion.velocity.x += (direction.x) * FIREBALL_ACCELERATION * (elapsed_ms/1000);
-            fireballMotion.velocity.y += (direction.y) * FIREBALL_ACCELERATION * (elapsed_ms/1000);
+            fireballMotion.velocity.x += (direction.x) * FIREBALL_ACCELERATION * (elapsed_ms / 1000);
+            fireballMotion.velocity.y += (direction.y) * FIREBALL_ACCELERATION * (elapsed_ms / 1000);
+        }
+    }
+}
+
+void WorldSystem::soundSetUp() {
+    int VOLUME = 10;
+    // stop all sounds first
+    sound->stopAllSounds();
+    // init sound system
+    sound->init();
+    // play background music
+    sound->playMusic(sound->BACKGROUND_MUSIC, audio_path("mystery_background.wav"), -1, VOLUME);
+}
+
+void WorldSystem::inGameSounds() {
+	Player& player = registry.players.get(playerEntity);
+    // monitoring player movement
+    if (player.isMoving) {
+        if (!isMovingSoundPlaying) {
+            // walking sound
+            sound->playSoundEffect(sound->WALKING_SOUND, audio_path("walking.wav"), -1);
+            isMovingSoundPlaying = true;
+        }
+    }
+    else {
+        if (isMovingSoundPlaying) {
+            // stop walking sound
+            sound->stopSoundEffect(sound->WALKING_SOUND);
+            isMovingSoundPlaying = false;
+        }
+    }
+
+    // monitoring birds movement
+    if (registry.birds.size() > 0) {
+        if (!isBirdFlockSoundPlaying) {
+            // birds sound
+            sound->playSoundEffect(sound->BIRD_FLOCK_SOUND, audio_path("birds_flock.wav"), -1);
+            isBirdFlockSoundPlaying = true;
+        }
+    }
+    else {
+        if (isBirdFlockSoundPlaying) {
+            // stop birds sound
+            sound->stopSoundEffect(sound->BIRD_FLOCK_SOUND);
+            isBirdFlockSoundPlaying = false;
         }
     }
 }

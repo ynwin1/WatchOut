@@ -1,12 +1,13 @@
 #pragma once
 
 #include "tiny_ecs_registry.hpp"
+#include "sound_system.hpp"
 
 #include <random>
 
 class AISystem {
 public:
-	AISystem(std::default_random_engine& rng);
+	AISystem(std::default_random_engine& rng, SoundSystem* sound);
 	void step(float elapsed_ms);
 	void boarReset(Entity boar);
 
@@ -44,4 +45,6 @@ private:
 	// C++ random number generator
 	std::default_random_engine rng;
 	std::uniform_real_distribution<float> uniform_dist; // number between 0..1
+
+	SoundSystem* sound;
 };

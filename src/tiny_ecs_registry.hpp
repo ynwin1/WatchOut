@@ -60,6 +60,7 @@ public:
 	ComponentContainer<Archer> archers;
 	ComponentContainer<Bird> birds;
 	ComponentContainer<Wizard> wizards;
+	ComponentContainer<Troll> trolls;
 	ComponentContainer<Heart> hearts;
 	ComponentContainer<CollectibleTrap> collectibleTraps;
 
@@ -119,6 +120,7 @@ public:
 		spawnable_lists["archer"] = &archers;
 		spawnable_lists["bird"] = &birds;
 		spawnable_lists["wizard"] = &wizards;
+		spawnable_lists["troll"] = &trolls;
 		spawnable_lists["heart"] = &hearts;
 		spawnable_lists["collectible_trap"] = &collectibleTraps;
 	}

@@ -166,7 +166,38 @@ Entity createWizard(vec2 pos) {
 	createHealthBar(entity, vec3(1.0f, 0.0f, 0.0f));
 
 	return entity;
-};
+}
+
+Entity createTroll(vec2 pos)
+{
+	auto entity = Entity();
+
+	// Setting intial motion values
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = vec3(pos, getElevation(pos) + TROLL_BB_HEIGHT / 2);
+	motion.angle = 0.f;
+	motion.scale = { 32. * SPRITE_SCALE * TROLL_SIZE_FACTOR, 36. * SPRITE_SCALE * TROLL_SIZE_FACTOR };
+	motion.hitbox = { TROLL_BB_WIDTH, TROLL_BB_WIDTH, TROLL_BB_HEIGHT / zConversionFactor };
+	motion.solid = true;
+
+	Enemy& enemy = registry.enemies.emplace(entity);
+	enemy.damage = 10;
+	enemy.cooldown = 0;
+	enemy.speed = 0;
+	enemy.maxHealth = 200;
+	enemy.health = enemy.maxHealth;
+
+	registry.trolls.emplace(entity);
+
+	registry.midgrounds.emplace(entity);
+
+	createHealthBar(entity, vec3(1.0f, 0.0f, 0.0f));
+
+	initBarbarianAnimationController(entity);
+
+	return entity;
+}
+;
 
 // Collectible trap creation
 Entity createCollectibleTrap(vec2 pos)

@@ -18,6 +18,9 @@ const float BIRD_BB_WIDTH = 23.f * SPRITE_SCALE;
 const float BIRD_BB_HEIGHT = 13.f * SPRITE_SCALE;
 const float WIZARD_BB_WIDTH = 32.f * SPRITE_SCALE;
 const float WIZARD_BB_HEIGHT = 32.f * SPRITE_SCALE;
+const float TROLL_SIZE_FACTOR = 2.f;
+const float TROLL_BB_WIDTH = BARBARIAN_BB_WIDTH * TROLL_SIZE_FACTOR;
+const float TROLL_BB_HEIGHT = BARBARIAN_BB_HEIGHT * TROLL_SIZE_FACTOR;
 const float JEFF_BB_WIDTH   = 20.f * SPRITE_SCALE;
 const float JEFF_BB_HEIGHT  = 28.f * SPRITE_SCALE;
 const float JEFF_RUN_BB_WIDTH   = 24.f * SPRITE_SCALE;
@@ -61,6 +64,7 @@ const std::unordered_map<std::string, vec2> entity_sizes = {
 	{"archer", { ARCHER_BB_WIDTH, ARCHER_BB_WIDTH }},
 	{"bird", { BIRD_BB_WIDTH, BIRD_BB_WIDTH }},
 	{"wizard", { WIZARD_BB_WIDTH, WIZARD_BB_HEIGHT }},
+	{"troll", { TROLL_BB_WIDTH, TROLL_BB_HEIGHT }},
 	{"heart", { HEART_BB_WIDTH, HEART_BB_WIDTH }},
 	{"collectible_trap", {TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_WIDTH}}
 };
@@ -81,8 +85,11 @@ Entity createArcher(vec2 pos);
 
 // The birds
 Entity createBirdFlock(vec2 pos);
+
 // The wizard
 Entity createWizard(vec2 pos);
+
+Entity createTroll(vec2 pos);
 
 // The collectible trap
 Entity createCollectibleTrap(vec2 pos);
@@ -105,13 +112,6 @@ Entity createFireball(vec3 pos, vec2 direction);
 // Lightning bolt from the sky
 Entity createLightning(vec2 pos);
 
-// Pause UI
-Entity createPauseMenu(vec2 windowSize);
-
-// Help Menu UI
-Entity createHelpMenu(vec2 windowSize);
-void exitHelpMenu();
-
 // Playing UI
 Entity createPauseHelpText(vec2 windowSize);
 Entity createFPSText(vec2 windowSize);
@@ -122,9 +122,6 @@ Entity createGameTimerText(vec2 windowSize);
 Entity createHighScoreText(vec2 windowSize, int hours, int minutes, int seconds);
 
 Entity createTrapsCounterText(vec2 windowSize);
-
-// GameOver
-Entity createGameOver(vec2 pos);
 
 // Display bars
 void createHealthBar(Entity characterEntity, vec3 color);

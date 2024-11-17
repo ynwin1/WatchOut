@@ -40,6 +40,7 @@ struct Dash {
 struct Enemy
 {
 	unsigned int health = 100;
+	unsigned int maxHealth = 100;
 	unsigned int damage = 10;
 	std::string type;
 	unsigned int cooldown = 0;
@@ -296,6 +297,8 @@ struct Wizard {
 	
 	vec3 locked_target = vec3(0, 0, 0);
 };
+
+struct Troll {};
 
 // Collectible types
 struct Heart { unsigned int health = 20; };

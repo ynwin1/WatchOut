@@ -203,9 +203,13 @@ Entity createTroll(vec2 pos)
 	motion.scale = { 32. * SPRITE_SCALE * TROLL_SIZE_FACTOR, 36. * SPRITE_SCALE * TROLL_SIZE_FACTOR };
 	motion.hitbox = { TROLL_BB_WIDTH, TROLL_BB_WIDTH, TROLL_BB_HEIGHT / zConversionFactor };
 	motion.solid = true;
+	if (registry.players.entities.size() > 0) {
+		vec2 playerPosition = vec2(registry.motions.get(registry.players.entities.at(0)).position);
+		motion.facing = normalize(playerPosition - pos);
+	}
 
 	Enemy& enemy = registry.enemies.emplace(entity);
-	enemy.damage = 5;
+	enemy.damage = 10;
 	enemy.cooldown = 0;
 	motion.speed = 0;
 	enemy.maxHealth = 200;
@@ -216,6 +220,8 @@ Entity createTroll(vec2 pos)
 	registry.midgrounds.emplace(entity);
 
 	createHealthBar(entity, vec3(1.0f, 0.0f, 0.0f));
+
+	registry.trappables.emplace(entity);
 
 	initTrollAnimationController(entity);
 
@@ -407,7 +413,7 @@ Entity createTree(RenderSystem* renderer, vec2 pos)
 	return entity;
 }
 
-Entity createArrow(vec3 pos, vec3 velocity)
+Entity createArrow(vec3 pos, vec3 velocity, int damage)
 {
 	auto entity = Entity();
 
@@ -419,7 +425,7 @@ Entity createArrow(vec3 pos, vec3 velocity)
 	
 	registry.projectiles.emplace(entity);
 	Damaging& damaging = registry.damagings.emplace(entity);
-	damaging.damage = 50;
+	damaging.damage = damage;
 	registry.midgrounds.emplace(entity);
 
 	registry.renderRequests.insert(

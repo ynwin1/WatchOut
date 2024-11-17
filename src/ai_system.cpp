@@ -356,7 +356,7 @@ void AISystem::shootArrow(Entity shooter, vec3 targetPos)
     // Determine velocities for each dimension
     vec2 horizontal_velocity = velocity * cos(ARROW_ANGLE) * horizontal_direction;
     float vertical_velocity = velocity * sin(ARROW_ANGLE);
-    createArrow(pos, vec3(horizontal_velocity, vertical_velocity));
+    createArrow(pos, vec3(horizontal_velocity, vertical_velocity), registry.enemies.get(shooter).damage);
 	sound->playSoundEffect(sound->ARROW_SOUND,audio_path("arrow.wav"), 0);
 }
 

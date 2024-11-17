@@ -745,6 +745,10 @@ void WorldSystem::entity_obstacle_collision(Entity entity, Entity obstacle, std:
 }
 
 void WorldSystem::processPlayerEnemyCollision(Entity player, Entity enemy, std::vector<Entity>& was_damaged) {
+    // Archers do not do melee damage
+    if (registry.archers.has(enemy)) {
+        return;
+    }
 
     if (!registry.cooldowns.has(enemy)) {
         Player& playerData = registry.players.get(player);

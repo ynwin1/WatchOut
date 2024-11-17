@@ -104,7 +104,7 @@ Entity createCollected(Motion& playerM, vec2 size, TEXTURE_ASSET_ID assetID);
 Entity createDamageTrap(vec2 pos);
 
 // Arrows fired by the archer
-Entity createArrow(vec3 pos, vec3 velocity);
+Entity createArrow(vec3 pos, vec3 velocity, int damage);
 
 // Fireballs fired by the wizard
 Entity createFireball(vec3 pos, vec2 direction);

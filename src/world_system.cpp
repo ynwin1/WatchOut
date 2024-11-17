@@ -625,7 +625,7 @@ vec2 WorldSystem::get_spawn_location(const std::string& entity_type)
     {
         // Do not spawn within camera's view (with some margins)
         float exclusionTop = (camera->getPosition().y - camera->getSize().y / 2) / yConversionFactor - 100;
-        float exclusionBottom = (camera->getPosition().y + camera->getSize().y / 2) / yConversionFactor + 100;
+        float exclusionBottom = (camera->getPosition().y + camera->getSize().y / 2) / yConversionFactor + 400;
         float exclusionLeft = camera->getPosition().x - camera->getSize().x / 2 - 100;
         float exclusionRight = camera->getPosition().x + camera->getSize().x / 2 + 100;
 

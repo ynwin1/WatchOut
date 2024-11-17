@@ -646,7 +646,6 @@ void WorldSystem::entity_trap_collision(Entity entity, Entity entity_other, std:
     Trap& trap = registry.traps.get(entity_other);
 
     if (registry.players.has(entity)) {
-        printf("Player hit a trap\n");
         Player& player = registry.players.get(playerEntity);
     
         // apply slow effect
@@ -656,7 +655,6 @@ void WorldSystem::entity_trap_collision(Entity entity, Entity entity_other, std:
         checkAndHandlePlayerDeath(entity);
 	}
 	else if (registry.enemies.has(entity)) {
-        printf("Enemy hit a trap\n");
         Enemy& enemy = registry.enemies.get(entity);
 
         // apply slow effect

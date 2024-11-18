@@ -35,22 +35,22 @@ public:
 	std::string BIRD_ATTACK_SOUND = "bird_attack_sound";
 
 	const std::map<std::string, std::string> musics = {
-		{ BACKGROUND_MUSIC, audio_path("mystery_background.wav") },
+		{ BACKGROUND_MUSIC,		audio_path("mystery_background.wav") },
+		{ PLAYER_DEATH_MUSIC,	audio_path("playerDeath.wav") }
 	};
 
 	const std::map<std::string, std::string> sounds = {
-		{ PLAYER_DEATH_MUSIC,		audio_path("playerDeath.wav") },
-		{ ARROW_SOUND,				audio_path("arrow.wav") },
-		{ BOAR_CHARGE_SOUND,		audio_path("boar_charge.wav") },
-		{ STORM_SOUND,				audio_path("storm.wav") },
-		{ WALKING_SOUND,			audio_path("walking.wav") },
-		{ JUMPING_SOUND,			audio_path("jumping.wav") },
-		{ DASHING_SOUND,			audio_path("dashing.wav") },
-		{ LEVELUP_SOUND,			audio_path("levelUp.wav") },
-		{ FIREBALL_SOUND,			audio_path("fireball.wav") },
-		{ COLLECT_SOUND,			audio_path("collect.wav") },
-		{ BIRD_FLOCK_SOUND,			audio_path("birds_flock.wav") },
-		{ BIRD_ATTACK_SOUND,		audio_path("bird_attack.wav") }
+		{ ARROW_SOUND,			audio_path("arrow.wav") },
+		{ BOAR_CHARGE_SOUND,	audio_path("boar_charge.wav") },
+		{ STORM_SOUND,			audio_path("storm.wav") },
+		{ WALKING_SOUND,		audio_path("walking.wav") },
+		{ JUMPING_SOUND,		audio_path("jumping.wav") },
+		{ DASHING_SOUND,		audio_path("dashing.wav") },
+		{ LEVELUP_SOUND,		audio_path("levelUp.wav") },
+		{ FIREBALL_SOUND,		audio_path("fireball.wav") },
+		{ COLLECT_SOUND,		audio_path("collect.wav") },
+		{ BIRD_FLOCK_SOUND,		audio_path("birds_flock.wav") },
+		{ BIRD_ATTACK_SOUND,	audio_path("bird_attack.wav") }
 	};
 
 	// FUNCTIONS

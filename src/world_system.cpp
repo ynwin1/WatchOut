@@ -959,7 +959,7 @@ void WorldSystem::checkAndHandlePlayerDeath(Entity& entity) {
         motion.hitbox = { motion.hitbox.z, motion.hitbox.y, motion.hitbox.x }; // Change hitbox to be on its side
 
         sound->stopAllSounds();
-		sound->playSoundEffect(sound->PLAYER_DEATH_MUSIC, -1);
+		sound->playMusic(sound->PLAYER_DEATH_MUSIC, -1, 10);
 	}
 }
 

@@ -5,42 +5,48 @@
 
 static std::vector<vec2> getPolygonOfBoundingBox(const Motion& motion)
 {
-	std::vector<vec2> polygon;
 	vec2 pos = { motion.position.x, motion.position.z };
-	polygon.push_back(pos + rotate(vec2(+motion.hitbox.x, +motion.hitbox.z) / 2.f, motion.angle));
-	polygon.push_back(pos + rotate(vec2(-motion.hitbox.x, +motion.hitbox.z) / 2.f, motion.angle));
-	polygon.push_back(pos + rotate(vec2(-motion.hitbox.x, -motion.hitbox.z) / 2.f, motion.angle));
-	polygon.push_back(pos + rotate(vec2(+motion.hitbox.x, -motion.hitbox.z) / 2.f, motion.angle));
+	std::vector<vec2> polygon{
+		pos + rotate(vec2(+motion.hitbox.x, +motion.hitbox.z) / 2.f, motion.angle),
+		pos + rotate(vec2(-motion.hitbox.x, +motion.hitbox.z) / 2.f, motion.angle),
+		pos + rotate(vec2(-motion.hitbox.x, -motion.hitbox.z) / 2.f, motion.angle),
+		pos + rotate(vec2(+motion.hitbox.x, -motion.hitbox.z) / 2.f, motion.angle)
+	};
 	return polygon;
 }
 
-static bool collides(const Entity& a, const Entity& b)
+static bool collides(const Motion& motionA, const Motion& motionB, const std::vector<vec2>& polygonA, const std::vector<vec2>& polygonB)
 {
-	Motion& motionA = registry.motions.get(a);
-	Motion& motionB = registry.motions.get(b);
-	// position represents the center of the entity
-	vec3 a_position = motionA.position;
-	vec3 b_position = motionB.position;
-	// dimension represents the width, height, and depth of entity
-	vec3 a_dimension = motionA.hitbox;
-	vec3 b_dimension = motionB.hitbox;
-
-	// If a's bottom is higher than b's top
-	if (a_position.y > b_position.y + ((b_dimension.y + a_dimension.y) / 2.0f)) {
+	// Check if there's overlap along the Y axis
+	if (motionA.position.y > motionB.position.y + ((motionB.hitbox.y + motionA.hitbox.y) / 2.0f)) {
 		return false;
 	}
-	// If a's top is lower than b's bottom
-	if (a_position.y + ((a_dimension.y + b_dimension.y) / 2.0f) < b_position.y) {
+	if (motionA.position.y + ((motionA.hitbox.y + motionB.hitbox.y) / 2.0f) < motionB.position.y) {
 		return false;
 	}
 
-	std::vector<vec2> polygonA = getPolygonOfBoundingBox(motionA);
-	std::vector<vec2> polygonB = getPolygonOfBoundingBox(motionB);
+	// Check if there's overlap of the maximum possible extent along the XZ plane
+	float maxA = max(motionA.hitbox.x, motionA.hitbox.z);
+	float maxB = max(motionB.hitbox.x, motionB.hitbox.z);
+	if (motionA.position.x > motionB.position.x + ((maxA + maxB) / 2.0f)) {
+		return false;
+	}
+	if (motionA.position.x + ((maxA + maxB) / 2.0f) < motionB.position.x) {
+		return false;
+	}
+	if (motionA.position.z > motionB.position.z + ((maxA + maxB) / 2.0f)) {
+		return false;
+	}
+	if (motionA.position.z + ((maxA + maxB) / 2.0f) < motionB.position.z) {
+		return false;
+	}
+
+	// Check if the polygons collide
 	return polygonsCollide(polygonA, polygonB);
 }
 
 void PhysicsSystem::handleBoundsCheck() {
-	ComponentContainer<Motion> &motion_container = registry.motions;
+	ComponentContainer<Motion>& motion_container = registry.motions;
 
 	for (uint i = 0; i < motion_container.components.size(); i++) {
 		Motion& motion = motion_container.components[i];
@@ -50,7 +56,7 @@ void PhysicsSystem::handleBoundsCheck() {
 		// Check left and right bounds
 		if (motion.position.x - halfScaleX < leftBound) {
 			motion.position.x = leftBound + halfScaleX;
-		} 
+		}
 		else if (motion.position.x + halfScaleX > rightBound) {
 			motion.position.x = rightBound - halfScaleX;
 		}
@@ -58,7 +64,7 @@ void PhysicsSystem::handleBoundsCheck() {
 		// Check top and bottom bounds
 		if (motion.position.y - halfScaleY < topBound) {
 			motion.position.y = topBound + halfScaleY;
-		} 
+		}
 		else if (motion.position.y + halfScaleY > bottomBound) {
 			motion.position.y = bottomBound - halfScaleY;
 		}
@@ -69,16 +75,26 @@ void PhysicsSystem::checkCollisions()
 {
 	// Check for collisions between moving entities
 	ComponentContainer<Motion>& motions = registry.motions;
+
+	std::vector<std::vector<vec2>> boundingBoxPolygons;
+	boundingBoxPolygons.reserve(motions.size());
+	for (Entity entity : motions.entities) {
+		Motion& motion = motions.get(entity);
+		boundingBoxPolygons.push_back(getPolygonOfBoundingBox(motion));
+	}
+
 	for (uint i = 0; i < motions.components.size(); i++) {
 		Entity entity_i = motions.entities[i];
+		Motion& motion_i = motions.components[i];
 
 		for (uint j = i + 1; j < motions.components.size(); j++) {
 			Entity entity_j = motions.entities[j];
+			Motion& motion_j = motions.components[j];
 
 			// skip obstacle to obstacle collision
 			if (registry.obstacles.has(entity_i) && registry.obstacles.has(entity_j)) continue;
 
-			if (collides(entity_i, entity_j)) {
+			if (collides(motion_i, motion_j, boundingBoxPolygons.at(i), boundingBoxPolygons.at(j))) {
 				if (registry.meshPtrs.has(entity_i)) {
 					if (meshCollides(entity_i, entity_j)) {
 						handle_mesh_collision(entity_i, entity_j);
@@ -120,7 +136,7 @@ static vec3 tranformVertex(vec3 vertex, vec3 translation, float rotation, vec3 s
 {
 	// Scaling
 	vertex *= scaling;
-	
+
 	// Rotation
 	vec3 rotatedVertex{};
 	rotatedVertex.x = vertex.x * cos(rotation) - vertex.z * sin(rotation);
@@ -132,7 +148,7 @@ static vec3 tranformVertex(vec3 vertex, vec3 translation, float rotation, vec3 s
 	return rotatedVertex;
 }
 
-bool polygonsCollide(std::vector<vec2> polygon1, std::vector<vec2> polygon2) {
+bool polygonsCollide(const std::vector<vec2>& polygon1, const std::vector<vec2>& polygon2) {
 	// Check if two polygons are intersecting
 	for (int i = 0; i < 2; i++) {
 		std::vector<vec2> polygon = i == 0 ? polygon1 : polygon2;
@@ -177,7 +193,7 @@ bool PhysicsSystem::meshCollides(Entity& mesh_entity, Entity& other_entity) {
 	float halfDepth = other_motion.hitbox.y / 2;
 	float halfHeight = other_motion.hitbox.z / 2;
 	vec2 horizontalDirection = normalize(vec2(mesh_motion.position) - vec2(other_motion.position));
-	
+
 	// Initialize with big numbers that will always be overwritten
 	float minHorizontalPos = FLT_MAX;
 	float maxHorizontalPos = -FLT_MAX;
@@ -356,7 +372,7 @@ float calculate_y_overlap(Entity entity1, Entity entity2) {
 	return max(0.f, min(bottom1, bottom2) - max(top1, top2));
 }
 
-void PhysicsSystem::handle_mesh_collision(Entity mesh, Entity entity) 
+void PhysicsSystem::handle_mesh_collision(Entity mesh, Entity entity)
 {
 
 	Motion& meshMotion = registry.motions.get(mesh);
@@ -395,7 +411,7 @@ void PhysicsSystem::handle_mesh_collision(Entity mesh, Entity entity)
 	}
 }
 
-void PhysicsSystem::handle_obstacle_collision(Entity obstacle, Entity entity) 
+void PhysicsSystem::handle_obstacle_collision(Entity obstacle, Entity entity)
 {
 	Motion& obstacleM = registry.motions.get(obstacle);
 	Motion& entityM = registry.motions.get(entity);
@@ -423,7 +439,7 @@ void PhysicsSystem::handle_obstacle_collision(Entity obstacle, Entity entity)
 		entityM.position.x -= x_direction * x_overlap * RECOIL_STRENGTH;
 	}
 
-	if(registry.dashers.has(entity)) {
+	if (registry.dashers.has(entity)) {
 		registry.dashers.get(entity).isDashing = false;
 	}
 }

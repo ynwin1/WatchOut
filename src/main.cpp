@@ -47,7 +47,15 @@ int main()
 	auto t = Clock::now();
 	while (!world.is_over()) {
 		// Processes system messages, if this wasn't present the window would become unresponsive
-		glfwPollEvents();
+		if (world.gameStateController.getGameState() == GAME_STATE::PLAYING) {
+			glfwPollEvents();
+		}
+		else {
+			// Wait until an event when in a static mode
+			glfwWaitEvents();
+			t = Clock::now();
+		}
+
 		// Calculating elapsed times in milliseconds from the previous iteration
 		auto now = Clock::now();
 		float elapsed_ms = (float)(std::chrono::duration_cast<std::chrono::microseconds>(now - t)).count() / 1000;
@@ -59,7 +67,7 @@ int main()
             world.handle_collisions();
 			ai.step(elapsed_ms);
 			renderer.step(elapsed_ms);
-        }
+		}
 
 		renderer.draw();
 		

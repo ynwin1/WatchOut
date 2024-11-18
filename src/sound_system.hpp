@@ -7,6 +7,8 @@
 #include <map>
 #include <string>
 
+#include "common.hpp"
+
 class SoundSystem
 {
 public:
@@ -32,16 +34,37 @@ public:
 	std::string BIRD_FLOCK_SOUND = "bird_flock_sound";
 	std::string BIRD_ATTACK_SOUND = "bird_attack_sound";
 
+	const std::map<std::string, std::string> musics = {
+		{ BACKGROUND_MUSIC, audio_path("mystery_background.wav") },
+	};
+
+	const std::map<std::string, std::string> sounds = {
+		{ PLAYER_DEATH_MUSIC,		audio_path("playerDeath.wav") },
+		{ ARROW_SOUND,				audio_path("arrow.wav") },
+		{ BOAR_CHARGE_SOUND,		audio_path("boar_charge.wav") },
+		{ STORM_SOUND,				audio_path("storm.wav") },
+		{ WALKING_SOUND,			audio_path("walking.wav") },
+		{ JUMPING_SOUND,			audio_path("jumping.wav") },
+		{ DASHING_SOUND,			audio_path("dashing.wav") },
+		{ LEVELUP_SOUND,			audio_path("levelUp.wav") },
+		{ FIREBALL_SOUND,			audio_path("fireball.wav") },
+		{ COLLECT_SOUND,			audio_path("collect.wav") },
+		{ BIRD_FLOCK_SOUND,			audio_path("birds_flock.wav") },
+		{ BIRD_ATTACK_SOUND,		audio_path("bird_attack.wav") }
+	};
 
 	// FUNCTIONS
 	// Initialize sound system
 	bool init();
 
+	void loadAllMusic();
+	void loadAllSoundEffects();
+
 	// Play music; duration = -1 for infinite loop
-	void playMusic(const std::string& key, std::string path, int duration, int volume);
+	void playMusic(const std::string& key, int duration, int volume);
 
 	// Play sound effect
-	void playSoundEffect(const std::string& key, std::string path, int count);
+	void playSoundEffect(const std::string& key, int count);
 
 	// Stop music
 	void stopMusic(const std::string& key);
@@ -58,10 +81,14 @@ public:
 	// Stop all sounds
 	void stopAllSounds();
 
+	// Remove all sounds from memory
+	void unloadAllSounds();
+
 private:
-	std::map<std::string, std::pair<Mix_Music*, int>> musicTracks;
-	std::map<std::string, std::pair<Mix_Chunk*, int>> soundEffects;
-	Mix_Music* backgroundMusic;
+	std::map<std::string, Mix_Music*> loadedMusic;
+	std::map<std::string, Mix_Chunk*> loadedSoundEffects;
+	std::map<std::string, int> musicTracks;
+	std::map<std::string, int> soundEffects;
 };
 
 /*

@@ -259,7 +259,7 @@ void AISystem::boarBehaviour(Entity boar, vec3 playerPosition, float elapsed_ms)
                 boars.charging = true;
                 boars.chargeDirection = directionToPlayer;
                 motion.velocity = vec3(boars.chargeDirection * BOAR_CHARGE_SPEED, 0);
-                sound->playSoundEffect(sound->BOAR_CHARGE_SOUND, audio_path("boar_charge.wav"), 0);
+                sound->playSoundEffect(sound->BOAR_CHARGE_SOUND, 0);
             }
         }
     }
@@ -350,7 +350,7 @@ void AISystem::shootArrow(Entity shooter, vec3 targetPos)
     vec2 horizontal_velocity = velocity * cos(ARROW_ANGLE) * horizontal_direction;
     float vertical_velocity = velocity * sin(ARROW_ANGLE);
     createArrow(pos, vec3(horizontal_velocity, vertical_velocity));
-	sound->playSoundEffect(sound->ARROW_SOUND,audio_path("arrow.wav"), 0);
+	sound->playSoundEffect(sound->ARROW_SOUND, 0);
 }
 
 
@@ -468,7 +468,7 @@ void AISystem::swoopAttack(Entity bird, vec3 playerPosition, float elapsed_ms, c
         animationController.changeState(bird, AnimationState::Swooping);
 
 		if (birdComponent.swoopTimer == BIRD_SWOOP_DURATION) {
-			sound->playSoundEffect(sound->BIRD_ATTACK_SOUND, audio_path("bird_attack.wav"), 0);
+			sound->playSoundEffect(sound->BIRD_ATTACK_SOUND, 0);
 		}
 
         // BOID while swooping
@@ -644,7 +644,7 @@ void AISystem::processWizardPreparing(Entity entity, vec3 playerPosition, float 
     }
     else {
         if (wizard.prepareLightningTime == 0) {
-			sound->playSoundEffect(sound->STORM_SOUND, audio_path("storm.wav"), 0);
+			sound->playSoundEffect(sound->STORM_SOUND, 0);
         }
         wizard.prepareLightningTime += elapsed_ms;
     }
@@ -703,13 +703,13 @@ void AISystem::shootFireball(Entity shooter, vec3 targetPos) {
     vec3 velocity = vec3(direction * FIREBALL_SPEED, 0);
 
     createFireball(pos, direction);
-	sound->playSoundEffect(sound->FIREBALL_SOUND, audio_path("fireball.wav"), 0);
+	sound->playSoundEffect(sound->FIREBALL_SOUND, 0);
 }
 
 void AISystem::triggerLightning(vec3 target_pos) {
     const float LIGHTNING_COUNT = 3;
     sound->stopSoundEffect(sound->STORM_SOUND);
-	sound->playSoundEffect(sound->THUNDER_SOUND, audio_path("thunder.wav"), 0);
+	sound->playSoundEffect(sound->THUNDER_SOUND, 0);
     for (int i = 0; i < LIGHTNING_COUNT; i++) {
 		float angle = uniform_dist(rng) * 2 * M_PI;
 		float radius = uniform_dist(rng) * LIGHTNING_RADIUS;

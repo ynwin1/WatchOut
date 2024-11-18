@@ -32,6 +32,9 @@ vec2 rotate(vec2 v, float radians)
 
 bool gl_has_errors()
 {
+#ifndef DEBUG
+	return false;
+#else
 	GLenum error = glGetError();
 
 	if (error == GL_NO_ERROR) return false;
@@ -64,4 +67,5 @@ bool gl_has_errors()
 	}
 
 	return true;
+#endif
 }

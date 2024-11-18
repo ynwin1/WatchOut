@@ -66,11 +66,11 @@ void SoundSystem::loadAllSoundEffects()
 	}
 }
 
-void SoundSystem::playMusic(const std::string& key, int duration, int volume)
+void SoundSystem::playMusic(Music key, int duration, int volume)
 {
 	auto it = loadedMusic.find(key);
 	if (it == loadedMusic.end()) {
-		printf("Failed to find loaded music %s\n", key.c_str());
+		printf("Failed to find loaded music %d\n", key);
 		return;
 	}
 	Mix_Music* music = it->second;
@@ -84,11 +84,11 @@ void SoundSystem::playMusic(const std::string& key, int duration, int volume)
 }
 
 // count - number of times to play the sound, 0 means once, -1 means infinite loop
-void SoundSystem::playSoundEffect(const std::string& key, int count)
+void SoundSystem::playSoundEffect(Sound key, int count)
 {
 	auto it = loadedSoundEffects.find(key);
 	if (it == loadedSoundEffects.end()) {
-		printf("Failed to find loaded sound effect %s!\n", key.c_str());
+		printf("Failed to find loaded sound effect %d\n", key);
 		return;
 	}
 	Mix_Chunk* sound = it->second;
@@ -101,7 +101,7 @@ void SoundSystem::playSoundEffect(const std::string& key, int count)
 };
 
 // stop specified music
-void SoundSystem::stopMusic(const std::string& key)
+void SoundSystem::stopMusic(Music key)
 {
 	if (musicTracks.find(key) == musicTracks.end())
 	{
@@ -114,7 +114,7 @@ void SoundSystem::stopMusic(const std::string& key)
 }
 
 // stop specified sound effect
-void SoundSystem::stopSoundEffect(const std::string& key)
+void SoundSystem::stopSoundEffect(Sound key)
 {
 	if (soundEffects.find(key) == soundEffects.end())
 	{

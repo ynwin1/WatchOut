@@ -9,49 +9,50 @@
 
 #include "common.hpp"
 
+enum class Music {
+	BACKGROUND,
+	PLAYER_DEATH
+};
+
+enum class Sound {
+	ARROW,
+	BOAR_CHARGE,
+	THUNDER,
+	STORM,
+	WALKING,
+	JUMPING,
+	DASHING,
+	LEVELUP,
+	FIREBALL,
+	COLLECT,
+	BIRD_FLOCK,
+	BIRD_ATTACK
+};
+
 class SoundSystem
 {
 public:
 	SoundSystem();
 	~SoundSystem();
 
-	// KEYS
-	// Music
-	std::string BACKGROUND_MUSIC = "background_music";
-	std::string PLAYER_DEATH_MUSIC = "player_death_music";
-
-	// Sound effects
-	std::string ARROW_SOUND = "arrow_sound";
-	std::string BOAR_CHARGE_SOUND = "boar_charge_sound";
-	std::string THUNDER_SOUND = "thunder_sound";
-	std::string STORM_SOUND = "storm_sound";
-	std::string WALKING_SOUND = "walking_sound";
-	std::string JUMPING_SOUND = "jumping_sound";
-	std::string DASHING_SOUND = "dashing_sound";
-	std::string LEVELUP_SOUND = "levelup_sound";
-	std::string FIREBALL_SOUND = "fireball_sound";
-	std::string COLLECT_SOUND = "collect_sound";
-	std::string BIRD_FLOCK_SOUND = "bird_flock_sound";
-	std::string BIRD_ATTACK_SOUND = "bird_attack_sound";
-
-	const std::map<std::string, std::string> musics = {
-		{ BACKGROUND_MUSIC,		audio_path("mystery_background.wav") },
-		{ PLAYER_DEATH_MUSIC,	audio_path("playerDeath.wav") }
+	const std::map<Music, std::string> musics = {
+		{ Music::BACKGROUND,	audio_path("mystery_background.wav") },
+		{ Music::PLAYER_DEATH,	audio_path("playerDeath.wav") }
 	};
 
-	const std::map<std::string, std::string> sounds = {
-		{ ARROW_SOUND,			audio_path("arrow.wav") },
-		{ BOAR_CHARGE_SOUND,	audio_path("boar_charge.wav") },
-		{ THUNDER_SOUND,		audio_path("thunder.wav") },
-		{ STORM_SOUND,			audio_path("storm.wav") },
-		{ WALKING_SOUND,		audio_path("walking.wav") },
-		{ JUMPING_SOUND,		audio_path("jumping.wav") },
-		{ DASHING_SOUND,		audio_path("dashing.wav") },
-		{ LEVELUP_SOUND,		audio_path("levelUp.wav") },
-		{ FIREBALL_SOUND,		audio_path("fireball.wav") },
-		{ COLLECT_SOUND,		audio_path("collect.wav") },
-		{ BIRD_FLOCK_SOUND,		audio_path("birds_flock.wav") },
-		{ BIRD_ATTACK_SOUND,	audio_path("bird_attack.wav") }
+	const std::map<Sound, std::string> sounds = {
+		{ Sound::ARROW,			audio_path("arrow.wav") },
+		{ Sound::BOAR_CHARGE,	audio_path("boar_charge.wav") },
+		{ Sound::THUNDER,		audio_path("thunder.wav") },
+		{ Sound::STORM,			audio_path("storm.wav") },
+		{ Sound::WALKING,		audio_path("walking.wav") },
+		{ Sound::JUMPING,		audio_path("jumping.wav") },
+		{ Sound::DASHING,		audio_path("dashing.wav") },
+		{ Sound::LEVELUP,		audio_path("levelUp.wav") },
+		{ Sound::FIREBALL,		audio_path("fireball.wav") },
+		{ Sound::COLLECT,		audio_path("collect.wav") },
+		{ Sound::BIRD_FLOCK,	audio_path("birds_flock.wav") },
+		{ Sound::BIRD_ATTACK,	audio_path("bird_attack.wav") }
 	};
 
 	// FUNCTIONS
@@ -62,16 +63,16 @@ public:
 	void loadAllSoundEffects();
 
 	// Play music; duration = -1 for infinite loop
-	void playMusic(const std::string& key, int duration, int volume);
+	void playMusic(Music key, int duration, int volume);
 
 	// Play sound effect
-	void playSoundEffect(const std::string& key, int count);
+	void playSoundEffect(Sound key, int count);
 
 	// Stop music
-	void stopMusic(const std::string& key);
+	void stopMusic(Music key);
 
 	// Stop sound effect
-	void stopSoundEffect(const std::string& key);
+	void stopSoundEffect(Sound key);
 
 	// Stop all music
 	void stopAllMusic();
@@ -86,10 +87,10 @@ public:
 	void unloadAllSounds();
 
 private:
-	std::map<std::string, Mix_Music*> loadedMusic;
-	std::map<std::string, Mix_Chunk*> loadedSoundEffects;
-	std::map<std::string, int> musicTracks;
-	std::map<std::string, int> soundEffects;
+	std::map<Music, Mix_Music*> loadedMusic;
+	std::map<Sound, Mix_Chunk*> loadedSoundEffects;
+	std::map<Music, int> musicTracks;
+	std::map<Sound, int> soundEffects;
 };
 
 /*

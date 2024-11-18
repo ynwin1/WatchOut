@@ -1,6 +1,7 @@
 #include "ai_system.hpp"
 #include "world_init.hpp"
 #include "physics_system.hpp"
+#include "sound_system.hpp"
 
 //Boar constants
 const float BOAR_AGGRO_RANGE = 500;
@@ -16,9 +17,10 @@ const float BIRD_SWOOP_DURATION = 500;
 const float BIRD_COOLDOWN_TIME = 4000;
 
 
-AISystem::AISystem(std::default_random_engine& rng)
+AISystem::AISystem(std::default_random_engine& rng, SoundSystem* sound)
 {
     this->rng = rng;
+	this->sound = sound;
 }
 
 vec2 AISystem::randomDirection()
@@ -257,6 +259,7 @@ void AISystem::boarBehaviour(Entity boar, vec3 playerPosition, float elapsed_ms)
                 boars.charging = true;
                 boars.chargeDirection = directionToPlayer;
                 motion.velocity = vec3(boars.chargeDirection * BOAR_CHARGE_SPEED, 0);
+                sound->playSoundEffect(sound->BOAR_CHARGE_SOUND, audio_path("boar_charge.wav"), 0);
             }
         }
     }
@@ -347,6 +350,7 @@ void AISystem::shootArrow(Entity shooter, vec3 targetPos)
     vec2 horizontal_velocity = velocity * cos(ARROW_ANGLE) * horizontal_direction;
     float vertical_velocity = velocity * sin(ARROW_ANGLE);
     createArrow(pos, vec3(horizontal_velocity, vertical_velocity));
+	sound->playSoundEffect(sound->ARROW_SOUND,audio_path("arrow.wav"), 0);
 }
 
 
@@ -391,6 +395,7 @@ void AISystem::archerBehaviour(Entity entity, vec3 playerPosition, float elapsed
         moveTowardsPlayer(entity, playerPosition, elapsed_ms);
     }
 }
+
 // steer to avoid crowding local flockmates
 vec2 separation(const Motion& motion, const std::vector<Motion>& flockMates) {
     vec2 separationForce = vec2(0, 0);
@@ -462,6 +467,10 @@ void AISystem::swoopAttack(Entity bird, vec3 playerPosition, float elapsed_ms, c
     if (birdComponent.isSwooping) {
         animationController.changeState(bird, AnimationState::Swooping);
 
+		if (birdComponent.swoopTimer == BIRD_SWOOP_DURATION) {
+			sound->playSoundEffect(sound->BIRD_ATTACK_SOUND, audio_path("bird_attack.wav"), 0);
+		}
+
         // BOID while swooping
         vec2 separationForce = separation(birdMotion, flockMates) * 0.5f;
         vec2 alignmentForce = alignment(birdMotion, flockMates) * 0.3f;
@@ -485,7 +494,6 @@ void AISystem::swoopAttack(Entity bird, vec3 playerPosition, float elapsed_ms, c
         }
     }
 }
-
 
 void AISystem::birdBehaviour(Entity bird, vec3 playerPosition, float elapsed_ms) {
     Motion& birdMotion = registry.motions.get(bird);
@@ -534,6 +542,7 @@ void AISystem::birdBehaviour(Entity bird, vec3 playerPosition, float elapsed_ms)
     birdMotion.velocity = vec3(movementForce, 0.0f);
     birdMotion.facing = normalize(movementForce);
 }
+
 void AISystem::wizardBehaviour(Entity entity, vec3 playerPosition, float elapsed_ms) {
     
 	if (registry.deathTimers.has(entity)) {
@@ -634,6 +643,9 @@ void AISystem::processWizardPreparing(Entity entity, vec3 playerPosition, float 
         wizard.shoot_cooldown = 0;
     }
     else {
+        if (wizard.prepareLightningTime == 0) {
+			sound->playSoundEffect(sound->STORM_SOUND, audio_path("storm.wav"), 0);
+        }
         wizard.prepareLightningTime += elapsed_ms;
     }
 }
@@ -691,10 +703,13 @@ void AISystem::shootFireball(Entity shooter, vec3 targetPos) {
     vec3 velocity = vec3(direction * FIREBALL_SPEED, 0);
 
     createFireball(pos, direction);
+	sound->playSoundEffect(sound->FIREBALL_SOUND, audio_path("fireball.wav"), 0);
 }
 
 void AISystem::triggerLightning(vec3 target_pos) {
     const float LIGHTNING_COUNT = 3;
+    sound->stopSoundEffect(sound->STORM_SOUND);
+	sound->playSoundEffect(sound->THUNDER_SOUND, audio_path("thunder.wav"), 0);
     for (int i = 0; i < LIGHTNING_COUNT; i++) {
 		float angle = uniform_dist(rng) * 2 * M_PI;
 		float radius = uniform_dist(rng) * LIGHTNING_RADIUS;

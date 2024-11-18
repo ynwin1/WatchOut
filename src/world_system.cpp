@@ -3,6 +3,7 @@
 #include "common.hpp"
 #include "world_init.hpp"
 #include "physics_system.hpp"
+#include "sound_system.hpp"
 #include "game_state_controller.hpp"
 #include <iostream>
 #include <iomanip> 
@@ -43,7 +44,7 @@ WorldSystem::WorldSystem(std::default_random_engine& rng) :
     this->rng = rng;
 }
 
-void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics, AISystem* ai)
+void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics, AISystem* ai, SoundSystem* sound)
 {
     
     this->renderer = renderer;
@@ -51,6 +52,7 @@ void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camer
     this->camera = camera;
     this->physics = physics;
     this->ai = ai;
+	this->sound = sound;
 
     // Setting callbacks to member functions (that's why the redirect is needed)
     // Input is handled using GLFW, for more info see
@@ -100,6 +102,7 @@ void WorldSystem::restart_game()
     show_mesh = false;
     resetSpawnSystem();
     initText();
+    soundSetUp();
 
     next_spawns = spawn_delays;
     loadAndSaveHighScore(false);
@@ -173,6 +176,7 @@ bool WorldSystem::step(float elapsed_ms)
     updateGameTimer(elapsed_ms);
     updateTrapsCounterText();
     toggleMesh();
+    inGameSounds();
     accelerateFireballs(elapsed_ms);
     despawnTraps(elapsed_ms);
     updateCollectedTimer(elapsed_ms);
@@ -296,18 +300,22 @@ void WorldSystem::resetTrappedEntities() {
     player.isTrapped = false;
     player.speed = PLAYER_SPEED;
 
-    for(auto& entity : registry.enemies.entities) {
+    for (auto& entity : registry.enemies.entities) {
         Enemy& enemy = registry.enemies.get(entity);
         enemy.isTrapped = false;
-        if(registry.boars.has(entity)) {
+        if (registry.boars.has(entity)) {
             enemy.speed = BOAR_SPEED;
-        } else if(registry.barbarians.has(entity)) {
+        }
+        else if (registry.barbarians.has(entity)) {
             enemy.speed = BARBARIAN_SPEED;
-        } else if(registry.archers.has(entity)) {
+        }
+        else if (registry.archers.has(entity)) {
             enemy.speed = ARCHER_SPEED;
-        } else if(registry.wizards.has(entity)){
+        }
+        else if (registry.wizards.has(entity)) {
             enemy.speed = WIZARD_SPEED;
-        } else if(registry.birds.has(entity)){
+        }
+        else if (registry.birds.has(entity)) {
             enemy.speed = BIRD_SPEED;
         }
     }
@@ -324,160 +332,227 @@ void WorldSystem::on_mouse_move(vec2 mouse_position) {
 
 void WorldSystem::on_key(int key, int, int action, int mod)
 {
+    switch (gameStateController.getGameState()) {
+    case GAME_STATE::PLAYING:
+        playingControls(key, action, mod);
+        break;
+    case GAME_STATE::PAUSED:
+        //isMovingSoundPlaying = false;
+        //isBirdFlockSoundPlaying = false;
+        sound->stopAllSoundEffects();
+        pauseControls(key, action, mod);
+        break;
+    case GAME_STATE::GAMEOVER:
+        gameOverControls(key, action, mod);
+        break;
+    case GAME_STATE::HELP:
+        helpControls(key, action, mod);
+        break;
+    }
+    allStateControls(key, action, mod);
+    movementControls(key, action, mod);
+}
+
+void WorldSystem::helpControls(int key, int action, int mod)
+{
+    if (action == GLFW_PRESS) {
+        switch (key) {
+        case GLFW_KEY_Q:
+            glfwSetWindowShouldClose(window, true);
+            break;
+        case GLFW_KEY_ENTER:
+            restart_game();
+        case GLFW_KEY_H:
+            gameStateController.setGameState(GAME_STATE::PLAYING);
+            break;
+        case GLFW_KEY_P:
+        case GLFW_KEY_ESCAPE:
+            gameStateController.setGameState(GAME_STATE::PAUSED);
+            break;
+        }
+    }
+}
+
+void WorldSystem::pauseControls(int key, int action, int mod)
+{
+    // Close the game
+    if (action == GLFW_PRESS) {
+        switch (key) {
+        case GLFW_KEY_Q:
+            glfwSetWindowShouldClose(window, true);
+            break;
+        case GLFW_KEY_H:
+            gameStateController.setGameState(GAME_STATE::HELP);
+            break;
+        case GLFW_KEY_ENTER:
+            restart_game();
+        case GLFW_KEY_P:
+        case GLFW_KEY_ESCAPE:
+            gameStateController.setGameState(GAME_STATE::PLAYING);
+            break;
+        }
+    }
+}
+
+void WorldSystem::playingControls(int key, int action, int mod)
+{
+    Player& player_comp = registry.players.get(playerEntity);
+    Motion& player_motion = registry.motions.get(playerEntity);
+  
+    if (action == GLFW_PRESS) {
+        switch (key) {
+        case GLFW_KEY_W:
+            place_trap(player_comp, player_motion, true);
+            break;
+        case GLFW_KEY_Q:
+            place_trap(player_comp, player_motion, false);
+            break;
+        case GLFW_KEY_H:
+            gameStateController.setGameState(GAME_STATE::HELP);
+            break;
+        case GLFW_KEY_P:
+        case GLFW_KEY_ESCAPE:
+            gameStateController.setGameState(GAME_STATE::PAUSED);
+            break;
+        }
+    }
+}
+
+void WorldSystem::gameOverControls(int key, int action, int mod)
+{
+    if (action == GLFW_PRESS) {
+        switch (key) {
+        case GLFW_KEY_ENTER:
+            restart_game();
+            break;
+        case GLFW_KEY_Q:
+            glfwSetWindowShouldClose(window, true);
+        }
+    }
+}
+
+
+void WorldSystem::allStateControls(int key, int action, int mod)
+{
+    if (action == GLFW_PRESS) {
+        switch (key) {
+        case GLFW_KEY_C:
+            // toggle camera on/off for debugging/testing
+            camera->toggle();
+            break;
+        case GLFW_KEY_F:
+            // toggle fps
+            registry.fpsTracker.toggled = !registry.fpsTracker.toggled;
+            break;
+        case GLFW_KEY_V:
+            isWindowed = !isWindowed;
+            GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
+            const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
+            if (isWindowed) {
+                glfwSetWindowMonitor(window, nullptr, 50, 50, mode->width, mode->height, 0);
+            }
+            else {
+                glfwSetWindowMonitor(window, primaryMonitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+            }
+            glfwSwapInterval(1); // vsync
+            break;
+        }
+    }
+}
+
+void WorldSystem::movementControls(int key, int action, int mod)
+{
     Player& player_comp = registry.players.get(playerEntity);
     Motion& player_motion = registry.motions.get(playerEntity);
     Dash& player_dash = registry.dashers.get(playerEntity);
     Stamina& player_stamina = registry.staminas.get(playerEntity);
 
-    if (gameStateController.getGameState() == GAME_STATE::GAMEOVER) {
-        if (action == GLFW_PRESS && key == GLFW_KEY_ENTER){
-            restart_game();
-            return;
-        }
+    if (action != GLFW_PRESS && action != GLFW_RELEASE) {
+        return;
     }
 
-	if (action == GLFW_PRESS && key == GLFW_KEY_W) {
-        place_trap(player_comp, player_motion, true);
-	}
+    bool pressed = (action == GLFW_PRESS);
 
-    if (action == GLFW_PRESS && key == GLFW_KEY_Q) {
-        place_trap(player_comp, player_motion, false);
-    }
-
-    // Handle ESC key to close the game window
-    if (action == GLFW_PRESS && key == GLFW_KEY_ESCAPE) {
-        glfwSetWindowShouldClose(window, true);
-    }
-
-    // Handle EP to pause gameplay
-    if (action == GLFW_PRESS && key == GLFW_KEY_P) {
-        if(gameStateController.getGameState() != GAME_STATE::PAUSED){
-            gameStateController.setGameState(GAME_STATE::PAUSED);
-        } else{
-            gameStateController.setGameState(GAME_STATE::PLAYING);
-        }
-        
-    }
-
-    // Handle EP to display help menu
-    if (action == GLFW_PRESS && key == GLFW_KEY_H) {
-        if(gameStateController.getGameState() != GAME_STATE::HELP){
-            gameStateController.setGameState(GAME_STATE::HELP);
-        } else{
-            gameStateController.setGameState(GAME_STATE::PLAYING);
-        }
-        
-    }
-
-    // Check key actions (press/release)
-    if (action == GLFW_PRESS || action == GLFW_RELEASE)
+    // Set movement states based on key input
+    switch (key)
     {
-        bool pressed = (action == GLFW_PRESS);
+    case GLFW_KEY_UP:
+        player_comp.goingUp = pressed;
+        break;
+    case GLFW_KEY_DOWN:
+        player_comp.goingDown = pressed;
+        break;
+    case GLFW_KEY_LEFT:
+        player_comp.goingLeft = pressed;
+        break;
+    case GLFW_KEY_RIGHT:
+        player_comp.goingRight = pressed;
+        break;
+    case GLFW_KEY_LEFT_SHIFT:
+        // Sprint
+        if (player_stamina.stamina > 0) {
+            player_comp.isRunning = pressed;
+        }
+        else {
+            player_comp.isRunning = false;
+        }
+        break;
+    case GLFW_KEY_R:
+        // Roll
+        if (player_stamina.stamina > 0) {
+            player_comp.isRolling = pressed;
+        }
+        else {
+            player_comp.isRolling = false;
+        }
+        break;
+    case GLFW_KEY_D:
+        if (pressed) {
+            const float DASH_STAMINA = 40;
+            if (player_stamina.stamina > DASH_STAMINA) {
+                const float dashDistance = 300;
+                // Start dashing if player is moving
+                player_dash.isDashing = true;
+                player_dash.dashStartPosition = vec2(player_motion.position);
+                player_dash.dashTargetPosition = player_dash.dashStartPosition + player_motion.facing * dashDistance;
+                player_dash.dashTimer = 0.0f; // Reset timer
+                player_stamina.stamina -= DASH_STAMINA;
 
-        // Set movement states based on key input
-        switch (key)
-        {
-            case GLFW_KEY_UP:
-                player_comp.goingUp = pressed;
-                break;
-            case GLFW_KEY_DOWN:
-                player_comp.goingDown = pressed;
-                break;
-            case GLFW_KEY_LEFT:
-                player_comp.goingLeft = pressed;
-                break;
-            case GLFW_KEY_RIGHT:
-                player_comp.goingRight = pressed;
-                break;
-            case GLFW_KEY_LEFT_SHIFT:
-                // Sprint
-                if (player_stamina.stamina > 0) { 
-                    player_comp.isRunning = pressed;
-                } else{
-                    player_comp.isRunning = false;
-                }
-                break;
-            case GLFW_KEY_R:
-                // Roll
-                if (player_stamina.stamina > 0) { 
-                    player_comp.isRolling = pressed;
-                } else{
-                    player_comp.isRolling = false;
-                }
-                break;
-            case GLFW_KEY_D:
-                if (pressed) {
-                    const float DASH_STAMINA = 40;
-                    if (player_stamina.stamina > DASH_STAMINA) { 
-                        const float dashDistance = 300;
-                        // Start dashing if player is moving
-                        player_dash.isDashing = true;
-                        player_dash.dashStartPosition = vec2(player_motion.position);
-                        player_dash.dashTargetPosition = player_dash.dashStartPosition + player_motion.facing * dashDistance;
-                        player_dash.dashTimer = 0.0f; // Reset timer
-                        player_stamina.stamina -= DASH_STAMINA;
-                    }
-                }
-                break;
-		    case GLFW_KEY_SPACE:
-                // Jump
-                if (pressed && !player_comp.isTrapped) {
-                    const float JUMP_STAMINA = 20;
-                    if (player_stamina.stamina >= JUMP_STAMINA && !player_comp.tryingToJump) {
+                // play dash sound
+				sound->playSoundEffect(sound->DASHING_SOUND, audio_path("dashing.wav"), 0);
+            }
+        }
+        break;
+    case GLFW_KEY_SPACE:
+        // Jump
+        if (pressed && !player_comp.isTrapped) {
+            const float JUMP_STAMINA = 20;
+            if (player_stamina.stamina >= JUMP_STAMINA && !player_comp.tryingToJump) {
+                player_comp.tryingToJump = true;
+                if (registry.jumpers.has(playerEntity)) {
+                    Jumper& jumper = registry.jumpers.get(playerEntity);
+                    if (!jumper.isJumping) {
+                        jumper.isJumping = true;
                         player_comp.tryingToJump = true;
-                        if (registry.jumpers.has(playerEntity)) {
-                            Jumper& jumper = registry.jumpers.get(playerEntity);
-                            if (!jumper.isJumping) {  
-                                jumper.isJumping = true; 
-                                player_comp.tryingToJump = true;
-                                player_motion.velocity.z = jumper.speed; 
-                                player_stamina.stamina -= JUMP_STAMINA;
-                                if (player_stamina.stamina < 0) {
-                                    player_stamina.stamina = 0;
-                                }
-                            }
+                        player_motion.velocity.z = jumper.speed;
+                        player_stamina.stamina -= JUMP_STAMINA;
+                        if (player_stamina.stamina < 0) {
+                            player_stamina.stamina = 0;
                         }
+                        // play jump sound
+                        sound->playSoundEffect(sound->JUMPING_SOUND, audio_path("jumping.wav"), 0);
                     }
-                } else { 
-                    player_comp.tryingToJump = false;
                 }
-                break;
-            default:
-                break;
+            }
         }
+        else {
+            player_comp.tryingToJump = false;
+        }
+        break;
+    default:
+        break;
     }
-    
     update_player_facing(player_comp, player_motion);
-
-    // toggle camera on/off for debugging/testing
-    if(action == GLFW_PRESS && key == GLFW_KEY_C) {
-        camera->toggle();
-    }
-
-    // toggle fps
-    if(action == GLFW_PRESS && key == GLFW_KEY_F) {
-        registry.fpsTracker.toggled = !registry.fpsTracker.toggled;
-    }
-
-    // toggle fullscreen
-    if(action == GLFW_PRESS && key == GLFW_KEY_V) {
-        isWindowed = !isWindowed;
-        GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
-        const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
-
-        if(isWindowed) {
-            glfwSetWindowMonitor(window, nullptr, 50, 50, mode->width, mode->height, 0);
-        } else {
-            glfwSetWindowMonitor(window, primaryMonitor, 0, 0, mode->width, mode->height, mode->refreshRate); 
-        }
-
-        glfwSwapInterval(1); // vsync
-    } 
-
-    // toggle mesh
-	if (action == GLFW_PRESS && key == GLFW_KEY_M) {
-		show_mesh = !show_mesh;
-	}
 }
 
 void WorldSystem::update_player_facing(Player& player, Motion& motion) 
@@ -508,6 +583,7 @@ void WorldSystem::despawnTraps(float elapsed_ms) {
 }
 
 void WorldSystem::update_cooldown(float elapsed_ms) {
+    // Tick type-specific cooldowns
     for (auto& cooldownEntity : registry.cooldowns.entities) {
         Cooldown& cooldown = registry.cooldowns.get(cooldownEntity);
         cooldown.remaining -= elapsed_ms;
@@ -525,16 +601,17 @@ void WorldSystem::update_cooldown(float elapsed_ms) {
                 registry.cooldowns.remove(cooldownEntity);
             }
         }
+    }
 
-        auto it = collisionCooldowns.begin();
-        while (it != collisionCooldowns.end()) {
-            it->second -= elapsed_ms;
-            if (it->second <= 0) {
-                it = collisionCooldowns.erase(it);
-            }
-            else {
-                it++;
-            }
+    // Tick general collision cooldowns
+    auto it = collisionCooldowns.begin();
+    while (it != collisionCooldowns.end()) {
+        it->second -= elapsed_ms;
+        if (it->second <= 0) {
+            it = collisionCooldowns.erase(it);
+        }
+        else {
+            it++;
         }
     }
 }
@@ -636,6 +713,7 @@ void WorldSystem::entity_collectible_collision(Entity entity, Entity entity_othe
 		printf("Unknown collectible type\n");
 	}
 
+	sound->playSoundEffect(sound->COLLECT_SOUND, audio_path("collect.wav"), 0);
     // destroy the collectible
     registry.remove_all_components_of(entity_other);
 }
@@ -644,7 +722,6 @@ void WorldSystem::entity_trap_collision(Entity entity, Entity entity_other, std:
     Trap& trap = registry.traps.get(entity_other);
 
     if (registry.players.has(entity)) {
-        printf("Player hit a trap\n");
         Player& player = registry.players.get(playerEntity);
     
         // apply slow effect
@@ -654,7 +731,6 @@ void WorldSystem::entity_trap_collision(Entity entity, Entity entity_other, std:
         checkAndHandlePlayerDeath(entity);
 	}
 	else if (registry.enemies.has(entity)) {
-        printf("Enemy hit a trap\n");
         Enemy& enemy = registry.enemies.get(entity);
 
         // apply slow effect
@@ -881,7 +957,9 @@ void WorldSystem::checkAndHandlePlayerDeath(Entity& entity) {
 		Motion& motion = registry.motions.get(entity);
 		motion.angle = M_PI / 2; // Rotate player 90 degrees
         motion.hitbox = { motion.hitbox.z, motion.hitbox.y, motion.hitbox.x }; // Change hitbox to be on its side
-		printf("Player died\n");
+
+        sound->stopAllSounds();
+		sound->playSoundEffect(sound->PLAYER_DEATH_MUSIC, audio_path("playerDeath.wav"), -1);
 	}
 }
 
@@ -993,6 +1071,7 @@ void WorldSystem::adjustSpawnSystem(float elapsed_ms) {
 			maxEntity.second++;
 		}
 		gameTimer.elapsed = 0;
+        sound->playSoundEffect(sound->LEVELUP_SOUND, audio_path("levelUp.wav"), 0);
 	}
 }
 
@@ -1035,8 +1114,53 @@ void WorldSystem::accelerateFireballs(float elapsed_ms) {
             direction = normalize(direction);
 
             // accelerate in the calculated direction
-            fireballMotion.velocity.x += (direction.x) * FIREBALL_ACCELERATION * (elapsed_ms/1000);
-            fireballMotion.velocity.y += (direction.y) * FIREBALL_ACCELERATION * (elapsed_ms/1000);
+            fireballMotion.velocity.x += (direction.x) * FIREBALL_ACCELERATION * (elapsed_ms / 1000);
+            fireballMotion.velocity.y += (direction.y) * FIREBALL_ACCELERATION * (elapsed_ms / 1000);
+        }
+    }
+}
+
+void WorldSystem::soundSetUp() {
+    int VOLUME = 10;
+    // stop all sounds first
+    sound->stopAllSounds();
+    // init sound system
+    sound->init();
+    // play background music
+    sound->playMusic(sound->BACKGROUND_MUSIC, audio_path("mystery_background.wav"), -1, VOLUME);
+}
+
+void WorldSystem::inGameSounds() {
+	Player& player = registry.players.get(playerEntity);
+    // monitoring player movement
+    if (player.isMoving) {
+        if (!isMovingSoundPlaying) {
+            // walking sound
+            sound->playSoundEffect(sound->WALKING_SOUND, audio_path("walking.wav"), -1);
+            isMovingSoundPlaying = true;
+        }
+    }
+    else {
+        if (isMovingSoundPlaying) {
+            // stop walking sound
+            sound->stopSoundEffect(sound->WALKING_SOUND);
+            isMovingSoundPlaying = false;
+        }
+    }
+
+    // monitoring birds movement
+    if (registry.birds.size() > 0) {
+        if (!isBirdFlockSoundPlaying) {
+            // birds sound
+            sound->playSoundEffect(sound->BIRD_FLOCK_SOUND, audio_path("birds_flock.wav"), -1);
+            isBirdFlockSoundPlaying = true;
+        }
+    }
+    else {
+        if (isBirdFlockSoundPlaying) {
+            // stop birds sound
+            sound->stopSoundEffect(sound->BIRD_FLOCK_SOUND);
+            isBirdFlockSoundPlaying = false;
         }
     }
 }

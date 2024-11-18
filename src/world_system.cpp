@@ -337,8 +337,8 @@ void WorldSystem::on_key(int key, int, int action, int mod)
         playingControls(key, action, mod);
         break;
     case GAME_STATE::PAUSED:
-        //isMovingSoundPlaying = false;
-        //isBirdFlockSoundPlaying = false;
+        isMovingSoundPlaying = false;
+        isBirdFlockSoundPlaying = false;
         sound->stopAllSoundEffects();
         pauseControls(key, action, mod);
         break;
@@ -346,6 +346,9 @@ void WorldSystem::on_key(int key, int, int action, int mod)
         gameOverControls(key, action, mod);
         break;
     case GAME_STATE::HELP:
+        isMovingSoundPlaying = false;
+        isBirdFlockSoundPlaying = false;
+        sound->stopAllSoundEffects();
         helpControls(key, action, mod);
         break;
     }

@@ -42,6 +42,7 @@ public:
 	const std::map<std::string, std::string> sounds = {
 		{ ARROW_SOUND,			audio_path("arrow.wav") },
 		{ BOAR_CHARGE_SOUND,	audio_path("boar_charge.wav") },
+		{ THUNDER_SOUND,		audio_path("thunder.wav") },
 		{ STORM_SOUND,			audio_path("storm.wav") },
 		{ WALKING_SOUND,		audio_path("walking.wav") },
 		{ JUMPING_SOUND,		audio_path("jumping.wav") },

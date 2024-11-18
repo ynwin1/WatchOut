@@ -774,7 +774,6 @@ void WorldSystem::handleEnemyCollision(Entity attacker, Entity target, std::vect
         Enemy& attackerData = registry.enemies.get(attacker);
         Enemy& targetData = registry.enemies.get(target);
 
-
         bool apply = false;
 
         if (registry.boars.has(attacker)) {
@@ -785,7 +784,7 @@ void WorldSystem::handleEnemyCollision(Entity attacker, Entity target, std::vect
                 apply = true;
             }
         }
-        else if (registry.trolls.has(attacker)) {
+        else if (registry.trolls.has(attacker) && !registry.trolls.has(target)) {
             apply = true;
         }
         else if (registry.birds.has(attacker) && !registry.birds.has(target)) {

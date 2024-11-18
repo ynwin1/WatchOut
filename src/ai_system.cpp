@@ -302,6 +302,7 @@ void AISystem::trollBehaviour(Entity troll, vec3 playerPosition, float elapsed_m
         return;
     }
 
+    moveTowardsPlayer(troll, playerPosition, elapsed_ms);
 }
 
 void AISystem::shootArrow(Entity shooter, vec3 targetPos)

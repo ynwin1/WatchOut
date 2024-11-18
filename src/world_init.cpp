@@ -202,8 +202,8 @@ Entity createTroll(vec2 pos)
 	Motion& motion = registry.motions.emplace(entity);
 	motion.position = vec3(pos, getElevation(pos) + TROLL_BB_HEIGHT / 2);
 	motion.angle = 0.f;
-	motion.scale = { 32. * SPRITE_SCALE * TROLL_SIZE_FACTOR, 36. * SPRITE_SCALE * TROLL_SIZE_FACTOR };
-	motion.hitbox = { TROLL_BB_WIDTH, TROLL_BB_WIDTH, TROLL_BB_HEIGHT / zConversionFactor };
+	motion.scale = { TROLL_BB_WIDTH, TROLL_BB_HEIGHT };
+	motion.hitbox = { TROLL_BB_WIDTH * 0.9, TROLL_BB_WIDTH * 0.9, TROLL_BB_HEIGHT * 0.9 / zConversionFactor };
 	motion.solid = true;
 	if (registry.players.entities.size() > 0) {
 		vec2 playerPosition = vec2(registry.motions.get(registry.players.entities.at(0)).position);
@@ -223,9 +223,10 @@ Entity createTroll(vec2 pos)
 
 	createHealthBar(entity, vec3(1.0f, 0.0f, 0.0f));
 
-	registry.trappables.emplace(entity);
+	auto& trappable = registry.trappables.emplace(entity);
+	trappable.originalSpeed = TROLL_SPEED;
 	Knocker& knocker = registry.knockers.emplace(entity);
-	knocker.strength = 2.f;
+	knocker.strength = 1.5f;
 
 	initTrollAnimationController(entity);
 

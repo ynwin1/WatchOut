@@ -294,8 +294,8 @@ void WorldSystem::on_key(int key, int, int action, int mod)
         playingControls(key, action, mod);
         break;
     case GAME_STATE::PAUSED:
-        //isMovingSoundPlaying = false;
-        //isBirdFlockSoundPlaying = false;
+        isMovingSoundPlaying = false;
+        isBirdFlockSoundPlaying = false;
         sound->stopAllSoundEffects();
         pauseControls(key, action, mod);
         break;
@@ -303,6 +303,9 @@ void WorldSystem::on_key(int key, int, int action, int mod)
         gameOverControls(key, action, mod);
         break;
     case GAME_STATE::HELP:
+        isMovingSoundPlaying = false;
+        isBirdFlockSoundPlaying = false;
+        sound->stopAllSoundEffects();
         helpControls(key, action, mod);
         break;
     }
@@ -477,7 +480,7 @@ void WorldSystem::movementControls(int key, int action, int mod)
                 player_stamina.stamina -= DASH_STAMINA;
 
                 // play dash sound
-				sound->playSoundEffect(sound->DASHING_SOUND, audio_path("dashing.wav"), 0);
+                sound->playSoundEffect(Sound::DASHING, 0);
             }
         }
         break;
@@ -498,7 +501,7 @@ void WorldSystem::movementControls(int key, int action, int mod)
                             player_stamina.stamina = 0;
                         }
                         // play jump sound
-                        sound->playSoundEffect(sound->JUMPING_SOUND, audio_path("jumping.wav"), 0);
+                        sound->playSoundEffect(Sound::JUMPING, 0);
                     }
                 }
             }
@@ -673,7 +676,7 @@ void WorldSystem::entity_collectible_collision(Entity entity, Entity entity_othe
 		printf("Unknown collectible type\n");
 	}
 
-	sound->playSoundEffect(sound->COLLECT_SOUND, audio_path("collect.wav"), 0);
+	sound->playSoundEffect(Sound::COLLECT, 0);
     // destroy the collectible
     registry.remove_all_components_of(entity_other);
 }
@@ -893,7 +896,7 @@ void WorldSystem::checkAndHandlePlayerDeath(Entity& entity) {
         motion.hitbox = { motion.hitbox.z, motion.hitbox.y, motion.hitbox.x }; // Change hitbox to be on its side
 
         sound->stopAllSounds();
-		sound->playSoundEffect(sound->PLAYER_DEATH_MUSIC, audio_path("playerDeath.wav"), -1);
+		sound->playMusic(Music::PLAYER_DEATH, -1, 10);
 	}
 }
 
@@ -1005,7 +1008,7 @@ void WorldSystem::adjustSpawnSystem(float elapsed_ms) {
 			maxEntity.second++;
 		}
 		gameTimer.elapsed = 0;
-        sound->playSoundEffect(sound->LEVELUP_SOUND, audio_path("levelUp.wav"), 0);
+        sound->playSoundEffect(Sound::LEVELUP, 0);
 	}
 }
 
@@ -1050,7 +1053,7 @@ void WorldSystem::soundSetUp() {
     // init sound system
     sound->init();
     // play background music
-    sound->playMusic(sound->BACKGROUND_MUSIC, audio_path("mystery_background.wav"), -1, VOLUME);
+    sound->playMusic(Music::BACKGROUND, -1, VOLUME);
 }
 
 void WorldSystem::inGameSounds() {
@@ -1059,14 +1062,14 @@ void WorldSystem::inGameSounds() {
     if (player.isMoving) {
         if (!isMovingSoundPlaying) {
             // walking sound
-            sound->playSoundEffect(sound->WALKING_SOUND, audio_path("walking.wav"), -1);
+            sound->playSoundEffect(Sound::WALKING, -1);
             isMovingSoundPlaying = true;
         }
     }
     else {
         if (isMovingSoundPlaying) {
             // stop walking sound
-            sound->stopSoundEffect(sound->WALKING_SOUND);
+            sound->stopSoundEffect(Sound::WALKING);
             isMovingSoundPlaying = false;
         }
     }
@@ -1075,14 +1078,14 @@ void WorldSystem::inGameSounds() {
     if (registry.birds.size() > 0) {
         if (!isBirdFlockSoundPlaying) {
             // birds sound
-            sound->playSoundEffect(sound->BIRD_FLOCK_SOUND, audio_path("birds_flock.wav"), -1);
+            sound->playSoundEffect(Sound::BIRD_FLOCK, -1);
             isBirdFlockSoundPlaying = true;
         }
     }
     else {
         if (isBirdFlockSoundPlaying) {
             // stop birds sound
-            sound->stopSoundEffect(sound->BIRD_FLOCK_SOUND);
+            sound->stopSoundEffect(Sound::BIRD_FLOCK);
             isBirdFlockSoundPlaying = false;
         }
     }

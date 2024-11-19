@@ -7,47 +7,72 @@
 #include <map>
 #include <string>
 
+#include "common.hpp"
+
+enum class Music {
+	BACKGROUND,
+	PLAYER_DEATH
+};
+
+enum class Sound {
+	ARROW,
+	BOAR_CHARGE,
+	THUNDER,
+	STORM,
+	WALKING,
+	JUMPING,
+	DASHING,
+	LEVELUP,
+	FIREBALL,
+	COLLECT,
+	BIRD_FLOCK,
+	BIRD_ATTACK
+};
+
 class SoundSystem
 {
 public:
 	SoundSystem();
 	~SoundSystem();
 
-	// KEYS
-	// Music
-	std::string BACKGROUND_MUSIC = "background_music";
-	std::string PLAYER_DEATH_MUSIC = "player_death_music";
+	const std::map<Music, std::string> musics = {
+		{ Music::BACKGROUND,	audio_path("mystery_background.wav") },
+		{ Music::PLAYER_DEATH,	audio_path("playerDeath.wav") }
+	};
 
-	// Sound effects
-	std::string ARROW_SOUND = "arrow_sound";
-	std::string BOAR_CHARGE_SOUND = "boar_charge_sound";
-	std::string THUNDER_SOUND = "thunder_sound";
-	std::string STORM_SOUND = "storm_sound";
-	std::string WALKING_SOUND = "walking_sound";
-	std::string JUMPING_SOUND = "jumping_sound";
-	std::string DASHING_SOUND = "dashing_sound";
-	std::string LEVELUP_SOUND = "levelup_sound";
-	std::string FIREBALL_SOUND = "fireball_sound";
-	std::string COLLECT_SOUND = "collect_sound";
-	std::string BIRD_FLOCK_SOUND = "bird_flock_sound";
-	std::string BIRD_ATTACK_SOUND = "bird_attack_sound";
-
+	const std::map<Sound, std::string> sounds = {
+		{ Sound::ARROW,			audio_path("arrow.wav") },
+		{ Sound::BOAR_CHARGE,	audio_path("boar_charge.wav") },
+		{ Sound::THUNDER,		audio_path("thunder.wav") },
+		{ Sound::STORM,			audio_path("storm.wav") },
+		{ Sound::WALKING,		audio_path("walking.wav") },
+		{ Sound::JUMPING,		audio_path("jumping.wav") },
+		{ Sound::DASHING,		audio_path("dashing.wav") },
+		{ Sound::LEVELUP,		audio_path("levelUp.wav") },
+		{ Sound::FIREBALL,		audio_path("fireball.wav") },
+		{ Sound::COLLECT,		audio_path("collect.wav") },
+		{ Sound::BIRD_FLOCK,	audio_path("birds_flock.wav") },
+		{ Sound::BIRD_ATTACK,	audio_path("bird_attack.wav") }
+	};
 
 	// FUNCTIONS
 	// Initialize sound system
 	bool init();
 
+	void loadAllMusic();
+	void loadAllSoundEffects();
+
 	// Play music; duration = -1 for infinite loop
-	void playMusic(const std::string& key, std::string path, int duration, int volume);
+	void playMusic(Music key, int duration, int volume);
 
 	// Play sound effect
-	void playSoundEffect(const std::string& key, std::string path, int count);
+	void playSoundEffect(Sound key, int count);
 
 	// Stop music
-	void stopMusic(const std::string& key);
+	void stopMusic(Music key);
 
 	// Stop sound effect
-	void stopSoundEffect(const std::string& key);
+	void stopSoundEffect(Sound key);
 
 	// Stop all music
 	void stopAllMusic();
@@ -58,10 +83,14 @@ public:
 	// Stop all sounds
 	void stopAllSounds();
 
+	// Remove all sounds from memory
+	void unloadAllSounds();
+
 private:
-	std::map<std::string, std::pair<Mix_Music*, int>> musicTracks;
-	std::map<std::string, std::pair<Mix_Chunk*, int>> soundEffects;
-	Mix_Music* backgroundMusic;
+	std::map<Music, Mix_Music*> loadedMusic;
+	std::map<Sound, Mix_Chunk*> loadedSoundEffects;
+	std::map<Music, int> musicTracks;
+	std::map<Sound, int> soundEffects;
 };
 
 /*

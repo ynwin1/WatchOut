@@ -1,12 +1,14 @@
 #include "sound_system.hpp"
+#include <chrono>
 
-SoundSystem::SoundSystem() : backgroundMusic(nullptr), musicTracks(), soundEffects()
+SoundSystem::SoundSystem()
 {
 }
 
 SoundSystem::~SoundSystem()
 {
 	stopAllSounds();
+	unloadAllSounds();
 	Mix_CloseAudio();
 }
 
@@ -34,89 +36,110 @@ bool SoundSystem::init()
 	int numChannels = 32;
 	Mix_AllocateChannels(numChannels);
 
+	loadAllMusic();
+	loadAllSoundEffects();
+
 	return true;
 }
 
-void SoundSystem::playMusic(const std::string& key, std::string path, int duration, int volume)
+void SoundSystem::loadAllMusic()
 {
-	Mix_Music* music = Mix_LoadMUS(path.c_str());
-	if (music == nullptr)
-	{
-		handleError("Failed to load music!");
+	for (auto& pair : musics) {
+		Mix_Music* music = Mix_LoadMUS(pair.second.c_str());
+		if (music == nullptr) {
+			handleError("Failed to load music!");
+			continue;
+		}
+		loadedMusic[pair.first] = music;
+	}
+}
+
+void SoundSystem::loadAllSoundEffects()
+{
+	for (auto& pair : sounds) {
+		Mix_Chunk* sound = Mix_LoadWAV(pair.second.c_str());
+		if (sound == nullptr) {
+			handleError("Failed to load sound effect!");
+			continue;
+		}
+		loadedSoundEffects[pair.first] = sound;
+	}
+}
+
+void SoundSystem::playMusic(Music key, int duration, int volume)
+{
+	auto it = loadedMusic.find(key);
+	if (it == loadedMusic.end()) {
+		printf("Failed to find loaded music %d\n", key);
 		return;
 	}
+	Mix_Music* music = it->second;
 	int channel = Mix_PlayMusic(music, duration);
-	if (channel == -1)
-	{
+	if (channel == -1) {
 		handleError("Failed to play music!");
 		return;
 	}
 	Mix_VolumeMusic(volume);
-	musicTracks[key] = std::make_pair(music, channel);
+	musicTracks[key] = channel;
 }
 
 // count - number of times to play the sound, 0 means once, -1 means infinite loop
-void SoundSystem::playSoundEffect(const std::string& key, std::string path, int count)
+void SoundSystem::playSoundEffect(Sound key, int count)
 {
-	Mix_Chunk* sound = Mix_LoadWAV(path.c_str());
-	if (sound == nullptr)
-	{
-		handleError("Failed to load sound effect!");
+	auto it = loadedSoundEffects.find(key);
+	if (it == loadedSoundEffects.end()) {
+		printf("Failed to find loaded sound effect %d\n", key);
 		return;
 	}
+	Mix_Chunk* sound = it->second;
 	int channel = Mix_PlayChannel(-1, sound, count);
-	if (channel == -1)
-	{
+	if (channel == -1) {
 		handleError("Failed to play sound effect!");
 		return;
 	}
-	soundEffects[key] = std::make_pair(sound, channel);
+	soundEffects[key] = channel;
 };
 
 // stop specified music
-void SoundSystem::stopMusic(const std::string& key)
+void SoundSystem::stopMusic(Music key)
 {
 	if (musicTracks.find(key) == musicTracks.end())
 	{
 		handleError("Music not found!");
 		return;
 	}
-	std::pair<Mix_Music*, int> music = musicTracks[key];
-	Mix_HaltChannel(music.second);
-	Mix_FreeMusic(music.first);
+	int channel = musicTracks[key];
+	Mix_HaltChannel(channel);
 	musicTracks.erase(key);
 }
 
 // stop specified sound effect
-void SoundSystem::stopSoundEffect(const std::string& key)
+void SoundSystem::stopSoundEffect(Sound key)
 {
 	if (soundEffects.find(key) == soundEffects.end())
 	{
 		handleError("Sound effect not found!");
 		return;
 	}
-	std::pair<Mix_Chunk*, int> sound = soundEffects[key];
-	Mix_HaltChannel(sound.second);
-	Mix_FreeChunk(sound.first);
+	int channel = soundEffects[key];
+	Mix_HaltChannel(channel);
 	soundEffects.erase(key);
 }
 
 // stop all music
 void SoundSystem::stopAllMusic() {
-	for (auto musicTrack : musicTracks) {
-		std::pair<Mix_Music*, int> music = musicTrack.second;
-		Mix_HaltChannel(music.second);
-		Mix_FreeMusic(music.first);
+	for (auto& musicTrack : musicTracks) {
+		int channel = musicTrack.second;
+		Mix_HaltChannel(channel);
 	}
 	musicTracks.clear();
 }
 
 // stop all sound effects
 void SoundSystem::stopAllSoundEffects() {
-	for (auto soundEffect : soundEffects) {
-		std::pair<Mix_Chunk*, int> sound = soundEffect.second;
-		Mix_HaltChannel(sound.second);
-		Mix_FreeChunk(sound.first);
+	for (auto& soundEffect : soundEffects) {
+		int channel = soundEffect.second;
+		Mix_HaltChannel(channel);
 	}
 	soundEffects.clear();
 }
@@ -125,4 +148,17 @@ void SoundSystem::stopAllSoundEffects() {
 void SoundSystem::stopAllSounds() {
 	stopAllMusic();
 	stopAllSoundEffects();
+}
+
+void SoundSystem::unloadAllSounds()
+{
+	for (auto& pair : loadedMusic) {
+		Mix_FreeMusic(pair.second);
+	}
+	loadedMusic.clear();
+
+	for (auto& pair : loadedSoundEffects) {
+		Mix_FreeChunk(pair.second);
+	}
+	loadedSoundEffects.clear();
 }

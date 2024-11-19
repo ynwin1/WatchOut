@@ -4,3 +4,4 @@ build/
 CMakeFiles/
 ext/project_path.hpp
 .vscode/
+/CMakeSettings.json

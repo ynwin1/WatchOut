@@ -80,8 +80,8 @@ private:
 		{"barbarian", 1},
 		{"archer", -1},
 		{"bird", 1},
-		{"wizard", -3},
-		{"troll", 1},
+		{"wizard", -2},
+		{"troll", -3},
 		{"heart", 2},
 		{"collectible_trap", 2}
 	};

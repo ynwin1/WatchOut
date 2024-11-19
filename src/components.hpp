@@ -305,7 +305,9 @@ struct Wizard {
 	vec3 locked_target = vec3(0, 0, 0);
 };
 
-struct Troll {};
+struct Troll {
+	float desiredAngle = 0;
+};
 
 // Collectible types
 struct Heart { unsigned int health = 20; };

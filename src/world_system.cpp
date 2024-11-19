@@ -613,7 +613,6 @@ void WorldSystem::spawn(float elapsed_ms)
 
 vec2 WorldSystem::get_spawn_location(const std::string& entity_type)
 {
-    vec2 size = entity_sizes.at(entity_type);
     vec2 spawn_location{};
 
     // spawn collectibles

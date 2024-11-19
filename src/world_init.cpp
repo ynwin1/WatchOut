@@ -19,8 +19,8 @@ Entity createBoar(vec2 pos)
 	motion.solid = true;
 
 	Enemy& enemy = registry.enemies.emplace(entity);
-	enemy.damage = 40;
-	enemy.maxHealth = 50;
+	enemy.damage = BOAR_DAMAGE;
+	enemy.maxHealth = BOAR_HEALTH;
 	enemy.health = enemy.maxHealth;
 	motion.speed = BOAR_SPEED;
 
@@ -60,9 +60,9 @@ Entity createBarbarian(vec2 pos)
 	motion.solid = true;
 	
 	Enemy& enemy = registry.enemies.emplace(entity);
-	enemy.damage = 20;
+	enemy.damage = BARBARIAN_DAMAGE;
 	enemy.cooldown = 1000;
-	enemy.maxHealth = 40;
+	enemy.maxHealth = BARBARIAN_HEALTH;
 	enemy.health = enemy.maxHealth;
 	motion.speed = BARBARIAN_SPEED;
 
@@ -95,8 +95,8 @@ Entity createArcher(vec2 pos)
 	motion.solid = true;
 
 	Enemy& enemy = registry.enemies.emplace(entity);
-	enemy.damage = 25;
-	enemy.maxHealth = 30;
+	enemy.damage = ARCHER_DAMAGE;
+	enemy.maxHealth = ARCHER_HEALTH;
 	enemy.health = enemy.maxHealth;
 	motion.speed = ARCHER_SPEED;
 
@@ -136,9 +136,9 @@ Entity createBirdFlock(vec2 pos)
         motion.solid = true;
 
         Enemy& enemy = registry.enemies.emplace(entity);
-        enemy.damage = 10;
+        enemy.damage = BIRD_DAMAGE;
         enemy.cooldown = 2000.f;
-		enemy.maxHealth = 10;
+		enemy.maxHealth = BIRD_HEALTH;
 		enemy.health = enemy.maxHealth;
         motion.speed = BIRD_SPEED;
 
@@ -174,9 +174,9 @@ Entity createWizard(vec2 pos) {
 	motion.solid = true;
 
 	Enemy& enemy = registry.enemies.emplace(entity);
-	enemy.damage = 50;
+	enemy.damage = WIZARD_DAMAGE;
 	enemy.cooldown = 8000.f; // 8s
-	enemy.maxHealth = 20;
+	enemy.maxHealth = WIZARD_HEALTH;
 	enemy.health = enemy.maxHealth;
 	motion.speed = WIZARD_SPEED;
 
@@ -211,10 +211,10 @@ Entity createTroll(vec2 pos)
 	}
 
 	Enemy& enemy = registry.enemies.emplace(entity);
-	enemy.damage = 5;
+	enemy.damage = TROLL_DAMAGE;
 	enemy.cooldown = 0;
 	motion.speed = TROLL_SPEED;
-	enemy.maxHealth = 200;
+	enemy.maxHealth = TROLL_HEALTH;
 	enemy.health = enemy.maxHealth;
 
 	registry.trolls.emplace(entity);

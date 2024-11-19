@@ -47,7 +47,7 @@ const int FIREBALL_NUM_FRAMES = 6;
 const int FIREBALL_FRAME_TIME = 50;
 
 const int TROLL_RUN_NUM_FRAMES = 6;
-const int TROLL_RUN_FRAME_TIME = 350;
+const int TROLL_RUN_FRAME_TIME = 600;
 const int TROLL_IDLE_NUM_FRAMES = 4;
 const int TROLL_IDLE_FRAME_TIME = 200;
 const int TROLL_DEAD_NUM_FRAMES = 1;

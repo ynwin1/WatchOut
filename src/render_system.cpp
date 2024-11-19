@@ -536,15 +536,18 @@ void updateHpBarMeter() {
 		text.value = ss.str();
 
 		if(player.health <= 30.0f) {
-			registry.colours.get(hpbar.meshEntity) = {1.0f, 0.0f, 0.0f, 1.0f};
-			registry.colours.get(hpbar.frameEntity) = {1.0f, 0.0f, 0.0f, 1.0f};
+			vec4 red = {1.0f, 0.0f, 0.0f, 1.0f};
+			registry.colours.get(hpbar.meshEntity) = red;
+			registry.colours.get(hpbar.frameEntity) = red;
 		}
 		else if(player.health <= 60.0f) {
-			registry.colours.get(hpbar.meshEntity) = {1.0f, 0.45f, 0.0f, 1.0f};
-			registry.colours.get(hpbar.frameEntity) = {1.0f, 0.45f, 0.0f, 1.0f};
+			vec4 orange = {1.0f, 0.45f, 0.0f, 1.0f};
+			registry.colours.get(hpbar.meshEntity) = orange;
+			registry.colours.get(hpbar.frameEntity) = orange;
 		} else {
-			registry.colours.get(hpbar.meshEntity) = {0.0f, 1.0f, 0.0f, 1.0f};
-			registry.colours.get(hpbar.frameEntity) = {0.0f, 1.0f, 0.0f, 1.0f};
+			vec4 green = {0.0f, 1.0f, 0.0f, 1.0f};
+			registry.colours.get(hpbar.meshEntity) = green;
+			registry.colours.get(hpbar.frameEntity) = green;
 		}
 	}
 	for (Entity entity : registry.enemies.entities) {

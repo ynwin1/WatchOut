@@ -875,14 +875,35 @@ void createMapTiles() {
     }
 }
 
+void createHighScoreText(vec2 windowSize){
+	auto entity = Entity();
+
+	GameScore& gameScore = registry.gameScore;
+
+	Text& text = registry.texts.emplace(entity);
+    text.value = "Your High Score is  " + std::to_string(gameScore.highScoreHours) + "h " + std::to_string(gameScore.highScoreMinutes) + "m " + std::to_string(gameScore.highScoreSeconds) + "s ";
+	Foreground& fg = registry.foregrounds.emplace(entity);
+	fg.position = {windowSize.x / 2 - 220.f, windowSize.y / 2 - 50.f};
+	fg.scale = {1.0f, 1.0f};
+	
+	registry.colours.insert(entity, {1.0f, 0.85f, 0.0f, 1.0f});
+
+	registry.renderRequests.insert(
+		entity, 
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::FONT,
+			GEOMETRY_BUFFER_ID::TEXT
+		});
+}
+
 void createGameOverText(vec2 windowSize) {
 	auto backdrop = Entity();
 	Foreground& backdropFg = registry.foregrounds.emplace(backdrop);
 	backdropFg.position = {0.0f, 0.0f};
 	backdropFg.scale = {windowSize.x, windowSize.y};
 
-	vec4 black = vec4(0.0f, 0.0f, 0.0f, 0.6f);
-	registry.colours.insert(backdrop, black);
+	registry.colours.insert(backdrop, vec4(0.0f, 0.0f, 0.0f, 0.6f));
 	registry.renderRequests.insert(
 		backdrop,
 		{
@@ -943,30 +964,6 @@ void createGameOverText(vec2 windowSize) {
 		});
 	}
 
-}
-
-Entity createHighScoreText(vec2 windowSize){
-	auto entity = Entity();
-
-	GameScore& gameScore = registry.gameScore;
-
-	Text& text = registry.texts.emplace(entity);
-    text.value = "Your High Score is  " + std::to_string(gameScore.highScoreHours) + "h " + std::to_string(gameScore.highScoreMinutes) + "m " + std::to_string(gameScore.highScoreSeconds) + "s ";
-	Foreground& fg = registry.foregrounds.emplace(entity);
-	fg.position = {windowSize.x / 2 - 220.f, windowSize.y / 2 - 50.f};
-	fg.scale = {1.0f, 1.0f};
-	
-	registry.colours.insert(entity, {1.0f, 0.85f, 0.0f, 1.0f});
-
-	registry.renderRequests.insert(
-		entity, 
-		{
-			TEXTURE_ASSET_ID::NONE,
-			EFFECT_ASSET_ID::FONT,
-			GEOMETRY_BUFFER_ID::TEXT
-		});
-
-	return entity;
 }
 
 void createTrees(RenderSystem* renderer) {

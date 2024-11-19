@@ -523,10 +523,10 @@ void AISystem::birdBehaviour(Entity bird, vec3 playerPosition, float elapsed_ms)
     float distanceToPlayer = distance(birdPosition2D, playerPosition2D);
 
     vec2 directionToPlayer = normalize(playerPosition2D - birdPosition2D);
-    const float SEPARATION_WEIGHT = 0.5f;
-    const float ALIGNMENT_WEIGHT = 0.3f;
+    const float SEPARATION_WEIGHT = 2.f;
+    const float ALIGNMENT_WEIGHT = 0.1f;
     const float COHESION_WEIGHT = 0.5f;
-    const float PLAYER_ATTRACTION_WEIGHT = 0.2f;
+    const float PLAYER_ATTRACTION_WEIGHT = 0.3f;
     
     vec2 flockingForce = 
         separationForce * SEPARATION_WEIGHT + 
@@ -535,9 +535,6 @@ void AISystem::birdBehaviour(Entity bird, vec3 playerPosition, float elapsed_ms)
     
     vec2 movementForce = flockingForce + directionToPlayer * PLAYER_ATTRACTION_WEIGHT;
     float speed = registry.birds.get(bird).swarmSpeed;
-    if (length(movementForce) > 0) {
-        movementForce = normalize(movementForce) * speed;
-    }
     animationController.changeState(bird, AnimationState::Flying);
     birdMotion.velocity = vec3(movementForce, 0.0f);
     birdMotion.facing = normalize(movementForce);

@@ -49,6 +49,10 @@ void PhysicsSystem::handleBoundsCheck() {
 	ComponentContainer<Motion>& motion_container = registry.motions;
 
 	for (uint i = 0; i < motion_container.components.size(); i++) {
+		if (registry.birds.has(motion_container.entities[i])) {
+			continue;
+		}
+
 		Motion& motion = motion_container.components[i];
 		float halfScaleX = abs(motion.scale.x) / 2;
 		float halfScaleY = abs(motion.scale.y) / 2;

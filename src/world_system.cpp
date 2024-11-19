@@ -147,9 +147,9 @@ void WorldSystem::updateTrapsCounterText() {
     text.value = "*" + ss.str();
 
     if(trapsCounter.count == 0) {
-        registry.colours.insert(trapsCounter.textEntity, {0.8f, 0.8f, 0.0f, 1.0f});
+        registry.colours.get(trapsCounter.textEntity) = {0.8f, 0.8f, 0.0f, 1.0f};
     } else {
-        registry.colours.remove(trapsCounter.textEntity);
+        registry.colours.get(trapsCounter.textEntity) = {1.0f, 1.0f, 1.0f, 1.0f};
     }
 }
 
@@ -190,10 +190,8 @@ bool WorldSystem::step(float elapsed_ms)
 
     Player& player = registry.players.get(playerEntity);
     if(player.health == 0) {
-
         loadAndSaveHighScore(true);
         createGameOverText(camera->getSize());
-        Entity highScoreText = createHighScoreText(camera->getSize(), highScoreHours, highScoreMinutes, highScoreSeconds);
         gameStateController.setGameState(GAME_STATE::GAMEOVER);
     }
 
@@ -203,32 +201,33 @@ bool WorldSystem::step(float elapsed_ms)
 void WorldSystem::loadAndSaveHighScore(bool save) {
     std::string filename = "highscore.txt";
     GameTimer& gameTimer = registry.gameTimer;
+    GameScore& gameScore = registry.gameScore;
     if (save) {
-        if (gameTimer.hours > highScoreHours || 
-            (gameTimer.hours == highScoreHours && gameTimer.minutes > highScoreMinutes) ||
-            (gameTimer.hours == highScoreHours && gameTimer.minutes == highScoreMinutes && gameTimer.seconds > highScoreSeconds)) {
+        if (gameTimer.hours > gameScore.highScoreHours || 
+            (gameTimer.hours == gameScore.highScoreHours && gameTimer.minutes > gameScore.highScoreMinutes) ||
+            (gameTimer.hours == gameScore.highScoreHours && gameTimer.minutes == gameScore.highScoreMinutes && gameTimer.seconds > gameScore.highScoreSeconds)) {
             
             // Update high score
-            highScoreHours = gameTimer.hours;
-            highScoreMinutes = gameTimer.minutes;
-            highScoreSeconds = gameTimer.seconds;
+            gameScore.highScoreHours = gameTimer.hours;
+            gameScore.highScoreMinutes = gameTimer.minutes;
+            gameScore.highScoreSeconds = gameTimer.seconds;
 
             std::ofstream file(filename);
             if (file.is_open()) {
-                file << highScoreHours << " " << highScoreMinutes << " " << highScoreSeconds;
+                file << gameScore.highScoreHours << " " <<gameScore.highScoreMinutes << " " << gameScore.highScoreSeconds;
                 file.close();
             }
         }
     } else {
         std::ifstream file(filename);
         if (file.is_open()) {
-            file >> highScoreHours >> highScoreMinutes >> highScoreSeconds;
+            file >> gameScore.highScoreHours >> gameScore.highScoreMinutes >> gameScore.highScoreSeconds;
             file.close();
         } else {
             //if file doesnt exist (shouldn't be an issue)
-            highScoreHours = 0;
-            highScoreMinutes = 0;
-            highScoreSeconds = 0;
+            gameScore.highScoreHours = 0;
+            gameScore.highScoreMinutes = 0;
+            gameScore.highScoreSeconds = 0;
         }
     }
 }

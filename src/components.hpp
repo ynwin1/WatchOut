@@ -171,6 +171,12 @@ struct Obstacle {
 struct TargetArea {
 };
 
+struct GameScore {
+	int highScoreHours = 0;
+	int highScoreMinutes = 0;
+	int highScoreSeconds = 0;
+};
+
 struct GameTimer {
 	int hours = 0;
 	int minutes = 0;

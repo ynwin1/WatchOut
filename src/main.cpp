@@ -13,6 +13,7 @@
 #include <render_system.hpp>
 #include <physics_system.hpp>
 #include <ai_system.hpp>
+#include <sound_system.hpp>
 
 using Clock = std::chrono::high_resolution_clock;
 // Entry point
@@ -24,8 +25,10 @@ int main()
 	WorldSystem world = WorldSystem(rng);
 	RenderSystem renderer;
 	PhysicsSystem physics;
-	AISystem ai = AISystem(rng);
+	SoundSystem sound;
+	AISystem ai = AISystem(rng, &sound);
 	Camera camera;
+	
 
 	// Initializing window
 	GLFWwindow* window = renderer.create_window();
@@ -38,7 +41,8 @@ int main()
 	// Initialize the main systems
 	camera.init(window);
 	renderer.init(&camera);
-	world.init(&renderer, window, &camera, &physics);
+	world.init(&renderer, window, &camera, &physics, &ai, &sound);
+	sound.init();
 
 	auto t = Clock::now();
 	while (!world.is_over()) {

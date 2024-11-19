@@ -20,7 +20,6 @@ Entity createBoar(vec2 pos)
 
 	Enemy& enemy = registry.enemies.emplace(entity);
 	enemy.damage = 20;
-	enemy.cooldown = 1500.f; // 1.5s
 	enemy.speed = BOAR_SPEED;
 
 	registry.boars.emplace(entity);
@@ -36,6 +35,8 @@ Entity createBoar(vec2 pos)
 	registry.midgrounds.emplace(entity);
 
 	createHealthBar(entity, vec4(1.0f, 0.0f, 0.0f, 1.0f));
+
+	registry.knockables.emplace(entity);
 	
 	return entity;
 };
@@ -55,7 +56,7 @@ Entity createBarbarian(vec2 pos)
 	
 	Enemy& enemy = registry.enemies.emplace(entity);
 	enemy.damage = 30;
-	enemy.cooldown = 2000.f; // 2s
+	enemy.cooldown = 1000;
 	enemy.speed = BARBARIAN_SPEED;
 
 	registry.barbarians.emplace(entity);
@@ -64,6 +65,8 @@ Entity createBarbarian(vec2 pos)
 	registry.midgrounds.emplace(entity);
 
 	createHealthBar(entity, vec4(1.0f, 0.0f, 0.0f, 1.0f));
+
+	registry.knockables.emplace(entity);
 
 	return entity;
 };
@@ -83,7 +86,6 @@ Entity createArcher(vec2 pos)
 
 	Enemy& enemy = registry.enemies.emplace(entity);
 	enemy.damage = 40;
-	enemy.cooldown = 3000.f; // 3s
 	enemy.speed = ARCHER_SPEED;
 
 	registry.archers.emplace(entity);
@@ -92,7 +94,77 @@ Entity createArcher(vec2 pos)
 	registry.midgrounds.emplace(entity);
 
 	createHealthBar(entity, vec4(1.0f, 0.0f, 0.0f, 1.0f));
+
+	registry.knockables.emplace(entity);
 	
+	return entity;
+};
+
+// Bird creation (Flock of 5 birds)
+Entity createBirdFlock(vec2 pos)
+{
+    const int flockSize = 5;
+    const float spacing = 20.f; 
+    Entity repBird;
+
+    for (int i = 0; i < flockSize; ++i)
+    {
+        auto entity = Entity();
+
+        // Spawn birds with spacing
+        vec2 birdPosition = pos + vec2(i * spacing, 0); 
+
+        Motion& motion = registry.motions.emplace(entity);
+        motion.position = vec3(birdPosition, TREE_BB_HEIGHT - BIRD_BB_WIDTH);
+        motion.angle = 0.f;
+        motion.scale = { BIRD_BB_WIDTH, BIRD_BB_HEIGHT };
+        motion.hitbox = { BIRD_BB_WIDTH, BIRD_BB_HEIGHT, BIRD_BB_HEIGHT / zConversionFactor };
+        motion.solid = true;
+
+        Enemy& enemy = registry.enemies.emplace(entity);
+        enemy.damage = 10;
+        enemy.cooldown = 2000.f;
+        enemy.speed = BIRD_SPEED;
+
+        registry.birds.emplace(entity);
+
+        initBirdAnimationController(entity);
+        registry.midgrounds.emplace(entity);
+
+        createHealthBar(entity, vec4(1.0f, 0.0f, 0.0f, 1.0f));
+        if (i == 0)
+        {
+            repBird = entity;
+        }
+    }
+    return repBird;
+}
+
+
+// Wizard creation
+Entity createWizard(vec2 pos) {
+	auto entity = Entity();
+
+	// Setting intial motion values
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = vec3(pos, getElevation(pos) + WIZARD_BB_HEIGHT / 2);
+	motion.angle = 0.f;
+	motion.scale = { 96 * SPRITE_SCALE,  35 * SPRITE_SCALE };
+	motion.hitbox = { WIZARD_BB_WIDTH, WIZARD_BB_WIDTH, WIZARD_BB_HEIGHT / zConversionFactor };
+	motion.solid = true;
+
+	Enemy& enemy = registry.enemies.emplace(entity);
+	enemy.damage = 60;
+	enemy.cooldown = 8000.f; // 8s
+	enemy.speed = WIZARD_SPEED;
+
+	registry.wizards.emplace(entity);
+
+	initWizardAnimationController(entity);
+	registry.midgrounds.emplace(entity);
+
+	createHealthBar(entity, vec4(1.0f, 0.0f, 0.0f, 1.0f));
+
 	return entity;
 };
 
@@ -111,13 +183,7 @@ Entity createCollectibleTrap(vec2 pos)
 
 	registry.collectibles.emplace(entity);
 
-	registry.renderRequests.insert(
-	entity,
-	{
-		TEXTURE_ASSET_ID::TRAPCOLLECTABLE,
-		EFFECT_ASSET_ID::TEXTURED,
-		GEOMETRY_BUFFER_ID::SPRITE
-	});
+	initTrapBottleAnimationController(entity);
 
 	registry.midgrounds.emplace(entity);
 
@@ -141,15 +207,30 @@ Entity createHeart(vec2 pos)
 
 	registry.collectibles.emplace(entity);
 
-	registry.renderRequests.insert(
-	entity,
-	{
-		TEXTURE_ASSET_ID::HEART,
-		EFFECT_ASSET_ID::TEXTURED,
-		GEOMETRY_BUFFER_ID::SPRITE
-	});
+	initHeartAnimationController(entity);
 
 	registry.midgrounds.emplace(entity);
+
+	return entity;
+};
+
+Entity createCollected(Motion& playerM, vec2 size, TEXTURE_ASSET_ID assetID)
+{
+	auto entity = Entity();
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.scale = { size.x * 0.7, size.y * 0.7};
+
+	registry.collected.emplace(entity);
+	registry.midgrounds.emplace(entity);
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			assetID,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
 
 	return entity;
 };
@@ -219,6 +300,8 @@ Entity createJeff(vec2 position)
 	// Animation
 	initJeffAnimationController(entity);
 	registry.midgrounds.emplace(entity);
+
+	registry.knockables.emplace(entity);
 	
 	return entity;
 }
@@ -238,9 +321,6 @@ Entity createTree(RenderSystem* renderer, vec2 pos)
 	motion.scale = { TREE_BB_WIDTH, TREE_BB_HEIGHT };
 	motion.hitbox = { TREE_BB_WIDTH, TREE_BB_WIDTH, TREE_BB_HEIGHT / zConversionFactor };
 	motion.solid = true;
-
-	// print tree position
-	printf("Tree position: %f, %f, %f\n", pos.x, pos.y, motion.position.z);
 
 	registry.renderRequests.insert(
 		entity, {
@@ -295,6 +375,47 @@ Entity createArrow(vec3 pos, vec3 velocity)
 	return entity;
 }
 
+Entity createFireball(vec3 pos, vec2 direction) {
+	auto entity = Entity();
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.velocity = vec3(0);
+	motion.angle = atan2(direction.y, direction.x);
+	motion.scale = { FIREBALL_BB_WIDTH, FIREBALL_BB_HEIGHT };
+	motion.hitbox = { FIREBALL_HITBOX_WIDTH, FIREBALL_HITBOX_WIDTH, FIREBALL_HITBOX_WIDTH };
+
+	Damaging& damaging = registry.damagings.emplace(entity);
+	damaging.type = "fireball";
+	damaging.damage = 30;
+	registry.midgrounds.emplace(entity);
+
+	initFireballAnimationController(entity);
+	return entity;
+}
+
+Entity createLightning(vec2 pos) {
+	auto entity = Entity();
+
+	Motion& motion = registry.motions.emplace(entity);
+	
+	// add half the hitbox size to the vec2 pos
+	motion.scale = { LIGHTNING_BB_WIDTH, LIGHTNING_BB_HEIGHT };
+	motion.hitbox = { LIGHTNING_BB_WIDTH, LIGHTNING_BB_WIDTH, LIGHTNING_BB_HEIGHT / zConversionFactor };
+	motion.position = vec3(pos, motion.hitbox.z / 2);
+
+	Damaging& damaging = registry.damagings.emplace(entity);
+	damaging.type = "lightning";
+	damaging.damage = 20;
+	registry.midgrounds.emplace(entity);
+
+	Cooldown& duration = registry.cooldowns.emplace(entity);
+	duration.remaining = 1500.f;
+
+	initLightningAnimationController(entity);
+	return entity;
+}
+
 void createPlayerStaminaBar(Entity characterEntity, vec2 windowSize) {
 	auto meshE = Entity();
 	const float width = 150.0f;
@@ -333,7 +454,7 @@ void createPlayerStaminaBar(Entity characterEntity, vec2 windowSize) {
 		});
 
 	auto textE = Entity();
-	Text& text = registry.texts.emplace(textE);
+	registry.texts.emplace(textE);
 	Foreground& textFg = registry.foregrounds.emplace(textE);
 	textFg.scale = {0.8f, 0.8f};
 	textFg.position = {position.x - 100.0f, position.y};
@@ -390,7 +511,7 @@ void createPlayerHealthBar(Entity characterEntity, vec2 windowSize) {
 		});
 
 	auto textE = Entity();
-	Text& text = registry.texts.emplace(textE);
+	registry.texts.emplace(textE);
 	Foreground& textFg = registry.foregrounds.emplace(textE);
 	textFg.scale = {0.8f, 0.8f};
 	textFg.position = {position.x - 32.0f, position.y};
@@ -452,6 +573,34 @@ void createHealthBar(Entity characterEntity, vec4 color) {
 	hpbar.height = height;
 }
 
+Entity createTargetArea(vec3 position, float radius) {
+	auto entity = Entity();
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = position;
+	motion.position.z = 0.f;
+
+	float ogRadius = 170.f;
+	float scaledFactor = radius / ogRadius;
+	motion.scale = { 2 * ogRadius * scaledFactor, 2 * ogRadius * scaledFactor * zConversionFactor };
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::TARGET_AREA,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	registry.backgrounds.emplace(entity);
+	registry.targetAreas.emplace(entity);
+	Cooldown& cooldown = registry.cooldowns.emplace(entity);
+	cooldown.remaining = 3000.f; // 5s
+
+	printf("Target area created\n");
+	return entity;
+}
+
 Entity createPauseHelpText(vec2 windowSize) {
 	auto entity = Entity();
 
@@ -470,65 +619,6 @@ Entity createPauseHelpText(vec2 windowSize) {
 		});
 
 	return entity;
-}
-
-Entity createPauseMenu(vec2 cameraPosition) {
-	auto entity = Entity();
-
-	registry.pauseMenuComponents.emplace(entity);
-
-	registry.foregrounds.emplace(entity);
-
-	Motion& motion = registry.motions.emplace(entity);
-	motion.position = {cameraPosition, 0};
-	motion.angle = 0.f;
-	motion.scale = { 960, 540 };
-
-	registry.renderRequests.insert(
-		entity, 
-		{
-			TEXTURE_ASSET_ID::MENU_PAUSED,
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE
-		});
-
-	return entity;
-}
-
-
-void exitPauseMenu() {
-	for (auto& entity: registry.pauseMenuComponents.entities) {
-		registry.remove_all_components_of(entity);
-	}
-}
-
-Entity createHelpMenu(vec2 cameraPosition) {
-	auto entity = Entity();
-
-	registry.pauseMenuComponents.emplace(entity);
-
-	registry.foregrounds.emplace(entity);
-
-	Motion& motion = registry.motions.emplace(entity);
-	motion.position = {cameraPosition, 0};
-	motion.angle = 0.f;
-	motion.scale = { 960, 540 };
-
-	registry.renderRequests.insert(
-		entity, 
-		{
-			TEXTURE_ASSET_ID::MENU_HELP,
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE
-		});
-
-	return entity;
-}
-
-void exitHelpMenu() {
-	for (auto& entity: registry.pauseMenuComponents.entities) {
-		registry.remove_all_components_of(entity);
-	}
 }
 
 Entity createFPSText(vec2 windowSize) {
@@ -577,10 +667,12 @@ Entity createTrapsCounterText(vec2 windowSize) {
 
 	vec2 position = {(windowSize.x / 2) - 210.0f, windowSize.y - 80.0f};
 
-	Text& text = registry.texts.emplace(textE);
+	registry.texts.emplace(textE);
 	Foreground& fg = registry.foregrounds.emplace(textE);
 	fg.position = position;
 	fg.scale = {1.5f, 1.5f};
+
+	registry.colours.insert(textE, {0.8f, 0.8f, 0.0f, 1.0f});
 
 	registry.renderRequests.insert(
 		textE, 
@@ -633,15 +725,15 @@ void createObstacles() {
 
 	int numShrubs = 20;
 	while(numShrubs != 0) {
-    	float posX = (uniform_dist(rng) * world_size_x);
-		float posY = (uniform_dist(rng) * world_size_y);
+		float posX = uniform_dist(rng) * (rightBound - leftBound) + leftBound;
+		float posY = uniform_dist(rng) * (bottomBound - topBound) + topBound;
 		createObstacle({posX, posY}, {SHRUB_BB_WIDTH, SHRUB_BB_HEIGHT}, TEXTURE_ASSET_ID::SHRUB);
 		numShrubs--;
     }
 	int numRocks = 15;
 	while(numRocks != 0) {
-    	float posX = (uniform_dist(rng) * world_size_x);
-		float posY = (uniform_dist(rng) * world_size_y);
+		float posX = uniform_dist(rng) * (rightBound - leftBound) + leftBound;
+		float posY = uniform_dist(rng) * (bottomBound - topBound) + topBound;
 		createObstacle({posX, posY}, {ROCK_BB_WIDTH, ROCK_BB_HEIGHT}, TEXTURE_ASSET_ID::ROCK);
 		numRocks--;
     }
@@ -829,11 +921,13 @@ void createGameOverText(vec2 windowSize) {
     oss << gameTimer.seconds << "s";
 	text2.value = oss.str();
 
+	createHighScoreText(windowSize);
+
 	auto entity3 = Entity();
 	Text& text3 = registry.texts.emplace(entity3);
 	text3.value = "Press ENTER to play again";
 	Foreground& text3Fg = registry.foregrounds.emplace(entity3);
-	text3Fg.position = {windowSize.x / 2 - 165.f, windowSize.y / 2 - 80.f};
+	text3Fg.position = {windowSize.x / 2 - 160.f, windowSize.y / 2 - 110.f};
 	text3Fg.scale = {0.8f, 0.8f};
 
 	entities.push_back(entity1);
@@ -848,6 +942,31 @@ void createGameOverText(vec2 windowSize) {
 			GEOMETRY_BUFFER_ID::TEXT
 		});
 	}
+
+}
+
+Entity createHighScoreText(vec2 windowSize){
+	auto entity = Entity();
+
+	GameScore& gameScore = registry.gameScore;
+
+	Text& text = registry.texts.emplace(entity);
+    text.value = "Your High Score is  " + std::to_string(gameScore.highScoreHours) + "h " + std::to_string(gameScore.highScoreMinutes) + "m " + std::to_string(gameScore.highScoreSeconds) + "s ";
+	Foreground& fg = registry.foregrounds.emplace(entity);
+	fg.position = {windowSize.x / 2 - 220.f, windowSize.y / 2 - 50.f};
+	fg.scale = {1.0f, 1.0f};
+	
+	registry.colours.insert(entity, {1.0f, 0.85f, 0.0f, 1.0f});
+
+	registry.renderRequests.insert(
+		entity, 
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::FONT,
+			GEOMETRY_BUFFER_ID::TEXT
+		});
+
+	return entity;
 }
 
 void createTrees(RenderSystem* renderer) {
@@ -857,8 +976,8 @@ void createTrees(RenderSystem* renderer) {
 	rng = std::default_random_engine(std::random_device()());
 
 	while (numTrees != 0) {
-		float posX = (uniform_dist(rng) * world_size_x);
-		float posY = (uniform_dist(rng) * world_size_y);
+		float posX = uniform_dist(rng) * (rightBound - leftBound) + leftBound;
+		float posY = uniform_dist(rng) * (bottomBound - topBound) + topBound;
 		createTree(renderer, { posX, posY });
 		numTrees--;
 	}

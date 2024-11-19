@@ -511,7 +511,6 @@ void WorldSystem::movementControls(int key, int action, int mod)
         break;
     case GLFW_KEY_D:
         if (pressed) {
-            const float DASH_STAMINA = 40;
             if (player_stamina.stamina > DASH_STAMINA) {
                 const float dashDistance = 300;
                 // Start dashing if player is moving
@@ -529,7 +528,6 @@ void WorldSystem::movementControls(int key, int action, int mod)
     case GLFW_KEY_SPACE:
         // Jump
         if (pressed && !player_comp.isTrapped) {
-            const float JUMP_STAMINA = 20;
             if (player_stamina.stamina >= JUMP_STAMINA && !player_comp.tryingToJump) {
                 player_comp.tryingToJump = true;
                 if (registry.jumpers.has(playerEntity)) {

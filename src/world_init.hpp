@@ -55,6 +55,10 @@ const float BIRD_SPEED = 0.3;
 const float WIZARD_SPEED = 0.1;
 const float PLAYER_SPEED = 0.5;
 
+
+const float JUMP_STAMINA = 20.f;
+const float DASH_STAMINA = 30.f;
+
 const std::unordered_map<std::string, vec2> entity_sizes = {
 	{"boar", { BOAR_BB_WIDTH, BOAR_BB_HEIGHT }},
 	{"barbarian", { BARBARIAN_BB_WIDTH, BARBARIAN_BB_WIDTH }},

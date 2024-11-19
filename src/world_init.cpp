@@ -117,7 +117,7 @@ Entity createBirdFlock(vec2 pos)
         Motion& motion = registry.motions.emplace(entity);
         motion.position = vec3(birdPosition, TREE_BB_HEIGHT - BIRD_BB_WIDTH);
         motion.angle = 0.f;
-        motion.scale = { BIRD_BB_WIDTH, BIRD_BB_HEIGHT };
+        motion.scale = { 16 * SPRITE_SCALE, 16 * SPRITE_SCALE};
         motion.hitbox = { BIRD_BB_WIDTH, BIRD_BB_HEIGHT, BIRD_BB_HEIGHT / zConversionFactor };
         motion.solid = true;
 

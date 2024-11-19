@@ -534,6 +534,18 @@ void updateHpBarMeter() {
 		std::stringstream ss;
 		ss << "HP" << std::string(8, ' ') << std::to_string(player.health) << "/100";
 		text.value = ss.str();
+
+		if(player.health <= 30.0f) {
+			registry.colours.get(hpbar.meshEntity) = {1.0f, 0.0f, 0.0f, 1.0f};
+			registry.colours.get(hpbar.frameEntity) = {1.0f, 0.0f, 0.0f, 1.0f};
+		}
+		else if(player.health <= 60.0f) {
+			registry.colours.get(hpbar.meshEntity) = {1.0f, 0.45f, 0.0f, 1.0f};
+			registry.colours.get(hpbar.frameEntity) = {1.0f, 0.45f, 0.0f, 1.0f};
+		} else {
+			registry.colours.get(hpbar.meshEntity) = {0.0f, 1.0f, 0.0f, 1.0f};
+			registry.colours.get(hpbar.frameEntity) = {0.0f, 1.0f, 0.0f, 1.0f};
+		}
 	}
 	for (Entity entity : registry.enemies.entities) {
 		Enemy& enemy = registry.enemies.get(entity);

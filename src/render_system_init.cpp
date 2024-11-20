@@ -382,13 +382,15 @@ bool loadEffectFromFile(
 	// Compiling
 	if (!gl_compile_shader(vertex))
 	{
+		fprintf(stderr, "%s, %s", vs_path.c_str(), fs_path.c_str());
 		fprintf(stderr, "Vertex compilation failed");
 		assert(false);
 		return false;
 	}
 	if (!gl_compile_shader(fragment))
 	{
-		fprintf(stderr, "Vertex compilation failed");
+		fprintf(stderr, "%s, %s", vs_path.c_str(), fs_path.c_str());
+		fprintf(stderr, "Fragment compilation failed");
 		assert(false);
 		return false;
 	}

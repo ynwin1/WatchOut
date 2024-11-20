@@ -54,6 +54,9 @@ private:
 
 	bool isWindowed = false;
 
+	// Lighting variables
+	float ambientLight = .5;
+
 	Entity playerEntity;
 	std::unordered_map<std::string, float> spawn_delays;
 	std::unordered_map<std::string, int> max_entities;

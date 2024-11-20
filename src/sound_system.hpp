@@ -72,7 +72,7 @@ public:
 	void playMusic(Music key, int duration, int volume);
 
 	// Play sound effect
-	void playSoundEffect(Sound key, int count);
+	void playSoundEffect(Sound key, int count, int volume);
 
 	// Stop music
 	void stopMusic(Music key);

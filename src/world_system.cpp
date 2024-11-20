@@ -523,7 +523,7 @@ void WorldSystem::movementControls(int key, int action, int mod)
                 player_stamina.stamina -= DASH_STAMINA;
 
                 // play dash sound
-                sound->playSoundEffect(Sound::DASHING, 0);
+                sound->playSoundEffect(Sound::DASHING, 0, 50);
             }
         }
         break;
@@ -544,7 +544,7 @@ void WorldSystem::movementControls(int key, int action, int mod)
                             player_stamina.stamina = 0;
                         }
                         // play jump sound
-                        sound->playSoundEffect(Sound::JUMPING, 0);
+                        sound->playSoundEffect(Sound::JUMPING, 0, 50);
                     }
                 }
             }
@@ -717,7 +717,7 @@ void WorldSystem::entity_collectible_collision(Entity entity, Entity entity_othe
 		printf("Unknown collectible type\n");
 	}
 
-	sound->playSoundEffect(Sound::COLLECT, 0);
+	sound->playSoundEffect(Sound::COLLECT, 0, 100);
     // destroy the collectible
     registry.remove_all_components_of(entity_other);
 }
@@ -1075,7 +1075,7 @@ void WorldSystem::adjustSpawnSystem(float elapsed_ms) {
 			maxEntity.second++;
 		}
 		gameTimer.elapsed = 0;
-        sound->playSoundEffect(Sound::LEVELUP, 0);
+        sound->playSoundEffect(Sound::LEVELUP, 0, 100);
 	}
 }
 

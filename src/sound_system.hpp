@@ -52,9 +52,9 @@ public:
 		{ Sound::WALKING,		std::pair<std::string, int>(audio_path("walking.wav"), 80) },
 		{ Sound::JUMPING,		std::pair<std::string, int>(audio_path("jumping.wav"), 80) },
 		{ Sound::DASHING,		std::pair<std::string, int>(audio_path("dashing.wav"), 80) },
-		{ Sound::LEVELUP,		std::pair<std::string, int>(audio_path("levelUp.wav"), 80) },
+		{ Sound::LEVELUP,		std::pair<std::string, int>(audio_path("levelUp.wav"), 100) },
 		{ Sound::FIREBALL,		std::pair<std::string, int>(audio_path("fireball.wav"), 80) },
-		{ Sound::COLLECT,		std::pair<std::string, int>(audio_path("collect.wav"),80) },
+		{ Sound::COLLECT,		std::pair<std::string, int>(audio_path("collect.wav"), 128) },
 		{ Sound::BIRD_FLOCK,	std::pair<std::string, int>(audio_path("birds_flock.wav"), 50) },
 		{ Sound::BIRD_ATTACK,	std::pair<std::string, int>(audio_path("bird_attack.wav"), 80) }
 	};
@@ -74,9 +74,9 @@ public:
 
 	// PLAY
 	// Play music; duration = -1 for infinite loop
-	void playMusic(Music key, int duration, int volume);
+	void playMusic(Music key, int duration);
 	// Play sound effect
-	void playSoundEffect(Sound key, int count, int volume);
+	void playSoundEffect(Sound key, int count);
 
 	// PAUSE
 	// Pause music

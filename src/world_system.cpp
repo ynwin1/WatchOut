@@ -533,7 +533,7 @@ void WorldSystem::movementControls(int key, int action, int mod)
                 player_stamina.stamina -= DASH_STAMINA;
 
                 // play dash sound
-                sound->playSoundEffect(Sound::DASHING, 0, 50);
+                sound->playSoundEffect(Sound::DASHING, 0);
             }
         }
         break;
@@ -554,7 +554,7 @@ void WorldSystem::movementControls(int key, int action, int mod)
                             player_stamina.stamina = 0;
                         }
                         // play jump sound
-                        sound->playSoundEffect(Sound::JUMPING, 0, 50);
+                        sound->playSoundEffect(Sound::JUMPING, 0);
                     }
                 }
             }
@@ -727,7 +727,7 @@ void WorldSystem::entity_collectible_collision(Entity entity, Entity entity_othe
 		printf("Unknown collectible type\n");
 	}
 
-	sound->playSoundEffect(Sound::COLLECT, 0, 100);
+	sound->playSoundEffect(Sound::COLLECT, 0);
     // destroy the collectible
     registry.remove_all_components_of(entity_other);
 }
@@ -973,7 +973,7 @@ void WorldSystem::checkAndHandlePlayerDeath(Entity& entity) {
         motion.hitbox = { motion.hitbox.z, motion.hitbox.y, motion.hitbox.x }; // Change hitbox to be on its side
 
         sound->stopAllSounds();
-		sound->playMusic(Music::PLAYER_DEATH, -1, 10);
+		sound->playMusic(Music::PLAYER_DEATH, -1);
 	}
 }
 
@@ -1085,7 +1085,7 @@ void WorldSystem::adjustSpawnSystem(float elapsed_ms) {
 			maxEntity.second++;
 		}
 		gameTimer.elapsed = 0;
-        sound->playSoundEffect(Sound::LEVELUP, 0, 100);
+        sound->playSoundEffect(Sound::LEVELUP, 0);
 	}
 }
 
@@ -1135,11 +1135,10 @@ void WorldSystem::accelerateFireballs(float elapsed_ms) {
 }
 
 void WorldSystem::soundSetUp() {
-    int VOLUME = 20;
     // stop all sounds first
     sound->stopAllSounds();
     // init sound system
     sound->init();
     // play background music
-    sound->playMusic(Music::BACKGROUND, -1, VOLUME);
+    sound->playMusic(Music::BACKGROUND, -1);
 }

@@ -67,7 +67,7 @@ void SoundSystem::loadAllSoundEffects()
 	}
 }
 
-void SoundSystem::playMusic(Music key, int duration, int volume)
+void SoundSystem::playMusic(Music key, int duration)
 {
 	auto it = loadedMusic.find(key);
 	if (it == loadedMusic.end()) {
@@ -80,17 +80,18 @@ void SoundSystem::playMusic(Music key, int duration, int volume)
 		handleError("Failed to play music!");
 		return;
 	}
+	int originalVolume = musics.find(key)->second.second;
 	if (mute) {
 		Mix_VolumeMusic(0);
 	}
 	else {
-		Mix_VolumeMusic(volume);
+		Mix_VolumeMusic(originalVolume);
 	}
 	musicTracks[key] = channel;
 }
 
 // count - number of times to play the sound, 0 means once, -1 means infinite loop
-void SoundSystem::playSoundEffect(Sound key, int count, int volume)
+void SoundSystem::playSoundEffect(Sound key, int count)
 {
 	auto it = loadedSoundEffects.find(key);
 	if (it == loadedSoundEffects.end()) {
@@ -103,11 +104,12 @@ void SoundSystem::playSoundEffect(Sound key, int count, int volume)
 		handleError("Failed to play sound effect!");
 		return;
 	}
+	int originalVolume = sounds.find(key)->second.second;
 	if (mute) {
 		Mix_Volume(channel, 0);
 	}
 	else {
-		Mix_Volume(channel, volume);
+		Mix_Volume(channel, originalVolume);
 	}
 	soundEffects[key] = channel;
 };
@@ -289,7 +291,7 @@ void SoundSystem::controlPlayerSound() {
 	if (player.isMoving) {
 		if (!isMovingSoundPlaying) {
 			// walking sound
-			playSoundEffect(Sound::WALKING, -1, 70);
+			playSoundEffect(Sound::WALKING, -1);
 			isMovingSoundPlaying = true;
 		}
 	}
@@ -307,7 +309,7 @@ void SoundSystem::controlBirdSound() {
 	if (registry.birds.size() > 0) {
 		if (!isBirdFlockSoundPlaying) {
 			// birds sound
-			playSoundEffect(Sound::BIRD_FLOCK, -1, 10);
+			playSoundEffect(Sound::BIRD_FLOCK, -1);
 			isBirdFlockSoundPlaying = true;
 		}
 	}

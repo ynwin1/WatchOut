@@ -145,6 +145,7 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection, const mat4& p
 	// set attributes for untextured meshes
 	else if(render_request.used_effect == EFFECT_ASSET_ID::UNTEXTURED)
 	{
+		bindLightingAttributes(program, entity);
 		GLint in_position_loc = glGetAttribLocation(program, "in_position");
 		gl_has_errors();
 		glEnableVertexAttribArray(in_position_loc);
@@ -268,7 +269,11 @@ void RenderSystem::bindLightingAttributes(const GLuint program, const Entity &en
 {
 	// Pass lighting information to shaders
 	GLint ambientLight_loc = glGetUniformLocation(program, "ambient_light");
-	glUniform1f(ambientLight_loc, AMBIENT_LIGHT);       // Set ambientlight value
+	if (registry.foregrounds.has(entity)) {
+		glUniform1f(ambientLight_loc, 1.0);       // Set ambientlight value
+	} else {
+		glUniform1f(ambientLight_loc, AMBIENT_LIGHT);       // Set ambientlight value
+	}
 }
 
 // Returns true if entity a is further from the camera

@@ -131,7 +131,7 @@ private:
 	// Internal drawing functions for each entity type
 	void drawMesh(Entity entity, const mat3& projection, const mat4& projection_screen);
 
-	void drawText(Entity entity);
+	void drawText(Entity entity, const mat4& projection_screen);
 
 	void update_hpbars();
 

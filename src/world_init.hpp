@@ -14,8 +14,8 @@ const float BARBARIAN_BB_WIDTH = 19.f * SPRITE_SCALE;
 const float BARBARIAN_BB_HEIGHT = 34.f * SPRITE_SCALE;
 const float ARCHER_BB_WIDTH = 32.f * SPRITE_SCALE;
 const float ARCHER_BB_HEIGHT = 32.f * SPRITE_SCALE;
-const float BIRD_BB_WIDTH = 23.f * SPRITE_SCALE;
-const float BIRD_BB_HEIGHT = 13.f * SPRITE_SCALE;
+const float BIRD_BB_WIDTH = 16.f * SPRITE_SCALE;
+const float BIRD_BB_HEIGHT = 8.f * SPRITE_SCALE;
 const float WIZARD_BB_WIDTH = 32.f * SPRITE_SCALE;
 const float WIZARD_BB_HEIGHT = 32.f * SPRITE_SCALE;
 const float JEFF_BB_WIDTH   = 20.f * SPRITE_SCALE;
@@ -119,19 +119,14 @@ void exitHelpMenu();
 // Playing UI
 Entity createPauseHelpText(vec2 windowSize);
 Entity createFPSText(vec2 windowSize);
+Entity createGameTimerText(vec2 windowSize);
+Entity createTrapsCounterText(vec2 windowSize);
 
 // Game over UI
 void createGameOverText(vec2 windowSize);
-Entity createGameTimerText(vec2 windowSize);
-Entity createHighScoreText(vec2 windowSize, int hours, int minutes, int seconds);
-
-Entity createTrapsCounterText(vec2 windowSize);
-
-// GameOver
-Entity createGameOver(vec2 pos);
 
 // Display bars
-void createHealthBar(Entity characterEntity, vec3 color);
+void createHealthBar(Entity characterEntity, vec4 color);
 void createPlayerHealthBar(Entity characterEntity, vec2 windowSize);
 void createPlayerStaminaBar(Entity characterEntity, vec2 windowSize);
 

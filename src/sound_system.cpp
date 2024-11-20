@@ -46,7 +46,7 @@ bool SoundSystem::init()
 void SoundSystem::loadAllMusic()
 {
 	for (auto& pair : musics) {
-		Mix_Music* music = Mix_LoadMUS(pair.second.c_str());
+		Mix_Music* music = Mix_LoadMUS(pair.second.first.c_str());
 		if (music == nullptr) {
 			handleError("Failed to load music!");
 			continue;
@@ -58,7 +58,7 @@ void SoundSystem::loadAllMusic()
 void SoundSystem::loadAllSoundEffects()
 {
 	for (auto& pair : sounds) {
-		Mix_Chunk* sound = Mix_LoadWAV(pair.second.c_str());
+		Mix_Chunk* sound = Mix_LoadWAV(pair.second.first.c_str());
 		if (sound == nullptr) {
 			handleError("Failed to load sound effect!");
 			continue;
@@ -80,7 +80,12 @@ void SoundSystem::playMusic(Music key, int duration, int volume)
 		handleError("Failed to play music!");
 		return;
 	}
-	Mix_VolumeMusic(volume);
+	if (mute) {
+		Mix_VolumeMusic(0);
+	}
+	else {
+		Mix_VolumeMusic(volume);
+	}
 	musicTracks[key] = channel;
 }
 
@@ -98,7 +103,12 @@ void SoundSystem::playSoundEffect(Sound key, int count, int volume)
 		handleError("Failed to play sound effect!");
 		return;
 	}
-	Mix_VolumeChunk(sound, volume);
+	if (mute) {
+		Mix_Volume(channel, 0);
+	}
+	else {
+		Mix_Volume(channel, volume);
+	}
 	soundEffects[key] = channel;
 };
 
@@ -244,6 +254,23 @@ void SoundSystem::stopAllSounds() {
 	stopAllSoundEffects();
 }
 
+// mute
+void SoundSystem::muteAllSounds() {
+	Mix_VolumeMusic(0);
+	Mix_Volume(-1, 0);
+}
+
+// unmute
+void SoundSystem::unmuteAllSounds() {
+	// music (cannot control individual music volume)
+	Mix_VolumeMusic(INITIAL_MUSIC_VOLUME);
+	// sound effects
+	for (auto& soundEffect : soundEffects) {
+		int originalVolume = sounds.find(soundEffect.first)->second.second;
+		Mix_Volume(soundEffect.second, originalVolume);
+	}
+}
+
 void SoundSystem::unloadAllSounds()
 {
 	for (auto& pair : loadedMusic) {
@@ -255,14 +282,6 @@ void SoundSystem::unloadAllSounds()
 		Mix_FreeChunk(pair.second);
 	}
 	loadedSoundEffects.clear();
-}
-
-void SoundSystem::step(float elapsed_ms) {
-	// monitoring player movement
-	controlPlayerSound();
-
-	// monitoring birds movement
-	controlBirdSound();
 }
 
 void SoundSystem::controlPlayerSound() {
@@ -299,4 +318,10 @@ void SoundSystem::controlBirdSound() {
 			isBirdFlockSoundPlaying = false;
 		}
 	}
+}
+
+void SoundSystem::step(float elapsed_ms)
+{
+	controlPlayerSound();
+	controlBirdSound();
 }

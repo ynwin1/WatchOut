@@ -338,7 +338,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     case GAME_STATE::PAUSED:
 		sound->isBirdFlockSoundPlaying = false;
 		sound->isMovingSoundPlaying = false;
-        sound->pauseAllSounds();
+        sound->pauseAllSoundEffects();
         pauseControls(key, action, mod);
         break;
     case GAME_STATE::GAMEOVER:
@@ -347,7 +347,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     case GAME_STATE::HELP:
         sound->isMovingSoundPlaying = false;
         sound->isBirdFlockSoundPlaying = false;
-        sound->pauseAllSounds();
+        sound->pauseAllSoundEffects();
         helpControls(key, action, mod);
         break;
     }
@@ -366,7 +366,7 @@ void WorldSystem::helpControls(int key, int action, int mod)
             restart_game();
         case GLFW_KEY_H:
             gameStateController.setGameState(GAME_STATE::PLAYING);
-            sound->resumeAllSounds();
+            sound->resumeAllSoundEffects();
             break;
         case GLFW_KEY_P:
         case GLFW_KEY_ESCAPE:
@@ -392,7 +392,7 @@ void WorldSystem::pauseControls(int key, int action, int mod)
         case GLFW_KEY_P:
         case GLFW_KEY_ESCAPE:
             gameStateController.setGameState(GAME_STATE::PLAYING);
-			sound->resumeAllSounds();
+			sound->resumeAllSoundEffects();
             break;
         }
     }
@@ -447,6 +447,16 @@ void WorldSystem::allStateControls(int key, int action, int mod)
         case GLFW_KEY_F:
             // toggle fps
             registry.fpsTracker.toggled = !registry.fpsTracker.toggled;
+            break;
+		case GLFW_KEY_M:
+            // toggle sound
+			sound->mute = !sound->mute;
+			if (sound->mute) {
+				sound->muteAllSounds();
+			}
+			else {
+				sound->unmuteAllSounds();
+			}
             break;
         case GLFW_KEY_V:
             isWindowed = !isWindowed;

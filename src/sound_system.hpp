@@ -35,24 +35,28 @@ public:
 	SoundSystem();
 	~SoundSystem();
 
-	const std::map<Music, std::string> musics = {
-		{ Music::BACKGROUND,	audio_path("mystery_background.wav") },
-		{ Music::PLAYER_DEATH,	audio_path("playerDeath.wav") }
+	bool mute = false;
+	int INITIAL_MUSIC_VOLUME = 20;
+
+	// path and volume
+	const std::map<Music, std::pair<std::string, int>> musics = {
+		{ Music::BACKGROUND, std::pair<std::string, int>(audio_path("mystery_background.wav"), INITIAL_MUSIC_VOLUME) },
+		{ Music::PLAYER_DEATH,	std::pair<std::string, int>(audio_path("playerDeath.wav"), INITIAL_MUSIC_VOLUME) }
 	};
 
-	const std::map<Sound, std::string> sounds = {
-		{ Sound::ARROW,			audio_path("arrow.wav") },
-		{ Sound::BOAR_CHARGE,	audio_path("boar_charge.wav") },
-		{ Sound::THUNDER,		audio_path("thunder.wav") },
-		{ Sound::STORM,			audio_path("storm.wav") },
-		{ Sound::WALKING,		audio_path("walking.wav") },
-		{ Sound::JUMPING,		audio_path("jumping.wav") },
-		{ Sound::DASHING,		audio_path("dashing.wav") },
-		{ Sound::LEVELUP,		audio_path("levelUp.wav") },
-		{ Sound::FIREBALL,		audio_path("fireball.wav") },
-		{ Sound::COLLECT,		audio_path("collect.wav") },
-		{ Sound::BIRD_FLOCK,	audio_path("birds_flock.wav") },
-		{ Sound::BIRD_ATTACK,	audio_path("bird_attack.wav") }
+	const std::map<Sound, std::pair<std::string, int>> sounds = {
+		{ Sound::ARROW,			std::pair<std::string, int>(audio_path("arrow.wav"), 80) },
+		{ Sound::BOAR_CHARGE,	std::pair<std::string, int>(audio_path("boar_charge.wav"), 80) },
+		{ Sound::THUNDER,		std::pair<std::string, int>(audio_path("thunder.wav"), 80) },
+		{ Sound::STORM,			std::pair<std::string, int>(audio_path("storm.wav"), 80) },
+		{ Sound::WALKING,		std::pair<std::string, int>(audio_path("walking.wav"), 80) },
+		{ Sound::JUMPING,		std::pair<std::string, int>(audio_path("jumping.wav"), 80) },
+		{ Sound::DASHING,		std::pair<std::string, int>(audio_path("dashing.wav"), 80) },
+		{ Sound::LEVELUP,		std::pair<std::string, int>(audio_path("levelUp.wav"), 80) },
+		{ Sound::FIREBALL,		std::pair<std::string, int>(audio_path("fireball.wav"), 80) },
+		{ Sound::COLLECT,		std::pair<std::string, int>(audio_path("collect.wav"),80) },
+		{ Sound::BIRD_FLOCK,	std::pair<std::string, int>(audio_path("birds_flock.wav"), 50) },
+		{ Sound::BIRD_ATTACK,	std::pair<std::string, int>(audio_path("bird_attack.wav"), 80) }
 	};
 
 	// Sound variables
@@ -109,6 +113,12 @@ public:
 	void stopAllSoundEffects();
 	// Stop all sounds
 	void stopAllSounds();
+
+	// MUTE
+	// Mute all sounds
+	void muteAllSounds();
+	// Unmute all sounds
+	void unmuteAllSounds();
 
 	// Remove all sounds from memory
 	void unloadAllSounds();

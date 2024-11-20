@@ -268,7 +268,7 @@ void RenderSystem::bindLightingAttributes(const GLuint program, const Entity &en
 {
 	// Pass lighting information to shaders
 	GLint ambientLight_loc = glGetUniformLocation(program, "ambient_light");
-	glUniform1f(ambientLight_loc, .5);       // Set ambientlight value
+	glUniform1f(ambientLight_loc, AMBIENT_LIGHT);       // Set ambientlight value
 }
 
 // Returns true if entity a is further from the camera

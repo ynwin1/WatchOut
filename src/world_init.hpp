@@ -18,6 +18,9 @@ const float BIRD_BB_WIDTH = 16.f * SPRITE_SCALE;
 const float BIRD_BB_HEIGHT = 8.f * SPRITE_SCALE;
 const float WIZARD_BB_WIDTH = 32.f * SPRITE_SCALE;
 const float WIZARD_BB_HEIGHT = 32.f * SPRITE_SCALE;
+const float TROLL_SIZE_FACTOR = 2.f;
+const float TROLL_BB_WIDTH = 48.f * SPRITE_SCALE;
+const float TROLL_BB_HEIGHT = 64.f * SPRITE_SCALE;
 const float JEFF_BB_WIDTH   = 20.f * SPRITE_SCALE;
 const float JEFF_BB_HEIGHT  = 28.f * SPRITE_SCALE;
 const float JEFF_RUN_BB_WIDTH   = 24.f * SPRITE_SCALE;
@@ -54,16 +57,21 @@ const float ARCHER_SPEED = 0.2;
 const float BIRD_SPEED = 0.3;
 const float WIZARD_SPEED = 0.1;
 const float PLAYER_SPEED = 0.5;
+const float TROLL_SPEED = 0.1;
 
-const std::unordered_map<std::string, vec2> entity_sizes = {
-	{"boar", { BOAR_BB_WIDTH, BOAR_BB_HEIGHT }},
-	{"barbarian", { BARBARIAN_BB_WIDTH, BARBARIAN_BB_WIDTH }},
-	{"archer", { ARCHER_BB_WIDTH, ARCHER_BB_WIDTH }},
-	{"bird", { BIRD_BB_WIDTH, BIRD_BB_WIDTH }},
-	{"wizard", { WIZARD_BB_WIDTH, WIZARD_BB_HEIGHT }},
-	{"heart", { HEART_BB_WIDTH, HEART_BB_WIDTH }},
-	{"collectible_trap", {TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_WIDTH}}
-};
+const int BOAR_HEALTH = 50;
+const int BARBARIAN_HEALTH = 30;
+const int ARCHER_HEALTH = 25;
+const int BIRD_HEALTH = 10;
+const int WIZARD_HEALTH = 20;
+const int TROLL_HEALTH = 200;
+
+const int BOAR_DAMAGE = 30;
+const int BARBARIAN_DAMAGE = 20;
+const int ARCHER_DAMAGE = 25;
+const int BIRD_DAMAGE = 10;
+const int WIZARD_DAMAGE = 50;
+const int TROLL_DAMAGE = 5;
 
 // Jeff the Player
 Entity createJeff(vec2 position);
@@ -81,8 +89,11 @@ Entity createArcher(vec2 pos);
 
 // The birds
 Entity createBirdFlock(vec2 pos);
+
 // The wizard
 Entity createWizard(vec2 pos);
+
+Entity createTroll(vec2 pos);
 
 // The collectible trap
 Entity createCollectibleTrap(vec2 pos);
@@ -97,20 +108,13 @@ Entity createCollected(Motion& playerM, vec2 size, TEXTURE_ASSET_ID assetID);
 Entity createDamageTrap(vec2 pos);
 
 // Arrows fired by the archer
-Entity createArrow(vec3 pos, vec3 velocity);
+Entity createArrow(vec3 pos, vec3 velocity, int damage);
 
 // Fireballs fired by the wizard
 Entity createFireball(vec3 pos, vec2 direction);
 
 // Lightning bolt from the sky
 Entity createLightning(vec2 pos);
-
-// Pause UI
-Entity createPauseMenu(vec2 windowSize);
-
-// Help Menu UI
-Entity createHelpMenu(vec2 windowSize);
-void exitHelpMenu();
 
 // Playing UI
 Entity createPauseHelpText(vec2 windowSize);
@@ -120,6 +124,12 @@ Entity createTrapsCounterText(vec2 windowSize);
 
 // Game over UI
 void createGameOverText(vec2 windowSize);
+
+// GameOver
+Entity createGameOver(vec2 pos);
+
+// GameOver
+Entity createGameOver(vec2 pos);
 
 // Display bars
 void createHealthBar(Entity characterEntity, vec4 color);

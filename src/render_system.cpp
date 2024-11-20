@@ -554,7 +554,7 @@ void updateHpBarMeter() {
 		Enemy& enemy = registry.enemies.get(entity);
 		HealthBar& hpbar = registry.healthBars.get(entity);
 		Motion& motion = registry.motions.get(hpbar.meshEntity);
-		motion.scale.x = hpbar.width * enemy.health/100.f;
+		motion.scale.x = hpbar.width * enemy.health/enemy.maxHealth;
 	}
 }
 

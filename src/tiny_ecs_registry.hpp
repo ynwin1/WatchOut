@@ -52,7 +52,7 @@ public:
 	ComponentContainer<Background> backgrounds;
 	ComponentContainer<Midground> midgrounds;
 	ComponentContainer<Foreground> foregrounds;
-	ComponentContainer<vec3> colours;
+	ComponentContainer<vec4> colours;
 
 
 	// Spawnable types
@@ -67,6 +67,7 @@ public:
 	ComponentContainer<CollectibleTrap> collectibleTraps;
 
 	GameTimer gameTimer;
+	GameScore gameScore;
 
 	//debugging
 	FPSTracker fpsTracker;

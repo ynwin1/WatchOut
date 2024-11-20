@@ -12,9 +12,11 @@
 #include <algorithm>
 #include <sstream>
 
-void RenderSystem::drawText(Entity entity) {
+void RenderSystem::drawText(Entity entity, const mat4& projection_screen) {
 	const Text& text = registry.texts.get(entity);
+	const Foreground& fg = registry.foregrounds.get(entity);
 	const RenderRequest& render_request = registry.renderRequests.get(entity);
+	const vec4 colour = registry.colours.has(entity) ? registry.colours.get(entity) : vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
 	const GLuint used_effect_enum = (GLuint)render_request.used_effect;
 	assert(used_effect_enum != (GLuint)EFFECT_ASSET_ID::EFFECT_COUNT);
@@ -25,19 +27,20 @@ void RenderSystem::drawText(Entity entity) {
 
 	glActiveTexture(GL_TEXTURE0);
 
-	float startX = text.position.x;
-	float startY = text.position.y;
+	float startX = fg.position.x;
+	float startY = fg.position.y;
+	const float scale = fg.scale.x;
 
 	std::string::const_iterator c;
     for (c = text.value.begin(); c != text.value.end(); c++)
     {
         TextChar ch = registry.textChars[*c];
 
-        float xpos = startX + ch.bearing.x * text.scale;
-		float ypos = startY - (ch.size.y - ch.bearing.y) * text.scale;
+        float xpos = startX + ch.bearing.x * scale;
+		float ypos = startY - (ch.size.y - ch.bearing.y) * scale;
 
-        float w = ch.size.x * text.scale;
-        float h = ch.size.y * text.scale;
+        float w = ch.size.x * scale;
+        float h = ch.size.y * scale;
         // update VBO for each character
 	  	float vertices[6][4] = {
             	{ xpos,     ypos + h,   0.0f, 0.0f },            
@@ -58,14 +61,13 @@ void RenderSystem::drawText(Entity entity) {
 
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-
+		
 		GLuint textColor_loc = glGetUniformLocation(program, "textColor");
-		glUniform3f(textColor_loc, text.colour.x, text.colour.y, text.colour.z);
+		glUniform4fv(textColor_loc, 1, (float*)&colour);
 		gl_has_errors();
 		
-		glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(camera->getSize().x), 0.0f, static_cast<float>(camera->getSize().y));
 		GLuint projection_loc = glGetUniformLocation(program, "projection");
-		glUniformMatrix4fv(projection_loc, 1, GL_FALSE, value_ptr(projection));
+		glUniformMatrix4fv(projection_loc, 1, GL_FALSE, value_ptr(projection_screen));
 		gl_has_errors();
 
 		glm::mat4 trans = glm::mat4(1.0f);
@@ -74,7 +76,7 @@ void RenderSystem::drawText(Entity entity) {
 		gl_has_errors();
 
         glDrawArrays(GL_TRIANGLES, 0, 6);
-        startX += (ch.advance >> 6) * text.scale; // bitshift by 6 to get value in pixels (2^6 = 64)
+        startX += (ch.advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64)
     }
 }
 
@@ -248,8 +250,8 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection, const mat4& p
 
 	// Getting uniform locations for glUniform* calls
 	GLint colour_uloc = glGetUniformLocation(program, "entity_colour");	
-	const vec3 colour = registry.colours.has(entity) ? registry.colours.get(entity) : vec3(1);
-	glUniform3fv(colour_uloc, 1, (float*)&colour);
+	const vec4 colour = registry.colours.has(entity) ? registry.colours.get(entity) : vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	glUniform4fv(colour_uloc, 1, (float*)&colour);
 	gl_has_errors();
 
 	GLint currProgram;
@@ -360,16 +362,13 @@ void RenderSystem::draw()
 
 	// Draw all foreground textures
 	for (Entity entity : registry.foregrounds.entities) {
-		drawMesh(entity, projection_2D, projection_screen);
-	}
-
-	// Draw all text
-	for (Entity entity : registry.texts.entities) {
 		if(entity == registry.fpsTracker.textEntity && !registry.fpsTracker.toggled) {
 			continue; //skip rendering fps if not toggled
+		} else if(registry.texts.has(entity)) {
+			drawText(entity, projection_screen);
+		} else {
+			drawMesh(entity, projection_2D, projection_screen);
 		}
-
-		drawText(entity);
 	}
 
 	// flicker-free display with a double buffer
@@ -454,7 +453,7 @@ void RenderSystem::update_jeff_animation() {
 void RenderSystem::turn_damaged_red(std::vector<Entity>& was_damaged)
 {
 	const float DAMAGE_TIME = 400;
-	const vec3 DAMAGE_COLOUR = { 1, 0, 0 };
+	const vec4 DAMAGE_COLOUR = { 1, 0, 0, 1 };
 	for (Entity entity : was_damaged) {
 		if (registry.damageds.has(entity)) {
 			registry.damageds.get(entity).timer = DAMAGE_TIME;
@@ -535,6 +534,21 @@ void updateHpBarMeter() {
 		std::stringstream ss;
 		ss << "HP" << std::string(8, ' ') << std::to_string(player.health) << "/100";
 		text.value = ss.str();
+
+		if(player.health <= 30.0f) {
+			vec4 red = {1.0f, 0.0f, 0.0f, 1.0f};
+			registry.colours.get(hpbar.meshEntity) = red;
+			registry.colours.get(hpbar.frameEntity) = red;
+		}
+		else if(player.health <= 60.0f) {
+			vec4 orange = {1.0f, 0.45f, 0.0f, 1.0f};
+			registry.colours.get(hpbar.meshEntity) = orange;
+			registry.colours.get(hpbar.frameEntity) = orange;
+		} else {
+			vec4 green = {0.0f, 1.0f, 0.0f, 1.0f};
+			registry.colours.get(hpbar.meshEntity) = green;
+			registry.colours.get(hpbar.frameEntity) = green;
+		}
 	}
 	for (Entity entity : registry.enemies.entities) {
 		Enemy& enemy = registry.enemies.get(entity);

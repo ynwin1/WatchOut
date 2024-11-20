@@ -53,11 +53,6 @@ private:
 	TrapsCounter trapsCounter;
 
 	bool isWindowed = false;
-	
-	//HighScore
-	int highScoreHours = 0;
-	int highScoreMinutes = 0;
-	int highScoreSeconds = 0;
 
 	Entity playerEntity;
 	std::unordered_map<std::string, float> spawn_delays;

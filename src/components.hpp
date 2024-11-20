@@ -179,6 +179,12 @@ struct Obstacle {
 struct TargetArea {
 };
 
+struct GameScore {
+	int highScoreHours = 0;
+	int highScoreMinutes = 0;
+	int highScoreSeconds = 0;
+};
+
 struct GameTimer {
 	int hours = 0;
 	int minutes = 0;
@@ -213,9 +219,6 @@ struct GameTimer {
 
 struct Text {
 	std::string value;
-	vec2 position = { 0, 0 };
-	vec3 colour = {1.0f, 1.0f, 1.0f};
-	float scale = 1.0f;
 };
 
 struct TextChar {

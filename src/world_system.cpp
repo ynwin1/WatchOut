@@ -338,8 +338,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     case GAME_STATE::PAUSED:
 		sound->isBirdFlockSoundPlaying = false;
 		sound->isMovingSoundPlaying = false;
-        sound->stopAllSoundEffects();
-
+        sound->pauseAllSounds();
         pauseControls(key, action, mod);
         break;
     case GAME_STATE::GAMEOVER:
@@ -348,8 +347,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     case GAME_STATE::HELP:
         sound->isMovingSoundPlaying = false;
         sound->isBirdFlockSoundPlaying = false;
-        sound->stopAllSoundEffects();
-
+        sound->pauseAllSounds();
         helpControls(key, action, mod);
         break;
     }
@@ -368,6 +366,7 @@ void WorldSystem::helpControls(int key, int action, int mod)
             restart_game();
         case GLFW_KEY_H:
             gameStateController.setGameState(GAME_STATE::PLAYING);
+            sound->resumeAllSounds();
             break;
         case GLFW_KEY_P:
         case GLFW_KEY_ESCAPE:
@@ -393,6 +392,7 @@ void WorldSystem::pauseControls(int key, int action, int mod)
         case GLFW_KEY_P:
         case GLFW_KEY_ESCAPE:
             gameStateController.setGameState(GAME_STATE::PLAYING);
+			sound->resumeAllSounds();
             break;
         }
     }
@@ -1125,7 +1125,7 @@ void WorldSystem::accelerateFireballs(float elapsed_ms) {
 }
 
 void WorldSystem::soundSetUp() {
-    int VOLUME = 10;
+    int VOLUME = 20;
     // stop all sounds first
     sound->stopAllSounds();
     // init sound system

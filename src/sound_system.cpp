@@ -102,6 +102,98 @@ void SoundSystem::playSoundEffect(Sound key, int count, int volume)
 	soundEffects[key] = channel;
 };
 
+// pause specified music
+void SoundSystem::pauseMusic(Music key)
+{
+	if (musicTracks.find(key) == musicTracks.end())
+	{
+		handleError("Music not found!");
+		return;
+	}
+	int channel = musicTracks[key];
+	Mix_Pause(channel);
+}
+
+// pause specified sound effect
+void SoundSystem::pauseSoundEffect(Sound key)
+{
+	if (soundEffects.find(key) == soundEffects.end())
+	{
+		handleError("Sound effect not found!");
+		return;
+	}
+	int channel = soundEffects[key];
+	Mix_Pause(channel);
+}
+
+// pause all music
+void SoundSystem::pauseAllMusic() {
+	for (auto& musicTrack : musicTracks) {
+		int channel = musicTrack.second;
+		Mix_Pause(channel);
+	}
+}
+
+// pause all sound effects
+void SoundSystem::pauseAllSoundEffects() {
+	for (auto& soundEffect : soundEffects) {
+		int channel = soundEffect.second;
+		Mix_Pause(channel);
+	}
+}
+
+// pause all sounds
+void SoundSystem::pauseAllSounds() {
+	pauseAllMusic();
+	pauseAllSoundEffects();
+}
+
+// resume specified music
+void SoundSystem::resumeMusic(Music key)
+{
+	if (musicTracks.find(key) == musicTracks.end())
+	{
+		handleError("Music not found!");
+		return;
+	}
+	int channel = musicTracks[key];
+	Mix_Resume(channel);
+}
+
+// resume specified sound effect
+void SoundSystem::resumeSoundEffect(Sound key)
+{
+	if (soundEffects.find(key) == soundEffects.end())
+	{
+		handleError("Sound effect not found!");
+		return;
+	}
+	int channel = soundEffects[key];
+	Mix_Resume(channel);
+}
+
+// resume all music
+void SoundSystem::resumeAllMusic() {
+	for (auto& musicTrack : musicTracks) {
+		int channel = musicTrack.second;
+		Mix_Resume(channel);
+	}
+}
+
+// resume all sound effects
+void SoundSystem::resumeAllSoundEffects() {
+	for (auto& soundEffect : soundEffects) {
+		int channel = soundEffect.second;
+		Mix_Resume(channel);
+	}
+}
+
+// resume all sounds
+void SoundSystem::resumeAllSounds() {
+	resumeAllMusic();
+	resumeAllSoundEffects();
+}
+
 // stop specified music
 void SoundSystem::stopMusic(Music key)
 {

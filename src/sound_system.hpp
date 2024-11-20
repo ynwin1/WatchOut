@@ -68,24 +68,45 @@ public:
 
 	void step(float elapsed_ms);
 
+	// PLAY
 	// Play music; duration = -1 for infinite loop
 	void playMusic(Music key, int duration, int volume);
-
 	// Play sound effect
 	void playSoundEffect(Sound key, int count, int volume);
 
+	// PAUSE
+	// Pause music
+	void pauseMusic(Music key);
+	// Pause sound effect
+	void pauseSoundEffect(Sound key);
+	// Pause all music
+	void pauseAllMusic();
+	// Pause all sound effects
+	void pauseAllSoundEffects();
+	// Pause all sounds
+	void pauseAllSounds();
+
+	// RESUME
+	// Resume music
+	void resumeMusic(Music key);
+	// Resume sound effect
+	void resumeSoundEffect(Sound key);
+	// Resume all music
+	void resumeAllMusic();
+	// Resume all sound effects
+	void resumeAllSoundEffects();
+	// Resume all sounds
+	void resumeAllSounds();
+
+	// STOP
 	// Stop music
 	void stopMusic(Music key);
-
 	// Stop sound effect
 	void stopSoundEffect(Sound key);
-
 	// Stop all music
 	void stopAllMusic();
-
 	// Stop all sound effects
 	void stopAllSoundEffects();
-
 	// Stop all sounds
 	void stopAllSounds();
 

@@ -138,7 +138,7 @@ private:
 
     void bindLightingAttributes(const GLuint program, const Entity &entity);
 
-    void drawText(Entity entity);
+	void drawText(Entity entity, const mat4& projection_screen);
 
 	void update_hpbars();
 

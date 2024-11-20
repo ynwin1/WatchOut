@@ -72,11 +72,6 @@ private:
 	TrapsCounter trapsCounter;
 
 	bool isWindowed = false;
-	
-	//HighScore
-	int highScoreHours = 0;
-	int highScoreMinutes = 0;
-	int highScoreSeconds = 0;
 
 	// Lighting variables
 	float ambientLight = .5;

@@ -1,4 +1,5 @@
 #include "sound_system.hpp"
+#include "tiny_ecs_registry.hpp"
 #include <chrono>
 
 SoundSystem::SoundSystem()
@@ -161,4 +162,48 @@ void SoundSystem::unloadAllSounds()
 		Mix_FreeChunk(pair.second);
 	}
 	loadedSoundEffects.clear();
+}
+
+void SoundSystem::step(float elapsed_ms) {
+	// monitoring player movement
+	controlPlayerSound();
+
+	// monitoring birds movement
+	controlBirdSound();
+}
+
+void SoundSystem::controlPlayerSound() {
+	Player& player = registry.players.components[0];
+	if (player.isMoving) {
+		if (!isMovingSoundPlaying) {
+			// walking sound
+			playSoundEffect(Sound::WALKING, -1);
+			isMovingSoundPlaying = true;
+		}
+	}
+	else {
+		if (isMovingSoundPlaying) {
+			// stop walking sound
+			stopSoundEffect(Sound::WALKING);
+			isMovingSoundPlaying = false;
+		}
+	}
+}
+
+void SoundSystem::controlBirdSound() {
+	// monitoring birds movement
+	if (registry.birds.size() > 0) {
+		if (!isBirdFlockSoundPlaying) {
+			// birds sound
+			playSoundEffect(Sound::BIRD_FLOCK, -1);
+			isBirdFlockSoundPlaying = true;
+		}
+	}
+	else {
+		if (isBirdFlockSoundPlaying) {
+			// stop birds sound
+			stopSoundEffect(Sound::BIRD_FLOCK);
+			isBirdFlockSoundPlaying = false;
+		}
+	}
 }

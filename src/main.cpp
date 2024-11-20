@@ -61,12 +61,17 @@ int main()
 		float elapsed_ms = (float)(std::chrono::duration_cast<std::chrono::microseconds>(now - t)).count() / 1000;
 		t = now;
 
-		if (world.gameStateController.getGameState() == GAME_STATE::PLAYING) {
+		GAME_STATE currentState = world.gameStateController.getGameState();
+		if (currentState == GAME_STATE::PLAYING) {
 			physics.step(elapsed_ms);
 			world.step(elapsed_ms);
             world.handle_collisions();
 			ai.step(elapsed_ms);
 			renderer.step(elapsed_ms);
+		}
+
+		if (currentState != GAME_STATE::HELP && currentState != GAME_STATE::PAUSED) {
+			sound.step(elapsed_ms);
 		}
 
 		renderer.draw();

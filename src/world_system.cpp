@@ -176,7 +176,6 @@ bool WorldSystem::step(float elapsed_ms)
     updateGameTimer(elapsed_ms);
     updateTrapsCounterText();
     toggleMesh();
-    inGameSounds();
     accelerateFireballs(elapsed_ms);
     despawnTraps(elapsed_ms);
     updateCollectedTimer(elapsed_ms);
@@ -337,18 +336,20 @@ void WorldSystem::on_key(int key, int, int action, int mod)
         playingControls(key, action, mod);
         break;
     case GAME_STATE::PAUSED:
-        isMovingSoundPlaying = false;
-        isBirdFlockSoundPlaying = false;
+		sound->isBirdFlockSoundPlaying = false;
+		sound->isMovingSoundPlaying = false;
         sound->stopAllSoundEffects();
+
         pauseControls(key, action, mod);
         break;
     case GAME_STATE::GAMEOVER:
         gameOverControls(key, action, mod);
         break;
     case GAME_STATE::HELP:
-        isMovingSoundPlaying = false;
-        isBirdFlockSoundPlaying = false;
+        sound->isMovingSoundPlaying = false;
+        sound->isBirdFlockSoundPlaying = false;
         sound->stopAllSoundEffects();
+
         helpControls(key, action, mod);
         break;
     }
@@ -1131,39 +1132,4 @@ void WorldSystem::soundSetUp() {
     sound->init();
     // play background music
     sound->playMusic(Music::BACKGROUND, -1, VOLUME);
-}
-
-void WorldSystem::inGameSounds() {
-	Player& player = registry.players.get(playerEntity);
-    // monitoring player movement
-    if (player.isMoving) {
-        if (!isMovingSoundPlaying) {
-            // walking sound
-            sound->playSoundEffect(Sound::WALKING, -1);
-            isMovingSoundPlaying = true;
-        }
-    }
-    else {
-        if (isMovingSoundPlaying) {
-            // stop walking sound
-            sound->stopSoundEffect(Sound::WALKING);
-            isMovingSoundPlaying = false;
-        }
-    }
-
-    // monitoring birds movement
-    if (registry.birds.size() > 0) {
-        if (!isBirdFlockSoundPlaying) {
-            // birds sound
-            sound->playSoundEffect(Sound::BIRD_FLOCK, -1);
-            isBirdFlockSoundPlaying = true;
-        }
-    }
-    else {
-        if (isBirdFlockSoundPlaying) {
-            // stop birds sound
-            sound->stopSoundEffect(Sound::BIRD_FLOCK);
-            isBirdFlockSoundPlaying = false;
-        }
-    }
 }

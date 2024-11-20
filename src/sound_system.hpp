@@ -55,12 +55,18 @@ public:
 		{ Sound::BIRD_ATTACK,	audio_path("bird_attack.wav") }
 	};
 
+	// Sound variables
+	bool isMovingSoundPlaying = false;
+	bool isBirdFlockSoundPlaying = false;
+
 	// FUNCTIONS
 	// Initialize sound system
 	bool init();
 
 	void loadAllMusic();
 	void loadAllSoundEffects();
+
+	void step(float elapsed_ms);
 
 	// Play music; duration = -1 for infinite loop
 	void playMusic(Music key, int duration, int volume);
@@ -85,6 +91,10 @@ public:
 
 	// Remove all sounds from memory
 	void unloadAllSounds();
+
+	// Special functions
+	void controlPlayerSound();
+	void controlBirdSound();
 
 private:
 	std::map<Music, Mix_Music*> loadedMusic;

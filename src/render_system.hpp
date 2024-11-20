@@ -76,7 +76,8 @@ class RenderSystem {
 	std::array<GLuint, effect_count> effects;
 	// Make sure these paths remain in sync with the associated enumerators.
 	const std::array<std::string, effect_count> effect_paths = {
-		shader_path("textured"), 
+		shader_path("textured"),
+		shader_path("textured_basic"), 
 		shader_path("untextured"), 
 		shader_path("animated"), 
 		shader_path("font"), 
@@ -129,9 +130,15 @@ private:
 	Camera* camera;
 
 	// Internal drawing functions for each entity type
-	void drawMesh(Entity entity, const mat3& projection, const mat4& projection_screen);
+    void drawMesh(Entity entity, const mat3 &projection, const mat4 &projection_screen);
 
-	void drawText(Entity entity);
+    void initializeRenderAnimated(const GLuint program, const Entity &entity);
+
+    void initializeRenderTextured(const GLuint program, const Entity &entity);
+
+    void initializeRenderTexturedFlat(const GLuint program, const Entity &entity);
+
+    void drawText(Entity entity);
 
 	void update_hpbars();
 

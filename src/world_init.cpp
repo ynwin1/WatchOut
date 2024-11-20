@@ -684,7 +684,7 @@ Entity createTrapsCounterText(vec2 windowSize) {
 		iconE, 
 		{
 			TEXTURE_ASSET_ID::TRAPCOLLECTABLE,
-			EFFECT_ASSET_ID::TEXTURED,
+			EFFECT_ASSET_ID::TEXTURED_FLAT,
 			GEOMETRY_BUFFER_ID::SPRITE
 		});
 	

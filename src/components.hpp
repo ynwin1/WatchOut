@@ -1,6 +1,7 @@
 #pragma once
 #include "common.hpp"
 #include <vector>
+#include <unordered_set>
 
 
 // PlayerComponents 
@@ -48,6 +49,11 @@ struct Enemy
 	bool isTrapped = false;
 };
 
+struct Explosion {
+	float duration = 500;
+	std::unordered_set<int> affectedEntities;
+};
+
 struct Damaging {
 	std::string type = "arrow"; // default type
 	unsigned int damage = 10;
@@ -55,6 +61,10 @@ struct Damaging {
 
 struct Projectile {
 	float sticksInGround = 3000; // ms it lasts on the ground
+};
+
+struct Bomb {
+	int numBounces = 0;
 };
 
 struct HealthBar {

@@ -1,6 +1,7 @@
 // internal
 #include "render_system.hpp"
 #include "tiny_ecs_registry.hpp"
+#include "world_init.hpp"
 
 // external
 #include <SDL.h>
@@ -402,6 +403,10 @@ void RenderSystem::step(float elapsed_ms)
 			Projectile& projectile = registry.projectiles.get(entity);
 			projectile.sticksInGround -= elapsed_ms;
 			if (projectile.sticksInGround <= 0) {
+				if(registry.bombs.has(entity)) {
+					vec3 pos = motion.position;
+					createExplosion(pos);
+				}
 				registry.remove_all_components_of(entity);
 			}
 			continue;
@@ -414,6 +419,17 @@ void RenderSystem::step(float elapsed_ms)
 	update_staminabars();
 	updateEntityFacing();
 	updateCollectedPosition();
+	updateExplosions(elapsed_ms);
+}
+
+void RenderSystem::updateExplosions(float elapsed_ms) {
+	for (Entity entity : registry.explosions.entities) {
+		Explosion& explosion = registry.explosions.get(entity);
+		explosion.duration -= elapsed_ms;
+		if (explosion.duration < 0) {
+			registry.remove_all_components_of(entity);
+		}
+	}
 }
 
 void RenderSystem::update_animations() {

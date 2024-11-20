@@ -42,19 +42,19 @@ public:
 private:
 	// CONSTANTS
 	// Spawn delays
-	const float ORIGINAL_BOAR_SPAWN_DELAY = 3000.0f;
-	const float ORIGINAL_BABARIAN_SPAWN_DELAY = 5000.0f;
-	const float ORIGINAL_ARCHER_SPAWN_DELAY = 7000.0f;
-	const float ORIGINAL_BIRD_SPAWN_DELAY = 2000.0f;
+	const float ORIGINAL_BOAR_SPAWN_DELAY = 99999.0f;
+	const float ORIGINAL_BABARIAN_SPAWN_DELAY = 99999.0f;
+	const float ORIGINAL_ARCHER_SPAWN_DELAY = 1.0f;
+	const float ORIGINAL_BIRD_SPAWN_DELAY = 999999.0f;
 	const float ORIGINAL_WIZARD_SPAWN_DELAY = 5000.0f;
 	const float ORIGINAL_HEART_SPAWN_DELAY = 10000.0f;
 	const float ORIGINAL_TRAP_SPAWN_DELAY = 7000.0f;
 
 	// Max entities at start
-	const unsigned int MAX_BOARS = 1;
-	const unsigned int MAX_BABARIANS = 1;
-	const unsigned int MAX_ARCHERS = 0;
-	const unsigned int MAX_BIRD_FLOCKS = 1;
+	const unsigned int MAX_BOARS = 0;
+	const unsigned int MAX_BABARIANS = 0;
+	const unsigned int MAX_ARCHERS = 1;
+	const unsigned int MAX_BIRD_FLOCKS = 0;
 	const unsigned int MAX_WIZARDS = -1;
 	const unsigned int MAX_HEARTS = 2;
 	const unsigned int MAX_TRAPS = 1;

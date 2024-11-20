@@ -99,6 +99,10 @@ Entity createDamageTrap(vec2 pos);
 // Arrows fired by the archer
 Entity createArrow(vec3 pos, vec3 velocity);
 
+// Bombs thrown by the bomber
+Entity createBomb(vec3 pos, vec3 velocity);
+void createExplosion(vec3 position);
+
 // Fireballs fired by the wizard
 Entity createFireball(vec3 pos, vec2 direction);
 

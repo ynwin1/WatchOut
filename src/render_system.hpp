@@ -69,7 +69,9 @@ class RenderSystem {
 		textures_path("menu/PauseMenu.png"),           // MENU_PAUSED
 		textures_path("bird/bird_fly.png"),				 // BIRD FLY
 		textures_path("bird/bird_swoop.png"),			// BIRD SWOOP
-		textures_path("bird/bird_dead.png")				 // BIRD DEAD
+		textures_path("bird/bird_dead.png"),				 // BIRD DEAD
+		textures_path("bomb/bomb.png"),
+		textures_path("explosion/explosion.png")  
 	};
 
 
@@ -142,6 +144,8 @@ private:
 	void updateEntityFacing();
 
 	void updateCollectedPosition();
+
+	void updateExplosions(float elapsed_ms);
 
 	// Window handle
 	GLFWwindow* window;

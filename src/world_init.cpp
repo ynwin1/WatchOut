@@ -375,6 +375,41 @@ Entity createArrow(vec3 pos, vec3 velocity)
 	return entity;
 }
 
+Entity createBomb(vec3 pos, vec3 velocity)
+{
+	auto entity = Entity();
+
+	const float WIDTH = 56.0f;
+	const float HEIGHT = 47.0f;
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.velocity = velocity;
+	motion.scale = { WIDTH, HEIGHT };
+	motion.hitbox = { WIDTH, HEIGHT, HEIGHT / zConversionFactor };
+	motion.solid = true;
+	
+	Projectile& proj = registry.projectiles.emplace(entity);
+	proj.sticksInGround = 300;
+
+	Bomb& bomb = registry.bombs.emplace(entity);
+	bomb.numBounces = 1;
+
+	Damaging& damaging = registry.damagings.emplace(entity);
+	damaging.damage = 0;
+	registry.midgrounds.emplace(entity);
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::BOMB,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	return entity;
+}
+
 Entity createFireball(vec3 pos, vec2 direction) {
 	auto entity = Entity();
 
@@ -979,6 +1014,29 @@ void createTrees(RenderSystem* renderer) {
 		numTrees--;
 	}
 }
+
+void createExplosion(vec3 pos)
+{
+	auto entity = Entity();
+	const int explosionWidth = 350.0f;
+	const int explosionHeight = 350.0f;
+	const int explosionHitboxW = explosionWidth - 30.0f;
+	const int explosionHitboxH = explosionHeight - 30.0f;
+
+	registry.explosions.emplace(entity);
+	Damaging& dmg = registry.damagings.emplace(entity);
+	dmg.damage = 0;
+
+	// Setting intial motion values
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.scale = { explosionWidth, explosionHeight };
+	motion.hitbox = { explosionHitboxW, explosionHitboxH, 0.0f};
+	
+	initExplosionAnimationController(entity);
+	registry.midgrounds.emplace(entity);
+};
+
 
 float getElevation(vec2 xy)
 {

@@ -49,7 +49,8 @@ void PhysicsSystem::handleBoundsCheck() {
 	ComponentContainer<Motion>& motion_container = registry.motions;
 
 	for (uint i = 0; i < motion_container.components.size(); i++) {
-		if (registry.birds.has(motion_container.entities[i])) {
+		if (registry.birds.has(motion_container.entities[i]) ||
+			registry.explosions.has(motion_container.entities[i])) {
 			continue;
 		}
 
@@ -284,15 +285,29 @@ void PhysicsSystem::updatePositions(float elapsed_ms)
 
 		// Apply gravity
 		if (motion.position.z > groundZ) {
-			// Don't apply gravity to fireballs
-			if (registry.damagings.has(entity) && registry.damagings.get(entity).type == "fireball") {
+			// Don't apply gravity to fireballs or explosions
+			if (registry.damagings.has(entity) && 
+				(registry.damagings.get(entity).type == "fireball" || 
+				registry.explosions.has(entity))
+			) { 
 				continue;
 			}
+
 			motion.velocity.z -= GRAVITATIONAL_CONSTANT * elapsed_ms;
 		}
 
 		// Hit the ground
-		if (motion.position.z < groundZ) {
+		if (motion.position.z < groundZ && motion.velocity.z <= 0.0f) {
+
+			if (registry.bombs.has(entity) && registry.bombs.get(entity).numBounces > 0) {
+                // Apply upward velocity for bounce, reduced by a decay factor
+                motion.velocity.z = abs(motion.velocity.z) * 0.5;
+				motion.velocity.x *= 0.5;
+   				motion.velocity.y *= 0.5;
+				registry.bombs.get(entity).numBounces -= 1;
+				continue;
+            }
+
 			motion.position.z = groundZ;
 			motion.velocity.z = 0;
 			if (registry.jumpers.has(entity)) {

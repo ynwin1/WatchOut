@@ -13,3 +13,5 @@ AnimationController& initFireballAnimationController(Entity& entity);
 
 AnimationController& initHeartAnimationController(Entity& entity);
 AnimationController& initTrapBottleAnimationController(Entity& entity);
+
+AnimationController& initExplosionAnimationController(Entity& entity);

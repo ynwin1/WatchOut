@@ -233,3 +233,20 @@ AnimationController& initTrapBottleAnimationController(Entity& entity) {
 
     return animationcontroller;
 }
+
+AnimationController& initExplosionAnimationController(Entity& entity) {
+    AnimationController& animationcontroller = registry.animationControllers.emplace(entity);
+	animationcontroller.addAnimation(AnimationState::Idle, 50, 10, TEXTURE_ASSET_ID::EXPLOSION);
+
+    registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::EXPLOSION,
+			EFFECT_ASSET_ID::ANIMATED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	animationcontroller.changeState(entity, AnimationState::Idle);
+
+    return animationcontroller;
+}

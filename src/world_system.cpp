@@ -755,6 +755,15 @@ void WorldSystem::entity_damaging_collision(Entity entity, Entity entity_other, 
 {
     Damaging& damaging = registry.damagings.get(entity_other);
 
+    if(registry.explosions.has(entity_other)) {
+        Explosion& explosion = registry.explosions.get(entity_other);
+        bool alreadyAffected = explosion.affectedEntities.find(entity) != explosion.affectedEntities.end();
+        if(alreadyAffected) {
+            return;
+        }
+        explosion.affectedEntities.insert(entity);
+    }
+
     if (registry.players.has(entity)) {
         // reduce player health
         Player& player = registry.players.get(entity);
@@ -778,7 +787,11 @@ void WorldSystem::entity_damaging_collision(Entity entity, Entity entity_other, 
         return;
     }
 
-    registry.remove_all_components_of(entity_other);
+    if(!registry.explosions.has(entity_other) && 
+       !registry.bombs.has(entity_other)) 
+    {
+        registry.remove_all_components_of(entity_other);
+    }
 }
 
 void WorldSystem::damaging_obstacle_collision(Entity damaging) {

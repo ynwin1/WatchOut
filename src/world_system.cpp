@@ -335,6 +335,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     switch (gameStateController.getGameState()) {
     case GAME_STATE::PLAYING:
         playingControls(key, action, mod);
+        movementControls(key, action, mod);
         break;
     case GAME_STATE::PAUSED:
         isMovingSoundPlaying = false;
@@ -353,7 +354,6 @@ void WorldSystem::on_key(int key, int, int action, int mod)
         break;
     }
     allStateControls(key, action, mod);
-    movementControls(key, action, mod);
 }
 
 void WorldSystem::helpControls(int key, int action, int mod)
@@ -372,6 +372,8 @@ void WorldSystem::helpControls(int key, int action, int mod)
         case GLFW_KEY_ESCAPE:
             gameStateController.setGameState(GAME_STATE::PAUSED);
             break;
+		default:
+			break;
         }
     }
 }
@@ -392,6 +394,8 @@ void WorldSystem::pauseControls(int key, int action, int mod)
         case GLFW_KEY_P:
         case GLFW_KEY_ESCAPE:
             gameStateController.setGameState(GAME_STATE::PLAYING);
+            break;
+        default:
             break;
         }
     }

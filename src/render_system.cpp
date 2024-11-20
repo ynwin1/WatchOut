@@ -128,49 +128,18 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection, const mat4& p
 	// set attributes for textured meshes
 	if (render_request.used_effect == EFFECT_ASSET_ID::TEXTURED)
 	{
-        initializeRenderTextured(program, entity);
+        bindTextureAttributes(program, entity);
+		bindLightingAttributes(program, entity);
     }
 	else if (render_request.used_effect == EFFECT_ASSET_ID::TEXTURED_FLAT) {
-		initializeRenderTexturedFlat(program, entity);
+		bindTextureAttributes(program, entity);
 	}
 	else if (render_request.used_effect == EFFECT_ASSET_ID::ANIMATED)
 	{
-        initializeRenderAnimated(program, entity);
+		bindTextureAttributes(program, entity);
+        bindAnimationAttributes(program, entity);
+		bindLightingAttributes(program, entity);
     }
-	else if (render_request.used_effect == EFFECT_ASSET_ID::ANIMATED)
-	{
-		GLint in_position_loc = glGetAttribLocation(program, "in_position");
-		GLint in_texcoord_loc = glGetAttribLocation(program, "in_texcoord");
-		gl_has_errors();
-		assert(in_texcoord_loc >= 0);
-
-		glEnableVertexAttribArray(in_position_loc);
-		glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), (void*)0);
-		gl_has_errors();
-
-		glEnableVertexAttribArray(in_texcoord_loc);
-		glVertexAttribPointer(in_texcoord_loc, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), (void*)sizeof(vec3)); // stride to skip position data
-		
-		// Enabling and binding texture to slot 0
-		glActiveTexture(GL_TEXTURE0);
-		gl_has_errors();
-
-		assert(registry.renderRequests.has(entity));
-		GLuint texture_id = texture_gl_handles[(GLuint)registry.renderRequests.get(entity).used_texture];
-
-		glBindTexture(GL_TEXTURE_2D, texture_id);
-		gl_has_errors();
-
-		// Pass frame information to shaders
-		GLint numFrames_loc = glGetUniformLocation(program, "num_frames");
-    	GLint currentFrame_loc = glGetUniformLocation(program, "current_frame");
-		
-		AnimationController animationController = registry.animationControllers.get(entity);
-		Animation currentAnimation = animationController.animations[animationController.currentState];
-		glUniform1f(numFrames_loc, currentAnimation.numFrames);  // Set numFrames value
-    	glUniform1f(currentFrame_loc, currentAnimation.currentFrame);  // Set currentFrame value
-    	gl_has_errors();
-	}
 	// set attributes for untextured meshes
 	else if(render_request.used_effect == EFFECT_ASSET_ID::UNTEXTURED)
 	{
@@ -255,30 +224,8 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection, const mat4& p
 	gl_has_errors();
 }
 
-void RenderSystem::initializeRenderAnimated(const GLuint program, const Entity &entity)
+void RenderSystem::bindAnimationAttributes(const GLuint program, const Entity &entity)
 {
-    GLint in_position_loc = glGetAttribLocation(program, "in_position");
-    GLint in_texcoord_loc = glGetAttribLocation(program, "in_texcoord");
-    gl_has_errors();
-    assert(in_texcoord_loc >= 0);
-
-    glEnableVertexAttribArray(in_position_loc);
-    glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), (void *)0);
-    gl_has_errors();
-
-    glEnableVertexAttribArray(in_texcoord_loc);
-    glVertexAttribPointer(in_texcoord_loc, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), (void *)sizeof(vec3)); // stride to skip position data
-
-    // Enabling and binding texture to slot 0
-    glActiveTexture(GL_TEXTURE0);
-    gl_has_errors();
-
-    assert(registry.renderRequests.has(entity));
-    GLuint texture_id = texture_gl_handles[(GLuint)registry.renderRequests.get(entity).used_texture];
-
-    glBindTexture(GL_TEXTURE_2D, texture_id);
-    gl_has_errors();
-
     // Pass frame information to shaders
     GLint numFrames_loc = glGetUniformLocation(program, "num_frames");
     GLint currentFrame_loc = glGetUniformLocation(program, "current_frame");
@@ -290,7 +237,7 @@ void RenderSystem::initializeRenderAnimated(const GLuint program, const Entity &
     gl_has_errors();
 }
 
-void RenderSystem::initializeRenderTextured(const GLuint program, const Entity &entity)
+void RenderSystem::bindTextureAttributes(const GLuint program, const Entity &entity)
 {
     GLint in_position_loc = glGetAttribLocation(program, "in_position");
     GLint in_texcoord_loc = glGetAttribLocation(program, "in_texcoord");
@@ -315,29 +262,11 @@ void RenderSystem::initializeRenderTextured(const GLuint program, const Entity &
     gl_has_errors();
 }
 
-void RenderSystem::initializeRenderTexturedFlat(const GLuint program, const Entity &entity)
+void RenderSystem::bindLightingAttributes(const GLuint program, const Entity &entity)
 {
-    GLint in_position_loc = glGetAttribLocation(program, "in_position");
-    GLint in_texcoord_loc = glGetAttribLocation(program, "in_texcoord");
-    gl_has_errors();
-    assert(in_texcoord_loc >= 0);
-
-    glEnableVertexAttribArray(in_position_loc);
-    glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), (void *)0);
-    gl_has_errors();
-
-    glEnableVertexAttribArray(in_texcoord_loc);
-    glVertexAttribPointer(in_texcoord_loc, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), (void *)sizeof(vec3)); // stride to skip position data
-
-    // Enabling and binding texture to slot 0
-    glActiveTexture(GL_TEXTURE0);
-    gl_has_errors();
-
-    assert(registry.renderRequests.has(entity));
-    GLuint texture_id = texture_gl_handles[(GLuint)registry.renderRequests.get(entity).used_texture];
-
-    glBindTexture(GL_TEXTURE_2D, texture_id);
-    gl_has_errors();
+	// Pass lighting information to shaders
+	GLint ambientLight_loc = glGetUniformLocation(program, "ambient_light");
+	glUniform1f(ambientLight_loc, .5);       // Set ambientlight value
 }
 
 // Returns true if entity a is further from the camera

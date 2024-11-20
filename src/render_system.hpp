@@ -132,11 +132,11 @@ private:
 	// Internal drawing functions for each entity type
     void drawMesh(Entity entity, const mat3 &projection, const mat4 &projection_screen);
 
-    void initializeRenderAnimated(const GLuint program, const Entity &entity);
+    void bindAnimationAttributes(const GLuint program, const Entity &entity);
 
-    void initializeRenderTextured(const GLuint program, const Entity &entity);
+    void bindTextureAttributes(const GLuint program, const Entity &entity);
 
-    void initializeRenderTexturedFlat(const GLuint program, const Entity &entity);
+    void bindLightingAttributes(const GLuint program, const Entity &entity);
 
     void drawText(Entity entity);
 

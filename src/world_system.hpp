@@ -78,6 +78,9 @@ private:
 	int highScoreMinutes = 0;
 	int highScoreSeconds = 0;
 
+	// Lighting variables
+	float ambientLight = .5;
+
 	Entity playerEntity;
 	std::vector<std::string> entity_types;
 	std::unordered_map<std::string, float> spawn_delays;

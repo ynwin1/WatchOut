@@ -7,6 +7,9 @@ in vec2 texcoord;
 uniform sampler2D sprite_sheet;
 uniform vec3 entity_colour;
 
+// Lighting data
+uniform float ambient_light;
+
 // Animation data
  uniform float num_frames; 
  uniform float current_frame;
@@ -21,6 +24,6 @@ void main()
 	// Colour of raw texture/ damage effect 
 	vec4 initialColour = vec4(entity_colour, 1.0) * texture(sprite_sheet, vec2(frame_texcoord.x, frame_texcoord.y));
 	// ambient light
-	vec4 ambient = vec4(.5 * initialColour.rgb, initialColour.a);
+	vec4 ambient = vec4(ambient_light * initialColour.rgb, initialColour.a);
 	colour = ambient;
 }

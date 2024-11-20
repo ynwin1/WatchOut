@@ -132,6 +132,19 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection, const mat4& p
 	{
         bindTextureAttributes(program, entity);
 		bindLightingAttributes(program, entity);
+
+		// Point light 1
+		glUniform1f(glGetUniformLocation(program, "num_point_lights"), 1);
+		GLint location = glGetUniformLocation(program, "num_point_lights");
+		if (location == -1) {
+			std::cerr << "Uniform num_point_lights not found or optimized out!" << std::endl;
+		}
+		location = glGetUniformLocation(program, "pointLights[0].ambient");
+		glUniform3f(glGetUniformLocation(program, "pointLights[0].position"), 50, 50, 0);		
+		glUniform4f(glGetUniformLocation(program, "pointLights[0].ambient"), 1.0f, 1.0f, 1.0f, 1.0f); 
+		glUniform1f(glGetUniformLocation(program, "pointLights[0].constant"), 1.0f);
+		glUniform1f(glGetUniformLocation(program, "pointLights[0].linear"), 0.09);
+		glUniform1f(glGetUniformLocation(program, "pointLights[0].quadratic"), 0.032);	
     }
 	else if (render_request.used_effect == EFFECT_ASSET_ID::TEXTURED_FLAT) {
 		bindTextureAttributes(program, entity);

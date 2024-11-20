@@ -6,6 +6,7 @@ in vec2 in_texcoord;
 
 // Passed to fragment shader
 out vec2 texcoord;
+out vec3 worldPos;
 
 // Application data
 uniform mat3 transform;
@@ -29,4 +30,5 @@ void main()
     }
 
     gl_Position = pos;
+    worldPos = vec3(transform * vec3(in_position.xy, 1.0));
 }

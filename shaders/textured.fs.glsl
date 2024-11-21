@@ -22,7 +22,7 @@ uniform vec4 entity_colour;
 // Lighting data
 uniform float ambient_light;
 
-#define MAX_POINT_LIGHTS 50
+#define MAX_POINT_LIGHTS 10
 uniform int num_point_lights;
 uniform PointLight pointLights[MAX_POINT_LIGHTS];
 
@@ -41,10 +41,11 @@ void main()
     
     colour = ambient;
 	// point lights 
-	for(int i = 0; i < num_point_lights; i++) {
-        colour = CalcPointLight(pointLights[i], worldPos) * initialColour; 
+	for (int i = 0; i < num_point_lights; i++) {
+        colour += CalcPointLight(pointLights[i], worldPos) * initialColour; 
     }
-    colour = vec4(num_point_lights);
+    colour += vec4(num_point_lights*0.0, 0.0, 0.0, 0.0); 
+    // colour = vec4(float(num_point_lights) / 70.0, 0.0, 0.0, 1.0); // Should show a gradient red
 }
 
 vec4 CalcPointLight(PointLight light, vec3 fragPos)
@@ -58,7 +59,7 @@ vec4 CalcPointLight(PointLight light, vec3 fragPos)
     ambient  *= attenuation;
 
     // return (ambient);
-    if (distance < 100000) {
+    if (distance < 100) {
         return vec4(1.0, 1.0, 1.0, .3);
     }
     return vec4(0);

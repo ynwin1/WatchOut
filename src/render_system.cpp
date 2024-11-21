@@ -134,17 +134,25 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection, const mat4& p
 		bindLightingAttributes(program, entity);
 
 		// Point light 1
-		glUniform1f(glGetUniformLocation(program, "num_point_lights"), 1);
 		GLint location = glGetUniformLocation(program, "num_point_lights");
 		if (location == -1) {
-			std::cerr << "Uniform num_point_lights not found or optimized out!" << std::endl;
+			std::cerr << "Uniform 'num_point_lights' not found or optimized out!" << std::endl;
+		} else {
+			glUniform1i(location, 70); // Use glUniform1i for integer uniforms
 		}
 		location = glGetUniformLocation(program, "pointLights[0].ambient");
-		glUniform3f(glGetUniformLocation(program, "pointLights[0].position"), 50, 50, 0);		
-		glUniform4f(glGetUniformLocation(program, "pointLights[0].ambient"), 1.0f, 1.0f, 1.0f, 1.0f); 
-		glUniform1f(glGetUniformLocation(program, "pointLights[0].constant"), 1.0f);
-		glUniform1f(glGetUniformLocation(program, "pointLights[0].linear"), 0.09);
-		glUniform1f(glGetUniformLocation(program, "pointLights[0].quadratic"), 0.032);	
+		// Set pointLights[0]
+		GLint posLoc = glGetUniformLocation(program, "pointLights[0].position");
+		GLint ambLoc = glGetUniformLocation(program, "pointLights[0].ambient");
+		GLint constLoc = glGetUniformLocation(program, "pointLights[0].constant");
+		GLint linearLoc = glGetUniformLocation(program, "pointLights[0].linear");
+		GLint quadLoc = glGetUniformLocation(program, "pointLights[0].quadratic");
+
+		if (posLoc != -1) glUniform3f(posLoc, 50.0f, 50.0f, 50.0f);
+		if (ambLoc != -1) glUniform4f(ambLoc, 1.0f, 1.0f, 1.0f, 1.0f);
+		if (constLoc != -1) glUniform1f(constLoc, 1.0f);
+		if (linearLoc != -1) glUniform1f(linearLoc, 0.09f);
+		if (quadLoc != -1) glUniform1f(quadLoc, 0.032f);
     }
 	else if (render_request.used_effect == EFFECT_ASSET_ID::TEXTURED_FLAT) {
 		bindTextureAttributes(program, entity);

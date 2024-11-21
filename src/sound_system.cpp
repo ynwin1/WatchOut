@@ -326,4 +326,13 @@ void SoundSystem::step(float elapsed_ms)
 {
 	controlPlayerSound();
 	controlBirdSound();
+
+	// troll laughs
+	for (auto& troll : registry.trolls.components) {
+		troll.laughCooldown -= elapsed_ms;
+		if (troll.laughCooldown <= 0.f) {
+			playSoundEffect(Sound::TROLL_LAUGH, 0);
+			troll.laughCooldown = TROLL_LAUGH_COOLDOWN;
+		}
+	}
 }

@@ -26,7 +26,8 @@ enum class Sound {
 	FIREBALL,
 	COLLECT,
 	BIRD_FLOCK,
-	BIRD_ATTACK
+	BIRD_ATTACK,
+	TROLL_LAUGH
 };
 
 class SoundSystem
@@ -36,7 +37,10 @@ public:
 	~SoundSystem();
 
 	bool mute = false;
-	int INITIAL_MUSIC_VOLUME = 20;
+
+	// Constants
+	int INITIAL_MUSIC_VOLUME = 10;
+	float TROLL_LAUGH_COOLDOWN = 20000.f;
 
 	// path and volume
 	const std::map<Music, std::pair<std::string, int>> musics = {
@@ -45,18 +49,19 @@ public:
 	};
 
 	const std::map<Sound, std::pair<std::string, int>> sounds = {
-		{ Sound::ARROW,			std::pair<std::string, int>(audio_path("arrow.wav"), 80) },
-		{ Sound::BOAR_CHARGE,	std::pair<std::string, int>(audio_path("boar_charge.wav"), 80) },
-		{ Sound::THUNDER,		std::pair<std::string, int>(audio_path("thunder.wav"), 80) },
-		{ Sound::STORM,			std::pair<std::string, int>(audio_path("storm.wav"), 80) },
-		{ Sound::WALKING,		std::pair<std::string, int>(audio_path("walking.wav"), 80) },
-		{ Sound::JUMPING,		std::pair<std::string, int>(audio_path("jumping.wav"), 80) },
-		{ Sound::DASHING,		std::pair<std::string, int>(audio_path("dashing.wav"), 80) },
-		{ Sound::LEVELUP,		std::pair<std::string, int>(audio_path("levelUp.wav"), 100) },
-		{ Sound::FIREBALL,		std::pair<std::string, int>(audio_path("fireball.wav"), 80) },
+		{ Sound::ARROW,			std::pair<std::string, int>(audio_path("arrow.wav"), 100) },
+		{ Sound::BOAR_CHARGE,	std::pair<std::string, int>(audio_path("boar_charge.wav"), 100) },
+		{ Sound::THUNDER,		std::pair<std::string, int>(audio_path("thunder.wav"), 128) },
+		{ Sound::STORM,			std::pair<std::string, int>(audio_path("storm.wav"), 128) },
+		{ Sound::WALKING,		std::pair<std::string, int>(audio_path("walking.wav"), 120) },
+		{ Sound::JUMPING,		std::pair<std::string, int>(audio_path("jumping.wav"), 120) },
+		{ Sound::DASHING,		std::pair<std::string, int>(audio_path("dashing.wav"), 120) },
+		{ Sound::LEVELUP,		std::pair<std::string, int>(audio_path("levelUp.wav"), 120) },
+		{ Sound::FIREBALL,		std::pair<std::string, int>(audio_path("fireball.wav"), 128) },
 		{ Sound::COLLECT,		std::pair<std::string, int>(audio_path("collect.wav"), 128) },
-		{ Sound::BIRD_FLOCK,	std::pair<std::string, int>(audio_path("birds_flock.wav"), 50) },
-		{ Sound::BIRD_ATTACK,	std::pair<std::string, int>(audio_path("bird_attack.wav"), 80) }
+		{ Sound::BIRD_FLOCK,	std::pair<std::string, int>(audio_path("birds_flock.wav"), 10) },
+		{ Sound::BIRD_ATTACK,	std::pair<std::string, int>(audio_path("bird_attack.wav"), 30) },
+		{ Sound::TROLL_LAUGH,	std::pair<std::string, int>(audio_path("troll_laugh.wav"), 128) }
 	};
 
 	// Sound variables
@@ -148,4 +153,5 @@ Sound credits
 - Collect: https://freesound.org/people/METKIR/sounds/623593/
 - Bird Flock: https://www.youtube.com/watch?v=22dZEAMmxpk
 - Bird Attack: https://freesound.org/people/dinodilopho/sounds/263530/
+- Troll Laugh: https://freesound.org/people/browerbeats/sounds/762796/
 */

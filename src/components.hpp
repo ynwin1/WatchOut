@@ -219,6 +219,17 @@ struct GameTimer {
 
 struct Text {
 	std::string value;
+	Entity anchoredEntity;
+	vec2 anchoredOffset = {0, 0};
+};
+
+struct SlideUp {
+	float animationDuration = 1500;
+	float slideUpDuration = 200;
+	float distanceY = 50;
+	float startY = 0;
+	float elapsedMs = 0;
+	bool fadeIn = false;
 };
 
 struct TextChar {

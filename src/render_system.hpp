@@ -153,6 +153,8 @@ private:
 
 	void updateCollectedPosition();
 
+	void updateSlideUps(float elapsed_ms);
+
 	// Window handle
 	GLFWwindow* window;
 };
@@ -163,5 +165,6 @@ bool loadEffectFromFile(
 float worldToVisualY(float y, float z);
 float visualToWorldY(float y);
 vec2 worldToVisual(vec3 pos);
+vec2 worldToScreen(vec3 worldPos, Camera* camera);
 static const float yConversionFactor = 1 / sqrt(2);
 static const float zConversionFactor = 1 / sqrt(2);

@@ -14,12 +14,14 @@ public:
 private:
 	const float LIGHTNING_RADIUS = 200.f;
 
+	bool decideToPathfind(Entity enemy, float baseThinkingTime, float elapsed_ms);
 	void moveTowardsPlayer(Entity enemy, vec3 playerPosition, float elapsed_ms);
 	vec2 chooseDirection(Motion& motion, vec3 playerPosition);
 	bool pathClear(Motion& motion, vec2 direction, float howFar, const std::vector<Entity> &obstacles, float& clearDistance);
 	
 	void boarBehaviour(Entity boar, vec3 playerPosition, float elapsed_ms);
 	void barbarianBehaviour(Entity barbarian, vec3 playerPosition, float elapsed_ms);
+	void trollBehaviour(Entity troll, vec3 playerPosition, float elapsed_ms);
 
 	// Archer functions
 	void archerBehaviour(Entity entity, vec3 playerPosition, float elapsed_ms);

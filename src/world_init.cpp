@@ -19,8 +19,10 @@ Entity createBoar(vec2 pos)
 	motion.solid = true;
 
 	Enemy& enemy = registry.enemies.emplace(entity);
-	enemy.damage = 20;
-	enemy.speed = BOAR_SPEED;
+	enemy.damage = BOAR_DAMAGE;
+	enemy.maxHealth = BOAR_HEALTH;
+	enemy.health = enemy.maxHealth;
+	motion.speed = BOAR_SPEED;
 
 	registry.boars.emplace(entity);
 	
@@ -34,9 +36,12 @@ Entity createBoar(vec2 pos)
 	initBoarAnimationController(entity);
 	registry.midgrounds.emplace(entity);
 
-	createHealthBar(entity, vec3(1.0f, 0.0f, 0.0f));
+	createHealthBar(entity, vec4(1.0f, 0.0f, 0.0f, 1.0f));
 
 	registry.knockables.emplace(entity);
+	registry.knockers.emplace(entity);
+	auto& trappable = registry.trappables.emplace(entity);
+	trappable.originalSpeed = BOAR_SPEED;
 	
 	return entity;
 };
@@ -55,18 +60,23 @@ Entity createBarbarian(vec2 pos)
 	motion.solid = true;
 	
 	Enemy& enemy = registry.enemies.emplace(entity);
-	enemy.damage = 30;
+	enemy.damage = BARBARIAN_DAMAGE;
 	enemy.cooldown = 1000;
-	enemy.speed = BARBARIAN_SPEED;
+	enemy.maxHealth = BARBARIAN_HEALTH;
+	enemy.health = enemy.maxHealth;
+	motion.speed = BARBARIAN_SPEED;
 
 	registry.barbarians.emplace(entity);
 
 	initBarbarianAnimationController(entity);
 	registry.midgrounds.emplace(entity);
 
-	createHealthBar(entity, vec3(1.0f, 0.0f, 0.0f));
+	createHealthBar(entity, vec4(1.0f, 0.0f, 0.0f, 1.0f));
 
 	registry.knockables.emplace(entity);
+	registry.knockers.emplace(entity);
+	auto& trappable = registry.trappables.emplace(entity);
+	trappable.originalSpeed = BARBARIAN_SPEED;
 
 	return entity;
 };
@@ -85,17 +95,21 @@ Entity createArcher(vec2 pos)
 	motion.solid = true;
 
 	Enemy& enemy = registry.enemies.emplace(entity);
-	enemy.damage = 40;
-	enemy.speed = ARCHER_SPEED;
+	enemy.damage = ARCHER_DAMAGE;
+	enemy.maxHealth = ARCHER_HEALTH;
+	enemy.health = enemy.maxHealth;
+	motion.speed = ARCHER_SPEED;
 
 	registry.archers.emplace(entity);
 
 	initArcherAnimationController(entity);
 	registry.midgrounds.emplace(entity);
 
-	createHealthBar(entity, vec3(1.0f, 0.0f, 0.0f));
+	createHealthBar(entity, vec4(1.0f, 0.0f, 0.0f, 1.0f));
 
 	registry.knockables.emplace(entity);
+	auto& trappable = registry.trappables.emplace(entity);
+	trappable.originalSpeed = ARCHER_SPEED;
 	
 	return entity;
 };
@@ -117,25 +131,31 @@ Entity createBirdFlock(vec2 pos)
         Motion& motion = registry.motions.emplace(entity);
         motion.position = vec3(birdPosition, TREE_BB_HEIGHT - BIRD_BB_WIDTH);
         motion.angle = 0.f;
-        motion.scale = { BIRD_BB_WIDTH, BIRD_BB_HEIGHT };
+        motion.scale = { 16 * SPRITE_SCALE, 16 * SPRITE_SCALE};
         motion.hitbox = { BIRD_BB_WIDTH, BIRD_BB_HEIGHT, BIRD_BB_HEIGHT / zConversionFactor };
         motion.solid = true;
 
         Enemy& enemy = registry.enemies.emplace(entity);
-        enemy.damage = 10;
+        enemy.damage = BIRD_DAMAGE;
         enemy.cooldown = 2000.f;
-        enemy.speed = BIRD_SPEED;
+		enemy.maxHealth = BIRD_HEALTH;
+		enemy.health = enemy.maxHealth;
+        motion.speed = BIRD_SPEED;
 
         registry.birds.emplace(entity);
 
         initBirdAnimationController(entity);
         registry.midgrounds.emplace(entity);
 
-        createHealthBar(entity, vec3(1.0f, 0.0f, 0.0f));
+        createHealthBar(entity, vec4(1.0f, 0.0f, 0.0f, 1.0f));
         if (i == 0)
         {
             repBird = entity;
         }
+
+		registry.knockables.emplace(entity);
+		auto& trappable = registry.trappables.emplace(entity);
+		trappable.originalSpeed = BIRD_SPEED;
     }
     return repBird;
 }
@@ -154,19 +174,65 @@ Entity createWizard(vec2 pos) {
 	motion.solid = true;
 
 	Enemy& enemy = registry.enemies.emplace(entity);
-	enemy.damage = 60;
+	enemy.damage = WIZARD_DAMAGE;
 	enemy.cooldown = 8000.f; // 8s
-	enemy.speed = WIZARD_SPEED;
+	enemy.maxHealth = WIZARD_HEALTH;
+	enemy.health = enemy.maxHealth;
+	motion.speed = WIZARD_SPEED;
 
 	registry.wizards.emplace(entity);
 
 	initWizardAnimationController(entity);
 	registry.midgrounds.emplace(entity);
 
-	createHealthBar(entity, vec3(1.0f, 0.0f, 0.0f));
+	createHealthBar(entity, vec4(1.0f, 0.0f, 0.0f, 1.0f));
+
+	registry.knockables.emplace(entity);
+	auto& trappable = registry.trappables.emplace(entity);
+	trappable.originalSpeed = WIZARD_SPEED;
 
 	return entity;
-};
+}
+
+Entity createTroll(vec2 pos)
+{
+	auto entity = Entity();
+
+	// Setting intial motion values
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = vec3(pos, getElevation(pos) + TROLL_BB_HEIGHT / 2);
+	motion.angle = 0.f;
+	motion.scale = { TROLL_BB_WIDTH, TROLL_BB_HEIGHT };
+	motion.hitbox = { TROLL_BB_WIDTH * 0.9, TROLL_BB_WIDTH * 0.9, TROLL_BB_HEIGHT * 0.9 / zConversionFactor };
+	motion.solid = true;
+	if (registry.players.entities.size() > 0) {
+		vec2 playerPosition = vec2(registry.motions.get(registry.players.entities.at(0)).position);
+		motion.facing = normalize(playerPosition - pos);
+	}
+
+	Enemy& enemy = registry.enemies.emplace(entity);
+	enemy.damage = TROLL_DAMAGE;
+	enemy.cooldown = 0;
+	motion.speed = TROLL_SPEED;
+	enemy.maxHealth = TROLL_HEALTH;
+	enemy.health = enemy.maxHealth;
+
+	registry.trolls.emplace(entity);
+
+	registry.midgrounds.emplace(entity);
+
+	createHealthBar(entity, vec4(1.0f, 0.0f, 0.0f, 1.0f));
+
+	auto& trappable = registry.trappables.emplace(entity);
+	trappable.originalSpeed = TROLL_SPEED;
+	Knocker& knocker = registry.knockers.emplace(entity);
+	knocker.strength = 1.5f;
+
+	initTrollAnimationController(entity);
+
+	return entity;
+}
+;
 
 // Collectible trap creation
 Entity createCollectibleTrap(vec2 pos)
@@ -258,7 +324,7 @@ Entity createDamageTrap(vec2 pos)
 		GEOMETRY_BUFFER_ID::SPRITE
 	});
 
-	registry.midgrounds.emplace(entity);
+	registry.backgrounds.emplace(entity);
 
 	return entity;
 };
@@ -293,6 +359,7 @@ Entity createJeff(vec2 position)
 	motion.scale = vec2({ 32. * SPRITE_SCALE, 32. * SPRITE_SCALE});
 	motion.hitbox = { JEFF_BB_WIDTH, JEFF_BB_WIDTH, JEFF_BB_HEIGHT / zConversionFactor };
 	motion.solid = true;
+	motion.speed = PLAYER_SPEED;
 
 	auto& jumper = registry.jumpers.emplace(entity);
 	jumper.speed = 2;
@@ -302,6 +369,8 @@ Entity createJeff(vec2 position)
 	registry.midgrounds.emplace(entity);
 
 	registry.knockables.emplace(entity);
+	auto& trappable = registry.trappables.emplace(entity);
+	trappable.originalSpeed = PLAYER_SPEED;
 	
 	return entity;
 }
@@ -349,7 +418,7 @@ Entity createTree(RenderSystem* renderer, vec2 pos)
 	return entity;
 }
 
-Entity createArrow(vec3 pos, vec3 velocity)
+Entity createArrow(vec3 pos, vec3 velocity, int damage)
 {
 	auto entity = Entity();
 
@@ -361,7 +430,7 @@ Entity createArrow(vec3 pos, vec3 velocity)
 	
 	registry.projectiles.emplace(entity);
 	Damaging& damaging = registry.damagings.emplace(entity);
-	damaging.damage = 50;
+	damaging.damage = damage;
 	registry.midgrounds.emplace(entity);
 
 	registry.renderRequests.insert(
@@ -427,7 +496,7 @@ void createPlayerStaminaBar(Entity characterEntity, vec2 windowSize) {
 	fg.position = position;
 	fg.scale = { width, height };
 
-	vec3 colour = vec3(0.0f, 0.0f, 1.0f);
+	vec4 colour = vec4(0.0f, 0.0f, 1.0f, 1.0f);
 	registry.colours.insert(meshE, colour);
 
 	registry.renderRequests.insert(
@@ -454,9 +523,10 @@ void createPlayerStaminaBar(Entity characterEntity, vec2 windowSize) {
 		});
 
 	auto textE = Entity();
-	Text& text = registry.texts.emplace(textE);
-	text.scale = 0.8f;
-	text.position = {position.x - 100.0f, position.y};
+	registry.texts.emplace(textE);
+	Foreground& textFg = registry.foregrounds.emplace(textE);
+	textFg.scale = {0.8f, 0.8f};
+	textFg.position = {position.x - 100.0f, position.y};
 	registry.renderRequests.insert(
 		textE,
 		{
@@ -482,7 +552,7 @@ void createPlayerHealthBar(Entity characterEntity, vec2 windowSize) {
 	fg.position = position;
 	fg.scale = {width, height};
 
-	vec3 green = vec3(0.0f, 1.0f, 0.0f);
+	vec4 green = vec4(0.0f, 1.0f, 0.0f, 1.0f);
 
 	registry.colours.insert(meshE, green);
 
@@ -510,9 +580,10 @@ void createPlayerHealthBar(Entity characterEntity, vec2 windowSize) {
 		});
 
 	auto textE = Entity();
-	Text& text = registry.texts.emplace(textE);
-	text.scale = 0.8f;
-	text.position = {position.x - 32.0f, position.y};
+	registry.texts.emplace(textE);
+	Foreground& textFg = registry.foregrounds.emplace(textE);
+	textFg.scale = {0.8f, 0.8f};
+	textFg.position = {position.x - 32.0f, position.y};
 	registry.renderRequests.insert(
 		textE,
 		{
@@ -526,7 +597,7 @@ void createPlayerHealthBar(Entity characterEntity, vec2 windowSize) {
 	hpbar.textEntity = textE;
 }
 
-void createHealthBar(Entity characterEntity, vec3 color) {
+void createHealthBar(Entity characterEntity, vec4 color) {
 	auto meshEntity = Entity();
 
 	const float width = 60.0f;
@@ -603,9 +674,10 @@ Entity createPauseHelpText(vec2 windowSize) {
 	auto entity = Entity();
 
 	Text& text = registry.texts.emplace(entity);
-	text.value = "PAUSE/PLAY(P)    HELP(H)";
-	text.position = {windowSize.x - 550, windowSize.y - 70.0f};
-	text.scale = 1.5f;
+	text.value = "PAUSE/PLAY(P)    HELP (H)";
+	Foreground& fg = registry.foregrounds.emplace(entity);
+	fg.position = {windowSize.x - 550, windowSize.y - 70.0f};
+	fg.scale = {1.5f, 1.5f};
 
 	registry.renderRequests.insert(
 		entity, 
@@ -624,8 +696,9 @@ Entity createFPSText(vec2 windowSize) {
 	Text& text = registry.texts.emplace(entity);
 	text.value = "00 fps";
 	// text position based on screen coordinates
-	text.position = {30.0f, windowSize.y - 40.0f};
-	text.scale = 0.8f;
+	Foreground& fg = registry.foregrounds.emplace(entity);
+	fg.position = {30.0f, windowSize.y - 40.0f};
+	fg.scale = {0.8f, 0.8f};
 
 	registry.renderRequests.insert(
 			entity, 
@@ -643,8 +716,9 @@ Entity createGameTimerText(vec2 windowSize) {
 
 	Text& text = registry.texts.emplace(entity);
 	text.value = "00:00:00";
-	text.position = {(windowSize.x / 2) + 50.0f, windowSize.y - 80.0f}; 
-	text.scale = 2.0f;
+	Foreground& fg = registry.foregrounds.emplace(entity);
+	fg.position = {(windowSize.x / 2) + 50.0f, windowSize.y - 80.0f};
+	fg.scale = {2.0f, 2.0f};
 
 	registry.renderRequests.insert(
 		entity, 
@@ -662,9 +736,12 @@ Entity createTrapsCounterText(vec2 windowSize) {
 
 	vec2 position = {(windowSize.x / 2) - 210.0f, windowSize.y - 80.0f};
 
-	Text& text = registry.texts.emplace(textE);
-	text.position = position;
-	text.scale = 1.5f;
+	registry.texts.emplace(textE);
+	Foreground& fg = registry.foregrounds.emplace(textE);
+	fg.position = position;
+	fg.scale = {1.5f, 1.5f};
+
+	registry.colours.insert(textE, {0.8f, 0.8f, 0.0f, 1.0f});
 
 	registry.renderRequests.insert(
 		textE, 
@@ -684,7 +761,7 @@ Entity createTrapsCounterText(vec2 windowSize) {
 		iconE, 
 		{
 			TEXTURE_ASSET_ID::TRAPCOLLECTABLE,
-			EFFECT_ASSET_ID::TEXTURED,
+			EFFECT_ASSET_ID::TEXTURED_FLAT,
 			GEOMETRY_BUFFER_ID::SPRITE
 		});
 	
@@ -867,40 +944,81 @@ void createMapTiles() {
     }
 }
 
+void createHighScoreText(vec2 windowSize){
+	auto entity = Entity();
+
+	GameScore& gameScore = registry.gameScore;
+
+	Text& text = registry.texts.emplace(entity);
+    text.value = "Your High Score is  " + std::to_string(gameScore.highScoreHours) + "h " + std::to_string(gameScore.highScoreMinutes) + "m " + std::to_string(gameScore.highScoreSeconds) + "s ";
+	Foreground& fg = registry.foregrounds.emplace(entity);
+	fg.position = {windowSize.x / 2 - 220.f, windowSize.y / 2 - 50.f};
+	fg.scale = {1.0f, 1.0f};
+	
+	registry.colours.insert(entity, {1.0f, 0.85f, 0.0f, 1.0f});
+
+	registry.renderRequests.insert(
+		entity, 
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::FONT,
+			GEOMETRY_BUFFER_ID::TEXT
+		});
+}
+
 void createGameOverText(vec2 windowSize) {
+	auto backdrop = Entity();
+	Foreground& backdropFg = registry.foregrounds.emplace(backdrop);
+	backdropFg.position = {0.0f, 0.0f};
+	backdropFg.scale = {windowSize.x, windowSize.y};
+
+	registry.colours.insert(backdrop, vec4(0.0f, 0.0f, 0.0f, 0.6f));
+	registry.renderRequests.insert(
+		backdrop,
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::UNTEXTURED,
+			GEOMETRY_BUFFER_ID::RECTANGLE
+		});
+
 	GameTimer& gameTimer = registry.gameTimer;
 	std::vector<Entity> entities;
 
 	auto entity1 = Entity();
 	Text& text1 = registry.texts.emplace(entity1);
+	Foreground& text1Fg = registry.foregrounds.emplace(entity1);
 	text1.value = "GAME OVER";
-	text1.position = {windowSize.x / 2 - 315.0f, windowSize.y / 2 + 50.0f};
-	text1.scale = 4.0f;
-	text1.colour = {0.85f, 0.0f, 0.0f};
+	text1Fg.position = {windowSize.x / 2 - 315.0f, windowSize.y / 2 + 50.0f};
+	text1Fg.scale = {4.0f, 4.0f};
+	registry.colours.insert(entity1, {0.85f, 0.0f, 0.0f, 1.0f});
 	
 	auto entity2 = Entity();
 	Text& text2 = registry.texts.emplace(entity2);
-	text2.position = {windowSize.x / 2 - 160.f, windowSize.y / 2};
-	text2.scale = 1.0f;
-	text2.colour = {1.0f, 0.85f, 0.0f};
+	Foreground& text2Fg = registry.foregrounds.emplace(entity2);
+	text2Fg.position = {windowSize.x / 2 - 160.f, windowSize.y / 2};
+	text2Fg.scale = {1.0f, 1.0f};
+	registry.colours.insert(entity2, {1.0f, 0.85f, 0.0f, 1.0f});
 	std::ostringstream oss;
     oss << "You survived for ";
     if (gameTimer.hours > 0) {
         oss << gameTimer.hours << "h ";
-		text2.position.x -= 20.f;
+		text2Fg.position.x -= 20.f;
     }
     if (gameTimer.minutes > 0 || gameTimer.hours > 0) {
         oss << gameTimer.minutes << "m ";
-		text2.position.x -= 40.f;
+		text2Fg.position.x -= 40.f;
     }
     oss << gameTimer.seconds << "s";
 	text2.value = oss.str();
 
+	createHighScoreText(windowSize);
+
 	auto entity3 = Entity();
 	Text& text3 = registry.texts.emplace(entity3);
-	text3.position = {windowSize.x / 2 - 165.f, windowSize.y / 2 - 150.f};
-	text3.scale = 0.8f;
 	text3.value = "Press ENTER to play again";
+	Foreground& text3Fg = registry.foregrounds.emplace(entity3);
+	text3Fg.position = {windowSize.x / 2 - 160.f, windowSize.y / 2 - 110.f};
+	text3Fg.scale = {0.8f, 0.8f};
 
 	entities.push_back(entity1);
 	entities.push_back(entity2);
@@ -914,26 +1032,7 @@ void createGameOverText(vec2 windowSize) {
 			GEOMETRY_BUFFER_ID::TEXT
 		});
 	}
-}
 
-Entity createHighScoreText(vec2 windowSize, int hours, int minutes, int seconds){
-	auto entity = Entity();
-
-	Text& text = registry.texts.emplace(entity);
-	text.position = {windowSize.x / 2 - 165.f, windowSize.y / 2 - 80.f};
-	text.scale = 0.8f;
-	text.colour = {1.0f, 0.85f, 0.0f};
-    text.value = "Your High Score is  " + std::to_string(hours) + "h " + std::to_string(minutes) + "m " + std::to_string(seconds) + "s ";
-
-	registry.renderRequests.insert(
-		entity, 
-		{
-			TEXTURE_ASSET_ID::NONE,
-			EFFECT_ASSET_ID::FONT,
-			GEOMETRY_BUFFER_ID::TEXT
-		});
-
-	return entity;
 }
 
 void createTrees(RenderSystem* renderer) {

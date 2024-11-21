@@ -29,8 +29,8 @@ const int ARCHER_DEAD_FRAME_TIME = 1000;
 const int ARCHER_BOWDRAW_NUM_FRAMES = 10;
 const int ARCHER_BOWDRAW_FRAME_TIME = 100;
 
-const int BIRD_FLY_NUM_FRAMES = 7;
-const int BIRD_FLY_FRAME_TIME = 150;
+const int BIRD_FLY_NUM_FRAMES = 8;
+const int BIRD_FLY_FRAME_TIME = 100;
 const int BIRD_SWOOP_NUM_FRAMES = 1;
 const int BIRD_SWOOP_FRAME_TIME = 1000;
 const int BIRD_DEAD_NUM_FRAMES = 1;
@@ -45,6 +45,13 @@ const int LIGHTNING_NUM_FRAMES = 9;
 const int LIGHTNING_FRAME_TIME = 50;
 const int FIREBALL_NUM_FRAMES = 6;
 const int FIREBALL_FRAME_TIME = 50;
+
+const int TROLL_RUN_NUM_FRAMES = 6;
+const int TROLL_RUN_FRAME_TIME = 600;
+const int TROLL_IDLE_NUM_FRAMES = 4;
+const int TROLL_IDLE_FRAME_TIME = 200;
+const int TROLL_DEAD_NUM_FRAMES = 1;
+const int TROLL_DEAD_FRAME_TIME = 1000;
 
 const int COLLECTIBLE_IDLE_FRAME_TIME = 0;
 const int COLLECTIBLE_IDLE_NUM_FRAMES = 1;
@@ -194,6 +201,24 @@ AnimationController& initFireballAnimationController(Entity& entity) {
 		});
 
 	animationcontroller.changeState(entity, AnimationState::Attack);
+
+	return animationcontroller;
+}
+
+AnimationController& initTrollAnimationController(Entity& entity) {
+	AnimationController& animationcontroller = registry.animationControllers.emplace(entity);
+	animationcontroller.addAnimation(AnimationState::Running, TROLL_RUN_FRAME_TIME, TROLL_RUN_NUM_FRAMES, TEXTURE_ASSET_ID::TROLL_RUN);
+	animationcontroller.addAnimation(AnimationState::Dead, TROLL_DEAD_FRAME_TIME, TROLL_DEAD_NUM_FRAMES, TEXTURE_ASSET_ID::TROLL_DEAD);
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::TROLL_RUN,
+			EFFECT_ASSET_ID::ANIMATED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	animationcontroller.changeState(entity, AnimationState::Running);
 
 	return animationcontroller;
 }

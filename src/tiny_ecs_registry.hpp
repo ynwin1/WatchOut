@@ -27,6 +27,8 @@ public:
 	ComponentContainer<Damaging> damagings;
 	ComponentContainer<DeathTimer> deathTimers;
 	ComponentContainer<Knockable> knockables;
+	ComponentContainer<Knocker> knockers;
+	ComponentContainer<Trappable> trappables;
 	ComponentContainer<HealthBar> healthBars;
 	ComponentContainer<AnimationController> animationControllers;
 	ComponentContainer<StaminaBar> staminaBars;
@@ -50,7 +52,7 @@ public:
 	ComponentContainer<Background> backgrounds;
 	ComponentContainer<Midground> midgrounds;
 	ComponentContainer<Foreground> foregrounds;
-	ComponentContainer<vec3> colours;
+	ComponentContainer<vec4> colours;
 
 
 	// Spawnable types
@@ -60,10 +62,12 @@ public:
 	ComponentContainer<Archer> archers;
 	ComponentContainer<Bird> birds;
 	ComponentContainer<Wizard> wizards;
+	ComponentContainer<Troll> trolls;
 	ComponentContainer<Heart> hearts;
 	ComponentContainer<CollectibleTrap> collectibleTraps;
 
 	GameTimer gameTimer;
+	GameScore gameScore;
 
 	//debugging
 	FPSTracker fpsTracker;
@@ -82,6 +86,8 @@ public:
 		registry_list.push_back(&damagings);
 		registry_list.push_back(&deathTimers);
 		registry_list.push_back(&knockables);
+		registry_list.push_back(&knockers);
+		registry_list.push_back(&trappables);
 		registry_list.push_back(&staminas);
 		registry_list.push_back(&mapTiles);
 		registry_list.push_back(&obstacles);
@@ -106,6 +112,7 @@ public:
 		registry_list.push_back(&archers);
 		registry_list.push_back(&birds);
 		registry_list.push_back(&wizards);
+		registry_list.push_back(&trolls);
 		registry_list.push_back(&hearts);
 		registry_list.push_back(&collectibleTraps);
 
@@ -119,6 +126,7 @@ public:
 		spawnable_lists["archer"] = &archers;
 		spawnable_lists["bird"] = &birds;
 		spawnable_lists["wizard"] = &wizards;
+		spawnable_lists["troll"] = &trolls;
 		spawnable_lists["heart"] = &hearts;
 		spawnable_lists["collectible_trap"] = &collectibleTraps;
 	}

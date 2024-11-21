@@ -80,32 +80,40 @@ void RenderSystem::drawText(Entity entity, const mat4& projection_screen) {
     }
 }
 
-void RenderSystem::drawMesh(Entity entity, const mat3& projection, const mat4& projection_screen)
+void RenderSystem::drawMesh(Entity entity, const mat4& projection, const mat4& projection_screen)
 {
 	// Transformation code, see Rendering and Transformation in the template
 	// specification for more info Incrementally updates transformation matrix,
 	// thus ORDER IS IMPORTANT
-	Transform transform;
+	Transform3D transform;
 	if (registry.motions.has(entity)) {
 		Motion& motion = registry.motions.get(entity);
-		if (registry.midgrounds.has(entity) || registry.backgrounds.has(entity)) {
-			vec2 visualPos = worldToVisual(vec3(motion.position.x, motion.position.y, motion.position.z));
-			if (registry.meshPtrs.has(entity)) {
-				visualPos.y += motion.scale.y / 20; // corrects the render location of the tree sprite
-			}
-			transform.translate(visualPos);
-		}
-		else {
+		//if (registry.midgrounds.has(entity) || registry.backgrounds.has(entity)) {
+		//	vec2 visualPos = worldToVisual(vec3(motion.position.x, motion.position.y, motion.position.z));
+		//	if (registry.meshPtrs.has(entity)) {
+		//		visualPos.y += motion.scale.y / 20; // corrects the render location of the tree sprite
+		//	}
+		//	transform.translate(vec3(visualPos, 0.0));
+		//}
+		//else {
 			transform.translate(motion.position);
-		}
+		//}
 		transform.rotate(motion.angle);
-		transform.scale(motion.scale);
+		transform.scale(vec2(motion.scale.x, motion.scale.y));
 	}
 	else if(registry.mapTiles.has(entity)) {
 		MapTile& tile = registry.mapTiles.get(entity);
-		transform.translate(tile.position);
+		transform.translate(vec3(tile.position, 0));
 		transform.scale(tile.scale);
+		return;
 	}
+
+	const mat4 flatten = {
+		{1, 0, 0, 0},
+		{0, yConversionFactor,0, 0},
+		{0, -zConversionFactor, 0, 0},
+		{0, 0, 0, 1}
+	};
 
 	assert(registry.renderRequests.has(entity));
 	const RenderRequest& render_request = registry.renderRequests.get(entity);
@@ -201,9 +209,11 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection, const mat4& p
 		glUniform1i(toScreen, 0);
 		// Setting uniform values to the currently bound program
 		GLuint transform_loc = glGetUniformLocation(currProgram, "transform");
-		glUniformMatrix3fv(transform_loc, 1, GL_FALSE, (float*)&transform.mat);
+		glUniformMatrix4fv(transform_loc, 1, GL_FALSE, (float*)&transform.mat);
 		GLuint projection_loc = glGetUniformLocation(currProgram, "projection");
-		glUniformMatrix3fv(projection_loc, 1, GL_FALSE, (float*)&projection);
+		glUniformMatrix4fv(projection_loc, 1, GL_FALSE, (float*)&projection);
+		GLuint flatten_loc = glGetUniformLocation(currProgram, "flatten");
+		glUniformMatrix4fv(flatten_loc, 1, GL_FALSE, (float*)&flatten);
 		gl_has_errors();
 	}
 
@@ -316,7 +326,7 @@ void RenderSystem::draw()
 	// and alpha blending, one would have to sort
 	// sprites back to front
 	gl_has_errors();
-	mat3 projection_2D = createProjectionMatrix();
+	mat4 projection_2D = createProjectionMatrix();
 	mat4 projection_screen = createProjectionToScreenSpace();
 
 	// Draw all background textures
@@ -569,7 +579,7 @@ mat4 RenderSystem::createProjectionToScreenSpace()  {
 	return glm::ortho(0.0f, static_cast<float>(camera->getSize().x), 0.0f, static_cast<float>(camera->getSize().y));
 }
 
-mat3 RenderSystem::createProjectionMatrix() 
+mat4 RenderSystem::createProjectionMatrix() 
 {
 	float left;
 	float right;
@@ -596,7 +606,7 @@ mat3 RenderSystem::createProjectionMatrix()
 	float sy = 2.f / (top - bottom);
 	float tx = -(right + left) / (right - left);
 	float ty = -(top + bottom) / (top - bottom);
-	return { {sx, 0.f, 0.f}, {0.f, sy, 0.f}, {tx, ty, 1.f} };
+	return { {sx, 0.f, 0.f, 0.f}, {0.f, sy, 0.f, 0.f}, { 0.f,0.f,0.f,0.f }, { tx, ty, 0.f, 1.f } };
 }
 
 float worldToVisualY(float y, float z) 

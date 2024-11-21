@@ -8,10 +8,11 @@ in vec2 in_texcoord;
 out vec2 texcoord;
 
 // Application data
-uniform mat3 transform;
-uniform mat3 projection;
+uniform mat4 transform;
+uniform mat4 projection;
+uniform mat4 flatten;
 uniform mat4 transform4;   
-uniform mat4 projection4;  
+uniform mat4 projection4;
 uniform int toScreen;
 
 void main()
@@ -24,7 +25,7 @@ void main()
 		// flip the texture coordinates along the y-axis
 		texcoord = vec2(in_texcoord.x, 1.0 - in_texcoord.y);
     } else {
-        pos = vec4(projection * transform * vec3(in_position.xy, 1.0), 1.0); // convert to vec4
+        pos = projection * flatten * transform * vec4(vec3(in_position.xy, 1.0), 1.0); // convert to vec4
 		texcoord = in_texcoord;
     }
 

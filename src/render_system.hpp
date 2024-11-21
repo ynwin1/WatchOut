@@ -125,15 +125,15 @@ public:
 
 	void step(float elapsed_ms);
 
-	mat3 createProjectionMatrix();
+	mat4 createProjectionMatrix();
 	mat4 createProjectionToScreenSpace();
 
 private:
 	Camera* camera;
-	const float AMBIENT_LIGHT = .4;
+	const float AMBIENT_LIGHT = .9;
 
 	// Internal drawing functions for each entity type
-    void drawMesh(Entity entity, const mat3 &projection, const mat4 &projection_screen);
+    void drawMesh(Entity entity, const mat4 &projection, const mat4 &projection_screen);
 
     void bindAnimationAttributes(const GLuint program, const Entity &entity);
 

@@ -4,6 +4,7 @@
 #include "animation_system_init.hpp"
 #include <random>
 #include <sstream>
+#include "render_system.hpp"
 
 // Boar creation
 Entity createBoar(vec2 pos)
@@ -1047,6 +1048,28 @@ void createTrees(RenderSystem* renderer) {
 		createTree(renderer, { posX, posY });
 		numTrees--;
 	}
+}
+
+Entity createSlideUpText(std::string textValue, vec4 color, vec2 worldPos, Camera* camera) {
+	auto entity = Entity();
+	Text& text = registry.texts.emplace(entity);
+	text.value = textValue;
+	Foreground& fg = registry.foregrounds.emplace(entity);
+	fg.position = worldToScreen(worldPos, camera);
+	fg.scale = {1.0f, 1.0f};
+	registry.colours.insert(entity, color);
+	SlideUp& slideUp = registry.slideUps.emplace(entity);
+	slideUp.startY = fg.position.y;
+
+	registry.renderRequests.insert(
+		entity, 
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::FONT,
+			GEOMETRY_BUFFER_ID::TEXT
+		});
+
+	return entity;
 }
 
 float getElevation(vec2 xy)

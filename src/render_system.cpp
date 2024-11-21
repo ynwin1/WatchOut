@@ -386,6 +386,7 @@ void RenderSystem::step(float elapsed_ms)
 	update_staminabars();
 	updateEntityFacing();
 	updateCollectedPosition();
+	updateSlideUps(elapsed_ms);
 }
 
 void RenderSystem::update_animations() {
@@ -496,6 +497,44 @@ void RenderSystem::updateCollectedPosition() {
     }   
 }
 
+void RenderSystem::updateSlideUps(float elapsed_ms) {
+	for (Entity entity : registry.slideUps.entities) {
+		SlideUp& slideUp = registry.slideUps.get(entity);
+
+		slideUp.animationDuration -= elapsed_ms;
+		slideUp.elapsedMs += elapsed_ms;
+		// clamp elapsed time to duration
+		if(slideUp.elapsedMs > slideUp.slideUpDuration) { 
+			slideUp.elapsedMs = slideUp.slideUpDuration;
+		}
+
+		if(registry.texts.has(entity)) {
+			Text& text = registry.texts.get(entity);
+			Foreground& textFg = registry.foregrounds.get(entity);
+
+			// follow the anchored entity
+			if(registry.motions.has(text.anchoredEntity)) { 
+				Motion& anchoredMotion = registry.motions.get(text.anchoredEntity);
+				vec2 motionForegroundPos = worldToScreen(vec2(anchoredMotion.position.x, anchoredMotion.position.y), camera);
+				textFg.position.x = motionForegroundPos.x + text.anchoredOffset.x;
+			} 
+
+			if (slideUp.elapsedMs <= slideUp.slideUpDuration) { 
+				// slide up text
+        		textFg.position.y = slideUp.startY + slideUp.distanceY * (slideUp.elapsedMs / slideUp.slideUpDuration);
+				 // fade in text
+				if(registry.colours.has(entity)) {
+					vec4& colour = registry.colours.get(entity);
+					colour.a = slideUp.elapsedMs / slideUp.slideUpDuration;	
+				}
+    		}
+		}
+		// if(slideUp.animationDuration <= 0) {
+		// 	registry.remove_all_components_of(entity);
+		// }
+	}
+}
+
 void updateHpBarMeter() {
 	for (Entity entity : registry.players.entities) {
 		Player& player = registry.players.get(entity);
@@ -597,6 +636,18 @@ mat3 RenderSystem::createProjectionMatrix()
 	float tx = -(right + left) / (right - left);
 	float ty = -(top + bottom) / (top - bottom);
 	return { {sx, 0.f, 0.f}, {0.f, sy, 0.f}, {tx, ty, 1.f} };
+}
+
+vec2 worldToScreen(vec2 worldPos, Camera* camera) {
+	// bottom left corner of the screen
+	float screenOriginPosX = camera->getPosition().x - camera->getSize().x / 2;
+	float screenOriginPosY = visualToWorldY(camera->getPosition().y) + camera->getSize().y / 2;
+
+	// convert world position to screen position
+	float screenPosX = worldPos.x - screenOriginPosX; 
+	float screenPosY = screenOriginPosY - worldPos.y;
+
+	return { screenPosX, screenPosY };
 }
 
 float worldToVisualY(float y, float z) 

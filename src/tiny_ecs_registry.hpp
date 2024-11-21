@@ -41,6 +41,7 @@ public:
 	ComponentContainer<Mesh*> meshPtrs;
 	ComponentContainer<TargetArea> targetAreas;
 	ComponentContainer<Collected> collected;
+	ComponentContainer<SlideUp> slideUps;
 	
 	ComponentContainer<PauseMenuComponent> pauseMenuComponents;
 	ComponentContainer<HelpMenuComponent> helpMenuComponents;
@@ -93,6 +94,7 @@ public:
 		registry_list.push_back(&obstacles);
 		registry_list.push_back(&meshPtrs);
 		registry_list.push_back(&collected);
+		registry_list.push_back(&slideUps);
 		
 		registry_list.push_back(&healthBars);
 		registry_list.push_back(&staminaBars);

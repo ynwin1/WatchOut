@@ -124,6 +124,7 @@ Entity createPauseHelpText(vec2 windowSize);
 Entity createFPSText(vec2 windowSize);
 Entity createGameTimerText(vec2 windowSize);
 Entity createTrapsCounterText(vec2 windowSize);
+Entity createSlideUpText(std::string text, vec4 color, vec2 worldPos, Camera* camera);
 
 // Game over UI
 void createGameOverText(vec2 windowSize);

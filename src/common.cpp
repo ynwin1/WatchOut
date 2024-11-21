@@ -24,7 +24,7 @@ void Transform::translate(vec2 offset)
 
 void Transform3D::scale(vec2 scale)
 {
-	mat4 S = { { scale.x, 0.f, 0.f, 0.f }, { 0.f, scale.y, 0.f, 0.f }, { 0.f, 0.f, 1.f, 0.f }, { 0.f, 0.f, 0.f, 1.f } };
+	mat4 S = { { scale.x, 0.f, 0.f, 0.f }, { 0.f, 0.f, -scale.y, 0.f }, { 0.f, 1.f, 0.f, 0.f }, { 0.f, 0.f, 0.f, 1.f } };
 	mat = mat * S;
 }
 
@@ -38,7 +38,7 @@ void Transform3D::rotate(float radians)
 {
 	float c = cosf(radians);
 	float s = sinf(radians);
-	mat4 R = { { c, s, 0.f, 0.f},{-s, c, 0.f, 0.f},{0.f, 0.f, 1.f, 0.f}, {0.f, 0.f, 0.f, 1.f}};
+	mat4 R = { { c, 0.f, -s * sqrt(2), 0.f},{0.f, 1.f, 0.f, 0.f},{s / sqrt(2), 0.f, c, 0.f}, {0.f, 0.f, 0.f, 1.f}};
 	mat = mat * R;
 }
 

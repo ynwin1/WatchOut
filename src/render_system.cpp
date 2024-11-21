@@ -99,13 +99,12 @@ void RenderSystem::drawMesh(Entity entity, const mat4& projection, const mat4& p
 			transform.translate(motion.position);
 		//}
 		transform.rotate(motion.angle);
-		transform.scale(vec2(motion.scale.x, motion.scale.y));
+		transform.scale(vec2(motion.scale.x, motion.scale.y / yConversionFactor));
 	}
 	else if(registry.mapTiles.has(entity)) {
 		MapTile& tile = registry.mapTiles.get(entity);
 		transform.translate(vec3(tile.position, 0));
 		transform.scale(tile.scale);
-		return;
 	}
 
 	const mat4 flatten = {

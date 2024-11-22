@@ -94,21 +94,11 @@ void WorldSystem::updateGameTimer(float elapsed_ms) {
 
 void WorldSystem::initText() {
     createPauseHelpText(camera->getSize());
-    registry.fpsTracker.textEntity = createFPSText(camera->getSize());
+    renderer->fpsTracker.textEntity = createFPSText(camera->getSize());
     gameStateController.gameTimer.reset();
     gameStateController.gameTimer.textEntity = createGameTimerText(camera->getSize());
     trapsCounter.reset();
     trapsCounter.textEntity = createTrapsCounterText(camera->getSize());
-}
-
-void WorldSystem::trackFPS(float elapsed_ms) {
-    FPSTracker& fpsTracker = registry.fpsTracker; 
-    fpsTracker.update(elapsed_ms);
-
-    if(fpsTracker.elapsedTime == 0) {
-        Text& text = registry.texts.get(fpsTracker.textEntity);
-        text.value = std::to_string(fpsTracker.fps) + " fps";
-    }
 }
 
 void WorldSystem::updateTrapsCounterText() {
@@ -143,7 +133,6 @@ bool WorldSystem::step(float elapsed_ms)
     despawn_collectibles(elapsed_ms);
 	destroyDamagings();
     handle_stamina(elapsed_ms);
-    trackFPS(elapsed_ms);
     updateGameTimer(elapsed_ms);
     updateTrapsCounterText();
     toggleMesh();
@@ -406,7 +395,7 @@ void WorldSystem::allStateControls(int key, int action, int mod)
             break;
         case GLFW_KEY_F:
             // toggle fps
-            registry.fpsTracker.toggled = !registry.fpsTracker.toggled;
+            renderer->fpsTracker.toggled = !renderer->fpsTracker.toggled;
             break;
         case GLFW_KEY_V:
             isWindowed = !isWindowed;

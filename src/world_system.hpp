@@ -134,7 +134,6 @@ private:
 	vec2 get_spawn_location(const std::string& entity_type);
 	void place_trap(Player& player, Motion& motion, bool forward);
 	void checkAndHandlePlayerDeath(Entity& entity);
-	void trackFPS(float elapsed_ms);
 	void updateGameTimer(float elapsed_ms);
 	void updateTrapsCounterText();
 	void toggleMesh();

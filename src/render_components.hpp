@@ -5,6 +5,25 @@
 #include "../ext/stb_image/stb_image.h"
 #include <iostream>
 
+// track fps for debugging
+struct FPSTracker {
+	int fps = 0;
+	int counter = 0;
+	float elapsedTime = 0;
+	Entity textEntity;
+	bool toggled = false;
+	void update(float elapsed_ms) {
+		elapsedTime += elapsed_ms;
+		counter += 1;
+
+    	if(elapsedTime >= 1000) {
+        	fps = counter;
+        	counter = 0;
+        	elapsedTime = 0;
+    	}
+	}
+};
+
 // Single Vertex Buffer element for textured sprites (textured.vs.glsl)
 struct TexturedVertex
 {

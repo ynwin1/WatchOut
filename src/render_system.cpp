@@ -334,7 +334,7 @@ void RenderSystem::draw()
 
 	// Draw all foreground textures
 	for (Entity entity : registry.foregrounds.entities) {
-		if(entity == registry.fpsTracker.textEntity && !registry.fpsTracker.toggled) {
+		if(entity == fpsTracker.textEntity && !fpsTracker.toggled) {
 			continue; //skip rendering fps if not toggled
 		} else if(registry.texts.has(entity)) {
 			drawText(entity, projection_screen);
@@ -387,6 +387,7 @@ void RenderSystem::step(float elapsed_ms)
 	updateEntityFacing();
 	updateCollectedPosition();
 	updateSlideUps(elapsed_ms);
+	updateFPSText(elapsed_ms);
 }
 
 void RenderSystem::update_animations() {
@@ -610,6 +611,15 @@ void RenderSystem::updateEntityFacing() {
       motion.scale.x = -1.0f * abs(motion.scale.x);
     }
 	}
+}
+
+void RenderSystem::updateFPSText(float elapsed_ms) {
+    fpsTracker.update(elapsed_ms);
+
+    if(fpsTracker.elapsedTime == 0) {
+        Text& text = registry.texts.get(fpsTracker.textEntity);
+        text.value = std::to_string(fpsTracker.fps) + " fps";
+    }
 }
 
 mat4 RenderSystem::createProjectionToScreenSpace()  {

@@ -36,7 +36,7 @@ void GameStateController::beforeEnterState(GAME_STATE newState) {
         return;
     }
     if (newState == GAME_STATE::GAMEOVER) {
-        createGameOverText(world->camera->getSize());
+        createGameOverText(world->camera->getSize(), *this);
         return;
     }
     if (newState == GAME_STATE::HELP) {

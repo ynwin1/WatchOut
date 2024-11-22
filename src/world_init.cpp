@@ -945,10 +945,8 @@ void createMapTiles() {
     }
 }
 
-void createHighScoreText(vec2 windowSize){
+void createHighScoreText(vec2 windowSize, GameScore& gameScore) {
 	auto entity = Entity();
-
-	GameScore& gameScore = registry.gameScore;
 
 	Text& text = registry.texts.emplace(entity);
     text.value = "Your High Score is  " + std::to_string(gameScore.highScoreHours) + "h " + std::to_string(gameScore.highScoreMinutes) + "m " + std::to_string(gameScore.highScoreSeconds) + "s ";
@@ -967,7 +965,7 @@ void createHighScoreText(vec2 windowSize){
 		});
 }
 
-void createGameOverText(vec2 windowSize) {
+void createGameOverText(vec2 windowSize, GameStateController& gameStateController) {
 	auto backdrop = Entity();
 	Foreground& backdropFg = registry.foregrounds.emplace(backdrop);
 	backdropFg.position = {0.0f, 0.0f};
@@ -982,8 +980,9 @@ void createGameOverText(vec2 windowSize) {
 			GEOMETRY_BUFFER_ID::RECTANGLE
 		});
 
-	GameTimer& gameTimer = registry.gameTimer;
 	std::vector<Entity> entities;
+	GameTimer& gameTimer = gameStateController.gameTimer;
+	GameScore& gameScore = gameStateController.gameScore;
 
 	auto entity1 = Entity();
 	Text& text1 = registry.texts.emplace(entity1);
@@ -1012,7 +1011,7 @@ void createGameOverText(vec2 windowSize) {
     oss << gameTimer.seconds << "s";
 	text2.value = oss.str();
 
-	createHighScoreText(windowSize);
+	createHighScoreText(windowSize, gameScore);
 
 	auto entity3 = Entity();
 	Text& text3 = registry.texts.emplace(entity3);

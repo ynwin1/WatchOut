@@ -3,6 +3,7 @@
 #include "common.hpp"
 #include "tiny_ecs.hpp"
 #include "render_system.hpp"
+#include "game_state_controller.hpp"
 
 // hardcoded dimensions of player and enemies (boar, babarian, and archer)
 // BB = Bounding Box
@@ -127,13 +128,7 @@ Entity createTrapsCounterText(vec2 windowSize);
 Entity createPointsEarned(std::string text, Entity anchoredEntity, vec4 color);
 
 // Game over UI
-void createGameOverText(vec2 windowSize);
-
-// GameOver
-Entity createGameOver(vec2 pos);
-
-// GameOver
-Entity createGameOver(vec2 pos);
+void createGameOverText(vec2 windowSize, GameStateController& gameStateController);
 
 // Display bars
 void createHealthBar(Entity characterEntity, vec4 color);

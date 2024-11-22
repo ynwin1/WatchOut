@@ -80,7 +80,7 @@ void WorldSystem::restart_game()
 }
 
 void WorldSystem::updateGameTimer(float elapsed_ms) {
-    GameTimer& gameTimer = registry.gameTimer;
+    GameTimer& gameTimer = gameStateController.gameTimer;
 
     gameTimer.update(elapsed_ms);
     std::stringstream ss;
@@ -95,8 +95,8 @@ void WorldSystem::updateGameTimer(float elapsed_ms) {
 void WorldSystem::initText() {
     createPauseHelpText(camera->getSize());
     registry.fpsTracker.textEntity = createFPSText(camera->getSize());
-    registry.gameTimer.reset();
-    registry.gameTimer.textEntity = createGameTimerText(camera->getSize());
+    gameStateController.gameTimer.reset();
+    gameStateController.gameTimer.textEntity = createGameTimerText(camera->getSize());
     trapsCounter.reset();
     trapsCounter.textEntity = createTrapsCounterText(camera->getSize());
 }
@@ -170,8 +170,8 @@ bool WorldSystem::step(float elapsed_ms)
 
 void WorldSystem::loadAndSaveHighScore(bool save) {
     std::string filename = "highscore.txt";
-    GameTimer& gameTimer = registry.gameTimer;
-    GameScore& gameScore = registry.gameScore;
+    GameTimer& gameTimer = gameStateController.gameTimer;
+    GameScore& gameScore = gameStateController.gameScore;
     if (save) {
         if (gameTimer.hours > gameScore.highScoreHours || 
             (gameTimer.hours == gameScore.highScoreHours && gameTimer.minutes > gameScore.highScoreMinutes) ||
@@ -989,7 +989,7 @@ void WorldSystem::toggleMesh() {
 }
 
 void WorldSystem::adjustSpawnSystem(float elapsed_ms) {
-	GameTimer& gameTimer = registry.gameTimer;
+	GameTimer& gameTimer = gameStateController.gameTimer;
 	if (gameTimer.elapsed > DIFFICULTY_INTERVAL) {
 		// Increase difficulty
 		for (auto& spawnDelay : spawn_delays) {

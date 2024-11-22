@@ -14,6 +14,7 @@
 #include <physics_system.hpp>
 #include <ai_system.hpp>
 #include <sound_system.hpp>
+#include <game_save_manager.hpp>
 
 using Clock = std::chrono::high_resolution_clock;
 // Entry point
@@ -28,7 +29,7 @@ int main()
 	SoundSystem sound;
 	AISystem ai = AISystem(rng, &sound);
 	Camera camera;
-	
+	GameSaveManager saveManager;
 
 	// Initializing window
 	GLFWwindow* window = renderer.create_window();
@@ -41,7 +42,7 @@ int main()
 	// Initialize the main systems
 	camera.init(window);
 	renderer.init(&camera);
-	world.init(&renderer, window, &camera, &physics, &ai, &sound);
+	world.init(&renderer, window, &camera, &physics, &ai, &sound, &saveManager);
 	sound.init();
 
 	auto t = Clock::now();

@@ -1,6 +1,7 @@
 #pragma once
 #include "json.hpp"
 #include "tiny_ecs.hpp"
+#include "components.hpp"
 
 class GameSaveManager {
 public:
@@ -18,5 +19,8 @@ private:
 	void serialize_containers(json& j);
 
 	template <typename Component>
-	nlohmann::json serialize_container(const ComponentContainer<Component>& container);
+	json serialize_container(const ComponentContainer<Component>& container);
+
+	template <typename Component>
+	nlohmann::json serialize_component(const Component& component);
 };

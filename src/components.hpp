@@ -23,7 +23,6 @@ struct Stamina {
     float stamina_loss_rate = 50;
 	float stamina_recovery_rate = 10;
 	float timer = 3000;
-
 };
 
 //Dashing

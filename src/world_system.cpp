@@ -4,6 +4,7 @@
 #include "physics_system.hpp"
 #include "sound_system.hpp"
 #include "game_state_controller.hpp"
+#include "game_save_manager.hpp"
 #include <iostream>
 #include <iomanip> 
 #include <sstream>
@@ -16,7 +17,7 @@ WorldSystem::WorldSystem(std::default_random_engine& rng)
     this->rng = rng;
 }
 
-void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics, AISystem* ai, SoundSystem* sound)
+void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics, AISystem* ai, SoundSystem* sound, GameSaveManager* saveManager)
 {
     
     this->renderer = renderer;
@@ -25,6 +26,7 @@ void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camer
     this->physics = physics;
     this->ai = ai;
 	this->sound = sound;
+	this->saveManager = saveManager;
 
     // Setting callbacks to member functions (that's why the redirect is needed)
     // Input is handled using GLFW, for more info see
@@ -345,6 +347,10 @@ void WorldSystem::pauseControls(int key, int action, int mod)
             break;
         case GLFW_KEY_H:
             gameStateController.setGameState(GAME_STATE::HELP);
+            break;
+        case GLFW_KEY_S:
+            saveManager->save_game();
+            printf("Saved game\n");
             break;
         case GLFW_KEY_ENTER:
             restart_game();

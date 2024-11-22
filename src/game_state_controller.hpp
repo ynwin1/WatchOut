@@ -48,6 +48,28 @@ struct TrapsCounter {
 	}
 };
 
+struct EnemiesKilled {
+    int killSpanCount = 0;
+    float spanCountdown = 1000;
+    bool spanCountdownStarted = false;
+    void updateKillSpanCount() {
+        killSpanCount++;
+        if(!spanCountdownStarted) {
+            spanCountdownStarted = true;
+        }
+    }
+    void updateSpanCountdown(float elapsed_ms) {
+        if(spanCountdownStarted) {
+            spanCountdown -= elapsed_ms;
+        }
+    }
+	void resetKillSpan() {
+		killSpanCount = 0;
+		spanCountdown = 1000;
+		spanCountdownStarted = false;
+	}
+};
+
 enum class GAME_STATE
 {
     PLAYING,
@@ -74,6 +96,7 @@ public:
 	GameTimer gameTimer;
 	GameScore gameScore;
 	TrapsCounter trapsCounter;
+	EnemiesKilled enemiesKilled;
 private:
     GAME_STATE currentGameState;
     WorldSystem* world;

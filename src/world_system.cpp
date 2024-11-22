@@ -60,12 +60,6 @@ void WorldSystem::restart_game()
     createPlayerHealthBar(playerEntity, camera->getSize());
     createPlayerStaminaBar(playerEntity, camera->getSize());
 
-    // to remove
-    Motion& playerMotion = registry.motions.get(playerEntity);
-    camera->followPosition(vec2(playerMotion.position.x, playerMotion.position.y * yConversionFactor));
-    createPointsEarned("BONUS +200", playerEntity, {0.8f, 0.8f, 0.0f, 1.0f});
-    // to remove
-
     gameStateController.setGameState(GAME_STATE::PLAYING);
     show_mesh = false;
     resetSpawnSystem();
@@ -142,6 +136,7 @@ bool WorldSystem::step(float elapsed_ms)
     despawnTraps(elapsed_ms);
     updateCollectedTimer(elapsed_ms);
     resetTrappedEntities();
+    updateEnemiesKilledInSpan(elapsed_ms);
 
     if (camera->isToggled()) {
         Motion& playerMotion = registry.motions.get(playerEntity);
@@ -156,6 +151,23 @@ bool WorldSystem::step(float elapsed_ms)
     }
 
     return !is_over();
+}
+
+void WorldSystem::updateEnemiesKilledInSpan(float elapsed_ms) {
+    EnemiesKilled& enemiesKilled = gameStateController.enemiesKilled;
+    enemiesKilled.updateSpanCountdown(elapsed_ms);
+    if(enemiesKilled.spanCountdown <= 0) {
+        if(enemiesKilled.killSpanCount > 1) {
+            int points;
+            if(enemiesKilled.killSpanCount < 4) {
+                points = enemiesKilled.killSpanCount * 20;
+            } else  {
+                points = enemiesKilled.killSpanCount * 100;
+            }
+            createPointsEarned("BONUS +" + std::to_string(points), playerEntity, {0.8f, 0.8f, 0.0f, 1.0f});
+        }
+        enemiesKilled.resetKillSpan();
+    }
 }
 
 void WorldSystem::loadAndSaveHighScore(bool save) {
@@ -819,6 +831,7 @@ void WorldSystem::checkAndHandleEnemyDeath(Entity enemy) {
         }
 
         createPointsEarned("Points +" + std::to_string(enemyData.points), enemy, {1.0f, 1.0f, 1.0f, 1.0f});
+        gameStateController.enemiesKilled.updateKillSpanCount();
 
         HealthBar& hpbar = registry.healthBars.get(enemy);
         registry.remove_all_components_of(hpbar.meshEntity);

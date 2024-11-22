@@ -15,6 +15,8 @@
 #include <ai_system.hpp>
 #include <sound_system.hpp>
 
+#include "json.hpp"
+
 using Clock = std::chrono::high_resolution_clock;
 // Entry point
 int main()
@@ -72,6 +74,5 @@ int main()
 		renderer.draw();
 		
 	}
-
 	return 0;
 }

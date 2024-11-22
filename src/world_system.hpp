@@ -119,6 +119,9 @@ private:
 	void on_key(int key, int, int action, int mod);
 	void on_mouse_move(vec2 mouse_position);
 
+	// Save game
+	void save_game();
+
 	// restart level
 	void restart_game();
 	void initText();

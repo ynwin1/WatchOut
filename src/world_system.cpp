@@ -73,6 +73,10 @@ void WorldSystem::restart_game()
     loadAndSaveHighScore(false);
 }
 
+void WorldSystem::save_game() {
+    std::string filename = "game.txt";
+}
+
 void WorldSystem::updateGameTimer(float elapsed_ms) {
     GameTimer& gameTimer = registry.gameTimer;
 

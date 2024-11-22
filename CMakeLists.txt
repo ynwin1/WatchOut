@@ -168,6 +168,7 @@ if(NOT TARGET Freetype::Freetype)
 endif()
  
  include_directories("${CMAKE_CURRENT_SOURCE_DIR}/ext/freetype/include")
+ include_directories("${CMAKE_CURRENT_SOURCE_DIR}/ext/json/include")
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${GLFW_INCLUDE_DIRS})
 target_include_directories(${PROJECT_NAME} PUBLIC ${SDL2_INCLUDE_DIRS})

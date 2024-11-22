@@ -156,6 +156,15 @@ bool WorldSystem::step(float elapsed_ms)
 void WorldSystem::updateEnemiesKilledInSpan(float elapsed_ms) {
     EnemiesKilled& enemiesKilled = gameStateController.enemiesKilled;
     enemiesKilled.updateSpanCountdown(elapsed_ms);
+
+    bool shouldShowComboText = enemiesKilled.spanCountdownStarted &&
+                               enemiesKilled.killSpanCount > 1 &&
+                               !registry.texts.has(enemiesKilled.comboTextEntity);
+
+    if(shouldShowComboText) {
+        enemiesKilled.comboTextEntity = createComboText(enemiesKilled.killSpanCount, camera->getSize());
+    }
+
     if(enemiesKilled.spanCountdown <= 0) {
         if(enemiesKilled.killSpanCount > 1) {
             int points;
@@ -164,9 +173,19 @@ void WorldSystem::updateEnemiesKilledInSpan(float elapsed_ms) {
             } else  {
                 points = enemiesKilled.killSpanCount * 100;
             }
-            createPointsEarned("BONUS +" + std::to_string(points), playerEntity, {0.8f, 0.8f, 0.0f, 1.0f});
+            createPointsEarnedText("BONUS +" + std::to_string(points), playerEntity, {0.8f, 0.8f, 0.0f, 1.0f});
         }
         enemiesKilled.resetKillSpan();
+    }
+}
+
+void WorldSystem::updateComboText() {
+    EnemiesKilled& enemiesKilled = gameStateController.enemiesKilled;
+    if(registry.texts.has(enemiesKilled.comboTextEntity)) {
+        Text& text = registry.texts.get(enemiesKilled.comboTextEntity);
+        SlideUp& slideUp = registry.slideUps.get(enemiesKilled.comboTextEntity);
+        text.value = "COMBO *" + std::to_string(enemiesKilled.killSpanCount);
+        slideUp.animationLength = 1500;
     }
 }
 
@@ -830,8 +849,9 @@ void WorldSystem::checkAndHandleEnemyDeath(Entity enemy) {
             animationController.changeState(enemy, AnimationState::Dead);
         }
 
-        createPointsEarned("Points +" + std::to_string(enemyData.points), enemy, {1.0f, 1.0f, 1.0f, 1.0f});
+        createPointsEarnedText("Points +" + std::to_string(enemyData.points), enemy, {1.0f, 1.0f, 1.0f, 1.0f});
         gameStateController.enemiesKilled.updateKillSpanCount();
+        updateComboText();
 
         HealthBar& hpbar = registry.healthBars.get(enemy);
         registry.remove_all_components_of(hpbar.meshEntity);

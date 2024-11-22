@@ -147,6 +147,7 @@ private:
 	void updateCollectedTimer(float elapsed_ms);
 	void resetTrappedEntities();
 	void updateEnemiesKilledInSpan(float elapsed_ms);
+	void updateComboText();
 
 
 	// Collision functions

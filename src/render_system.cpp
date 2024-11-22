@@ -516,7 +516,7 @@ void RenderSystem::updateSlideUps(float elapsed_ms) {
 			// follow the anchored entity
 			if(registry.motions.has(text.anchoredEntity)) { 
 				Motion& anchoredMotion = registry.motions.get(text.anchoredEntity);
-				vec2 screenPos = worldToScreen({anchoredMotion.position.x - 60.0f, anchoredMotion.position.y - anchoredMotion.scale.y / 2 - 10.0f, 0.0f});
+				vec2 screenPos = worldToScreen({anchoredMotion.position.x - 70.0f, anchoredMotion.position.y - anchoredMotion.scale.y / 2 - 20.0f, 0.0f});
 
 				textFg.position.x = screenPos.x;
 				if(slideUp.elapsedMs <= slideUp.slideUpDuration) {

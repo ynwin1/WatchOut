@@ -52,11 +52,15 @@ struct EnemiesKilled {
     int killSpanCount = 0;
     float spanCountdown = 1000;
     bool spanCountdownStarted = false;
+	Entity comboTextEntity;
     void updateKillSpanCount() {
         killSpanCount++;
         if(!spanCountdownStarted) {
             spanCountdownStarted = true;
-        }
+        } else {
+			// reset countdown to allow chaining kills
+			spanCountdown = 1000;
+		}
     }
     void updateSpanCountdown(float elapsed_ms) {
         if(spanCountdownStarted) {

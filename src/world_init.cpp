@@ -1049,19 +1049,48 @@ void createTrees(RenderSystem* renderer) {
 	}
 }
 
-Entity createPointsEarned(std::string textValue, Entity anchoredEntity, vec4 color) {
+Entity createPointsEarnedText(std::string textValue, Entity anchoredEntity, vec4 color) {
 	auto entity = Entity();
 	Text& text = registry.texts.emplace(entity);
 	text.value = textValue;
 	text.anchoredEntity = anchoredEntity;
 
 	Foreground& fg = registry.foregrounds.emplace(entity);
-	fg.scale = {0.8f, 0.8f};
+	fg.scale = {1.0f, 1.0f};
 
 	registry.colours.insert(entity, color);
 
 	SlideUp& slideUp = registry.slideUps.emplace(entity);
 	slideUp.fadeIn = true;
+
+	registry.renderRequests.insert(
+		entity, 
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::FONT,
+			GEOMETRY_BUFFER_ID::TEXT
+		});
+
+	return entity;
+}
+
+Entity createComboText(int comboValue, vec2 windowSize) {
+	auto entity = Entity();
+	Text& text = registry.texts.emplace(entity);
+	text.value = "COMBO *" + std::to_string(comboValue);
+
+	vec2 position = {windowSize.x / 2 - 130.0f, windowSize.y - 350.0f};
+
+	Foreground& fg = registry.foregrounds.emplace(entity);
+	fg.position = position;
+	fg.scale = {2.0f, 2.0f};
+
+	registry.colours.insert(entity, {1.0f, 1.0f, 1.0f, 1.0f});
+
+	SlideUp& slideUp = registry.slideUps.emplace(entity);
+	slideUp.fadeIn = true;
+	slideUp.screenStartY = position.y;
+	slideUp.animationLength = 2000.f;
 
 	registry.renderRequests.insert(
 		entity, 

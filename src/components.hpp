@@ -226,8 +226,8 @@ struct Text {
 struct SlideUp {
 	float animationDuration = 1500;
 	float slideUpDuration = 200;
-	float distanceY = 50;
-	float startY = 0;
+	float screenDistanceY = 50;
+	float screenStartY = 0;
 	float elapsedMs = 0;
 	bool fadeIn = false;
 };

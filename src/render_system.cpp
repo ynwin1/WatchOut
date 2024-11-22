@@ -501,7 +501,7 @@ void RenderSystem::updateSlideUps(float elapsed_ms) {
 	for (Entity entity : registry.slideUps.entities) {
 		SlideUp& slideUp = registry.slideUps.get(entity);
 
-		slideUp.animationDuration -= elapsed_ms;
+		slideUp.animationDuration += elapsed_ms;
 		slideUp.elapsedMs += elapsed_ms;
 		// clamp elapsed time to duration
 		if(slideUp.elapsedMs > slideUp.slideUpDuration) { 
@@ -515,13 +515,20 @@ void RenderSystem::updateSlideUps(float elapsed_ms) {
 			// follow the anchored entity
 			if(registry.motions.has(text.anchoredEntity)) { 
 				Motion& anchoredMotion = registry.motions.get(text.anchoredEntity);
-				vec2 motionForegroundPos = worldToScreen(anchoredMotion.position, camera);
-				textFg.position.x = motionForegroundPos.x + text.anchoredOffset.x;
+				vec3 worldPos = {anchoredMotion.position.x, anchoredMotion.position.y - (anchoredMotion.scale.y / 2), 0.0f};
+				vec2 anchoredScreenPos = worldToScreen(worldPos);
+				textFg.position.x = anchoredScreenPos.x + text.anchoredOffset.x;
+				if(slideUp.elapsedMs <= slideUp.slideUpDuration) {
+					//adjust slide up start position to anchored entity
+					slideUp.screenStartY = anchoredScreenPos.y;
+				} else {
+					textFg.position.y = anchoredScreenPos.y + slideUp.screenDistanceY;
+				}
 			} 
 
 			if (slideUp.elapsedMs <= slideUp.slideUpDuration) { 
 				// slide up text
-        		textFg.position.y = slideUp.startY + slideUp.distanceY * (slideUp.elapsedMs / slideUp.slideUpDuration);
+        		textFg.position.y = slideUp.screenStartY + slideUp.screenDistanceY * (slideUp.elapsedMs / slideUp.slideUpDuration);
 				 // fade in text
 				if(slideUp.fadeIn) {
 					vec4& colour = registry.colours.get(entity);
@@ -638,14 +645,26 @@ mat3 RenderSystem::createProjectionMatrix()
 	return { {sx, 0.f, 0.f}, {0.f, sy, 0.f}, {tx, ty, 1.f} };
 }
 
-vec2 worldToScreen(vec3 worldPos, Camera* camera) {
-	// bottom left corner of the screen
-	float screenOriginPosX = camera->getPosition().x - camera->getSize().x / 2;
-	float screenOriginPosY = visualToWorldY(camera->getPosition().y) + camera->getSize().y / 2;
+vec2 RenderSystem::worldToScreen(vec3 worldPos) {
+	float screenPosX;
+	float screenPosY;
 
-	// convert world position to screen position
-	float screenPosX = worldPos.x - screenOriginPosX; 
-	float screenPosY = screenOriginPosY - worldPos.y;
+	if(camera->isToggled()) {
+		// bottom left corner of the screen
+		float screenOriginPosX = camera->getPosition().x - camera->getSize().x / 2;
+		float screenOriginPosY = visualToWorldY(camera->getPosition().y) + camera->getSize().y / 2;
+
+		// convert world position to screen position
+		screenPosX = worldPos.x - screenOriginPosX; 
+		screenPosY = screenOriginPosY - worldPos.y;
+	} else {
+		int window_width;
+    	int window_height;
+    	glfwGetWindowSize(window, &window_width, &window_height);
+
+		screenPosX = (worldPos.x * window_width) / world_size_x;
+		screenPosY = window_height - (worldPos.y * window_height) / world_size_y;
+	}
 
 	return { screenPosX, screenPosY };
 }

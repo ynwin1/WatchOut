@@ -63,10 +63,10 @@ void WorldSystem::restart_game()
     // to remove
     Motion& playerMotion = registry.motions.get(playerEntity);
     camera->followPosition(vec2(playerMotion.position.x, playerMotion.position.y * yConversionFactor));
-    Entity entity = createSlideUpText("BONUS *200", {0.8f, 0.8f, 0.0f, 0.0f}, {playerMotion.position.x, playerMotion.position.y - (playerMotion.scale.y / 2), 0.0f}, camera);
+    Entity entity = createPointsEarned("BONUS +200", playerMotion, {0.8f, 0.8f, 0.0f, 0.0f}, renderer);
     Text& text = registry.texts.get(entity);
     text.anchoredEntity = playerEntity;
-    text.anchoredOffset = {-60.0f, (playerMotion.scale.y / 2)};
+    text.anchoredOffset = {-60.0f, 0.0}; // to center the text above the entity
     // to remove
 
     gameStateController.setGameState(GAME_STATE::PLAYING);

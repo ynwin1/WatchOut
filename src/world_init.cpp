@@ -1050,16 +1050,20 @@ void createTrees(RenderSystem* renderer) {
 	}
 }
 
-Entity createSlideUpText(std::string textValue, vec4 color, vec3 worldPos, Camera* camera) {
+Entity createPointsEarned(std::string textValue, Motion& motion, vec4 color, RenderSystem* render) {
 	auto entity = Entity();
 	Text& text = registry.texts.emplace(entity);
 	text.value = textValue;
+
+	vec3 worldPos = {motion.position.x, motion.position.y - (motion.scale.y / 2), 0.0f};
 	Foreground& fg = registry.foregrounds.emplace(entity);
-	fg.position = worldToScreen(worldPos, camera);
-	fg.scale = {1.0f, 1.0f};
+	fg.position = render->worldToScreen(worldPos);
+	fg.scale = {0.8f, 0.8f};
+
 	registry.colours.insert(entity, color);
+
 	SlideUp& slideUp = registry.slideUps.emplace(entity);
-	slideUp.startY = fg.position.y;
+	slideUp.screenStartY = fg.position.y;
 	slideUp.fadeIn = true;
 
 	registry.renderRequests.insert(

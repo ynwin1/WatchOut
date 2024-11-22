@@ -128,6 +128,8 @@ public:
 	mat3 createProjectionMatrix();
 	mat4 createProjectionToScreenSpace();
 
+	vec2 worldToScreen(vec3 worldPos);
+
 private:
 	Camera* camera;
 	const float AMBIENT_LIGHT = .4;
@@ -165,6 +167,5 @@ bool loadEffectFromFile(
 float worldToVisualY(float y, float z);
 float visualToWorldY(float y);
 vec2 worldToVisual(vec3 pos);
-vec2 worldToScreen(vec3 worldPos, Camera* camera);
 static const float yConversionFactor = 1 / sqrt(2);
 static const float zConversionFactor = 1 / sqrt(2);

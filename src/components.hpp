@@ -117,8 +117,7 @@ struct Motion {
 
 	// Hitbox
 	vec3 hitbox = { 0, 0, 0 };
-	float solid = false;
-
+	bool solid = false;
 };
 
 // Stucture to store collision information

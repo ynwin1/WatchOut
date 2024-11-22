@@ -501,7 +501,7 @@ void RenderSystem::updateSlideUps(float elapsed_ms) {
 	for (Entity entity : registry.slideUps.entities) {
 		SlideUp& slideUp = registry.slideUps.get(entity);
 
-		slideUp.animationDuration += elapsed_ms;
+		slideUp.animationLength -= elapsed_ms;
 		slideUp.elapsedMs += elapsed_ms;
 		// clamp elapsed time to duration
 		if(slideUp.elapsedMs > slideUp.slideUpDuration) { 
@@ -515,14 +515,14 @@ void RenderSystem::updateSlideUps(float elapsed_ms) {
 			// follow the anchored entity
 			if(registry.motions.has(text.anchoredEntity)) { 
 				Motion& anchoredMotion = registry.motions.get(text.anchoredEntity);
-				vec3 worldPos = {anchoredMotion.position.x, anchoredMotion.position.y - (anchoredMotion.scale.y / 2), 0.0f};
-				vec2 anchoredScreenPos = worldToScreen(worldPos);
-				textFg.position.x = anchoredScreenPos.x + text.anchoredOffset.x;
+				vec2 screenPos = worldToScreen({anchoredMotion.position.x - 60.0f, anchoredMotion.position.y - anchoredMotion.scale.y / 2 - 10.0f, 0.0f});
+
+				textFg.position.x = screenPos.x;
 				if(slideUp.elapsedMs <= slideUp.slideUpDuration) {
 					//adjust slide up start position to anchored entity
-					slideUp.screenStartY = anchoredScreenPos.y;
+					slideUp.screenStartY = screenPos.y;
 				} else {
-					textFg.position.y = anchoredScreenPos.y + slideUp.screenDistanceY;
+					textFg.position.y = screenPos.y + slideUp.screenDistanceY;
 				}
 			} 
 
@@ -530,15 +530,16 @@ void RenderSystem::updateSlideUps(float elapsed_ms) {
 				// slide up text
         		textFg.position.y = slideUp.screenStartY + slideUp.screenDistanceY * (slideUp.elapsedMs / slideUp.slideUpDuration);
 				 // fade in text
-				if(slideUp.fadeIn) {
+				if(slideUp.fadeIn && registry.colours.has(entity)) {
 					vec4& colour = registry.colours.get(entity);
 					colour.a = slideUp.elapsedMs / slideUp.slideUpDuration;	
 				}
     		}
 		}
-		// if(slideUp.animationDuration <= 0) {
-		// 	registry.remove_all_components_of(entity);
-		// }
+
+		if(slideUp.animationLength <= 0) {
+			registry.remove_all_components_of(entity);
+		}
 	}
 }
 
@@ -652,11 +653,11 @@ vec2 RenderSystem::worldToScreen(vec3 worldPos) {
 	if(camera->isToggled()) {
 		// bottom left corner of the screen
 		float screenOriginPosX = camera->getPosition().x - camera->getSize().x / 2;
-		float screenOriginPosY = visualToWorldY(camera->getPosition().y) + camera->getSize().y / 2;
+		float screenOriginPosY = visualToWorldY(camera->getPosition().y) + visualToWorldY(camera->getSize().y) / 2;
 
 		// convert world position to screen position
 		screenPosX = worldPos.x - screenOriginPosX; 
-		screenPosY = screenOriginPosY - worldPos.y;
+		screenPosY = (screenOriginPosY - worldPos.y) * yConversionFactor;
 	} else {
 		int window_width;
     	int window_height;

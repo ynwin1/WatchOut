@@ -43,6 +43,7 @@ struct Enemy
 	std::string type;
 	unsigned int cooldown = 0;
 	float pathfindTime = 0;
+	int points = 1;
 };
 
 struct Trappable {
@@ -220,11 +221,10 @@ struct GameTimer {
 struct Text {
 	std::string value;
 	Entity anchoredEntity;
-	vec2 anchoredOffset = {0, 0};
 };
 
 struct SlideUp {
-	float animationDuration = 1500;
+	float animationLength = 1500;
 	float slideUpDuration = 200;
 	float screenDistanceY = 50;
 	float screenStartY = 0;

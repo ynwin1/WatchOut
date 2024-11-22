@@ -63,10 +63,7 @@ void WorldSystem::restart_game()
     // to remove
     Motion& playerMotion = registry.motions.get(playerEntity);
     camera->followPosition(vec2(playerMotion.position.x, playerMotion.position.y * yConversionFactor));
-    Entity entity = createPointsEarned("BONUS +200", playerMotion, {0.8f, 0.8f, 0.0f, 0.0f}, renderer);
-    Text& text = registry.texts.get(entity);
-    text.anchoredEntity = playerEntity;
-    text.anchoredOffset = {-60.0f, 0.0}; // to center the text above the entity
+    createPointsEarned("BONUS +200", playerEntity, {0.8f, 0.8f, 0.0f, 1.0f});
     // to remove
 
     gameStateController.setGameState(GAME_STATE::PLAYING);
@@ -830,6 +827,8 @@ void WorldSystem::checkAndHandleEnemyDeath(Entity enemy) {
             AnimationController& animationController = registry.animationControllers.get(enemy);
             animationController.changeState(enemy, AnimationState::Dead);
         }
+
+        createPointsEarned("Points +" + std::to_string(enemyData.points), enemy, {1.0f, 1.0f, 1.0f, 1.0f});
 
         HealthBar& hpbar = registry.healthBars.get(enemy);
         registry.remove_all_components_of(hpbar.meshEntity);

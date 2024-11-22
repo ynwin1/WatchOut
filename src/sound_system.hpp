@@ -59,8 +59,8 @@ public:
 		{ Sound::LEVELUP,		std::pair<std::string, int>(audio_path("levelUp.wav"), 120) },
 		{ Sound::FIREBALL,		std::pair<std::string, int>(audio_path("fireball.wav"), 128) },
 		{ Sound::COLLECT,		std::pair<std::string, int>(audio_path("collect.wav"), 128) },
-		{ Sound::BIRD_FLOCK,	std::pair<std::string, int>(audio_path("birds_flock.wav"), 10) },
-		{ Sound::BIRD_ATTACK,	std::pair<std::string, int>(audio_path("bird_attack.wav"), 30) },
+		{ Sound::BIRD_FLOCK,	std::pair<std::string, int>(audio_path("birds_flock.wav"), 5) },
+		{ Sound::BIRD_ATTACK,	std::pair<std::string, int>(audio_path("bird_attack.wav"), 5) },
 		{ Sound::TROLL_LAUGH,	std::pair<std::string, int>(audio_path("troll_laugh.wav"), 128) }
 	};
 

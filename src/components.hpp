@@ -160,14 +160,6 @@ struct Knocker
 	float strength = 1.f;
 };
 
-struct TrapsCounter {
-	int count = 0;
-	Entity textEntity;
-	void reset() {
-		count = 0;
-	}
-};
-
 struct MapTile {
 	vec2 position;
 	vec2 scale;

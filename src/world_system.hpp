@@ -50,7 +50,6 @@ private:
 	AISystem* ai;
 	Camera* camera;
 	SoundSystem* sound;
-	TrapsCounter trapsCounter;
 
 	bool isWindowed = false;
 

@@ -40,6 +40,14 @@ struct GameScore {
 	int highScoreSeconds = 0;
 };
 
+struct TrapsCounter {
+	int count = 0;
+	Entity textEntity;
+	void reset() {
+		count = 0;
+	}
+};
+
 enum class GAME_STATE
 {
     PLAYING,
@@ -65,6 +73,7 @@ public:
 
 	GameTimer gameTimer;
 	GameScore gameScore;
+	TrapsCounter trapsCounter;
 private:
     GAME_STATE currentGameState;
     WorldSystem* world;

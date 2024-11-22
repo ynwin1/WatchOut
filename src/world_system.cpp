@@ -97,11 +97,12 @@ void WorldSystem::initText() {
     renderer->fpsTracker.textEntity = createFPSText(camera->getSize());
     gameStateController.gameTimer.reset();
     gameStateController.gameTimer.textEntity = createGameTimerText(camera->getSize());
-    trapsCounter.reset();
-    trapsCounter.textEntity = createTrapsCounterText(camera->getSize());
+    gameStateController.trapsCounter.reset();
+    gameStateController.trapsCounter.textEntity = createTrapsCounterText(camera->getSize());
 }
 
 void WorldSystem::updateTrapsCounterText() {
+    TrapsCounter& trapsCounter = gameStateController.trapsCounter;
     Text& text = registry.texts.get(trapsCounter.textEntity);
     std::stringstream ss;
     ss << std::setw(2) << std::setfill('0') << trapsCounter.count;
@@ -651,9 +652,9 @@ void WorldSystem::entity_collectible_collision(Entity entity, Entity entity_othe
 	Collectible& collectible = registry.collectibles.get(entity_other);
 
     if (registry.collectibleTraps.has(entity_other)) {
-        trapsCounter.count++;
+        gameStateController.trapsCounter.count++;
         createCollected(playerM, collectibleM.scale, TEXTURE_ASSET_ID::TRAPCOLLECTABLE);
-        printf("Player collected a trap. Trap count is now %d\n", trapsCounter.count);
+        printf("Player collected a trap. Trap count is now %d\n", gameStateController.trapsCounter.count);
     }
     else if (registry.hearts.has(entity_other)) {
         unsigned int health = registry.hearts.get(entity_other).health;
@@ -896,7 +897,7 @@ void WorldSystem::place_trap(Player& player, Motion& motion, bool forward) {
     // Player position
     vec2 playerPos = motion.position;
 	// Do not place trap if player has no traps
-    if (trapsCounter.count == 0) {
+    if (gameStateController.trapsCounter.count == 0) {
         printf("Player has no traps to place\n");
         return;
     }
@@ -917,8 +918,8 @@ void WorldSystem::place_trap(Player& player, Motion& motion, bool forward) {
 
     vec2 trapPos = playerPos + gap;
 	createDamageTrap(trapPos);
-	trapsCounter.count--;
-	printf("Trap count is now %d\n", trapsCounter.count);
+	gameStateController.trapsCounter.count--;
+	printf("Trap count is now %d\n", gameStateController.trapsCounter.count);
 }
 
 //Update player stamina on dashing, sprinting, rolling and jumping

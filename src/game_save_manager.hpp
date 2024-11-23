@@ -14,6 +14,10 @@ public:
 	void load_game();
 
 private:
+	// Game Save file path
+	std::string gameSaveFilePath = data_path() + "/save/game_save.json";
+	// Map to store group of components for each entity
+	std::map<int, std::vector<json>> entityComponentGroups;
 
 	// Serialization
 	void serialize_containers(json& j);
@@ -27,6 +31,13 @@ private:
 	template <typename Component>
 	nlohmann::json serialize_component(const Component& component);
 
-	
+	// Deserialization
+	void groupComponentsForEntities(const json& j);
+
+	void deserialize_containers(const json& j);
+
+	void deserialize_game_timer(const json& j);
+	void deserialize_game_score(const json& j);
+
 
 };

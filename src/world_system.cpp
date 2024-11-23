@@ -352,6 +352,10 @@ void WorldSystem::pauseControls(int key, int action, int mod)
             saveManager->save_game();
             printf("Saved game\n");
             break;
+        case GLFW_KEY_L:
+			saveManager->load_game();
+			printf("Loaded game\n");
+			break;
         case GLFW_KEY_ENTER:
             restart_game();
         case GLFW_KEY_P:

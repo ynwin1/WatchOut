@@ -14,14 +14,10 @@ void GameSaveManager::save_game() {
 
 	serialize_containers(j);
 
-	printf("Serialized\n");
-	std::string filepath = data_path() + "/save/game_save.json";
-	printf("Printed JSON is %s\n", j.dump(4).c_str());
-	std::ofstream file(filepath);
+	std::ofstream file(gameSaveFilePath);
 	if (file.is_open()) {
 		file << j.dump(4);
 		file.close();
-		printf("Game saved\n");
 	}
 	else {
 		std::cout << "Unable to open file to save game" << std::endl;
@@ -96,11 +92,6 @@ nlohmann::json GameSaveManager::serialize_container(const ComponentContainer<Com
 	j["components"] = components;
 
 	return j;
-}
-
-// Load the game state from a JSON file
-void GameSaveManager::load_game() {
-
 }
 
 // SERIALIZING COMPONENTS
@@ -484,5 +475,76 @@ nlohmann::json GameSaveManager::serialize_component<GameScore>(const GameScore& 
 	j["highScoreMinutes"] = gameScore.highScoreMinutes;
 	j["highScoreSeconds"] = gameScore.highScoreSeconds;
 	return j;
+}
+
+
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% //
+
+// DESERIALIZATION
+
+// Load the game state from a JSON file
+void GameSaveManager::load_game() {
+	std::ifstream file(gameSaveFilePath);
+	if (file.is_open()) {
+		json j;
+		file >> j;
+		// printf("Loaded game state is : %s\n", j.dump(4).c_str());
+		file.close();
+
+		// clear registry
+		// registry.clear_all_components();
+
+		// group all components that belong to the same entity
+		groupComponentsForEntities(j);
+		deserialize_containers(j);
+	}
+	else {
+		std::cout << "Unable to open file to load game" << std::endl;
+	}
+}
+
+void GameSaveManager::groupComponentsForEntities(const json& j) {
+	// group all components that belong to the same entity
+	for (auto& item : j.items()) {
+		// item.key is container name and item.value is an object containing components and entities stored in arrays
+		auto& containerName = item.key();
+		auto& container = item.value();
+
+		// skip gameTimer and gameScore
+		if (containerName == "gameTimer" || containerName == "gameScore") {
+			continue;
+		}
+
+		for (size_t i = 0; i < container["entities"].size(); i++) {
+			int entityID = container["entities"][i];
+			if (entityComponentGroups.find(entityID) == entityComponentGroups.end()) {
+				entityComponentGroups[entityID] = std::vector<json>();
+			}
+			json component;
+			component[containerName] = container["components"][i];
+			entityComponentGroups[entityID].push_back(component);
+		}
+	}
+}
+
+void GameSaveManager::deserialize_containers(const json& j) {
+	deserialize_game_timer(j);
+	deserialize_game_score(j);
+
+}
+
+void GameSaveManager::deserialize_game_timer(const json& j) {
+	registry.gameTimer.hours = j["gameTimer"]["hour"].get<int>();
+	registry.gameTimer.minutes = j["gameTimer"]["minute"].get<int>();
+	registry.gameTimer.seconds = j["gameTimer"]["second"].get<int>();
+	registry.gameTimer.ms = j["gameTimer"]["ms"].get<int>();
+	// TODO 
+	// registry.gameTimer.textEntity = Entity(j["gameTimer"]["textEntity"]);
+}
+
+void GameSaveManager::deserialize_game_score(const json& j) {
+	registry.gameScore.highScoreHours = j["gameScore"]["highScoreHours"].get<int>();
+	registry.gameScore.highScoreMinutes = j["gameScore"]["highScoreMinutes"].get<int>();
+	registry.gameScore.highScoreSeconds = j["gameScore"]["highScoreSeconds"].get<int>();
 }
 

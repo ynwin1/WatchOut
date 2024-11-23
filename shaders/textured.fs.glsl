@@ -47,21 +47,21 @@ void main()
     colour += vec4(num_point_lights*0.0, 0.0, 0.0, 0.0); 
 }
 
-vec4 CalcPointLight(PointLight light, vec3 fragPos)
+vec4 CalcPointLight(PointLight light, vec3 worldPos)
 {
     // attenuation
-    float distance = distance(vec2(50, 50), fragPos.xy);
+    float distance = distance(light.position.xy, worldPos.xy);
     float attenuation = 1.0 / (light.constant + light.linear * distance + 
   			     light.quadratic * (distance * distance));  
     // combine results
     vec4 ambient  = light.ambient;
     ambient  *= attenuation;
 
-    // return (ambient);
-    if (distance < 70) {
-        return vec4(1.0, 1.0, 1.0, .3);
-    }
-    return vec4(0);
+    return (ambient);
+    // if (distance < 700) {
+    //     return vec4(1.0, 1.0, 1.0, .1);
+    // }
+    // return vec4(0);
 
 } 
 

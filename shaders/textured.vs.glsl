@@ -31,5 +31,5 @@ void main()
     }
 
     gl_Position = pos;
-    worldPos = (modelMatrix * vec4(in_texcoord.x, in_texcoord.y, in_texcoord.x, 1.0)).xyz;
+    worldPos = (modelMatrix *  vec4(in_position.xy, 1.0, 1.0)).xyz;
 }

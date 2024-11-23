@@ -162,11 +162,11 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection, const mat4& p
 		GLint linearLoc = glGetUniformLocation(program, "pointLights[0].linear");
 		GLint quadLoc = glGetUniformLocation(program, "pointLights[0].quadratic");
 
-		if (posLoc != -1) glUniform3f(posLoc, 50.0f, 50.0f, 50.0f);
+		if (posLoc != -1) glUniform3f(posLoc, 1000.0f, 1000.0f, 50.0f);
 		if (ambLoc != -1) glUniform4f(ambLoc, 1.0f, 1.0f, 1.0f, 1.0f);
 		if (constLoc != -1) glUniform1f(constLoc, 1.0f);
-		if (linearLoc != -1) glUniform1f(linearLoc, 0.09f);
-		if (quadLoc != -1) glUniform1f(quadLoc, 0.032f);
+		if (linearLoc != -1) glUniform1f(linearLoc, 0.00014f);	
+		if (quadLoc != -1) glUniform1f(quadLoc, 0.000007f);
     }
 	else if (render_request.used_effect == EFFECT_ASSET_ID::TEXTURED_FLAT) {
 		bindTextureAttributes(program, entity);

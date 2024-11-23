@@ -129,6 +129,7 @@ public:
 private:
 	Camera* camera;
 	const float AMBIENT_LIGHT = .4;
+	const int MAX_POINT_LIGHTS = 3;
 
 	// Internal drawing functions for each entity type
     void drawMesh(Entity entity, const mat3 &projection, const mat4 &projection_screen);
@@ -139,7 +140,9 @@ private:
 
     void bindLightingAttributes(const GLuint program, const Entity &entity);
 
-	void drawText(Entity entity, const mat4& projection_screen);
+    void bindPointLights(const GLuint program, const Entity &entity, const Motion motion);
+
+    void drawText(Entity entity, const mat4& projection_screen);
 
 	void update_hpbars();
 

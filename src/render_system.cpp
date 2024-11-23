@@ -146,27 +146,6 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection, const mat4& p
 		} else {
 			printf("Failed to find modelMatrix uniform!\n");
 		}
-
-		// Point light 1
-		GLint location = glGetUniformLocation(program, "num_point_lights");
-		if (location == -1) {
-			std::cerr << "Uniform 'num_point_lights' not found or optimized out!" << std::endl;
-		} else {
-			glUniform1i(location, 70); // Use glUniform1i for integer uniforms
-		}
-		location = glGetUniformLocation(program, "pointLights[0].ambient");
-		// Set pointLights[0]
-		GLint posLoc = glGetUniformLocation(program, "pointLights[0].position");
-		GLint ambLoc = glGetUniformLocation(program, "pointLights[0].ambient");
-		GLint constLoc = glGetUniformLocation(program, "pointLights[0].constant");
-		GLint linearLoc = glGetUniformLocation(program, "pointLights[0].linear");
-		GLint quadLoc = glGetUniformLocation(program, "pointLights[0].quadratic");
-
-		if (posLoc != -1) glUniform3f(posLoc, 1000.0f, 1000.0f, 50.0f);
-		if (ambLoc != -1) glUniform4f(ambLoc, 1.0f, 1.0f, 1.0f, 1.0f);
-		if (constLoc != -1) glUniform1f(constLoc, 1.0f);
-		if (linearLoc != -1) glUniform1f(linearLoc, 0.00014f);	
-		if (quadLoc != -1) glUniform1f(quadLoc, 0.000007f);
     }
 	else if (render_request.used_effect == EFFECT_ASSET_ID::TEXTURED_FLAT) {
 		bindTextureAttributes(program, entity);
@@ -309,6 +288,44 @@ void RenderSystem::bindLightingAttributes(const GLuint program, const Entity &en
 	} else {
 		glUniform1f(ambientLight_loc, AMBIENT_LIGHT);       // Set ambientlight value
 	}
+}
+
+
+// Applies Point lights
+void RenderSystem::bindPointLights(const GLuint program, const Entity &entity, const Motion &motion)
+{
+	PointLight validPointLights[MAX_POINT_LIGHTS];
+	int num_point_lights = 0;
+	for (auto& pointLight : registry.pointLights.components) {
+		if (motion.position.y < pointLight.position.y) {
+			continue;
+		}
+		float distance = glm::distance(motion.position, pointLight.position);
+		if (distance > pointLight.max_distance) {
+			continue;
+		}
+		validPointLights[num_point_lights] = pointLight;
+		num_point_lights++;
+	} 
+	GLint location = glGetUniformLocation(program, "num_point_lights");
+	if (location == -1) {
+		std::cerr << "Uniform 'num_point_lights' not found or optimized out!" << std::endl;
+	} else {
+		glUniform1i(location, 1); // Use glUniform1i for integer uniforms
+	}
+	location = glGetUniformLocation(program, "pointLights[0]");
+	// Set pointLights[0]
+	GLint posLoc = glGetUniformLocation(program, "pointLights[0].position");
+	GLint ambLoc = glGetUniformLocation(program, "pointLights[0].ambient");
+	GLint constLoc = glGetUniformLocation(program, "pointLights[0].constant");
+	GLint linearLoc = glGetUniformLocation(program, "pointLights[0].linear");
+	GLint quadLoc = glGetUniformLocation(program, "pointLights[0].quadratic");
+
+	if (posLoc != -1) glUniform3f(posLoc, 1000.0f, 1000.0f, 20.0f);
+	if (ambLoc != -1) glUniform4f(ambLoc, 1.0f, 1.0f, 1.0f, 1.0f);
+	if (constLoc != -1) glUniform1f(constLoc, 1.0f);
+	if (linearLoc != -1) glUniform1f(linearLoc, 0.00014f);	
+	if (quadLoc != -1) glUniform1f(quadLoc, 0.000007f);
 }
 
 // Returns true if entity a is further from the camera

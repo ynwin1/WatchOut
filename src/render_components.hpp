@@ -122,6 +122,18 @@ struct RenderRequest
 	PRIMITIVE_TYPE primitive_type = PRIMITIVE_TYPE::TRIANGLES;
 };
 
+struct PointLight {
+    vec3 position;  
+    
+	vec4 ambient;
+	
+	float max_distance;
+
+    float constant;
+    float linear;
+    float quadratic;
+};
+
 struct Background {};
 struct Midground {};
 struct Foreground {

@@ -148,6 +148,7 @@ private:
 	void resetTrappedEntities();
 	void updateEnemiesKilledInSpan(float elapsed_ms);
 	void updateComboText();
+	void updateScoreText();
 
 
 	// Collision functions

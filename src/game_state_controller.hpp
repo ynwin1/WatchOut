@@ -38,6 +38,12 @@ struct GameScore {
 	int highScoreHours = 0;
 	int highScoreMinutes = 0;
 	int highScoreSeconds = 0;
+	int score = 0;
+	int highScore = 0;
+	Entity textEntity;
+	void reset() {
+		score = 0;
+	}
 };
 
 struct TrapsCounter {

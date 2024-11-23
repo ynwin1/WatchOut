@@ -37,6 +37,7 @@ void GameStateController::beforeEnterState(GAME_STATE newState) {
     }
     if (newState == GAME_STATE::GAMEOVER) {
         createGameOverText(world->camera->getSize(), *this);
+        registry.slideUps.clear();
         return;
     }
     if (newState == GAME_STATE::HELP) {

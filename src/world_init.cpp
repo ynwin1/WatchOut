@@ -718,8 +718,8 @@ Entity createGameTimerText(vec2 windowSize) {
 	Text& text = registry.texts.emplace(entity);
 	text.value = "00:00:00";
 	Foreground& fg = registry.foregrounds.emplace(entity);
-	fg.position = {(windowSize.x / 2) + 50.0f, windowSize.y - 80.0f};
-	fg.scale = {2.0f, 2.0f};
+	fg.position = {(windowSize.x / 2) + 120.0f, windowSize.y - 70.0f};
+	fg.scale = {1.5f, 1.5f};
 
 	registry.renderRequests.insert(
 		entity, 
@@ -735,7 +735,7 @@ Entity createGameTimerText(vec2 windowSize) {
 Entity createTrapsCounterText(vec2 windowSize) {
 	auto textE = Entity();
 
-	vec2 position = {(windowSize.x / 2) - 210.0f, windowSize.y - 80.0f};
+	vec2 position = {(windowSize.x / 2) - 500.0f, windowSize.y - 80.0f};
 
 	registry.texts.emplace(textE);
 	Foreground& fg = registry.foregrounds.emplace(textE);
@@ -1091,6 +1091,25 @@ Entity createComboText(int comboValue, vec2 windowSize) {
 	slideUp.fadeIn = true;
 	slideUp.screenStartY = position.y;
 	slideUp.animationLength = 2000.f;
+
+	registry.renderRequests.insert(
+		entity, 
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::FONT,
+			GEOMETRY_BUFFER_ID::TEXT
+		});
+
+	return entity;
+}
+
+Entity createScoreText(vec2 windowSize) {
+	auto entity = Entity();
+
+	registry.texts.emplace(entity);
+	Foreground& fg = registry.foregrounds.emplace(entity);
+	fg.position = {(windowSize.x / 2) - 300.0f, windowSize.y - 70.0f};
+	fg.scale = {1.5f, 1.5f};
 
 	registry.renderRequests.insert(
 		entity, 

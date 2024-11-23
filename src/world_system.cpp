@@ -93,6 +93,8 @@ void WorldSystem::initText() {
     gameStateController.gameTimer.textEntity = createGameTimerText(camera->getSize());
     gameStateController.trapsCounter.reset();
     gameStateController.trapsCounter.textEntity = createTrapsCounterText(camera->getSize());
+    gameStateController.gameScore.reset();
+    gameStateController.gameScore.textEntity = createScoreText(camera->getSize());
 }
 
 void WorldSystem::updateTrapsCounterText() {
@@ -137,6 +139,7 @@ bool WorldSystem::step(float elapsed_ms)
     updateCollectedTimer(elapsed_ms);
     resetTrappedEntities();
     updateEnemiesKilledInSpan(elapsed_ms);
+    updateScoreText();
 
     if (camera->isToggled()) {
         Motion& playerMotion = registry.motions.get(playerEntity);
@@ -173,6 +176,7 @@ void WorldSystem::updateEnemiesKilledInSpan(float elapsed_ms) {
             } else  {
                 points = enemiesKilled.killSpanCount * 100;
             }
+            gameStateController.gameScore.score += points;
             createPointsEarnedText("BONUS +" + std::to_string(points), playerEntity, {0.8f, 0.8f, 0.0f, 1.0f});
         }
         enemiesKilled.resetKillSpan();
@@ -189,36 +193,53 @@ void WorldSystem::updateComboText() {
     }
 }
 
+void WorldSystem::updateScoreText() {
+    GameScore& gameScore = gameStateController.gameScore;
+    Text& text = registry.texts.get(gameScore.textEntity);
+    text.value = "Score: " + std::to_string(gameScore.score);
+}
+
 void WorldSystem::loadAndSaveHighScore(bool save) {
     std::string filename = "highscore.txt";
     GameTimer& gameTimer = gameStateController.gameTimer;
     GameScore& gameScore = gameStateController.gameScore;
     if (save) {
-        if (gameTimer.hours > gameScore.highScoreHours || 
-            (gameTimer.hours == gameScore.highScoreHours && gameTimer.minutes > gameScore.highScoreMinutes) ||
-            (gameTimer.hours == gameScore.highScoreHours && gameTimer.minutes == gameScore.highScoreMinutes && gameTimer.seconds > gameScore.highScoreSeconds)) {
-            
-            // Update high score
-            gameScore.highScoreHours = gameTimer.hours;
-            gameScore.highScoreMinutes = gameTimer.minutes;
-            gameScore.highScoreSeconds = gameTimer.seconds;
+        bool isNewHighScoreTime = gameTimer.hours > gameScore.highScoreHours || 
+                                (gameTimer.hours == gameScore.highScoreHours && gameTimer.minutes > gameScore.highScoreMinutes) ||
+                                (gameTimer.hours == gameScore.highScoreHours && gameTimer.minutes == gameScore.highScoreMinutes && gameTimer.seconds > gameScore.highScoreSeconds);
+        bool isNewHighScore = gameScore.score > gameScore.highScore;
 
-            std::ofstream file(filename);
-            if (file.is_open()) {
-                file << gameScore.highScoreHours << " " <<gameScore.highScoreMinutes << " " << gameScore.highScoreSeconds;
-                file.close();
-            }
+    if (isNewHighScoreTime) {
+        gameScore.highScoreHours = gameTimer.hours;
+        gameScore.highScoreMinutes = gameTimer.minutes;
+        gameScore.highScoreSeconds = gameTimer.seconds;
+    }
+    if (isNewHighScore) {
+        gameScore.highScore = gameScore.score;
+    }
+
+    if (isNewHighScoreTime || isNewHighScore) {
+        std::ofstream file(filename);
+        if (file.is_open()) {
+            file << gameScore.highScoreHours << " " 
+                 << gameScore.highScoreMinutes << " " 
+                 << gameScore.highScoreSeconds << "\n";
+            file << gameScore.highScore;
+            file.close();
         }
+    }
     } else {
         std::ifstream file(filename);
         if (file.is_open()) {
             file >> gameScore.highScoreHours >> gameScore.highScoreMinutes >> gameScore.highScoreSeconds;
+            file >> gameScore.highScore;
             file.close();
         } else {
             //if file doesnt exist (shouldn't be an issue)
             gameScore.highScoreHours = 0;
             gameScore.highScoreMinutes = 0;
             gameScore.highScoreSeconds = 0;
+            gameScore.highScore = 0;
         }
     }
 }
@@ -849,8 +870,9 @@ void WorldSystem::checkAndHandleEnemyDeath(Entity enemy) {
             animationController.changeState(enemy, AnimationState::Dead);
         }
 
-        createPointsEarnedText("Points +" + std::to_string(enemyData.points), enemy, {1.0f, 1.0f, 1.0f, 1.0f});
+        gameStateController.gameScore.score += enemyData.points;
         gameStateController.enemiesKilled.updateKillSpanCount();
+        createPointsEarnedText("Points +" + std::to_string(enemyData.points), enemy, {1.0f, 1.0f, 1.0f, 1.0f});
         updateComboText();
 
         HealthBar& hpbar = registry.healthBars.get(enemy);

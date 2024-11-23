@@ -57,7 +57,7 @@ private:
 	bool isWindowed = false;
 
 	// Lighting variables
-	float ambientLight = .5;
+	float ambientLight = 1.0;
 
 	Entity playerEntity;
 	std::unordered_map<std::string, float> spawn_delays;
@@ -78,10 +78,10 @@ private:
 	const std::unordered_map<std::string, int> initial_max_entities = {
 		{"boar", 1},
 		{"barbarian", 1},
-		{"archer", -1},
-		{"bird", 1},
-		{"wizard", -2},
-		{"troll", -3},
+		{"archer", 1},
+		{"bird", -1},
+		{"wizard", 1},
+		{"troll", 1},
 		{"heart", 2},
 		{"collectible_trap", 2}
 	};

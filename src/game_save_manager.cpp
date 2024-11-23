@@ -5,10 +5,16 @@
 #include "components.hpp"
 #include "world_init.hpp"
 #include "animation_system.hpp"
+#include "world_system.hpp"
 #include <fstream>
 #include <iostream>
 #include <string>
 #include <vector>
+
+GameSaveManager::GameSaveManager(RenderSystem* renderer, GLFWwindow* window) {
+	this->renderer = renderer;
+	this->window = window;
+}
 
 // Serialize the game state to a JSON file
 void GameSaveManager::save_game() {
@@ -136,16 +142,6 @@ nlohmann::json GameSaveManager::serialize_game_score(const GameScore& gameScore)
 	j["highScoreSeconds"] = gameScore.highScoreSeconds;
 	return j;
 }
-
-//nlohmann::json GameSaveManager::serialize_animation(const Animation& animation) {
-//	nlohmann::json j;
-//	j["currentFrame"] = animation.currentFrame;
-//	j["elapsedTime"] = animation.elapsedTime;
-//	j["frameTime"] = animation.frameTime;
-//	j["numFrames"] = animation.numFrames;
-//	j["spritesheet"] = (int)animation.spritesheet;
-//	return j;
-//}
 
 template<>
 nlohmann::json GameSaveManager::serialize_component<Player>(const Player& player) {
@@ -509,8 +505,7 @@ void GameSaveManager::load_game() {
 		// printf("Loaded game state is : %s\n", j.dump(4).c_str());
 		file.close();
 
-		// clear registry
-		// registry.clear_all_components();
+		registry.clear_all_components();
 
 		// group all components that belong to the same entity
 		groupComponentsForEntities(j);
@@ -544,16 +539,16 @@ void GameSaveManager::groupComponentsForEntities(const json& j) {
 	}
 
 	// print the map
-	for (const auto& entity : entityComponentGroups) {
-		std::cout << "Entity ID: " << entity.first << std::endl;
+	//for (const auto& entity : entityComponentGroups) {
+	//	std::cout << "Entity ID: " << entity.first << std::endl;
 
-		for (const auto& component : entity.second) {
-			std::cout << "  Component Name: " << component.first << std::endl;
-			std::cout << "  Data: " << component.second.dump(4) << std::endl;  // Using dump(4) for pretty-printing with an indent of 4 spaces
-		}
+	//	for (const auto& component : entity.second) {
+	//		std::cout << "  Component Name: " << component.first << std::endl;
+	//		std::cout << "  Data: " << component.second.dump(4) << std::endl;  // Using dump(4) for pretty-printing with an indent of 4 spaces
+	//	}
 
-		std::cout << std::endl;  // Add a newline for better separation between entities
-	}
+	//	std::cout << std::endl;  // Add a newline for better separation between entities
+	//}
 }
 
 void GameSaveManager::deserialize_containers(const json& j) {
@@ -562,32 +557,327 @@ void GameSaveManager::deserialize_containers(const json& j) {
 
 	// Deserialize to make entities using map
 
-	auto& item = *(entityComponentGroups.begin());
-	auto& entityID = item.first;
-	auto& components = item.second;
-	for (const auto& component : components) {
-		std::cout << component.first << std::endl;
-	}
-	//for (auto& item : entityComponentGroups) {
-	//	int entityID = item.first;
-	//	auto& componentsMap = item.second;
-
-	//	// componentMap is a map with component names as key and json object as value
-	//	std::vector<std::string> componentNames;
-	//	for (auto& component : componentsMap) {
-	//		componentNames.push_back(component.first);
-	//	}
-
-	//	// create entity
-	//	createEntity(componentNames, componentsMap);
+	//auto& item = *(entityComponentGroups.begin());
+	//auto& entityID = item.first;
+	//auto& components = item.second;
+	//for (const auto& component : components) {
+	//	std::cout << component.first << std::endl;
 	//}
+
+
+	// set up background components
+	createMapTiles();
+	createCliffs(window);
+
+	for (auto& item : entityComponentGroups) {
+		int entityID = item.first;
+		auto& componentsMap = item.second;
+
+		// componentMap is a map with component names as key and json object as value
+		std::vector<std::string> componentNames;
+		for (auto& component : componentsMap) {
+			componentNames.push_back(component.first);
+		}
+
+		// create entity
+		createEntity(componentNames, componentsMap);
+	}
 }
 
 void GameSaveManager::createEntity(std::vector<std::string> componentNames, std::map<std::string, nlohmann::json> componentsMap) {
-	/*if (std::find(componentNames.begin(), componentNames.end(), "boars") != componentNames.end()) {
-		createBoar();
-	}*/
+	// map related components
+	if (std::find(componentNames.begin(), componentNames.end(), "meshPtrs") != componentNames.end()) {
+		createTreeDeserialization(componentsMap);
+	}
+	else if (std::find(componentNames.begin(), componentNames.end(), "obstacles") != componentNames.end()) {
+		createObstacleDeserialization(componentsMap);
+	}
+	else if (std::find(componentNames.begin(), componentNames.end(), "players") != componentNames.end()) {
+		createPlayerDeserialization(componentsMap);
+	}
+	else if (std::find(componentNames.begin(), componentNames.end(), "boars") != componentNames.end()) {
+		createBoarDeserialization(componentsMap);
+	}
+	else if (std::find(componentNames.begin(), componentNames.end(), "barbarians") != componentNames.end()) {
+		createBarbarianDeserialization(componentsMap);
+	}
+	else if (std::find(componentNames.begin(), componentNames.end(), "archers") != componentNames.end()) {
+		createArcherDeserialization(componentsMap);
+	}
+	//else if (std::find(componentNames.begin(), componentNames.end(), "birds") != componentNames.end()) {
+	//	createBirdFlockDeserialization(componentsMap);
+	//}
+	else if (std::find(componentNames.begin(), componentNames.end(), "wizards") != componentNames.end()) {
+		createWizardDeserialization(componentsMap);
+	}
+	else if (std::find(componentNames.begin(), componentNames.end(), "trolls") != componentNames.end()) {
+		createTrollDeserialization(componentsMap);
+	}
+			//else if (std::find(componentNames.begin(), componentNames.end(), "boars") != componentNames.end()) {
+	//	createBoarDeserialization(componentsMap);
+	//}
+	//else if (std::find(componentNames.begin(), componentNames.end(), "barbarians") != componentNames.end()) {
+	//	createBarbarianDeserialization(componentsMap);
+	//}
+	//else if (std::find(componentNames.begin(), componentNames.end(), "archers") != componentNames.end()) {
+	//	createArcherDeserialization(componentsMap);
+	//}
+	////else if (std::find(componentNames.begin(), componentNames.end(), "birds") != componentNames.end()) {
+	////	createBirdFlockDeserialization(componentsMap);
+	////}
+	//else if (std::find(componentNames.begin(), componentNames.end(), "wizards") != componentNames.end()) {
+	//	createWizardDeserialization(componentsMap);
+	//}
+	//else if (std::find(componentNames.begin(), componentNames.end(), "trolls") != componentNames.end()) {
+	//	createTrollDeserialization(componentsMap);
+	//}
+	//else if (std::find(componentNames.begin(), componentNames.end(), "hearts") != componentNames.end()) {
+	//	createHeartDeserialization(componentsMap);
+	//}
+	//else if (std::find(componentNames.begin(), componentNames.end(), "collectibleTraps") != componentNames.end()) {
+	//	createCollectibleTrapDeserialization(componentsMap);
+	//}
+	//else if (std::find(componentNames.begin(), componentNames.end(), "traps") != componentNames.end()) {
+	//	createTrapDeserialization(componentsMap);
+	//}
+	////else if (std::find(componentNames.begin(), componentNames.end(), "meshPtrs") != componentNames.end()) {
+	////	createTreeDeserialization(componentsMap);
+	////}
+	//else if (std::find(componentNames.begin(), componentNames.end(), "players") != componentNames.end()) {
+	//	createPlayerDeserialization(componentsMap);
+	//}
 }
+
+void GameSaveManager::createObstacleDeserialization(std::map<std::string, nlohmann::json> componentsMap) {
+	vec2 position = { (float)componentsMap["motions"]["position"][0], (float)componentsMap["motions"]["position"][1] };
+	vec2 scale = { (float)componentsMap["motions"]["scale"][0], (float)componentsMap["motions"]["scale"][1] };
+	TEXTURE_ASSET_ID textureAssetID = (TEXTURE_ASSET_ID)componentsMap["renderRequests"]["used_texture"];
+	createObstacle(position, scale, textureAssetID);
+}
+
+void GameSaveManager::createPlayerDeserialization(std::map<std::string, nlohmann::json> componentsMap) {
+	// motion data
+	vec2 position = { (float)componentsMap["motions"]["position"][0], (float)componentsMap["motions"]["position"][1] };
+	Entity jeff = createJeff(position);
+
+	// essential values to update
+	Player& player = registry.players.get(jeff);
+	player.health = componentsMap["players"]["health"];
+
+	Stamina& stamina = registry.staminas.get(jeff);
+	stamina.stamina = componentsMap["staminas"]["stamina"];
+
+	Trappable& trappable = registry.trappables.get(jeff);
+	trappable.isTrapped = componentsMap["trappables"]["isTrapped"];
+}
+
+void GameSaveManager::createBoarDeserialization(std::map<std::string, nlohmann::json> componentsMap) {
+	// motion data
+	vec2 boarPosition = { (float) componentsMap["motions"]["position"][0], (float) componentsMap["motions"]["position"][1] };
+	Entity boar = createBoar(boarPosition);
+
+	Boar& boarComponent = registry.boars.get(boar);
+	boarComponent.cooldownTimer = (float) componentsMap["boars"]["cooldownTimer"];
+	boarComponent.prepareTimer = (float) componentsMap["boars"]["prepareTimer"];
+	boarComponent.chargeTimer = (float) componentsMap["boars"]["chargeTimer"];
+	boarComponent.preparing = componentsMap["boars"]["preparing"];
+	boarComponent.charging = componentsMap["boars"]["charging"];
+	boarComponent.chargeDirection = { (float)componentsMap["boars"]["chargeDirection"][0], (float)componentsMap["boars"]["chargeDirection"][1] };
+
+	Dash& dash = registry.dashers.get(boar);
+	dash.isDashing = componentsMap["dashers"]["isDashing"];
+	dash.dashStartPosition = { (float)componentsMap["dashers"]["dashStartPosition"][0], (float)componentsMap["dashers"]["dashStartPosition"][1] };
+	dash.dashTargetPosition = { (float)componentsMap["dashers"]["dashTargetPosition"][0], (float)componentsMap["dashers"]["dashTargetPosition"][1] };
+	dash.dashTimer = (float)componentsMap["dashers"]["dashTimer"];
+	dash.dashDuration = (float)componentsMap["dashers"]["dashDuration"];
+
+	Enemy& enemy = registry.enemies.get(boar);
+	enemy.health = componentsMap["enemies"]["health"];
+	enemy.damage = componentsMap["enemies"]["damage"];
+	enemy.type = componentsMap["enemies"]["type"];
+	enemy.cooldown = componentsMap["enemies"]["cooldown"];
+	enemy.pathfindTime = componentsMap["enemies"]["pathfindTime"];
+
+	Motion& motion = registry.motions.get(boar);
+	motion.position = vec3(boarPosition, motion.position.z);
+	motion.angle = componentsMap["motions"]["angle"];
+	motion.velocity = { (float)componentsMap["motions"]["velocity"][0], (float)componentsMap["motions"]["velocity"][1], 0 };
+	motion.speed = componentsMap["motions"]["speed"];
+	motion.scale = { (float)componentsMap["motions"]["scale"][0], (float)componentsMap["motions"]["scale"][1] };
+	motion.facing = { (float)componentsMap["motions"]["facing"][0], (float)componentsMap["motions"]["facing"][1] };
+	motion.hitbox = { (float)componentsMap["motions"]["hitbox"][0], (float)componentsMap["motions"]["hitbox"][1], (float)componentsMap["motions"]["hitbox"][2] };
+	motion.solid = componentsMap["motions"]["solid"];
+	
+	Trappable& trappable = registry.trappables.get(boar);
+	trappable.isTrapped = componentsMap["trappables"]["isTrapped"];
+	trappable.originalSpeed = componentsMap["trappables"]["originalSpeed"];
+}
+
+void GameSaveManager::createBarbarianDeserialization(std::map<std::string, nlohmann::json> componentsMap) {
+	// motion data
+	vec2 barbarianPosition = { (float)componentsMap["motions"]["position"][0], (float)componentsMap["motions"]["position"][1] };
+	Entity barbarian = createBarbarian(barbarianPosition);
+
+	// essential values to update
+	Enemy& enemy = registry.enemies.get(barbarian);
+	enemy.health = componentsMap["enemies"]["health"];
+	enemy.damage = componentsMap["enemies"]["damage"];
+	enemy.type = componentsMap["enemies"]["type"];
+	enemy.cooldown = componentsMap["enemies"]["cooldown"];
+	enemy.pathfindTime = componentsMap["enemies"]["pathfindTime"];
+
+	Motion& motion = registry.motions.get(barbarian);
+	motion.position = vec3(barbarianPosition, motion.position.z);
+	motion.angle = componentsMap["motions"]["angle"];
+	motion.velocity = { (float)componentsMap["motions"]["velocity"][0], (float)componentsMap["motions"]["velocity"][1], 0 };
+	motion.speed = componentsMap["motions"]["speed"];
+	motion.scale = { (float)componentsMap["motions"]["scale"][0], (float)componentsMap["motions"]["scale"][1] };
+	motion.facing = { (float)componentsMap["motions"]["facing"][0], (float)componentsMap["motions"]["facing"][1] };
+	motion.hitbox = { (float)componentsMap["motions"]["hitbox"][0], (float)componentsMap["motions"]["hitbox"][1], (float)componentsMap["motions"]["hitbox"][2] };
+	motion.solid = componentsMap["motions"]["solid"];
+
+	Trappable& trappable = registry.trappables.get(barbarian);
+	trappable.isTrapped = componentsMap["trappables"]["isTrapped"];
+	trappable.originalSpeed = componentsMap["trappables"]["originalSpeed"];
+}
+
+void GameSaveManager::createArcherDeserialization(std::map<std::string, nlohmann::json> componentsMap) {
+	// motion data
+	vec2 archerPosition = { (float)componentsMap["motions"]["position"][0], (float)componentsMap["motions"]["position"][1] };
+	Entity archer = createArcher(archerPosition);
+
+	// essential values to update
+	Archer& archerComponent = registry.archers.get(archer);
+	archerComponent.drawArrowTime = componentsMap["archers"]["drawArrowTime"];
+	archerComponent.aiming = componentsMap["archers"]["aiming"];
+
+	Enemy& enemy = registry.enemies.get(archer);
+	enemy.health = componentsMap["enemies"]["health"];
+	enemy.health = componentsMap["enemies"]["health"];
+	enemy.damage = componentsMap["enemies"]["damage"];
+	enemy.type = componentsMap["enemies"]["type"];
+	enemy.cooldown = componentsMap["enemies"]["cooldown"];
+	enemy.pathfindTime = componentsMap["enemies"]["pathfindTime"];
+
+	Motion& motion = registry.motions.get(archer);
+	motion.position = vec3(archerPosition, motion.position.z);
+	motion.angle = componentsMap["motions"]["angle"];
+	motion.velocity = { (float)componentsMap["motions"]["velocity"][0], (float)componentsMap["motions"]["velocity"][1], 0 };
+	motion.speed = componentsMap["motions"]["speed"];
+	motion.scale = { (float)componentsMap["motions"]["scale"][0], (float)componentsMap["motions"]["scale"][1] };
+	motion.facing = { (float)componentsMap["motions"]["facing"][0], (float)componentsMap["motions"]["facing"][1] };
+	motion.hitbox = { (float)componentsMap["motions"]["hitbox"][0], (float)componentsMap["motions"]["hitbox"][1], (float)componentsMap["motions"]["hitbox"][2] };
+	motion.solid = componentsMap["motions"]["solid"];
+
+	Trappable& trappable = registry.trappables.get(archer);
+	trappable.isTrapped = componentsMap["trappables"]["isTrapped"];
+	trappable.originalSpeed = componentsMap["trappables"]["originalSpeed"];
+
+}
+
+// TODO
+void GameSaveManager::createBirdFlockDeserialization(std::map<std::string, nlohmann::json> componentsMap) {
+	
+	// motion data
+	vec2 position = { (float)componentsMap["motions"]["position"][0], (float)componentsMap["motions"]["position"][1] };
+	createBirdFlock(position);
+}
+
+void GameSaveManager::createWizardDeserialization(std::map<std::string, nlohmann::json> componentsMap) {
+	// motion data
+	vec2 wizardPosition = { (float)componentsMap["motions"]["position"][0], (float)componentsMap["motions"]["position"][1] };
+	Entity wizard = createWizard(wizardPosition);
+
+	Wizard& wizardComponent = registry.wizards.get(wizard);
+	wizardComponent.state = (WizardState) componentsMap["wizards"]["state"];
+	wizardComponent.shoot_cooldown = componentsMap["wizards"]["shoot_cooldown"];
+	wizardComponent.prepareLightningTime = componentsMap["wizards"]["prepareLightningTime"];
+	wizardComponent.locked_target = { (float)componentsMap["wizards"]["locked_target"][0], (float)componentsMap["wizards"]["locked_target"][1], (float)componentsMap["wizards"]["locked_target"][2] };
+
+	Enemy& enemy = registry.enemies.get(wizard);
+	enemy.health = componentsMap["enemies"]["health"];
+	enemy.damage = componentsMap["enemies"]["damage"];
+	enemy.type = componentsMap["enemies"]["type"];
+	enemy.cooldown = componentsMap["enemies"]["cooldown"];
+	enemy.pathfindTime = componentsMap["enemies"]["pathfindTime"];
+
+	Motion& motion = registry.motions.get(wizard);
+	motion.position = vec3(wizardPosition, motion.position.z);
+	motion.angle = componentsMap["motions"]["angle"];
+	motion.velocity = { (float)componentsMap["motions"]["velocity"][0], (float)componentsMap["motions"]["velocity"][1], 0 };
+	motion.speed = componentsMap["motions"]["speed"];
+	motion.scale = { (float)componentsMap["motions"]["scale"][0], (float)componentsMap["motions"]["scale"][1] };
+	motion.facing = { (float)componentsMap["motions"]["facing"][0], (float)componentsMap["motions"]["facing"][1] };
+	motion.hitbox = { (float)componentsMap["motions"]["hitbox"][0], (float)componentsMap["motions"]["hitbox"][1], (float)componentsMap["motions"]["hitbox"][2] };
+	motion.solid = componentsMap["motions"]["solid"];
+
+	Trappable& trappable = registry.trappables.get(wizard);
+	trappable.isTrapped = componentsMap["trappables"]["isTrapped"];
+	trappable.originalSpeed = componentsMap["trappables"]["originalSpeed"];
+}
+
+void GameSaveManager::createTrollDeserialization(std::map<std::string, nlohmann::json> componentsMap) {
+	// motion data
+	vec2 trollPosition = { (float)componentsMap["motions"]["position"][0], (float)componentsMap["motions"]["position"][1] };
+	Entity troll = createTroll(trollPosition);
+
+	Troll& trollComponent = registry.trolls.get(troll);
+	trollComponent.desiredAngle = componentsMap["trolls"]["desiredAngle"];
+
+	Enemy& enemy = registry.enemies.get(troll);
+	enemy.health = componentsMap["enemies"]["health"];
+	enemy.damage = componentsMap["enemies"]["damage"];
+	enemy.type = componentsMap["enemies"]["type"];
+	enemy.cooldown = componentsMap["enemies"]["cooldown"];
+	enemy.pathfindTime = componentsMap["enemies"]["pathfindTime"];
+
+	Motion& motion = registry.motions.get(troll);
+	motion.position = vec3(trollPosition, motion.position.z);
+	motion.angle = componentsMap["motions"]["angle"];
+	motion.velocity = { (float)componentsMap["motions"]["velocity"][0], (float)componentsMap["motions"]["velocity"][1], 0 };
+	motion.speed = componentsMap["motions"]["speed"];
+	motion.scale = { (float)componentsMap["motions"]["scale"][0], (float)componentsMap["motions"]["scale"][1] };
+	motion.facing = { (float)componentsMap["motions"]["facing"][0], (float)componentsMap["motions"]["facing"][1] };
+	motion.hitbox = { (float)componentsMap["motions"]["hitbox"][0], (float)componentsMap["motions"]["hitbox"][1], (float)componentsMap["motions"]["hitbox"][2] };
+	motion.solid = componentsMap["motions"]["solid"];
+
+	Trappable& trappable = registry.trappables.get(troll);
+	trappable.isTrapped = componentsMap["trappables"]["isTrapped"];
+	trappable.originalSpeed = componentsMap["trappables"]["originalSpeed"];
+}
+
+void GameSaveManager::createHeartDeserialization(std::map<std::string, nlohmann::json> componentsMap) {
+	// motion data
+	vec2 position = { (float)componentsMap["motions"]["position"][0], (float)componentsMap["motions"]["position"][1] };
+	createHeart(position);
+}
+
+void GameSaveManager::createCollectibleTrapDeserialization(std::map<std::string, nlohmann::json> componentsMap) {
+	// motion data
+	vec2 position = { (float)componentsMap["motions"]["position"][0], (float)componentsMap["motions"]["position"][1] };
+	createCollectibleTrap(position);
+}
+
+void GameSaveManager::createMapTileDeserialization(std::map<std::string, nlohmann::json> componentsMap) {
+	// motion data
+	vec2 position = { (float)componentsMap["mapTiles"]["position"][0], (float)componentsMap["mapTiles"]["position"][1] };
+	vec2 scale = { (float)componentsMap["mapTiles"]["scale"][0], (float)componentsMap["mapTiles"]["scale"][1] };
+	createMapTile(position, scale);
+}
+
+void GameSaveManager::createTrapDeserialization(std::map<std::string, nlohmann::json> componentsMap) {
+	// motion data
+	vec2 position = { (float)componentsMap["motions"]["position"][0], (float)componentsMap["motions"]["position"][1] };
+	vec2 scale = { (float)componentsMap["motions"]["scale"][0], (float)componentsMap["motions"]["scale"][1] };
+	createDamageTrap(position);
+}
+
+void GameSaveManager::createTreeDeserialization(std::map<std::string, nlohmann::json> componentsMap) {
+	// motion data
+	vec2 position = { (float)componentsMap["motions"]["position"][0], (float)componentsMap["motions"]["position"][1] };
+	createTree(renderer, position);
+}
+
 
 void GameSaveManager::deserialize_game_timer(const json& j) {
 	registry.gameTimer.hours = j["gameTimer"]["hour"].get<int>();

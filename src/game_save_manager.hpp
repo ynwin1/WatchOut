@@ -2,10 +2,13 @@
 #include "json.hpp"
 #include "tiny_ecs.hpp"
 #include "components.hpp"
+#include <render_system.hpp>
 
 class GameSaveManager {
 public:
 	using json = nlohmann::json;
+
+	GameSaveManager(RenderSystem* renderer, GLFWwindow* window);
 
 	// Save the game
 	void save_game();
@@ -14,6 +17,10 @@ public:
 	void load_game();
 
 private:
+
+	RenderSystem* renderer;
+	GLFWwindow* window;
+
 	// Game Save file path
 	std::string gameSaveFilePath = data_path() + "/save/game_save.json";
 	// Map to store group of components for each entity
@@ -39,4 +46,18 @@ private:
 	void createEntity(std::vector<std::string> componentNames, std::map<std::string, nlohmann::json> componentsMap);
 	void deserialize_game_timer(const json& j);
 	void deserialize_game_score(const json& j);
+
+	void createPlayerDeserialization(std::map<std::string, nlohmann::json> componentsMap);
+	void createBoarDeserialization(std::map<std::string, nlohmann::json> componentsMap);
+	void createBarbarianDeserialization(std::map<std::string, nlohmann::json> componentsMap);
+	void createArcherDeserialization(std::map<std::string, nlohmann::json> componentsMap);
+	void createBirdFlockDeserialization(std::map<std::string, nlohmann::json> componentsMap);
+	void createWizardDeserialization(std::map<std::string, nlohmann::json> componentsMap);
+	void createTrollDeserialization(std::map<std::string, nlohmann::json> componentsMap);
+	void createHeartDeserialization(std::map<std::string, nlohmann::json> componentsMap);
+	void createCollectibleTrapDeserialization(std::map<std::string, nlohmann::json> componentsMap);
+	void createMapTileDeserialization(std::map<std::string, nlohmann::json> componentsMap);
+	void createTrapDeserialization(std::map<std::string, nlohmann::json> componentsMap);
+	void createTreeDeserialization(std::map<std::string, nlohmann::json> componentsMap);
+	void createObstacleDeserialization(std::map<std::string, nlohmann::json> componentsMap);
 };

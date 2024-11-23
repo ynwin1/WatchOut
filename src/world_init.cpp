@@ -123,10 +123,9 @@ Entity createBirdFlock(vec2 pos)
 
     for (int i = 0; i < flockSize; ++i)
     {
+		// Spawn birds with spacing
+		vec2 birdPosition = pos + vec2(i * spacing, 0);
         auto entity = Entity();
-
-        // Spawn birds with spacing
-        vec2 birdPosition = pos + vec2(i * spacing, 0); 
 
         Motion& motion = registry.motions.emplace(entity);
         motion.position = vec3(birdPosition, TREE_BB_HEIGHT - BIRD_BB_WIDTH);
@@ -159,7 +158,6 @@ Entity createBirdFlock(vec2 pos)
     }
     return repBird;
 }
-
 
 // Wizard creation
 Entity createWizard(vec2 pos) {

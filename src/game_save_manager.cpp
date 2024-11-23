@@ -11,10 +11,10 @@
 #include <string>
 #include <vector>
 
-GameSaveManager::GameSaveManager(RenderSystem* renderer, GLFWwindow* window) {
+GameSaveManager::GameSaveManager(RenderSystem* renderer, GLFWwindow* window, Camera* camera) {
 	this->renderer = renderer;
 	this->window = window;
-	// this->world = world;
+	this->camera = camera;
 }
 
 // Serialize the game state to a JSON file
@@ -651,8 +651,8 @@ void GameSaveManager::createPlayerDeserialization(std::map<std::string, nlohmann
 	Trappable& trappable = registry.trappables.get(jeff);
 	trappable.isTrapped = componentsMap["trappables"]["isTrapped"];
 
-	//createPlayerHealthBar(jeff, camera->getSize());
-	//createPlayerStaminaBar(jeff, camera->getSize());
+	createPlayerHealthBar(jeff, camera->getSize());
+	createPlayerStaminaBar(jeff, camera->getSize());
 }
 
 void GameSaveManager::createBoarDeserialization(std::map<std::string, nlohmann::json> componentsMap) {

@@ -9,7 +9,7 @@ class GameSaveManager {
 public:
 	using json = nlohmann::json;
 
-	GameSaveManager(RenderSystem* renderer, GLFWwindow* window);
+	GameSaveManager(RenderSystem* renderer, GLFWwindow* window, Camera* camera);
 
 	// Save the game
 	void save_game();
@@ -21,8 +21,7 @@ private:
 
 	RenderSystem* renderer;
 	GLFWwindow* window;
-	/*WorldSystem* world;
-	Camera* camera;*/
+	Camera* camera;
 
 	// Game Save file path
 	std::string gameSaveFilePath = data_path() + "/save/game_save.json";

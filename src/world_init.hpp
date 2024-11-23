@@ -125,7 +125,7 @@ Entity createPauseHelpText(vec2 windowSize);
 Entity createFPSText(vec2 windowSize);
 Entity createGameTimerText(vec2 windowSize);
 Entity createTrapsCounterText(vec2 windowSize);
-Entity createPointsEarnedText(std::string text, Entity anchoredEntity, vec4 color);
+Entity createPointsEarnedText(std::string text, Entity anchoredWorldEntity, vec4 color, float isSurvivalBonus);
 Entity createComboText(int comboValue, vec2 windowSize);
 Entity createScoreText(vec2 windowSize);
 

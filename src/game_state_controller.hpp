@@ -107,6 +107,7 @@ public:
 	GameScore gameScore;
 	TrapsCounter trapsCounter;
 	EnemiesKilled enemiesKilled;
+	float survivalBonusTimer = 0;
 private:
     GAME_STATE currentGameState;
     WorldSystem* world;

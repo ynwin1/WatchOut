@@ -73,7 +73,7 @@ void WorldSystem::restart_game()
     loadAndSaveHighScore(false);
 }
 
-void WorldSystem::updateGameTimer(float elapsed_ms) {
+void WorldSystem::updateGameTimerText(float elapsed_ms) {
     GameTimer& gameTimer = gameStateController.gameTimer;
 
     gameTimer.update(elapsed_ms);
@@ -84,6 +84,16 @@ void WorldSystem::updateGameTimer(float elapsed_ms) {
 
     Text& text = registry.texts.get(gameTimer.textEntity);
     text.value = ss.str();
+}
+
+void WorldSystem::handleSurvivalBonusPoints(float elapsed_ms) {
+    gameStateController.survivalBonusTimer += elapsed_ms;
+    if (gameStateController.survivalBonusTimer >= SURVIVAL_BONUS_INTERVAL) {
+        int points = 200;
+        gameStateController.gameScore.score += points;
+        createPointsEarnedText("SURVIVAL BONUS +" + std::to_string(points), playerEntity, {0.8f, 0.8f, 0.0f, 1.0f}, true);
+        gameStateController.survivalBonusTimer = 0;
+    }
 }
 
 void WorldSystem::initText() {
@@ -130,7 +140,7 @@ bool WorldSystem::step(float elapsed_ms)
     despawn_collectibles(elapsed_ms);
 	destroyDamagings();
     handle_stamina(elapsed_ms);
-    updateGameTimer(elapsed_ms);
+    updateGameTimerText(elapsed_ms);
     updateTrapsCounterText();
     toggleMesh();
     inGameSounds();
@@ -138,8 +148,9 @@ bool WorldSystem::step(float elapsed_ms)
     despawnTraps(elapsed_ms);
     updateCollectedTimer(elapsed_ms);
     resetTrappedEntities();
-    updateEnemiesKilledInSpan(elapsed_ms);
+    handleEnemiesKilledInSpan(elapsed_ms);
     updateScoreText();
+    handleSurvivalBonusPoints(elapsed_ms);
 
     if (camera->isToggled()) {
         Motion& playerMotion = registry.motions.get(playerEntity);
@@ -156,7 +167,7 @@ bool WorldSystem::step(float elapsed_ms)
     return !is_over();
 }
 
-void WorldSystem::updateEnemiesKilledInSpan(float elapsed_ms) {
+void WorldSystem::handleEnemiesKilledInSpan(float elapsed_ms) {
     EnemiesKilled& enemiesKilled = gameStateController.enemiesKilled;
     enemiesKilled.updateSpanCountdown(elapsed_ms);
 
@@ -177,7 +188,7 @@ void WorldSystem::updateEnemiesKilledInSpan(float elapsed_ms) {
                 points = enemiesKilled.killSpanCount * 100;
             }
             gameStateController.gameScore.score += points;
-            createPointsEarnedText("BONUS +" + std::to_string(points), playerEntity, {0.8f, 0.8f, 0.0f, 1.0f});
+            createPointsEarnedText("BONUS +" + std::to_string(points), playerEntity, {0.8f, 0.8f, 0.0f, 1.0f}, false);
         }
         enemiesKilled.resetKillSpan();
     }
@@ -872,7 +883,7 @@ void WorldSystem::checkAndHandleEnemyDeath(Entity enemy) {
 
         gameStateController.gameScore.score += enemyData.points;
         gameStateController.enemiesKilled.updateKillSpanCount();
-        createPointsEarnedText("Points +" + std::to_string(enemyData.points), enemy, {1.0f, 1.0f, 1.0f, 1.0f});
+        createPointsEarnedText("Points +" + std::to_string(enemyData.points), enemy, {1.0f, 1.0f, 1.0f, 1.0f}, false);
         updateComboText();
 
         HealthBar& hpbar = registry.healthBars.get(enemy);

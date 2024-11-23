@@ -1035,11 +1035,16 @@ void createTrees(RenderSystem* renderer) {
 	}
 }
 
-Entity createPointsEarnedText(std::string textValue, Entity anchoredEntity, vec4 color) {
+Entity createPointsEarnedText(std::string textValue, Entity anchoredWorldEntity, vec4 color, float isSuvivalBonus) {
 	auto entity = Entity();
+	Motion& anchoredMotion = registry.motions.get(anchoredWorldEntity);
 	Text& text = registry.texts.emplace(entity);
 	text.value = textValue;
-	text.anchoredEntity = anchoredEntity;
+	text.anchoredWorldEntity = anchoredWorldEntity;
+	text.anchoredWorldOffset = {-70.0f, -anchoredMotion.scale.y / 2 - 20.0f};
+	if(isSuvivalBonus) {
+		text.anchoredWorldOffset.x = -120.0f;
+	}
 
 	Foreground& fg = registry.foregrounds.emplace(entity);
 	fg.scale = {1.0f, 1.0f};

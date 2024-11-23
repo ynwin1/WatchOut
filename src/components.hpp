@@ -174,7 +174,8 @@ struct TargetArea {
 
 struct Text {
 	std::string value;
-	Entity anchoredEntity;
+	Entity anchoredWorldEntity;
+	vec2 anchoredWorldOffset;
 	float lineSpacing = 1.3f;
 };
 

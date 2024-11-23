@@ -42,6 +42,7 @@ public:
 private:
 	const float DIFFICULTY_INTERVAL = 45000.0f;
 	const unsigned int MAX_TOTAL_ENEMIES = 100;
+	const float SURVIVAL_BONUS_INTERVAL = 120000.0f;
 
 	// GLFW Window handle
 	GLFWwindow* window;
@@ -133,7 +134,7 @@ private:
 	vec2 get_spawn_location(const std::string& entity_type);
 	void place_trap(Player& player, Motion& motion, bool forward);
 	void checkAndHandlePlayerDeath(Entity& entity);
-	void updateGameTimer(float elapsed_ms);
+	void updateGameTimerText(float elapsed_ms);
 	void updateTrapsCounterText();
 	void toggleMesh();
 	void adjustSpawnSystem(float elapsed_ms);
@@ -146,9 +147,10 @@ private:
 	void despawnTraps(float elapsed_ms);
 	void updateCollectedTimer(float elapsed_ms);
 	void resetTrappedEntities();
-	void updateEnemiesKilledInSpan(float elapsed_ms);
+	void handleEnemiesKilledInSpan(float elapsed_ms);
 	void updateComboText();
 	void updateScoreText();
+	void handleSurvivalBonusPoints(float elapsed_ms);
 
 
 	// Collision functions

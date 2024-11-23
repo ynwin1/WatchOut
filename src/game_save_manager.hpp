@@ -3,6 +3,7 @@
 #include "tiny_ecs.hpp"
 #include "components.hpp"
 #include <render_system.hpp>
+#include "camera.hpp"
 
 class GameSaveManager {
 public:
@@ -20,6 +21,8 @@ private:
 
 	RenderSystem* renderer;
 	GLFWwindow* window;
+	/*WorldSystem* world;
+	Camera* camera;*/
 
 	// Game Save file path
 	std::string gameSaveFilePath = data_path() + "/save/game_save.json";
@@ -56,8 +59,8 @@ private:
 	void createTrollDeserialization(std::map<std::string, nlohmann::json> componentsMap);
 	void createHeartDeserialization(std::map<std::string, nlohmann::json> componentsMap);
 	void createCollectibleTrapDeserialization(std::map<std::string, nlohmann::json> componentsMap);
-	void createMapTileDeserialization(std::map<std::string, nlohmann::json> componentsMap);
 	void createTrapDeserialization(std::map<std::string, nlohmann::json> componentsMap);
 	void createTreeDeserialization(std::map<std::string, nlohmann::json> componentsMap);
 	void createObstacleDeserialization(std::map<std::string, nlohmann::json> componentsMap);
+	void createTargetAreaDeserialization(std::map<std::string, nlohmann::json> componentsMap);
 };

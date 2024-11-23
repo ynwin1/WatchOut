@@ -40,6 +40,11 @@ public:
 
 	friend class GameStateController;
 
+	// restart level
+	void restart_game();
+	void initText();
+	void soundSetUp();
+
 private:
 	const float DIFFICULTY_INTERVAL = 45000.0f;
 	const unsigned int MAX_TOTAL_ENEMIES = 100;
@@ -124,10 +129,6 @@ private:
 	// Save game
 	void save_game();
 
-	// restart level
-	void restart_game();
-	void initText();
-	void soundSetUp();
 
 	// Actions performed for each step
 	void spawn(float elapsed_ms);

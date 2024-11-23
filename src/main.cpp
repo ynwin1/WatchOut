@@ -41,13 +41,10 @@ int main()
 
 	// Initialize the main systems
 	GameSaveManager saveManager = GameSaveManager(&renderer, window);
-
 	camera.init(window);
 	renderer.init(&camera);
-	world.init(&renderer, window, &camera, &physics, &ai, &sound, &saveManager);
 	sound.init();
-	
-
+	world.init(&renderer, window, &camera, &physics, &ai, &sound, &saveManager);
 
 	auto t = Clock::now();
 	while (!world.is_over()) {

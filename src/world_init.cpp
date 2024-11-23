@@ -2,6 +2,7 @@
 #include "tiny_ecs_registry.hpp"
 #include "animation_system.hpp"
 #include "animation_system_init.hpp"
+#include "ai_system.hpp"
 #include <random>
 #include <sstream>
 
@@ -640,9 +641,11 @@ void createHealthBar(Entity characterEntity, vec4 color) {
 	hpbar.height = height;
 }
 
-Entity createTargetArea(vec3 position, float radius) {
+Entity createTargetArea(vec3 position) {
 	auto entity = Entity();
 
+	// TODO - link radius with ai system's radius
+	float radius = 200.f;
 	Motion& motion = registry.motions.emplace(entity);
 	motion.position = position;
 	motion.position.z = 0.f;

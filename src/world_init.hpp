@@ -144,7 +144,7 @@ void createMapTiles();
 Entity createMapTile(vec2 position, vec2 scale);
 Entity createObstacle(vec2 position, vec2 scale, TEXTURE_ASSET_ID assetID);
 void createObstacles();
-Entity createTargetArea(vec3 position, float radius);
+Entity createTargetArea(vec3 position);
 
 // Cliffs
 void createCliffs(GLFWwindow* window);

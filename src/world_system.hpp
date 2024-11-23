@@ -74,12 +74,12 @@ private:
 	};
 
 	const std::unordered_map<std::string, int> initial_max_entities = {
-		{"boar", 1},
-		{"barbarian", 1},
+		{"boar", -1},
+		{"barbarian", -1},
 		{"archer", -1},
 		{"bird", 1},
-		{"wizard", -2},
-		{"troll", -3},
+		{"wizard", 1},
+		{"troll", 1},
 		{"heart", 2},
 		{"collectible_trap", 2}
 	};
@@ -111,10 +111,6 @@ private:
 	// Key uses entities cast to ints for comparisons.
 	std::map<std::pair<int, int>, float> collisionCooldowns;
 
-	// Sound variables
-	bool isMovingSoundPlaying = false;
-	bool isBirdFlockSoundPlaying = false;
-
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);
 	void on_mouse_move(vec2 mouse_position);
@@ -140,7 +136,6 @@ private:
 	void toggleMesh();
 	void adjustSpawnSystem(float elapsed_ms);
 	void resetSpawnSystem();
-	void inGameSounds();
 	void loadAndSaveHighScore(bool save);
 	void on_window_focus(int focused);
 	void destroyDamagings();

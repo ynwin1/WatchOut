@@ -15,8 +15,6 @@ struct Player {
 	bool goingRight;	// Key for going right is held down
 	bool tryingToJump;	// Key for jumping is held down
 	bool isMoving;		// Indicates if any movement keys are pressed
-	float speed = 0.5;
-	bool isTrapped = false;
 };
 
 //Stamina
@@ -40,13 +38,17 @@ struct Dash {
 
 struct Enemy
 {
-	unsigned int health = 100;
-	unsigned int damage = 10;
+	int health = 100;
+	int maxHealth = 100;
+	int damage = 10;
 	std::string type;
 	unsigned int cooldown = 0;
-	float speed = 0;
 	float pathfindTime = 0;
+};
+
+struct Trappable {
 	bool isTrapped = false;
+	float originalSpeed = 0;
 };
 
 struct Explosion {
@@ -120,6 +122,7 @@ struct Motion {
 	vec3 position = { 0, 0, 0 };
 	float angle = 0;
 	vec3 velocity = { 0, 0, 0 };
+	float speed = 0;			// max voluntary speed
 	vec2 scale = { 10, 10 };	// only for rendering
 	vec2 facing = { 0, 0 };		// direction the entity is facing
 
@@ -159,6 +162,11 @@ struct DeathTimer
 struct Knockable
 {
 
+};
+
+struct Knocker
+{
+	float strength = 1.f;
 };
 
 struct TrapsCounter {
@@ -308,6 +316,11 @@ struct Wizard {
 	float prepareLightningTime = 0;
 	
 	vec3 locked_target = vec3(0, 0, 0);
+};
+
+struct Troll {
+	float desiredAngle = 0;
+	float laughCooldown = 20000.f;
 };
 
 // Collectible types

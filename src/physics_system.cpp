@@ -270,7 +270,7 @@ void PhysicsSystem::updatePositions(float elapsed_ms)
 		if (registry.players.has(entity) && motion.position.z <= groundZ) {
 			Player& player_comp = registry.players.get(entity);
 
-			float player_speed = player_comp.speed;
+			float player_speed = motion.speed;
 			if (!player_comp.isMoving) player_speed = 0;
 			else if (player_comp.isRunning) player_speed *= 2;
 
@@ -312,8 +312,16 @@ void PhysicsSystem::updatePositions(float elapsed_ms)
 			motion.velocity.z = 0;
 			if (registry.jumpers.has(entity)) {
 				Jumper& jumper = registry.jumpers.get(entity);
-				if (registry.players.has(entity) && !registry.players.get(entity).tryingToJump) {
-					jumper.isJumping = false;
+				if (registry.players.has(entity)) {
+					Player& player = registry.players.get(entity);
+					Stamina& stamina = registry.staminas.get(entity);
+					if (player.tryingToJump && stamina.stamina > JUMP_STAMINA) {
+						stamina.stamina -= JUMP_STAMINA;
+						motion.velocity.z = jumper.speed;
+					}
+					else {
+						jumper.isJumping = false;
+					}
 				}
 				else {
 					motion.velocity.z = jumper.speed;

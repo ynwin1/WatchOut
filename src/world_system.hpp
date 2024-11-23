@@ -9,8 +9,8 @@
 #include <physics_system.hpp>
 #include <ai_system.hpp>
 #include <sound_system.hpp>
-#include<game_state_controller.hpp>
-#include "game_state_controller.hpp"
+#include <world_init.hpp>
+#include <game_state_controller.hpp>
 
 // Container for all our entities and game logic
 class WorldSystem
@@ -73,22 +73,62 @@ private:
 
 	bool isWindowed = false;
 
+	// Lighting variables
+	float ambientLight = .5;
+
 	Entity playerEntity;
-	std::vector<std::string> entity_types;
 	std::unordered_map<std::string, float> spawn_delays;
-	std::unordered_map<std::string, unsigned int> max_entities;
+	std::unordered_map<std::string, int> max_entities;
 	std::unordered_map<std::string, float> next_spawns;
 
+	std::vector<std::string> entity_types = {
+		"boar",
+		"barbarian",
+		"archer",
+		"bird",
+		"wizard",
+		"troll",
+		"heart",
+		"collectible_trap"
+	};
+
+	const std::unordered_map<std::string, int> initial_max_entities = {
+		{"boar", -1},
+		{"barbarian", -1},
+		{"archer", -1},
+		{"bird", 1},
+		{"wizard", 1},
+		{"troll", 1},
+		{"heart", 2},
+		{"collectible_trap", 2}
+	};
+
+	const std::unordered_map<std::string, float> initial_spawn_delays = {
+		{"boar", 10000.0f},
+		{"barbarian", 10000.0f},
+		{"archer", 20000.0f},
+		{"bird", 20000.0f},
+		{"wizard", 20000.0f},
+		{"troll", 30000.0f},
+		{"heart", 5000.0f},
+		{"collectible_trap", 5000.0f}
+	};
+
 	using spawn_func = Entity(*)(vec2);
-	const std::unordered_map<std::string, spawn_func> spawn_functions;
+	const std::unordered_map<std::string, spawn_func> spawn_functions = {
+        {"boar", createBoar},
+        {"barbarian", createBarbarian},
+        {"archer", createArcher},
+        {"bird", createBirdFlock},
+	    {"wizard", createWizard},
+        {"troll", createTroll},
+        {"heart", createHeart},
+		{"collectible_trap", createCollectibleTrap}
+    };
 
 	// Keeps track of what collisions have been handled recently.
 	// Key uses entities cast to ints for comparisons.
 	std::map<std::pair<int, int>, float> collisionCooldowns;
-
-	// Sound variables
-	bool isMovingSoundPlaying = false;
-	bool isBirdFlockSoundPlaying = false;
 
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);
@@ -115,7 +155,6 @@ private:
 	void toggleMesh();
 	void adjustSpawnSystem(float elapsed_ms);
 	void resetSpawnSystem();
-	void inGameSounds();
 	void loadAndSaveHighScore(bool save);
 	void on_window_focus(int focused);
 	void destroyDamagings();
@@ -130,10 +169,8 @@ private:
 	void entity_trap_collision(Entity entity, Entity trap, std::vector<Entity>& was_damaged);
 	void entity_damaging_collision(Entity entity, Entity trap, std::vector<Entity>& was_damaged);
 	void entity_obstacle_collision(Entity entity, Entity obstacle, std::vector<Entity>& was_damaged);
-	void moving_entities_collision(Entity entity, Entity entityOther, std::vector<Entity>& was_damaged);
 	void damaging_obstacle_collision(Entity entity);
 	void processPlayerEnemyCollision(Entity player, Entity enemy, std::vector<Entity>& was_damaged);
-	void processEnemyEnemyCollision(Entity enemy1, Entity enemy2, std::vector<Entity>& was_damaged);
 	void handleEnemyCollision(Entity attacker, Entity target, std::vector<Entity>& was_damaged);
 	void checkAndHandleEnemyDeath(Entity entity);
 	void knock(Entity knocked, Entity knocker);

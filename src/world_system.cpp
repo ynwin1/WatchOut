@@ -1,7 +1,6 @@
 #include "world_system.hpp"
 #include "tiny_ecs_registry.hpp"
 #include "common.hpp"
-#include "world_init.hpp"
 #include "physics_system.hpp"
 #include "sound_system.hpp"
 #include "game_state_controller.hpp"
@@ -10,34 +9,7 @@
 #include <sstream>
 #include <fstream> 
 
-WorldSystem::WorldSystem(std::default_random_engine& rng) :
-    spawn_functions({
-        {"boar", createBoar},
-        {"barbarian", createBarbarian},
-        {"archer", createArcher},
-        {"bird", createBirdFlock},
-	    {"wizard", createWizard},
-        {"heart", createHeart},
-		{"collectible_trap", createCollectibleTrap}
-        }),
-    spawn_delays({
-        {"boar", ORIGINAL_BOAR_SPAWN_DELAY},
-        {"barbarian", ORIGINAL_BABARIAN_SPAWN_DELAY},
-        {"archer", ORIGINAL_ARCHER_SPAWN_DELAY},
-        {"bird", ORIGINAL_BIRD_SPAWN_DELAY},
-		{"wizard", ORIGINAL_WIZARD_SPAWN_DELAY},
-		{"heart", ORIGINAL_HEART_SPAWN_DELAY},
-		{"collectible_trap", ORIGINAL_TRAP_SPAWN_DELAY}
-        }),
-    max_entities({
-        {"boar", MAX_BOARS},
-        {"barbarian", MAX_BABARIANS},
-        {"archer", MAX_ARCHERS},
-		{"wizard", MAX_WIZARDS},
-        {"bird", MAX_BIRD_FLOCKS},
-        {"heart", MAX_HEARTS},
-        {"collectible_trap", MAX_TRAPS}
-        })
+WorldSystem::WorldSystem(std::default_random_engine& rng)
 {
     this->gameStateController = GameStateController();
     this->gameStateController.init(GAME_STATE::PLAYING, this);
@@ -82,16 +54,6 @@ void WorldSystem::restart_game()
     createCliffs(window);
     createTrees(renderer);
     createObstacles();
-
-    entity_types = {
-        "barbarian",
-        "boar",
-        "archer",
-        "bird",
-        "wizard",
-        "heart",
-        "collectible_trap"
-    };
     
     // Create player entity
     playerEntity = createJeff(vec2(world_size_x / 2.f, world_size_y / 2.f));
@@ -104,7 +66,10 @@ void WorldSystem::restart_game()
     initText();
     soundSetUp();
 
-    next_spawns = spawn_delays;
+    // Set spawn delays to 1 second, so the first of each type will spawn right away
+    for (auto& name : entity_types) {
+        next_spawns[name] = 1000;
+    }
     loadAndSaveHighScore(false);
 }
 
@@ -176,7 +141,6 @@ bool WorldSystem::step(float elapsed_ms)
     updateGameTimer(elapsed_ms);
     updateTrapsCounterText();
     toggleMesh();
-    inGameSounds();
     accelerateFireballs(elapsed_ms);
     despawnTraps(elapsed_ms);
     updateCollectedTimer(elapsed_ms);
@@ -261,7 +225,7 @@ void WorldSystem::handle_collisions()
             }
             else if (registry.enemies.has(entity_other)) {
 				// Collision between player and enemy
-				moving_entities_collision(entity, entity_other, was_damaged);
+                processPlayerEnemyCollision(entity, entity_other, was_damaged);
             }
             else if (registry.damagings.has(entity_other)) {
                 entity_damaging_collision(entity, entity_other, was_damaged);
@@ -270,7 +234,7 @@ void WorldSystem::handle_collisions()
         else if (registry.enemies.has(entity)) {
             if (registry.enemies.has(entity_other)) {
 				// Collision between two enemies
-				moving_entities_collision(entity, entity_other, was_damaged);
+				handleEnemyCollision(entity, entity_other, was_damaged);
             }
             else if (registry.damagings.has(entity_other)) {
                 entity_damaging_collision(entity, entity_other, was_damaged);
@@ -288,33 +252,25 @@ void WorldSystem::handle_collisions()
         }
     }
 
+    // Handle deaths after all collisions are handled
+    for (Entity enemy : registry.enemies.entities) {
+        checkAndHandleEnemyDeath(enemy);
+    }
+    for (Entity player : registry.players.entities) {
+        checkAndHandlePlayerDeath(player);
+    }
+
     // Clear all collisions
     renderer->turn_damaged_red(was_damaged);
     physics->collisions.clear();
 }
 
 void WorldSystem::resetTrappedEntities() {
-    Player& player = registry.players.get(playerEntity);
-    player.isTrapped = false;
-    player.speed = PLAYER_SPEED;
-
-    for (auto& entity : registry.enemies.entities) {
-        Enemy& enemy = registry.enemies.get(entity);
-        enemy.isTrapped = false;
-        if (registry.boars.has(entity)) {
-            enemy.speed = BOAR_SPEED;
-        }
-        else if (registry.barbarians.has(entity)) {
-            enemy.speed = BARBARIAN_SPEED;
-        }
-        else if (registry.archers.has(entity)) {
-            enemy.speed = ARCHER_SPEED;
-        }
-        else if (registry.wizards.has(entity)) {
-            enemy.speed = WIZARD_SPEED;
-        }
-        else if (registry.birds.has(entity)) {
-            enemy.speed = BIRD_SPEED;
+    for (Entity entity : registry.trappables.entities) {
+        if (registry.motions.has(entity)) {
+            Trappable& trappable = registry.trappables.get(entity);
+            trappable.isTrapped = false;
+            registry.motions.get(entity).speed = trappable.originalSpeed;
         }
     }
 }
@@ -335,18 +291,18 @@ void WorldSystem::on_key(int key, int, int action, int mod)
         playingControls(key, action, mod);
         break;
     case GAME_STATE::PAUSED:
-        isMovingSoundPlaying = false;
-        isBirdFlockSoundPlaying = false;
-        sound->stopAllSoundEffects();
+		sound->isBirdFlockSoundPlaying = false;
+		sound->isMovingSoundPlaying = false;
+        sound->pauseAllSoundEffects();
         pauseControls(key, action, mod);
         break;
     case GAME_STATE::GAMEOVER:
         gameOverControls(key, action, mod);
         break;
     case GAME_STATE::HELP:
-        isMovingSoundPlaying = false;
-        isBirdFlockSoundPlaying = false;
-        sound->stopAllSoundEffects();
+        sound->isMovingSoundPlaying = false;
+        sound->isBirdFlockSoundPlaying = false;
+        sound->pauseAllSoundEffects();
         helpControls(key, action, mod);
         break;
     }
@@ -365,6 +321,7 @@ void WorldSystem::helpControls(int key, int action, int mod)
             restart_game();
         case GLFW_KEY_H:
             gameStateController.setGameState(GAME_STATE::PLAYING);
+            sound->resumeAllSoundEffects();
             break;
         case GLFW_KEY_P:
         case GLFW_KEY_ESCAPE:
@@ -390,6 +347,7 @@ void WorldSystem::pauseControls(int key, int action, int mod)
         case GLFW_KEY_P:
         case GLFW_KEY_ESCAPE:
             gameStateController.setGameState(GAME_STATE::PLAYING);
+			sound->resumeAllSoundEffects();
             break;
         }
     }
@@ -445,6 +403,16 @@ void WorldSystem::allStateControls(int key, int action, int mod)
             // toggle fps
             registry.fpsTracker.toggled = !registry.fpsTracker.toggled;
             break;
+		case GLFW_KEY_M:
+            // toggle sound
+			sound->mute = !sound->mute;
+			if (sound->mute) {
+				sound->muteAllSounds();
+			}
+			else {
+				sound->unmuteAllSounds();
+			}
+            break;
         case GLFW_KEY_V:
             isWindowed = !isWindowed;
             GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
@@ -467,6 +435,7 @@ void WorldSystem::movementControls(int key, int action, int mod)
     Motion& player_motion = registry.motions.get(playerEntity);
     Dash& player_dash = registry.dashers.get(playerEntity);
     Stamina& player_stamina = registry.staminas.get(playerEntity);
+    Trappable& player_trappable = registry.trappables.get(playerEntity);
 
     if (action != GLFW_PRESS && action != GLFW_RELEASE) {
         return;
@@ -509,7 +478,6 @@ void WorldSystem::movementControls(int key, int action, int mod)
         break;
     case GLFW_KEY_D:
         if (pressed) {
-            const float DASH_STAMINA = 40;
             if (player_stamina.stamina > DASH_STAMINA) {
                 const float dashDistance = 300;
                 // Start dashing if player is moving
@@ -526,8 +494,7 @@ void WorldSystem::movementControls(int key, int action, int mod)
         break;
     case GLFW_KEY_SPACE:
         // Jump
-        if (pressed && !player_comp.isTrapped) {
-            const float JUMP_STAMINA = 20;
+        if (pressed && !player_trappable.isTrapped) {
             if (player_stamina.stamina >= JUMP_STAMINA && !player_comp.tryingToJump) {
                 player_comp.tryingToJump = true;
                 if (registry.jumpers.has(playerEntity)) {
@@ -640,7 +607,9 @@ void WorldSystem::spawn(float elapsed_ms)
 		int currentEntitySize = registry.spawnable_lists.at(entity_type)->size();
         if (registry.enemies.size() < MAX_TOTAL_ENEMIES && 
             next_spawns.at(entity_type) < 0 && 
-            currentEntitySize < maxEntitySize) {
+            currentEntitySize < maxEntitySize) 
+        {
+            printf("Spawning: %s\n", entity_type.c_str());
             vec2 spawnLocation = get_spawn_location(entity_type);
             spawn_func f = spawn_functions.at(entity_type);
             (*f)(spawnLocation);
@@ -651,7 +620,6 @@ void WorldSystem::spawn(float elapsed_ms)
 
 vec2 WorldSystem::get_spawn_location(const std::string& entity_type)
 {
-    vec2 size = entity_sizes.at(entity_type);
     vec2 spawn_location{};
 
     // spawn collectibles
@@ -666,7 +634,7 @@ vec2 WorldSystem::get_spawn_location(const std::string& entity_type)
     {
         // Do not spawn within camera's view (with some margins)
         float exclusionTop = (camera->getPosition().y - camera->getSize().y / 2) / yConversionFactor - 100;
-        float exclusionBottom = (camera->getPosition().y + camera->getSize().y / 2) / yConversionFactor + 100;
+        float exclusionBottom = (camera->getPosition().y + camera->getSize().y / 2) / yConversionFactor + 400;
         float exclusionLeft = camera->getPosition().x - camera->getSize().x / 2 - 100;
         float exclusionRight = camera->getPosition().x + camera->getSize().x / 2 + 100;
 
@@ -722,32 +690,18 @@ void WorldSystem::entity_collectible_collision(Entity entity, Entity entity_othe
 void WorldSystem::entity_trap_collision(Entity entity, Entity entity_other, std::vector<Entity>& was_damaged) {
     Trap& trap = registry.traps.get(entity_other);
 
-    if (registry.players.has(entity)) {
-        Player& player = registry.players.get(playerEntity);
-    
-        // apply slow effect
-        player.isTrapped = true;
-        player.speed *= trap.slowFactor;
-
-        checkAndHandlePlayerDeath(entity);
-	}
-	else if (registry.enemies.has(entity)) {
-        Enemy& enemy = registry.enemies.get(entity);
+    if (registry.trappables.has(entity)) {
+        Trappable& trappable = registry.trappables.get(entity);
+        Motion& motion = registry.motions.get(entity);
 
         // apply slow effect
-        enemy.isTrapped = true;
-        enemy.speed *= trap.slowFactor;
+        motion.speed *= trap.slowFactor;
+        trappable.isTrapped = true;
 
         // if boar is charging, stop mid-charge 
         if(registry.boars.has(entity)) {
             registry.boars.get(entity).charging = false;
         }
-      
-		checkAndHandleEnemyDeath(entity);
-	}
-	else {
-		printf("Entity is not a player or enemy\n");
-		return;
 	}
 }
 
@@ -770,17 +724,14 @@ void WorldSystem::entity_damaging_collision(Entity entity, Entity entity_other, 
         int new_health = player.health - damaging.damage;
         player.health = new_health < 0 ? 0 : new_health;
         was_damaged.push_back(entity);
-        printf("Player health reduced by trap from %d to %d\n", player.health + damaging.damage, player.health);
-        checkAndHandlePlayerDeath(entity);
+        printf("Player health reduced from %d to %d\n", player.health + damaging.damage, player.health);
     }
     else if (registry.enemies.has(entity)) {
         // reduce enemy health
         Enemy& enemy = registry.enemies.get(entity);
-        int new_health = enemy.health - damaging.damage;
-        enemy.health = new_health < 0 ? 0 : new_health;
+        enemy.health -= damaging.damage;
         was_damaged.push_back(entity);
-        printf("Enemy health reduced from %d to %d\n", enemy.health + damaging.damage, enemy.health);
-        checkAndHandleEnemyDeath(entity);
+        printf("Enemy health reduced from %d to %d by damaging object\n", enemy.health + damaging.damage, enemy.health);
     }
     else {
         printf("Entity is not a player or enemy\n");
@@ -806,27 +757,20 @@ void WorldSystem::entity_obstacle_collision(Entity entity, Entity obstacle, std:
         if (boar.charging) {
            Enemy& enemy = registry.enemies.get(entity);
             // Boar hurts itself
-           int newHealth = enemy.health - enemy.damage;
-           enemy.health = std::max(newHealth, 0);
+           enemy.health -= enemy.damage / 2; // half damage of what it does to other entities
            ai->boarReset(entity);
            boar.cooldownTimer = 1000; // stunned for 1 second
            
            was_damaged.push_back(entity);
-           checkAndHandleEnemyDeath(entity);
         }
     }
 }
 
-void WorldSystem::moving_entities_collision(Entity entity, Entity entityOther, std::vector<Entity>& was_damaged) {
-    if (registry.players.has(entity)) {
-        processPlayerEnemyCollision(entity, entityOther, was_damaged);
-    }
-    else if (registry.enemies.has(entity)) {
-        processEnemyEnemyCollision(entity, entityOther, was_damaged);
-    }
-}
-
 void WorldSystem::processPlayerEnemyCollision(Entity player, Entity enemy, std::vector<Entity>& was_damaged) {
+    // Archers do not do melee damage
+    if (registry.archers.has(enemy)) {
+        return;
+    }
 
     if (!registry.cooldowns.has(enemy)) {
         Player& playerData = registry.players.get(player);
@@ -843,18 +787,8 @@ void WorldSystem::processPlayerEnemyCollision(Entity player, Entity enemy, std::
             cooldown.remaining = enemyData.cooldown;
         }
 
-		checkAndHandlePlayerDeath(player);
-
         knock(player, enemy);
     }
-}
-
-void WorldSystem::processEnemyEnemyCollision(Entity enemy1, Entity enemy2, std::vector<Entity>& was_damaged) {
-    handleEnemyCollision(enemy1, enemy2, was_damaged);
-    handleEnemyCollision(enemy2, enemy1, was_damaged);
-
-    checkAndHandleEnemyDeath(enemy1);
-    checkAndHandleEnemyDeath(enemy2);
 }
 
 void WorldSystem::handleEnemyCollision(Entity attacker, Entity target, std::vector<Entity>& was_damaged) {
@@ -862,22 +796,30 @@ void WorldSystem::handleEnemyCollision(Entity attacker, Entity target, std::vect
         Enemy& attackerData = registry.enemies.get(attacker);
         Enemy& targetData = registry.enemies.get(target);
 
-        // collision damage only applies to boars
-        if(!registry.boars.has(attacker)) {
+        bool apply = false;
+
+        if (registry.boars.has(attacker)) {
+            Boar& boar = registry.boars.get(attacker);
+            if (boar.charging) {
+                // damage should only apply when boar is charging 
+                // (boars can be colliding with others while walking)
+                apply = true;
+            }
+        }
+        else if (registry.trolls.has(attacker) && !registry.trolls.has(target)) {
+            apply = true;
+        }
+        else if (registry.birds.has(attacker) && !registry.birds.has(target)) {
+            apply = true;
+        }
+
+        if (!apply) {
             return;
         }
 
-         Boar& boar = registry.boars.get(attacker);
-
-         // damage should only apply when boar is charging 
-         // (boars can be colliding with others while walking)
-        if(!boar.charging) return;
-
-        const int DAMAGE_MULTIPLIER = 3;
-        int newHealth = targetData.health - attackerData.damage * DAMAGE_MULTIPLIER;
-        targetData.health = std::max(newHealth, 0);
+        targetData.health -= attackerData.damage;
         was_damaged.push_back(target);
-        printf("Enemy %d's health reduced from %d to %d\n", (unsigned int)target, targetData.health + attackerData.damage, targetData.health);
+        printf("Enemy %d's health reduced from %d to %d by enemy\n", (unsigned int)target, targetData.health + attackerData.damage, targetData.health);
 
         if (attackerData.cooldown > 0) {
             Cooldown& cooldown = registry.cooldowns.emplace(attacker);
@@ -890,7 +832,7 @@ void WorldSystem::handleEnemyCollision(Entity attacker, Entity target, std::vect
 
 void WorldSystem::checkAndHandleEnemyDeath(Entity enemy) {
     Enemy& enemyData = registry.enemies.get(enemy);
-    if (enemyData.health == 0 && !registry.deathTimers.has(enemy)) {
+    if (enemyData.health <= 0 && !registry.deathTimers.has(enemy)) {
         Motion& motion = registry.motions.get(enemy);
         // Do not rotate wizard
         if (!registry.wizards.has(enemy)) {
@@ -915,13 +857,13 @@ void WorldSystem::checkAndHandleEnemyDeath(Entity enemy) {
 
 void WorldSystem::knock(Entity knocked, Entity knocker)
 {
-    const float KNOCK_ANGLE = M_PI / 4;  // 45 degrees
-    float strength = 1;
-
-    // Skip if entity being knocked is not knockable
-    if (!registry.knockables.has(knocked)) {
+    // Skip if entities are not suitable
+    if (!registry.knockables.has(knocked) || !registry.knockers.has(knocker)) {
         return;
     }
+
+    const float KNOCK_ANGLE = M_PI / 4;  // 45 degrees
+    float strength = registry.knockers.get(knocker).strength;
 
     Motion& knockedMotion = registry.motions.get(knocked);
     Motion& knockerMotion = registry.motions.get(knocker);
@@ -973,7 +915,7 @@ void WorldSystem::checkAndHandlePlayerDeath(Entity& entity) {
         motion.hitbox = { motion.hitbox.z, motion.hitbox.y, motion.hitbox.x }; // Change hitbox to be on its side
 
         sound->stopAllSounds();
-		sound->playMusic(Music::PLAYER_DEATH, -1, 10);
+		sound->playMusic(Music::PLAYER_DEATH, -1);
 	}
 }
 
@@ -1091,21 +1033,10 @@ void WorldSystem::adjustSpawnSystem(float elapsed_ms) {
 
 void WorldSystem::resetSpawnSystem() {
 	// Reset spawn delays
-	spawn_delays.at("boar") = ORIGINAL_BOAR_SPAWN_DELAY;
-	spawn_delays.at("barbarian") = ORIGINAL_BABARIAN_SPAWN_DELAY;
-	spawn_delays.at("archer") = ORIGINAL_ARCHER_SPAWN_DELAY;
-    spawn_delays.at("bird") = ORIGINAL_BIRD_SPAWN_DELAY;
-	spawn_delays.at("heart") = ORIGINAL_HEART_SPAWN_DELAY;
-	spawn_delays.at("collectible_trap") = ORIGINAL_TRAP_SPAWN_DELAY;
+    spawn_delays = initial_spawn_delays;
 
 	// Reset max entities
-	max_entities.at("boar") = MAX_BOARS;
-	max_entities.at("barbarian") = MAX_BABARIANS;
-	max_entities.at("archer") = MAX_ARCHERS;
-    max_entities.at("bird") = MAX_BIRD_FLOCKS;
-	max_entities.at("wizard") = MAX_WIZARDS;
-	max_entities.at("heart") = MAX_HEARTS;
-	max_entities.at("collectible_trap") = MAX_TRAPS;
+    max_entities = initial_max_entities;
 }
 
 // Pause the game when the window loses focus
@@ -1135,46 +1066,10 @@ void WorldSystem::accelerateFireballs(float elapsed_ms) {
 }
 
 void WorldSystem::soundSetUp() {
-    int VOLUME = 10;
     // stop all sounds first
     sound->stopAllSounds();
     // init sound system
     sound->init();
     // play background music
-    sound->playMusic(Music::BACKGROUND, -1, VOLUME);
-}
-
-void WorldSystem::inGameSounds() {
-	Player& player = registry.players.get(playerEntity);
-    // monitoring player movement
-    if (player.isMoving) {
-        if (!isMovingSoundPlaying) {
-            // walking sound
-            sound->playSoundEffect(Sound::WALKING, -1);
-            isMovingSoundPlaying = true;
-        }
-    }
-    else {
-        if (isMovingSoundPlaying) {
-            // stop walking sound
-            sound->stopSoundEffect(Sound::WALKING);
-            isMovingSoundPlaying = false;
-        }
-    }
-
-    // monitoring birds movement
-    if (registry.birds.size() > 0) {
-        if (!isBirdFlockSoundPlaying) {
-            // birds sound
-            sound->playSoundEffect(Sound::BIRD_FLOCK, -1);
-            isBirdFlockSoundPlaying = true;
-        }
-    }
-    else {
-        if (isBirdFlockSoundPlaying) {
-            // stop birds sound
-            sound->stopSoundEffect(Sound::BIRD_FLOCK);
-            isBirdFlockSoundPlaying = false;
-        }
-    }
+    sound->playMusic(Music::BACKGROUND, -1);
 }

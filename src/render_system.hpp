@@ -71,14 +71,17 @@ class RenderSystem {
 		textures_path("bird/bird_swoop.png"),			// BIRD SWOOP
 		textures_path("bird/bird_dead.png"),				 // BIRD DEAD
 		textures_path("bomb/bomb.png"),
-		textures_path("explosion/explosion.png")  
+		textures_path("explosion/explosion.png"),  
+		textures_path("troll/Troll-6f-48x64.png"),
+		textures_path("troll/Troll-1f-48x64.png")
 	};
 
 
 	std::array<GLuint, effect_count> effects;
 	// Make sure these paths remain in sync with the associated enumerators.
 	const std::array<std::string, effect_count> effect_paths = {
-		shader_path("textured"), 
+		shader_path("textured"),
+		shader_path("textured_basic"), 
 		shader_path("untextured"), 
 		shader_path("animated"), 
 		shader_path("font"), 
@@ -129,9 +132,16 @@ public:
 
 private:
 	Camera* camera;
+	const float AMBIENT_LIGHT = .4;
 
 	// Internal drawing functions for each entity type
-	void drawMesh(Entity entity, const mat3& projection, const mat4& projection_screen);
+    void drawMesh(Entity entity, const mat3 &projection, const mat4 &projection_screen);
+
+    void bindAnimationAttributes(const GLuint program, const Entity &entity);
+
+    void bindTextureAttributes(const GLuint program, const Entity &entity);
+
+    void bindLightingAttributes(const GLuint program, const Entity &entity);
 
 	void drawText(Entity entity, const mat4& projection_screen);
 

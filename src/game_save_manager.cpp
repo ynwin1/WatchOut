@@ -3,6 +3,8 @@
 #include "json.hpp"
 #include "tiny_ecs.hpp"
 #include "components.hpp"
+#include "world_init.hpp"
+#include "animation_system.hpp"
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -44,7 +46,7 @@ void GameSaveManager::serialize_containers(json& j) {
 	j["knockers"] = serialize_container<Knocker>(registry.knockers);
 	j["trappables"] = serialize_container<Trappable>(registry.trappables);
 	j["healthBars"] = serialize_container<HealthBar>(registry.healthBars);
-	// j["animationControllers"] = serialize_container<AnimationController>(registry.animationControllers);
+	j["animationControllers"] = serialize_container<AnimationController>(registry.animationControllers);
 	j["staminaBars"] = serialize_container<StaminaBar>(registry.staminaBars);
 	j["staminas"] = serialize_container<Stamina>(registry.staminas);
 	j["texts"] = serialize_container<Text>(registry.texts);
@@ -52,7 +54,7 @@ void GameSaveManager::serialize_containers(json& j) {
 	j["mapTiles"] = serialize_container<MapTile>(registry.mapTiles);
 	j["obstacles"] = serialize_container<Obstacle>(registry.obstacles);
 	j["projectiles"] = serialize_container<Projectile>(registry.projectiles);
-	// j["meshPtrs"] = serialize_container<Mesh*>(registry.meshPtrs);
+	j["meshPtrs"] = serialize_mesh_container(registry.meshPtrs); // SPECIAL CASE
 	j["targetAreas"] = serialize_container<TargetArea>(registry.targetAreas);
 	j["collected"] = serialize_container<Collected>(registry.collected);
 	// j["pauseMenuComponents"] = serialize_container<PauseMenuComponent>(registry.pauseMenuComponents);
@@ -94,6 +96,28 @@ nlohmann::json GameSaveManager::serialize_container(const ComponentContainer<Com
 	return j;
 }
 
+nlohmann::json GameSaveManager::serialize_mesh_container(const ComponentContainer<Mesh*>& container) {
+	json j;
+	json entities = json::array();
+	json components = json::array();
+
+	// save IDs of entities
+	for (const auto& entity : container.entities) {
+		entities.push_back(entity.getId());
+	}
+
+	// save components of entities
+	for (const auto& component : container.components) {
+		json comp;
+		components.push_back(comp);
+	}
+
+	j["entities"] = entities;
+	j["components"] = components;
+
+	return j;
+}
+
 // SERIALIZING COMPONENTS
 nlohmann::json GameSaveManager::serialize_game_timer(const GameTimer& gameTimer) {
 	nlohmann::json j;
@@ -112,6 +136,16 @@ nlohmann::json GameSaveManager::serialize_game_score(const GameScore& gameScore)
 	j["highScoreSeconds"] = gameScore.highScoreSeconds;
 	return j;
 }
+
+//nlohmann::json GameSaveManager::serialize_animation(const Animation& animation) {
+//	nlohmann::json j;
+//	j["currentFrame"] = animation.currentFrame;
+//	j["elapsedTime"] = animation.elapsedTime;
+//	j["frameTime"] = animation.frameTime;
+//	j["numFrames"] = animation.numFrames;
+//	j["spritesheet"] = (int)animation.spritesheet;
+//	return j;
+//}
 
 template<>
 nlohmann::json GameSaveManager::serialize_component<Player>(const Player& player) {
@@ -254,17 +288,12 @@ nlohmann::json GameSaveManager::serialize_component<HealthBar>(const HealthBar& 
 	return j;
 }
 
-// TODO - ANIMATION CONTROLLER
-//template<>
-//nlohmann::json GameSaveManager::serialize_component<AnimationController>(const AnimationController& animationController) {
-//	nlohmann::json j;
-//	j["currentAnimation"] = animationController.currentAnimation;
-//	j["currentFrame"] = animationController.currentFrame;
-//	j["frameTimer"] = animationController.frameTimer;
-//	j["frameDuration"] = animationController.frameDuration;
-//	j["loop"] = animationController.loop;
-//	return j;
-//}
+template<>
+nlohmann::json GameSaveManager::serialize_component<AnimationController>(const AnimationController& animationController) {
+	nlohmann::json j;
+	j["currentState"] = animationController.currentState;
+	return j;
+}
 
 template<>
 nlohmann::json GameSaveManager::serialize_component<StaminaBar>(const StaminaBar& staminaBar) {
@@ -324,15 +353,6 @@ nlohmann::json GameSaveManager::serialize_component<Projectile>(const Projectile
 	return j;
 }
 
-// TODO - MESH
-//template<>
-//nlohmann::json GameSaveManager::serialize_component<Mesh*>(const Mesh*& meshPtr) {
-//	nlohmann::json j;
-//	j["originalSize"] = { meshPtr->originalSize.x, meshPtr->originalSize.y };
-//	j["vertices"] = json::array();
-//	return j;
-//}
-
 template<>
 nlohmann::json GameSaveManager::serialize_component<TargetArea>(const TargetArea& targetArea) {
 	nlohmann::json j;
@@ -345,8 +365,6 @@ nlohmann::json GameSaveManager::serialize_component<Collected>(const Collected& 
 	j["duration"] = collected.duration;
 	return j;
 }
-
-// TODO - PAUSE AND HELP MENUS
 
 template<>
 nlohmann::json GameSaveManager::serialize_component<RenderRequest>(const RenderRequest& renderRequest) {
@@ -524,6 +542,18 @@ void GameSaveManager::groupComponentsForEntities(const json& j) {
 			entityComponentGroups[entityID].insert({ containerName, component });
 		}
 	}
+
+	// print the map
+	for (const auto& entity : entityComponentGroups) {
+		std::cout << "Entity ID: " << entity.first << std::endl;
+
+		for (const auto& component : entity.second) {
+			std::cout << "  Component Name: " << component.first << std::endl;
+			std::cout << "  Data: " << component.second.dump(4) << std::endl;  // Using dump(4) for pretty-printing with an indent of 4 spaces
+		}
+
+		std::cout << std::endl;  // Add a newline for better separation between entities
+	}
 }
 
 void GameSaveManager::deserialize_containers(const json& j) {
@@ -536,13 +566,26 @@ void GameSaveManager::deserialize_containers(const json& j) {
 	auto& entityID = item.first;
 	auto& components = item.second;
 	for (const auto& component : components) {
-		std::cout << component.first << std::endl; // Print each component nicely formatted
+		std::cout << component.first << std::endl;
 	}
-	/*for (auto& item : entityComponentGroups) {
-		int entityID = item.first;
-		auto& components = item.second;
+	//for (auto& item : entityComponentGroups) {
+	//	int entityID = item.first;
+	//	auto& componentsMap = item.second;
 
-		for (auto& component : components) {}
+	//	// componentMap is a map with component names as key and json object as value
+	//	std::vector<std::string> componentNames;
+	//	for (auto& component : componentsMap) {
+	//		componentNames.push_back(component.first);
+	//	}
+
+	//	// create entity
+	//	createEntity(componentNames, componentsMap);
+	//}
+}
+
+void GameSaveManager::createEntity(std::vector<std::string> componentNames, std::map<std::string, nlohmann::json> componentsMap) {
+	/*if (std::find(componentNames.begin(), componentNames.end(), "boars") != componentNames.end()) {
+		createBoar();
 	}*/
 }
 

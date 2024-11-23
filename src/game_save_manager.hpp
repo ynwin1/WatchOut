@@ -24,6 +24,7 @@ private:
 
 	template <typename Component>
 	json serialize_container(const ComponentContainer<Component>& container);
+	json serialize_mesh_container(const ComponentContainer<Mesh*>& container);
 
 	nlohmann::json serialize_game_timer(const GameTimer& gameTimer);
 	nlohmann::json serialize_game_score(const GameScore& gameScore);
@@ -35,9 +36,7 @@ private:
 	void groupComponentsForEntities(const json& j);
 
 	void deserialize_containers(const json& j);
-
+	void createEntity(std::vector<std::string> componentNames, std::map<std::string, nlohmann::json> componentsMap);
 	void deserialize_game_timer(const json& j);
 	void deserialize_game_score(const json& j);
-
-
 };

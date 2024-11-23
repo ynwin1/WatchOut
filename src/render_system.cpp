@@ -11,6 +11,7 @@
 // STD
 #include <algorithm>
 #include <sstream>
+#include <glm/gtx/string_cast.hpp>
 
 void RenderSystem::drawText(Entity entity, const mat4& projection_screen) {
 	const Text& text = registry.texts.get(entity);
@@ -86,6 +87,7 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection, const mat4& p
 	// specification for more info Incrementally updates transformation matrix,
 	// thus ORDER IS IMPORTANT
 	Transform transform;
+	Transform3D modelMatrix;
 	if (registry.motions.has(entity)) {
 		Motion& motion = registry.motions.get(entity);
 		if (registry.midgrounds.has(entity) || registry.backgrounds.has(entity)) {
@@ -100,6 +102,10 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection, const mat4& p
 		}
 		transform.rotate(motion.angle);
 		transform.scale(motion.scale);
+
+		modelMatrix.translate(motion.position);
+		modelMatrix.rotate(motion.angle);
+		modelMatrix.scale(vec2(motion.scale.x, motion.scale.y / yConversionFactor));
 	}
 	else if(registry.mapTiles.has(entity)) {
 		MapTile& tile = registry.mapTiles.get(entity);
@@ -132,6 +138,14 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection, const mat4& p
 	{
         bindTextureAttributes(program, entity);
 		bindLightingAttributes(program, entity);
+
+		GLint modelLoc = glGetUniformLocation(program, "modelMatrix");
+		if (modelLoc != -1) {
+			// std::cout << "gsl::to_string(modelMatrix)" << std::endl;
+			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, (float*)&modelMatrix.mat);
+		} else {
+			printf("Failed to find modelMatrix uniform!\n");
+		}
 
 		// Point light 1
 		GLint location = glGetUniformLocation(program, "num_point_lights");

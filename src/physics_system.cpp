@@ -2,6 +2,7 @@
 #include "world_init.hpp"
 #include "render_system.hpp"
 #include <iostream>
+#include <glm/gtx/string_cast.hpp>
 
 static std::vector<vec2> getPolygonOfBoundingBox(const Motion& motion)
 {

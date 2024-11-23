@@ -3,6 +3,7 @@
 // Input attributes
 in vec3 in_position;
 in vec2 in_texcoord;
+uniform mat4 modelMatrix;
 
 // Passed to fragment shader
 out vec2 texcoord;
@@ -30,5 +31,5 @@ void main()
     }
 
     gl_Position = pos;
-    worldPos = vec3(transform * vec3(in_position.xy, 1.0));
+    worldPos = (modelMatrix * vec4(in_texcoord.x, in_texcoord.y, in_texcoord.x, 1.0)).xyz;
 }

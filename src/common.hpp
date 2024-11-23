@@ -52,6 +52,13 @@ struct Transform {
 	void translate(vec2 offset);
 };
 
+struct Transform3D {
+    mat4 mat = { { 1.f, 0.f, 0.f, 0.f }, { 0.f, 1.f, 0.f, 0.f }, { 0.f, 0.f, 1.f, 0.f }, { 0.f, 0.f, 0.f, 1.f } }; // start with the identity
+    void scale(vec2 scale);
+    void rotate(float radians);
+    void translate(vec3 offset);
+};
+
 vec2 rotate(vec2 v, float radians);
 
 bool gl_has_errors();

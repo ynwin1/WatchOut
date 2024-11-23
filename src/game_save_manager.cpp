@@ -518,11 +518,10 @@ void GameSaveManager::groupComponentsForEntities(const json& j) {
 		for (size_t i = 0; i < container["entities"].size(); i++) {
 			int entityID = container["entities"][i];
 			if (entityComponentGroups.find(entityID) == entityComponentGroups.end()) {
-				entityComponentGroups[entityID] = std::vector<json>();
+				entityComponentGroups[entityID] = std::map<std::string, json>();
 			}
-			json component;
-			component[containerName] = container["components"][i];
-			entityComponentGroups[entityID].push_back(component);
+			json component = container["components"][i];
+			entityComponentGroups[entityID].insert({ containerName, component });
 		}
 	}
 }
@@ -531,6 +530,20 @@ void GameSaveManager::deserialize_containers(const json& j) {
 	deserialize_game_timer(j);
 	deserialize_game_score(j);
 
+	// Deserialize to make entities using map
+
+	auto& item = *(entityComponentGroups.begin());
+	auto& entityID = item.first;
+	auto& components = item.second;
+	for (const auto& component : components) {
+		std::cout << component.first << std::endl; // Print each component nicely formatted
+	}
+	/*for (auto& item : entityComponentGroups) {
+		int entityID = item.first;
+		auto& components = item.second;
+
+		for (auto& component : components) {}
+	}*/
 }
 
 void GameSaveManager::deserialize_game_timer(const json& j) {

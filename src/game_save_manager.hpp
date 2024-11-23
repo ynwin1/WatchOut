@@ -17,7 +17,7 @@ private:
 	// Game Save file path
 	std::string gameSaveFilePath = data_path() + "/save/game_save.json";
 	// Map to store group of components for each entity
-	std::map<int, std::vector<json>> entityComponentGroups;
+	std::map<int, std::map<std::string, json>> entityComponentGroups;
 
 	// Serialization
 	void serialize_containers(json& j);

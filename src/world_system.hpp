@@ -40,25 +40,6 @@ public:
 	friend class GameStateController;
 
 private:
-	// CONSTANTS
-	// Spawn delays
-	const float ORIGINAL_BOAR_SPAWN_DELAY = 99999.0f;
-	const float ORIGINAL_BABARIAN_SPAWN_DELAY = 99999.0f;
-	const float ORIGINAL_ARCHER_SPAWN_DELAY = 1.0f;
-	const float ORIGINAL_BIRD_SPAWN_DELAY = 999999.0f;
-	const float ORIGINAL_WIZARD_SPAWN_DELAY = 5000.0f;
-	const float ORIGINAL_HEART_SPAWN_DELAY = 10000.0f;
-	const float ORIGINAL_TRAP_SPAWN_DELAY = 7000.0f;
-
-	// Max entities at start
-	const unsigned int MAX_BOARS = 0;
-	const unsigned int MAX_BABARIANS = 0;
-	const unsigned int MAX_ARCHERS = 1;
-	const unsigned int MAX_BIRD_FLOCKS = 0;
-	const unsigned int MAX_WIZARDS = -1;
-	const unsigned int MAX_HEARTS = 2;
-	const unsigned int MAX_TRAPS = 1;
-
 	const float DIFFICULTY_INTERVAL = 45000.0f;
 	const unsigned int MAX_TOTAL_ENEMIES = 100;
 
@@ -93,23 +74,23 @@ private:
 	};
 
 	const std::unordered_map<std::string, int> initial_max_entities = {
-		{"boar", -1},
-		{"barbarian", -1},
-		{"archer", -1},
-		{"bird", 1},
-		{"wizard", 1},
-		{"troll", 1},
+		{"boar", 0},
+		{"barbarian", 0},
+		{"archer", 1},
+		{"bird", 0},
+		{"wizard", 0},
+		{"troll", 0},
 		{"heart", 2},
 		{"collectible_trap", 2}
 	};
 
 	const std::unordered_map<std::string, float> initial_spawn_delays = {
-		{"boar", 10000.0f},
-		{"barbarian", 10000.0f},
-		{"archer", 20000.0f},
-		{"bird", 20000.0f},
-		{"wizard", 20000.0f},
-		{"troll", 30000.0f},
+		{"boar", 9999999.0f},
+		{"barbarian", 9999999.0f},
+		{"archer", 1.0f},
+		{"bird", 9999999.0f},
+		{"wizard", 9999999.0f},
+		{"troll", 9999999.0f},
 		{"heart", 5000.0f},
 		{"collectible_trap", 5000.0f}
 	};

@@ -36,6 +36,12 @@ void RenderSystem::drawText(Entity entity, const mat4& projection_screen) {
     {
         TextChar ch = registry.textChars[*c];
 
+		if (*c == '\n') {
+        	startX = fg.position.x; 
+        	startY -= registry.textChars[*c].size.y * scale * text.lineSpacing;
+        	continue;
+    	}
+
         float xpos = startX + ch.bearing.x * scale;
 		float ypos = startY - (ch.size.y - ch.bearing.y) * scale;
 

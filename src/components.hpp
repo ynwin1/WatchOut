@@ -175,6 +175,7 @@ struct TargetArea {
 struct Text {
 	std::string value;
 	Entity anchoredEntity;
+	float lineSpacing = 1.3f;
 };
 
 struct SlideUp {

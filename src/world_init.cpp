@@ -945,26 +945,6 @@ void createMapTiles() {
     }
 }
 
-void createHighScoreText(vec2 windowSize, GameScore& gameScore) {
-	auto entity = Entity();
-
-	Text& text = registry.texts.emplace(entity);
-    text.value = "Your High Score is  " + std::to_string(gameScore.highScoreHours) + "h " + std::to_string(gameScore.highScoreMinutes) + "m " + std::to_string(gameScore.highScoreSeconds) + "s ";
-	Foreground& fg = registry.foregrounds.emplace(entity);
-	fg.position = {windowSize.x / 2 - 220.f, windowSize.y / 2 - 50.f};
-	fg.scale = {1.0f, 1.0f};
-	
-	registry.colours.insert(entity, {1.0f, 0.85f, 0.0f, 1.0f});
-
-	registry.renderRequests.insert(
-		entity, 
-		{
-			TEXTURE_ASSET_ID::NONE,
-			EFFECT_ASSET_ID::FONT,
-			GEOMETRY_BUFFER_ID::TEXT
-		});
-}
-
 void createGameOverText(vec2 windowSize, GameStateController& gameStateController) {
 	auto backdrop = Entity();
 	Foreground& backdropFg = registry.foregrounds.emplace(backdrop);
@@ -991,34 +971,40 @@ void createGameOverText(vec2 windowSize, GameStateController& gameStateControlle
 	text1Fg.position = {windowSize.x / 2 - 315.0f, windowSize.y / 2 + 50.0f};
 	text1Fg.scale = {4.0f, 4.0f};
 	registry.colours.insert(entity1, {0.85f, 0.0f, 0.0f, 1.0f});
-	
+
 	auto entity2 = Entity();
 	Text& text2 = registry.texts.emplace(entity2);
+	text2.lineSpacing = 1.5f;
 	Foreground& text2Fg = registry.foregrounds.emplace(entity2);
-	text2Fg.position = {windowSize.x / 2 - 160.f, windowSize.y / 2};
-	text2Fg.scale = {1.0f, 1.0f};
+	text2Fg.position = {windowSize.x / 2 - 160.f, windowSize.y / 2 - 20.f};
+	text2Fg.scale = {1.f, 1.f};
 	registry.colours.insert(entity2, {1.0f, 0.85f, 0.0f, 1.0f});
+
 	std::ostringstream oss;
     oss << "You survived for ";
     if (gameTimer.hours > 0) {
         oss << gameTimer.hours << "h ";
-		text2Fg.position.x -= 20.f;
     }
     if (gameTimer.minutes > 0 || gameTimer.hours > 0) {
         oss << gameTimer.minutes << "m ";
-		text2Fg.position.x -= 40.f;
     }
     oss << gameTimer.seconds << "s";
 	text2.value = oss.str();
 
-	createHighScoreText(windowSize, gameScore);
+	oss.str("");
+	oss << "\nYour Score: " << gameScore.score;
+	text2.value += oss.str();
+
+	oss.str("");
+	oss << "\nYour High Score: " << gameScore.highScore;
+	text2.value += oss.str();
 
 	auto entity3 = Entity();
 	Text& text3 = registry.texts.emplace(entity3);
 	text3.value = "Press ENTER to play again";
 	Foreground& text3Fg = registry.foregrounds.emplace(entity3);
-	text3Fg.position = {windowSize.x / 2 - 160.f, windowSize.y / 2 - 110.f};
-	text3Fg.scale = {0.8f, 0.8f};
+	text3Fg.position = {windowSize.x / 2 - 200.f, windowSize.y / 2 - 170.f};
+	text3Fg.scale = {1.f, 1.f};
 
 	entities.push_back(entity1);
 	entities.push_back(entity2);

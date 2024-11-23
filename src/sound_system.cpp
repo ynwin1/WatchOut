@@ -1,4 +1,5 @@
 #include "sound_system.hpp"
+#include "tiny_ecs_registry.hpp"
 #include <chrono>
 
 SoundSystem::SoundSystem()
@@ -45,7 +46,7 @@ bool SoundSystem::init()
 void SoundSystem::loadAllMusic()
 {
 	for (auto& pair : musics) {
-		Mix_Music* music = Mix_LoadMUS(pair.second.c_str());
+		Mix_Music* music = Mix_LoadMUS(pair.second.first.c_str());
 		if (music == nullptr) {
 			handleError("Failed to load music!");
 			continue;
@@ -57,7 +58,7 @@ void SoundSystem::loadAllMusic()
 void SoundSystem::loadAllSoundEffects()
 {
 	for (auto& pair : sounds) {
-		Mix_Chunk* sound = Mix_LoadWAV(pair.second.c_str());
+		Mix_Chunk* sound = Mix_LoadWAV(pair.second.first.c_str());
 		if (sound == nullptr) {
 			handleError("Failed to load sound effect!");
 			continue;
@@ -66,7 +67,7 @@ void SoundSystem::loadAllSoundEffects()
 	}
 }
 
-void SoundSystem::playMusic(Music key, int duration, int volume)
+void SoundSystem::playMusic(Music key, int duration)
 {
 	auto it = loadedMusic.find(key);
 	if (it == loadedMusic.end()) {
@@ -79,7 +80,13 @@ void SoundSystem::playMusic(Music key, int duration, int volume)
 		handleError("Failed to play music!");
 		return;
 	}
-	Mix_VolumeMusic(volume);
+	int originalVolume = musics.find(key)->second.second;
+	if (mute) {
+		Mix_VolumeMusic(0);
+	}
+	else {
+		Mix_VolumeMusic(originalVolume);
+	}
 	musicTracks[key] = channel;
 }
 
@@ -97,8 +104,107 @@ void SoundSystem::playSoundEffect(Sound key, int count)
 		handleError("Failed to play sound effect!");
 		return;
 	}
+	int originalVolume = sounds.find(key)->second.second;
+	if (mute) {
+		Mix_Volume(channel, 0);
+	}
+	else {
+		Mix_Volume(channel, originalVolume);
+	}
 	soundEffects[key] = channel;
 };
+
+// pause specified music
+void SoundSystem::pauseMusic(Music key)
+{
+	if (musicTracks.find(key) == musicTracks.end())
+	{
+		handleError("Music not found!");
+		return;
+	}
+	int channel = musicTracks[key];
+	Mix_Pause(channel);
+}
+
+// pause specified sound effect
+void SoundSystem::pauseSoundEffect(Sound key)
+{
+	if (soundEffects.find(key) == soundEffects.end())
+	{
+		handleError("Sound effect not found!");
+		return;
+	}
+	int channel = soundEffects[key];
+	Mix_Pause(channel);
+}
+
+// pause all music
+void SoundSystem::pauseAllMusic() {
+	for (auto& musicTrack : musicTracks) {
+		int channel = musicTrack.second;
+		Mix_Pause(channel);
+	}
+}
+
+// pause all sound effects
+void SoundSystem::pauseAllSoundEffects() {
+	for (auto& soundEffect : soundEffects) {
+		int channel = soundEffect.second;
+		Mix_Pause(channel);
+	}
+}
+
+// pause all sounds
+void SoundSystem::pauseAllSounds() {
+	pauseAllMusic();
+	pauseAllSoundEffects();
+}
+
+// resume specified music
+void SoundSystem::resumeMusic(Music key)
+{
+	if (musicTracks.find(key) == musicTracks.end())
+	{
+		handleError("Music not found!");
+		return;
+	}
+	int channel = musicTracks[key];
+	Mix_Resume(channel);
+}
+
+// resume specified sound effect
+void SoundSystem::resumeSoundEffect(Sound key)
+{
+	if (soundEffects.find(key) == soundEffects.end())
+	{
+		handleError("Sound effect not found!");
+		return;
+	}
+	int channel = soundEffects[key];
+	Mix_Resume(channel);
+}
+
+// resume all music
+void SoundSystem::resumeAllMusic() {
+	for (auto& musicTrack : musicTracks) {
+		int channel = musicTrack.second;
+		Mix_Resume(channel);
+	}
+}
+
+// resume all sound effects
+void SoundSystem::resumeAllSoundEffects() {
+	for (auto& soundEffect : soundEffects) {
+		int channel = soundEffect.second;
+		Mix_Resume(channel);
+	}
+}
+
+// resume all sounds
+void SoundSystem::resumeAllSounds() {
+	resumeAllMusic();
+	resumeAllSoundEffects();
+}
 
 // stop specified music
 void SoundSystem::stopMusic(Music key)
@@ -150,6 +256,23 @@ void SoundSystem::stopAllSounds() {
 	stopAllSoundEffects();
 }
 
+// mute
+void SoundSystem::muteAllSounds() {
+	Mix_VolumeMusic(0);
+	Mix_Volume(-1, 0);
+}
+
+// unmute
+void SoundSystem::unmuteAllSounds() {
+	// music (cannot control individual music volume)
+	Mix_VolumeMusic(INITIAL_MUSIC_VOLUME);
+	// sound effects
+	for (auto& soundEffect : soundEffects) {
+		int originalVolume = sounds.find(soundEffect.first)->second.second;
+		Mix_Volume(soundEffect.second, originalVolume);
+	}
+}
+
 void SoundSystem::unloadAllSounds()
 {
 	for (auto& pair : loadedMusic) {
@@ -161,4 +284,55 @@ void SoundSystem::unloadAllSounds()
 		Mix_FreeChunk(pair.second);
 	}
 	loadedSoundEffects.clear();
+}
+
+void SoundSystem::controlPlayerSound() {
+	Player& player = registry.players.components[0];
+	if (player.isMoving) {
+		if (!isMovingSoundPlaying) {
+			// walking sound
+			playSoundEffect(Sound::WALKING, -1);
+			isMovingSoundPlaying = true;
+		}
+	}
+	else {
+		if (isMovingSoundPlaying) {
+			// stop walking sound
+			stopSoundEffect(Sound::WALKING);
+			isMovingSoundPlaying = false;
+		}
+	}
+}
+
+void SoundSystem::controlBirdSound() {
+	// monitoring birds movement
+	if (registry.birds.size() > 0) {
+		if (!isBirdFlockSoundPlaying) {
+			// birds sound
+			playSoundEffect(Sound::BIRD_FLOCK, -1);
+			isBirdFlockSoundPlaying = true;
+		}
+	}
+	else {
+		if (isBirdFlockSoundPlaying) {
+			// stop birds sound
+			stopSoundEffect(Sound::BIRD_FLOCK);
+			isBirdFlockSoundPlaying = false;
+		}
+	}
+}
+
+void SoundSystem::step(float elapsed_ms)
+{
+	controlPlayerSound();
+	controlBirdSound();
+
+	// troll laughs
+	for (auto& troll : registry.trolls.components) {
+		troll.laughCooldown -= elapsed_ms;
+		if (troll.laughCooldown <= 0.f) {
+			playSoundEffect(Sound::TROLL_LAUGH, 0);
+			troll.laughCooldown = TROLL_LAUGH_COOLDOWN;
+		}
+	}
 }

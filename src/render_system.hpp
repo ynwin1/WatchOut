@@ -70,10 +70,13 @@ class RenderSystem {
 		textures_path("bird/bird_fly.png"),				 // BIRD FLY
 		textures_path("bird/bird_swoop.png"),			// BIRD SWOOP
 		textures_path("bird/bird_dead.png"),				 // BIRD DEAD
-		textures_path("bomb/bomb.png"),
-		textures_path("explosion/explosion.png"),  
 		textures_path("troll/Troll-6f-48x64.png"),
-		textures_path("troll/Troll-1f-48x64.png")
+		textures_path("troll/Troll-1f-48x64.png"),
+		textures_path("bomber/Idle.png"),
+		textures_path("bomber/Run.png"),
+		textures_path("bomber/Dead.png"),
+		textures_path("bomb/bomb.png"),
+		textures_path("explosion/explosion.png"),
 	};
 
 

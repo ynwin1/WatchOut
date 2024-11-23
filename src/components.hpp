@@ -323,6 +323,11 @@ struct Troll {
 	float laughCooldown = 20000.f;
 };
 
+struct Bomber {
+	float throwBombDelayTimer = 0;
+	bool aiming = false;
+};
+
 // Collectible types
 struct Heart { unsigned int health = 20; };
 struct CollectibleTrap {};

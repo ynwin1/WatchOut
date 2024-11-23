@@ -231,8 +231,40 @@ Entity createTroll(vec2 pos)
 	initTrollAnimationController(entity);
 
 	return entity;
-}
-;
+};
+
+// Bomber creation
+Entity createBomber(vec2 pos)
+{
+	auto entity = Entity();
+
+	// Setting intial motion values
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = vec3(pos, getElevation(pos) + BOMBER_BB_HEIGHT / 2);
+	motion.angle = 0.f;
+	motion.scale = { BOMBER_BB_WIDTH, BOMBER_BB_HEIGHT };
+	motion.hitbox = { BOMBER_BB_WIDTH, BOMBER_BB_WIDTH, BOMBER_BB_HEIGHT / zConversionFactor };
+	motion.solid = true;
+
+	Enemy& enemy = registry.enemies.emplace(entity);
+	enemy.damage = BOMBER_DAMAGE;
+	enemy.maxHealth = BOMBER_HEALTH;
+	enemy.health = enemy.maxHealth;
+	motion.speed = BOMBER_SPEED;
+
+	registry.bombers.emplace(entity);
+
+	initBomberAnimationController(entity);
+	registry.midgrounds.emplace(entity);
+
+	createHealthBar(entity, vec4(1.0f, 0.0f, 0.0f, 1.0f));
+
+	registry.knockables.emplace(entity);
+	auto& trappable = registry.trappables.emplace(entity);
+	trappable.originalSpeed = BOMBER_SPEED;
+	
+	return entity;
+};
 
 // Collectible trap creation
 Entity createCollectibleTrap(vec2 pos)
@@ -448,14 +480,11 @@ Entity createBomb(vec3 pos, vec3 velocity)
 {
 	auto entity = Entity();
 
-	const float WIDTH = 56.0f;
-	const float HEIGHT = 47.0f;
-
 	Motion& motion = registry.motions.emplace(entity);
 	motion.position = pos;
 	motion.velocity = velocity;
-	motion.scale = { WIDTH, HEIGHT };
-	motion.hitbox = { WIDTH, HEIGHT, HEIGHT / zConversionFactor };
+	motion.scale = { BOMB_BB_WIDTH, BOMB_BB_HEIGHT };
+	motion.hitbox = { BOMB_BB_WIDTH, BOMB_BB_HEIGHT, BOMB_BB_HEIGHT / zConversionFactor };
 	motion.solid = true;
 	
 	Projectile& proj = registry.projectiles.emplace(entity);
@@ -465,7 +494,7 @@ Entity createBomb(vec3 pos, vec3 velocity)
 	bomb.numBounces = 1;
 
 	Damaging& damaging = registry.damagings.emplace(entity);
-	damaging.damage = 0;
+	damaging.damage = 2;
 	registry.midgrounds.emplace(entity);
 
 	registry.renderRequests.insert(

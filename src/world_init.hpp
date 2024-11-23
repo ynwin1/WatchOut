@@ -21,6 +21,8 @@ const float WIZARD_BB_HEIGHT = 32.f * SPRITE_SCALE;
 const float TROLL_SIZE_FACTOR = 2.f;
 const float TROLL_BB_WIDTH = 48.f * SPRITE_SCALE;
 const float TROLL_BB_HEIGHT = 64.f * SPRITE_SCALE;
+const float BOMBER_BB_WIDTH = 24.f * SPRITE_SCALE;
+const float BOMBER_BB_HEIGHT = 32.f * SPRITE_SCALE;
 const float JEFF_BB_WIDTH   = 20.f * SPRITE_SCALE;
 const float JEFF_BB_HEIGHT  = 28.f * SPRITE_SCALE;
 const float JEFF_RUN_BB_WIDTH   = 24.f * SPRITE_SCALE;
@@ -47,6 +49,8 @@ const float FIREBALL_BB_WIDTH = 48.f * SPRITE_SCALE;
 const float FIREBALL_BB_HEIGHT = 24.f * SPRITE_SCALE;
 const float LIGHTNING_BB_WIDTH = 48.f * SPRITE_SCALE;
 const float LIGHTNING_BB_HEIGHT = 400.f * SPRITE_SCALE;
+const float BOMB_BB_WIDTH = 19.0f * SPRITE_SCALE;
+const float BOMB_BB_HEIGHT = 16.0f * SPRITE_SCALE;
 
 const float FIREBALL_HITBOX_WIDTH = 10.f * SPRITE_SCALE;
 const float FIREBALL_ACCELERATION = 0.5f;
@@ -58,6 +62,7 @@ const float BIRD_SPEED = 0.3;
 const float WIZARD_SPEED = 0.1;
 const float PLAYER_SPEED = 0.5;
 const float TROLL_SPEED = 0.1;
+const float BOMBER_SPEED = 0.2;
 
 const float JUMP_STAMINA = 20.f;
 const float DASH_STAMINA = 30.f;
@@ -68,13 +73,15 @@ const int ARCHER_HEALTH = 25;
 const int BIRD_HEALTH = 10;
 const int WIZARD_HEALTH = 20;
 const int TROLL_HEALTH = 200;
+const int BOMBER_HEALTH = 100;
 
 const int BOAR_DAMAGE = 30;
 const int BARBARIAN_DAMAGE = 20;
-const int ARCHER_DAMAGE = 25;
+const int ARCHER_DAMAGE = 0;
 const int BIRD_DAMAGE = 10;
 const int WIZARD_DAMAGE = 50;
 const int TROLL_DAMAGE = 5;
+const int BOMBER_DAMAGE = 0;
 
 // Jeff the Player
 Entity createJeff(vec2 position);
@@ -97,6 +104,8 @@ Entity createBirdFlock(vec2 pos);
 Entity createWizard(vec2 pos);
 
 Entity createTroll(vec2 pos);
+
+Entity createBomber(vec2 pos);
 
 // The collectible trap
 Entity createCollectibleTrap(vec2 pos);

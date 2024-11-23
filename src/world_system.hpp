@@ -69,17 +69,19 @@ private:
 		"bird",
 		"wizard",
 		"troll",
+		"bomber",
 		"heart",
 		"collectible_trap"
 	};
 
 	const std::unordered_map<std::string, int> initial_max_entities = {
-		{"boar", 0},
+		{"boar", 1},
 		{"barbarian", 0},
-		{"archer", 1},
+		{"archer", 0},
 		{"bird", 0},
 		{"wizard", 0},
 		{"troll", 0},
+		{"bomber", 1},
 		{"heart", 2},
 		{"collectible_trap", 2}
 	};
@@ -87,10 +89,11 @@ private:
 	const std::unordered_map<std::string, float> initial_spawn_delays = {
 		{"boar", 9999999.0f},
 		{"barbarian", 9999999.0f},
-		{"archer", 1.0f},
+		{"archer", 9999999.0f},
 		{"bird", 9999999.0f},
 		{"wizard", 9999999.0f},
 		{"troll", 9999999.0f},
+		{"bomber", 9999999.0f},
 		{"heart", 5000.0f},
 		{"collectible_trap", 5000.0f}
 	};
@@ -103,6 +106,7 @@ private:
         {"bird", createBirdFlock},
 	    {"wizard", createWizard},
         {"troll", createTroll},
+		{"bomber", createBomber},
         {"heart", createHeart},
 		{"collectible_trap", createCollectibleTrap}
     };

@@ -65,6 +65,7 @@ public:
 	ComponentContainer<Bird> birds;
 	ComponentContainer<Wizard> wizards;
 	ComponentContainer<Troll> trolls;
+	ComponentContainer<Bomber> bombers;
 	ComponentContainer<Heart> hearts;
 	ComponentContainer<CollectibleTrap> collectibleTraps;
 
@@ -117,6 +118,7 @@ public:
 		registry_list.push_back(&birds);
 		registry_list.push_back(&wizards);
 		registry_list.push_back(&trolls);
+		registry_list.push_back(&bombers);
 		registry_list.push_back(&hearts);
 		registry_list.push_back(&collectibleTraps);
 
@@ -131,6 +133,7 @@ public:
 		spawnable_lists["bird"] = &birds;
 		spawnable_lists["wizard"] = &wizards;
 		spawnable_lists["troll"] = &trolls;
+		spawnable_lists["bomber"] = &bombers;
 		spawnable_lists["heart"] = &hearts;
 		spawnable_lists["collectible_trap"] = &collectibleTraps;
 	}

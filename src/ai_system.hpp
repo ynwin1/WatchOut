@@ -23,6 +23,9 @@ private:
 	void barbarianBehaviour(Entity barbarian, vec3 playerPosition, float elapsed_ms);
 	void trollBehaviour(Entity troll, vec3 playerPosition, float elapsed_ms);
 
+	void bomberBehaviour(Entity entity, vec3 playerPosition, float elapsed_ms);
+	void throwBomb(Entity thrower, vec3 targetPos);
+
 	// Archer functions
 	void archerBehaviour(Entity entity, vec3 playerPosition, float elapsed_ms);
 	void shootArrow(Entity shooter, vec3 targetPos);

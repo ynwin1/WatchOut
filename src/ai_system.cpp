@@ -400,11 +400,59 @@ void AISystem::shootArrow(Entity shooter, vec3 targetPos)
     // Determine velocities for each dimension
     vec2 horizontal_velocity = velocity * cos(ARROW_ANGLE) * horizontal_direction;
     float vertical_velocity = velocity * sin(ARROW_ANGLE);
-    // createArrow(pos, vec3(horizontal_velocity, vertical_velocity));
-    createBomb(pos, vec3(horizontal_velocity, vertical_velocity));
+    createArrow(pos, vec3(horizontal_velocity, vertical_velocity), registry.enemies.get(shooter).damage);
 	sound->playSoundEffect(Sound::ARROW, 0);
 }
 
+void AISystem::throwBomb(Entity thrower, vec3 targetPos)
+{
+    const float BOMB_ANGLE = M_PI / 4;
+    const float MAX_BOMB_VELOCITY = 10;
+
+    Motion& motion = registry.motions.get(thrower);
+
+    // Get start position of the arrow
+    vec2 horizontal_direction = normalize(vec2(targetPos) - vec2(motion.position));
+    const float maxBombDimension = max(BOMB_BB_HEIGHT, BOMB_BB_WIDTH);
+    vec3 pos = motion.position;
+    if (abs(horizontal_direction.x) > abs(horizontal_direction.y)) {
+        if (horizontal_direction.x > 0) {
+            pos.x += motion.hitbox.x / 2 + maxBombDimension;
+        }
+        else if (horizontal_direction.x < 0) {
+            pos.x -= motion.hitbox.x / 2 + maxBombDimension;
+        }
+    }
+    else {
+        if (horizontal_direction.y > 0) {
+            pos.y += motion.hitbox.y / 2 + maxBombDimension;
+        }
+        else if (horizontal_direction.x < 0) {
+            pos.y -= motion.hitbox.y / 2 + maxBombDimension;
+        }
+    }
+    pos.z += motion.hitbox.z / 2 + maxBombDimension;
+    horizontal_direction = normalize(vec2(targetPos) - vec2(pos));
+
+    // Get distances from start to target
+    float horizontal_distance = distance(vec2(pos), vec2(targetPos));
+    float vertical_distance = targetPos.z - pos.z;
+
+    // Prevent trying to shoot above what is possible
+    if (vertical_distance >= horizontal_distance)
+        return;
+
+    float velocity = horizontal_distance * sqrt(-GRAVITATIONAL_CONSTANT / (vertical_distance - horizontal_distance));
+
+    // Prevent shooting at crazy speeds
+    if (velocity > MAX_BOMB_VELOCITY)
+        return;
+
+    // Determine velocities for each dimension
+    vec2 horizontal_velocity = velocity * cos(BOMB_ANGLE) * horizontal_direction;
+    float vertical_velocity = velocity * sin(BOMB_ANGLE);
+    createBomb(pos, vec3(horizontal_velocity, vertical_velocity));
+}
 
 void AISystem::archerBehaviour(Entity entity, vec3 playerPosition, float elapsed_ms)
 {
@@ -441,6 +489,47 @@ void AISystem::archerBehaviour(Entity entity, vec3 playerPosition, float elapsed
         }
         else {
             archer.drawArrowTime += elapsed_ms;
+        }
+    }
+    else {
+        moveTowardsPlayer(entity, playerPosition, elapsed_ms);
+    }
+}
+
+void AISystem::bomberBehaviour(Entity entity, vec3 playerPosition, float elapsed_ms)
+{
+    const float BOMBER_RANGE = 600;
+    const float THROW_BOMB_DELAY = 1000;
+    if (registry.deathTimers.has(entity)) {
+        return;
+    }
+    Motion& motion = registry.motions.get(entity);
+    Bomber& bomber = registry.bombers.get(entity);
+    float d = distance(motion.position, playerPosition);
+    if (d < BOMBER_RANGE) {
+        bomber.aiming = true;
+        motion.velocity.x = 0;
+        motion.velocity.y = 0;
+        AnimationController& animationController = registry.animationControllers.get(entity);
+        animationController.changeState(entity, AnimationState::Idle);
+    }
+    else {
+        bomber.aiming = false;
+        bomber.throwBombDelayTimer = 0;
+        AnimationController& animationController = registry.animationControllers.get(entity);
+        animationController.changeState(entity, AnimationState::Running);
+    }
+
+    if (bomber.aiming) {
+        motion.facing = normalize(vec2(playerPosition) - vec2(motion.position));
+        if (bomber.throwBombDelayTimer > THROW_BOMB_DELAY) {
+            throwBomb(entity, playerPosition);
+            bomber.throwBombDelayTimer = 0;
+            AnimationController& animationController = registry.animationControllers.get(entity);
+            animationController.changeState(entity, AnimationState::Idle);
+        }
+        else {
+            bomber.throwBombDelayTimer += elapsed_ms;
         }
     }
     else {
@@ -796,6 +885,9 @@ void AISystem::step(float elapsed_ms)
 		}
         else if (registry.trolls.has(enemy)) {
             trollBehaviour(enemy, playerPosition, elapsed_ms);
+        }
+        else if (registry.bombers.has(enemy)) {
+            bomberBehaviour(enemy, playerPosition, elapsed_ms);
         }
     }
 }

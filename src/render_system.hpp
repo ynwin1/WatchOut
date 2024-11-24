@@ -128,10 +128,12 @@ public:
 
 private:
 	Camera* camera;
-	const float AMBIENT_LIGHT = .4;
+	const float AMBIENT_LIGHT = .2;
 
 	// Internal drawing functions for each entity type
     void drawMesh(Entity entity, const mat3 &projection, const mat4 &projection_screen);
+
+    void bindModelMatrix(const GLuint program, Transform3D &modelMatrix);
 
     void bindAnimationAttributes(const GLuint program, const Entity &entity);
 

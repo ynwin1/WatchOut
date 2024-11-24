@@ -22,6 +22,7 @@ uniform vec4 entity_colour;
 // Lighting data
 uniform float ambient_light;
 
+// Point lights data
 #define MAX_POINT_LIGHTS 1
 uniform int num_point_lights;
 uniform PointLight pointLights[MAX_POINT_LIGHTS];

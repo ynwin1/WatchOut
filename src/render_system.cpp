@@ -141,14 +141,7 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection, const mat4& p
 		if (registry.motions.has(entity)) {
 			bindPointLights(program, entity, registry.motions.get(entity));
 		}
-
-		GLint modelLoc = glGetUniformLocation(program, "modelMatrix");
-		if (modelLoc != -1) {
-			// std::cout << "gsl::to_string(modelMatrix)" << std::endl;
-			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, (float*)&modelMatrix.mat);
-		} else {
-			printf("Failed to find modelMatrix uniform!\n");
-		}
+        bindModelMatrix(program, modelMatrix);
     }
 	else if (render_request.used_effect == EFFECT_ASSET_ID::TEXTURED_FLAT) {
 		bindTextureAttributes(program, entity);
@@ -158,6 +151,10 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection, const mat4& p
 		bindTextureAttributes(program, entity);
         bindAnimationAttributes(program, entity);
 		bindLightingAttributes(program, entity);
+		if (registry.motions.has(entity)) {
+			bindPointLights(program, entity, registry.motions.get(entity));
+		}
+		bindModelMatrix(program, modelMatrix);
     }
 	// set attributes for untextured meshes
 	else if(render_request.used_effect == EFFECT_ASSET_ID::UNTEXTURED)
@@ -242,6 +239,20 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection, const mat4& p
 	}
 
 	gl_has_errors();
+}
+
+void RenderSystem::bindModelMatrix(const GLuint program, Transform3D &modelMatrix)
+{
+    GLint modelLoc = glGetUniformLocation(program, "modelMatrix");
+    if (modelLoc != -1)
+    {
+        // std::cout << "gsl::to_string(modelMatrix)" << std::endl;
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, (float *)&modelMatrix.mat);
+    }
+    else
+    {
+        printf("Failed to find modelMatrix uniform!\n");
+    }
 }
 
 void RenderSystem::bindAnimationAttributes(const GLuint program, const Entity &entity)

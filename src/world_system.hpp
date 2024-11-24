@@ -73,9 +73,6 @@ private:
 
 	bool isWindowed = false;
 
-	// Lighting variables
-	float ambientLight = .5;
-
 	Entity playerEntity;
 	std::vector<std::string> entity_types;
 	std::unordered_map<std::string, float> spawn_delays;

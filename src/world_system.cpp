@@ -509,12 +509,9 @@ void WorldSystem::movementControls(int key, int action, int mod)
     case GLFW_KEY_SPACE:
         // Jump
         if (pressed && !player_trappable.isTrapped) {
-            printf("C1");
             if (player_stamina.stamina >= JUMP_STAMINA && !player_comp.tryingToJump) {
-                printf("C2");
                 player_comp.tryingToJump = true;
                 if (registry.jumpers.has(playerEntity)) {
-                    printf("C3");
                     Jumper& jumper = registry.jumpers.get(playerEntity);
                     if (!jumper.isJumping) {
                         jumper.isJumping = true;

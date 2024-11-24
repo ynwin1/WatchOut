@@ -41,7 +41,7 @@ public:
 
 private:
 	const float DIFFICULTY_INTERVAL = 45000.0f;
-	const unsigned int MAX_TOTAL_ENEMIES = 100;
+	const unsigned int MAX_TOTAL_ENEMIES = 0;
 
 	// GLFW Window handle
 	GLFWwindow* window;
@@ -172,6 +172,7 @@ private:
     void exitPauseMenu();
 
 	void launchProjectile(vec3 targetPos);
+	void targetBirds(vec2 mousePos);
 
 	// C++ random number generator
 	std::default_random_engine rng;

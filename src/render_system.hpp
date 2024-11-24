@@ -128,7 +128,9 @@ public:
 	mat3 createProjectionMatrix();
 	mat4 createProjectionToScreenSpace();
 
-	vec3 screenToWorld(vec2 screenPos);
+	vec3 mouseToWorld(vec2 mousePos);
+	vec2 mouseToScreen(vec2 mousePos);
+	vec2 worldToScreen(vec3 worldPos);
 
 private:
 	Camera* camera;

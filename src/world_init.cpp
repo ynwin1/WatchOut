@@ -136,7 +136,7 @@ Entity createBirdFlock(vec2 pos)
         motion.solid = true;
 
         Enemy& enemy = registry.enemies.emplace(entity);
-        enemy.damage = BIRD_DAMAGE;
+        enemy.damage = 0;
         enemy.cooldown = 2000.f;
 		enemy.maxHealth = BIRD_HEALTH;
 		enemy.health = enemy.maxHealth;

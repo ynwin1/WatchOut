@@ -565,26 +565,59 @@ void RenderSystem::updateEntityFacing() {
 	}
 }
 
-vec3 RenderSystem::screenToWorld(vec2 screenPos) {
+vec2 RenderSystem::worldToScreen(vec3 worldPos) {
+	float screenPosX;
+	float screenPosY;
+
+	if(camera->isToggled()) {
+		// bottom left corner of the screen
+		float cameraLeft = camera->getPosition().x - camera->getSize().x / 2;
+		float cameraBottom = visualToWorldY(camera->getPosition().y) + camera->getSize().y / 2;
+		float cameraTop = visualToWorldY(camera->getPosition().y) - camera->getSize().y / 2;
+		float cameraRight = camera->getPosition().x + camera->getSize().x / 2;
+
+		// convert world position to screen position
+		screenPosX = worldPos.x - cameraLeft; 
+		screenPosY = cameraBottom - worldPos.y;
+	} else {
+		int window_width;
+    	int window_height;
+    	glfwGetWindowSize(window, &window_width, &window_height);
+
+		screenPosX = (worldPos.x * window_width) / world_size_x;
+		screenPosY = window_height - (worldPos.y * window_height) / world_size_y;
+	}
+
+	return { screenPosX, screenPosY };
+}
+
+vec2 RenderSystem::mouseToScreen(vec2 mousePos) {
+	int window_width;
+	int window_height;
+	glfwGetWindowSize(window, &window_width, &window_height);
+	return { mousePos.x, window_height - mousePos.y };
+}
+
+vec3 RenderSystem::mouseToWorld(vec2 mousePos) {
     float worldPosX;
     float worldPosY;
 
     if (camera->isToggled()) {
         // top-left corner of the screen in world coordinates
-        float screenOriginPosX = camera->getPosition().x - camera->getSize().x / 2;
-        float screenOriginPosY = visualToWorldY(camera->getPosition().y) - visualToWorldY(camera->getSize().y) / 2;
+        float cameraWorldOriginX = camera->getPosition().x - camera->getSize().x / 2;
+        float cameraWorldOriginY = visualToWorldY(camera->getPosition().y) - visualToWorldY(camera->getSize().y) / 2;
 
-        // Convert screen position to world position
-        worldPosX = screenPos.x + screenOriginPosX;
-        worldPosY = screenOriginPosY + (screenPos.y / yConversionFactor);
-		std::cout << screenPos.x << " " << screenPos.y << " " << worldPosX << " " << worldPosY << std::endl;
+        // Convert mouse position to world position
+        worldPosX = cameraWorldOriginX + mousePos.x;
+        worldPosY = cameraWorldOriginY + (mousePos.y / yConversionFactor);
+		std::cout << mousePos.x << " " << mousePos.y << " " << worldPosX << " " << worldPosY << std::endl;
     } else {
         int window_width;
         int window_height;
         glfwGetWindowSize(window, &window_width, &window_height);
  
-        worldPosX = (screenPos.x * world_size_x) / window_width;
-        worldPosY = (screenPos.y * world_size_y) / window_height;
+        worldPosX = (mousePos.x * world_size_x) / window_width;
+        worldPosY = (mousePos.y * world_size_y) / window_height;
     }
 
     return { worldPosX, worldPosY, 0.0f }; // Assuming z = 0 for 2D coordinates

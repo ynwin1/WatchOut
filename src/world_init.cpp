@@ -302,6 +302,14 @@ Entity createJeff(vec2 position)
 	registry.midgrounds.emplace(entity);
 
 	registry.knockables.emplace(entity);
+
+	auto& pointLight = registry.pointLights.emplace(entity);
+	pointLight.position = motion.position;
+	pointLight.ambient = vec4(0.84, 1.0, 0.2, 0.0);
+	pointLight.max_distance = 3250;
+	pointLight.constant = 1.0;
+	pointLight.linear = .00014;
+	pointLight.quadratic = 0.000007;
 	
 	return entity;
 }

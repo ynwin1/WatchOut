@@ -45,6 +45,8 @@ public:
 	void initText();
 	void soundSetUp();
 
+	void reloadText();
+
 private:
 	const float DIFFICULTY_INTERVAL = 45000.0f;
 	const unsigned int MAX_TOTAL_ENEMIES = 100;

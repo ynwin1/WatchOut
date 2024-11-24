@@ -101,6 +101,13 @@ void WorldSystem::initText() {
     trapsCounter.textEntity = createTrapsCounterText(camera->getSize());
 }
 
+void WorldSystem::reloadText() {
+    createPauseHelpText(camera->getSize());
+    registry.fpsTracker.textEntity = createFPSText(camera->getSize());
+    registry.gameTimer.textEntity = createGameTimerText(camera->getSize());
+    trapsCounter.textEntity = createTrapsCounterText(camera->getSize());
+}
+
 void WorldSystem::trackFPS(float elapsed_ms) {
     FPSTracker& fpsTracker = registry.fpsTracker; 
     fpsTracker.update(elapsed_ms);
@@ -353,9 +360,9 @@ void WorldSystem::pauseControls(int key, int action, int mod)
             printf("Saved game\n");
             break;
         case GLFW_KEY_L:
-            initText();
             printf("init text\n");
 			saveManager->load_game();
+            reloadText();
 			printf("Loaded game\n");
             gameStateController.setGameState(GAME_STATE::PLAYING);
 			break;

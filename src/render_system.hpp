@@ -128,6 +128,8 @@ public:
 	mat3 createProjectionMatrix();
 	mat4 createProjectionToScreenSpace();
 
+	vec3 screenToWorld(vec2 screenPos);
+
 private:
 	Camera* camera;
 	const float AMBIENT_LIGHT = .4;

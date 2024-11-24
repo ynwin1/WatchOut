@@ -74,23 +74,23 @@ private:
 	};
 
 	const std::unordered_map<std::string, int> initial_max_entities = {
-		{"boar", -1},
-		{"barbarian", -1},
-		{"archer", -1},
+		{"boar", 0},
+		{"barbarian", 0},
+		{"archer", 0},
 		{"bird", 1},
-		{"wizard", 1},
-		{"troll", 1},
+		{"wizard", 0},
+		{"troll", 0},
 		{"heart", 2},
 		{"collectible_trap", 2}
 	};
 
 	const std::unordered_map<std::string, float> initial_spawn_delays = {
-		{"boar", 10000.0f},
-		{"barbarian", 10000.0f},
-		{"archer", 20000.0f},
-		{"bird", 20000.0f},
-		{"wizard", 20000.0f},
-		{"troll", 30000.0f},
+		{"boar", 9999999},
+		{"barbarian", 9999999},
+		{"archer", 9999999},
+		{"bird", 1.0f},
+		{"wizard", 9999999.0f},
+		{"troll", 9999999.0f},
 		{"heart", 5000.0f},
 		{"collectible_trap", 5000.0f}
 	};
@@ -114,6 +114,7 @@ private:
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);
 	void on_mouse_move(vec2 mouse_position);
+	void on_mouse_button(int button, int action, int mod);
 
 	// restart level
 	void restart_game();
@@ -169,6 +170,8 @@ private:
     void exitHelpMenu();
     Entity createPauseMenu(vec2 cameraPosition);
     void exitPauseMenu();
+
+	void launchProjectile(vec3 targetPos);
 
 	// C++ random number generator
 	std::default_random_engine rng;

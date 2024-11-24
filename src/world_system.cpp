@@ -32,8 +32,10 @@ void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camer
     glfwSetWindowUserPointer(window, this);
     auto key_redirect = [](GLFWwindow* wnd, int _0, int _1, int _2, int _3) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_key(_0, _1, _2, _3); };
     auto cursor_pos_redirect = [](GLFWwindow* wnd, double _0, double _1) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse_move({ _0, _1 }); };
+    auto mouse_button_redirect = [](GLFWwindow* wnd, int button, int action, int mods) {((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse_button(button, action, mods); };
     glfwSetKeyCallback(window, key_redirect);
     glfwSetCursorPosCallback(window, cursor_pos_redirect);
+    glfwSetMouseButtonCallback(window, mouse_button_redirect);
     // Window focus callback
     auto focus_redirect = [](GLFWwindow* wnd, int focused) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_window_focus(focused); };
     glfwSetWindowFocusCallback(window, focus_redirect);
@@ -282,6 +284,71 @@ bool WorldSystem::is_over() const {
 
 void WorldSystem::on_mouse_move(vec2 mouse_position) {
 
+}
+
+void WorldSystem::launchProjectile(vec3 targetPos) {
+        // Always shoot arrow at 45 degree angle (makes calculations simpler)
+    const float ARROW_ANGLE = M_PI / 4;
+    const float MAX_ARROW_VELOCITY = 10;
+
+    Motion& motion = registry.motions.get(playerEntity);
+
+    // Get start position of the arrow
+    vec2 horizontal_direction = normalize(vec2(targetPos) - vec2(motion.position));
+    const float maxArrowDimension = max(ARROW_BB_HEIGHT, ARROW_BB_WIDTH);
+    vec3 pos = motion.position;
+    if (abs(horizontal_direction.x) > abs(horizontal_direction.y)) {
+        if (horizontal_direction.x > 0) {
+            pos.x += motion.hitbox.x / 2 + maxArrowDimension;
+        }
+        else if (horizontal_direction.x < 0) {
+            pos.x -= motion.hitbox.x / 2 + maxArrowDimension;
+        }
+    }
+    else {
+        if (horizontal_direction.y > 0) {
+            pos.y += motion.hitbox.y / 2 + maxArrowDimension;
+        }
+        else if (horizontal_direction.x < 0) {
+            pos.y -= motion.hitbox.y / 2 + maxArrowDimension;
+        }
+    }
+    pos.z += motion.hitbox.z / 2 + maxArrowDimension;
+    horizontal_direction = normalize(vec2(targetPos) - vec2(pos));
+
+    // Get distances from start to target
+    float horizontal_distance = distance(vec2(pos), vec2(targetPos));
+    float vertical_distance = targetPos.z - pos.z;
+
+    // Prevent trying to shoot above what is possible
+    if (vertical_distance >= horizontal_distance)
+        return;
+
+    float velocity = horizontal_distance * sqrt(-GRAVITATIONAL_CONSTANT / (vertical_distance - horizontal_distance));
+
+    // Prevent shooting at crazy speeds
+    if (velocity > MAX_ARROW_VELOCITY)
+        return;
+
+    // Determine velocities for each dimension
+    vec2 horizontal_velocity = velocity * cos(ARROW_ANGLE) * horizontal_direction;
+    float vertical_velocity = velocity * sin(ARROW_ANGLE);
+    createArrow(pos, vec3(horizontal_velocity, vertical_velocity), 20);
+}
+
+void WorldSystem::on_mouse_button(int button, int action, int mod) {
+    if (action == GLFW_PRESS) {
+        double xpos, ypos;
+        glfwGetCursorPos(window, &xpos, &ypos); // Get the current cursor position
+
+        switch (button) {
+        case GLFW_MOUSE_BUTTON_LEFT:
+            vec3 world_pos = renderer->screenToWorld({ (float)xpos, (float)ypos });
+            launchProjectile(world_pos);
+            
+            break;
+        }
+    }
 }
 
 void WorldSystem::on_key(int key, int, int action, int mod)

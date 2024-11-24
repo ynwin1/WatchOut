@@ -92,6 +92,7 @@ Entity createArcher(vec2 pos);
 
 // The birds
 Entity createBirdFlock(vec2 pos);
+Entity createBird(vec2 pos);
 
 // The wizard
 Entity createWizard(vec2 pos);

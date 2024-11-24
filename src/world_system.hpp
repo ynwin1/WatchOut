@@ -45,6 +45,8 @@ public:
 	void initText();
 	void soundSetUp();
 
+	// load game
+	void load_game();
 	void reloadText();
 
 private:
@@ -86,7 +88,7 @@ private:
 		{"boar", 1},
 		{"barbarian", 1},
 		{"archer", 1},
-		{"bird", -1},
+		{"bird", 1},
 		{"wizard", 1},
 		{"troll", 1},
 		{"heart", 2},

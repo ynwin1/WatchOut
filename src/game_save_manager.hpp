@@ -23,6 +23,50 @@ private:
 	GLFWwindow* window;
 	Camera* camera;
 
+	// CONSTANTS
+	// CONTAINERS
+	std::string MOTIONS = "motions";
+	std::string PLAYERS = "players";
+	std::string DASHERS = "dashers";
+	std::string ENEMIES = "enemies";
+	std::string COLLISIONS = "collisions";
+	std::string COOLDOWNS = "cooldowns";
+	std::string COLLECTIBLES = "collectibles";
+	std::string TRAPS = "traps";
+	std::string DAMAGEDS = "damageds";
+	std::string DAMAGINGS = "damagings";
+	std::string DEATHTIMERS = "deathTimers";
+	std::string KNOCKABLES = "knockables";
+	std::string KNOCKERS = "knockers";
+	std::string TRAPPABLES = "trappables";
+	std::string HEALTHBARS = "healthBars";
+	std::string ANIMATIONCONTROLLERS = "animationControllers";
+	std::string STAMINABARS = "staminaBars";
+	std::string STAMINAS = "staminas";
+	std::string TEXTS = "texts";
+	std::string JUMPERS = "jumpers";
+	std::string PROJECTILES = "projectiles";
+	std::string TARGETAREAS = "targetAreas";
+	std::string RENDERREQUESTS = "renderRequests";
+	std::string BACKGROUNDS = "backgrounds";
+	std::string MIDGROUNDS = "midgrounds";
+	std::string FOREGROUNDS = "foregrounds";
+	std::string COLOURS = "colours";
+	std::string MAPTILES = "mapTiles";
+	std::string OBSTACLES = "obstacles";
+	std::string MESHES = "meshPtrs";
+	std::string COLLECTED = "collected";
+	std::string TRAPPABLES = "trappables";
+	std::string MESHPTRS = "meshPtrs";
+	std::string BOARS = "boars";
+	std::string BARBARIANS = "barbarians";
+	std::string ARCHERS = "archers";
+	std::string BIRDS = "birds";
+	std::string WIZARDS = "wizards";
+	std::string TROLLS = "trolls";
+	std::string HEARTS = "hearts";
+	std::string COLLECTIBLETRAPS = "collectibleTraps";
+
 	// Game Save file path
 	std::string gameSaveFilePath = data_path() + "/save/game_save.json";
 	// Map to store group of components for each entity

@@ -75,6 +75,17 @@ void WorldSystem::restart_game()
     loadAndSaveHighScore(false);
 }
 
+void WorldSystem::load_game() {
+    saveManager->load_game();
+
+    // set up texts in foreground
+    reloadText();
+
+    playerEntity = registry.players.entities[0];
+    trapsCounter.count = registry.collectibleTraps.size();
+    gameStateController.setGameState(GAME_STATE::PLAYING);
+}
+
 void WorldSystem::save_game() {
     std::string filename = "game.txt";
 }
@@ -360,13 +371,7 @@ void WorldSystem::pauseControls(int key, int action, int mod)
             printf("Saved game\n");
             break;
         case GLFW_KEY_L:
-            printf("init text\n");
-			saveManager->load_game();
-            reloadText();
-			printf("Loaded game\n");
-			playerEntity = registry.players.entities[0];
-            trapsCounter.count = registry.collectibleTraps.size();
-            gameStateController.setGameState(GAME_STATE::PLAYING);
+            load_game();
 			break;
         case GLFW_KEY_ENTER:
             restart_game();

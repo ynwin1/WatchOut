@@ -126,40 +126,43 @@ Entity createBirdFlock(vec2 pos)
     {
 		// Spawn birds with spacing
 		vec2 birdPosition = pos + vec2(i * spacing, 0);
-        auto entity = Entity();
-
-        Motion& motion = registry.motions.emplace(entity);
-        motion.position = vec3(birdPosition, TREE_BB_HEIGHT - BIRD_BB_WIDTH);
-        motion.angle = 0.f;
-        motion.scale = { 16 * SPRITE_SCALE, 16 * SPRITE_SCALE};
-        motion.hitbox = { BIRD_BB_WIDTH, BIRD_BB_HEIGHT, BIRD_BB_HEIGHT / zConversionFactor };
-        motion.solid = true;
-
-        Enemy& enemy = registry.enemies.emplace(entity);
-        enemy.damage = BIRD_DAMAGE;
-        enemy.cooldown = 2000.f;
-		enemy.maxHealth = BIRD_HEALTH;
-		enemy.health = enemy.maxHealth;
-        motion.speed = BIRD_SPEED;
-
-        registry.birds.emplace(entity);
-
-        initBirdAnimationController(entity);
-        registry.midgrounds.emplace(entity);
-
-        createHealthBar(entity, vec4(1.0f, 0.0f, 0.0f, 1.0f));
-        if (i == 0)
-        {
-            repBird = entity;
-        }
-
-		registry.knockables.emplace(entity);
-		auto& trappable = registry.trappables.emplace(entity);
-		trappable.originalSpeed = BIRD_SPEED;
+		Entity bird = createBird(birdPosition);
+		if (i == 0) {
+			repBird = bird;
+		}
     }
     return repBird;
 }
 
+Entity createBird(vec2 birdPosition) {
+	auto entity = Entity();
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = vec3(birdPosition, TREE_BB_HEIGHT - BIRD_BB_WIDTH);
+	motion.angle = 0.f;
+	motion.scale = { 16 * SPRITE_SCALE, 16 * SPRITE_SCALE };
+	motion.hitbox = { BIRD_BB_WIDTH, BIRD_BB_HEIGHT, BIRD_BB_HEIGHT / zConversionFactor };
+	motion.solid = true;
+
+	Enemy& enemy = registry.enemies.emplace(entity);
+	enemy.damage = BIRD_DAMAGE;
+	enemy.cooldown = 2000.f;
+	enemy.maxHealth = BIRD_HEALTH;
+	enemy.health = enemy.maxHealth;
+	motion.speed = BIRD_SPEED;
+
+	registry.birds.emplace(entity);
+
+	initBirdAnimationController(entity);
+	registry.midgrounds.emplace(entity);
+
+	createHealthBar(entity, vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	registry.knockables.emplace(entity);
+	auto& trappable = registry.trappables.emplace(entity);
+	trappable.originalSpeed = BIRD_SPEED;
+
+	return entity;
+}
 // Wizard creation
 Entity createWizard(vec2 pos) {
 	auto entity = Entity();

@@ -623,9 +623,9 @@ void GameSaveManager::createEntity(std::vector<std::string> componentNames, std:
 	else if (std::find(componentNames.begin(), componentNames.end(), "damagings") != componentNames.end()) {
 		createDamagingsDeserialization(componentsMap);
 	}
-	else if (std::find(componentNames.begin(), componentNames.end(), "meshPtrs") != componentNames.end()) {
+	/*else if (std::find(componentNames.begin(), componentNames.end(), "meshPtrs") != componentNames.end()) {
 		createTreeDeserialization(componentsMap);
-	}
+	}*/
 	/*else if (std::find(componentNames.begin(), componentNames.end(), "obstacles") != componentNames.end()) {
 		createObstacleDeserialization(componentsMap);
 	}*/

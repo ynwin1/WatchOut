@@ -364,6 +364,7 @@ void WorldSystem::pauseControls(int key, int action, int mod)
 			saveManager->load_game();
             reloadText();
 			printf("Loaded game\n");
+			playerEntity = registry.players.entities[0];
             gameStateController.setGameState(GAME_STATE::PLAYING);
 			break;
         case GLFW_KEY_ENTER:
@@ -508,9 +509,12 @@ void WorldSystem::movementControls(int key, int action, int mod)
     case GLFW_KEY_SPACE:
         // Jump
         if (pressed && !player_trappable.isTrapped) {
+            printf("C1");
             if (player_stamina.stamina >= JUMP_STAMINA && !player_comp.tryingToJump) {
+                printf("C2");
                 player_comp.tryingToJump = true;
                 if (registry.jumpers.has(playerEntity)) {
+                    printf("C3");
                     Jumper& jumper = registry.jumpers.get(playerEntity);
                     if (!jumper.isJumping) {
                         jumper.isJumping = true;

@@ -128,3 +128,15 @@ struct Foreground {
 	vec2 position;
 	vec2 scale;
 };
+
+struct PointLight {
+	vec3 position;
+
+	vec4 ambient;
+
+	float max_distance;
+
+	float constant;
+	float linear;
+	float quadratic;
+};

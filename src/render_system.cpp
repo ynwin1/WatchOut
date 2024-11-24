@@ -138,6 +138,9 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection, const mat4& p
 	{
         bindTextureAttributes(program, entity);
 		bindLightingAttributes(program, entity);
+		if (registry.motions.has(entity)) {
+			bindPointLights(program, entity, registry.motions.get(entity));
+		}
 
 		GLint modelLoc = glGetUniformLocation(program, "modelMatrix");
 		if (modelLoc != -1) {
@@ -148,25 +151,25 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection, const mat4& p
 		}
 
 		// Point light 1
-		GLint location = glGetUniformLocation(program, "num_point_lights");
-		if (location == -1) {
-			std::cerr << "Uniform 'num_point_lights' not found or optimized out!" << std::endl;
-		} else {
-			glUniform1i(location, 70); // Use glUniform1i for integer uniforms
-		}
-		location = glGetUniformLocation(program, "pointLights[0].ambient");
+		//GLint location = glGetUniformLocation(program, "num_point_lights");
+		//if (location == -1) {
+		//	std::cerr << "Uniform 'num_point_lights' not found or optimized out!" << std::endl;
+		//} else {
+		//	glUniform1i(location, 70); // Use glUniform1i for integer uniforms
+		//}
+		//location = glGetUniformLocation(program, "pointLights[0].ambient");
 		// Set pointLights[0]
-		GLint posLoc = glGetUniformLocation(program, "pointLights[0].position");
-		GLint ambLoc = glGetUniformLocation(program, "pointLights[0].ambient");
-		GLint constLoc = glGetUniformLocation(program, "pointLights[0].constant");
-		GLint linearLoc = glGetUniformLocation(program, "pointLights[0].linear");
-		GLint quadLoc = glGetUniformLocation(program, "pointLights[0].quadratic");
+		//GLint posLoc = glGetUniformLocation(program, "pointLights[0].position");
+		//GLint ambLoc = glGetUniformLocation(program, "pointLights[0].ambient");
+		//GLint constLoc = glGetUniformLocation(program, "pointLights[0].constant");
+		//GLint linearLoc = glGetUniformLocation(program, "pointLights[0].linear");
+		//GLint quadLoc = glGetUniformLocation(program, "pointLights[0].quadratic");
 
-		if (posLoc != -1) glUniform3f(posLoc, 1000.0f, 1000.0f, 50.0f);
-		if (ambLoc != -1) glUniform4f(ambLoc, 1.0f, 1.0f, 1.0f, 1.0f);
-		if (constLoc != -1) glUniform1f(constLoc, 1.0f);
-		if (linearLoc != -1) glUniform1f(linearLoc, 0.00014f);	
-		if (quadLoc != -1) glUniform1f(quadLoc, 0.000007f);
+		//if (posLoc != -1) glUniform3f(posLoc, 1000.0f, 1000.0f, 50.0f);
+		//if (ambLoc != -1) glUniform4f(ambLoc, 1.0f, 1.0f, 1.0f, 1.0f);
+		//if (constLoc != -1) glUniform1f(constLoc, 1.0f);
+		//if (linearLoc != -1) glUniform1f(linearLoc, 0.00014f);	
+		//if (quadLoc != -1) glUniform1f(quadLoc, 0.000007f);
     }
 	else if (render_request.used_effect == EFFECT_ASSET_ID::TEXTURED_FLAT) {
 		bindTextureAttributes(program, entity);
@@ -308,6 +311,37 @@ void RenderSystem::bindLightingAttributes(const GLuint program, const Entity &en
 		glUniform1f(ambientLight_loc, 1.0);       // Set ambientlight value
 	} else {
 		glUniform1f(ambientLight_loc, AMBIENT_LIGHT);       // Set ambientlight value
+	}
+}
+
+void RenderSystem::bindPointLights(const GLuint program, const Entity& entity, const Motion& motion)
+{
+	PointLight validPointLights[MAX_POINT_LIGHTS]{};
+	int num_point_lights = 0;
+	for (auto& pointLight : registry.pointLights.components) {
+		float distance = glm::distance(motion.position, pointLight.position);
+		if (distance > pointLight.max_distance) {
+			continue;
+		}
+		validPointLights[num_point_lights] = pointLight;
+		num_point_lights++;
+	}
+	GLint location = glGetUniformLocation(program, "num_point_lights");
+	if (location == -1) {
+		std::cerr << "Uniform 'num_point_lights' not found or optimized out!" << std::endl;
+	}
+	else {
+		glUniform1i(location, max(0, num_point_lights)); // Use glUniform1i for integer uniforms
+	}
+	for (int i = 0; i < MAX_POINT_LIGHTS; ++i) {
+		std::string base = "pointLights[" + std::to_string(i) + "].";
+
+		glUniform3fv(glGetUniformLocation(program, (base + "position").c_str()), 1, glm::value_ptr(validPointLights[i].position));
+		glUniform4fv(glGetUniformLocation(program, (base + "ambient").c_str()), 1, glm::value_ptr(validPointLights[i].ambient));
+		glUniform1f(glGetUniformLocation(program, (base + "max_distance").c_str()), validPointLights[i].max_distance);
+		glUniform1f(glGetUniformLocation(program, (base + "constant").c_str()), validPointLights[i].constant);
+		glUniform1f(glGetUniformLocation(program, (base + "linear").c_str()), validPointLights[i].linear);
+		glUniform1f(glGetUniformLocation(program, (base + "quadratic").c_str()), validPointLights[i].quadratic);
 	}
 }
 

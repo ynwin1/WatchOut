@@ -139,6 +139,8 @@ private:
 
     void bindLightingAttributes(const GLuint program, const Entity &entity);
 
+	void bindPointLights(const GLuint program, const Entity& entity, const Motion& motion);
+
 	void drawText(Entity entity, const mat4& projection_screen);
 
 	void update_hpbars();
@@ -163,3 +165,5 @@ float visualToWorldY(float y);
 vec2 worldToVisual(vec3 pos);
 static const float yConversionFactor = 1 / sqrt(2);
 static const float zConversionFactor = 1 / sqrt(2);
+
+const int MAX_POINT_LIGHTS = 3;

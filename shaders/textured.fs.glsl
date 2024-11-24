@@ -41,27 +41,21 @@ void main()
     
     colour = ambient;
 	// point lights 
-	for (int i = 0; i < 1; i++) {
+	for (int i = 0; i < num_point_lights; i++) {
         colour += CalcPointLight(pointLights[i], worldPos) * initialColour; 
     }
-    colour += vec4(num_point_lights*0.0, 0.0, 0.0, 0.0); 
 }
 
 vec4 CalcPointLight(PointLight light, vec3 worldPos)
 {
     // attenuation
-    float distance = distance(light.position.xy, worldPos.xy);
-    float attenuation = 1.0 / (light.constant + light.linear * distance + 
-  			     light.quadratic * (distance * distance));  
+    float d = distance(light.position, worldPos);
+    float attenuation = 1.0 / (light.constant + light.linear * d + 
+  			     light.quadratic * (d * d));  
     // combine results
     vec4 ambient  = light.ambient;
     ambient  *= attenuation;
 
     return (ambient);
-    // if (distance < 700) {
-    //     return vec4(1.0, 1.0, 1.0, .1);
-    // }
-    // return vec4(0);
-
 } 
 

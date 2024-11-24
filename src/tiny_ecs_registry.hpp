@@ -51,6 +51,7 @@ public:
 	ComponentContainer<Midground> midgrounds;
 	ComponentContainer<Foreground> foregrounds;
 	ComponentContainer<vec4> colours;
+	ComponentContainer<PointLight> pointLights;
 
 
 	// Spawnable types
@@ -101,6 +102,7 @@ public:
 		registry_list.push_back(&midgrounds);
 		registry_list.push_back(&foregrounds);
 		registry_list.push_back(&colours);
+		registry_list.push_back(&pointLights);
 
 		registry_list.push_back(&boars);
 		registry_list.push_back(&barbarians);

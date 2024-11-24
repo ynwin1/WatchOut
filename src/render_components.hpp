@@ -122,6 +122,7 @@ struct RenderRequest
 	PRIMITIVE_TYPE primitive_type = PRIMITIVE_TYPE::TRIANGLES;
 };
 
+// Ensure it matches with PointLight in shader
 struct PointLight {
     vec3 position;  
     

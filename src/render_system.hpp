@@ -140,7 +140,7 @@ private:
 
     void bindLightingAttributes(const GLuint program, const Entity &entity);
 
-    void bindPointLights(const GLuint program, const Entity &entity, const Motion motion);
+    void bindPointLights(const GLuint program, const Entity &entity);
 
     void drawText(Entity entity, const mat4& projection_screen);
 

@@ -302,6 +302,14 @@ Entity createJeff(vec2 position)
 	registry.midgrounds.emplace(entity);
 
 	registry.knockables.emplace(entity);
+
+	auto& pointLight = registry.pointLights.emplace(entity);
+	pointLight.position = motion.position;
+	pointLight.ambient = vec4(0.84, 1.0, 0.2, 0.0);
+	pointLight.max_distance = 3250;
+	pointLight.constant = 1.0;
+	pointLight.linear = .00014;
+	pointLight.quadratic = 0.000007;
 	
 	return entity;
 }
@@ -703,8 +711,10 @@ Entity createMapTile(vec2 position, vec2 size) {
     auto entity = Entity();
 
     MapTile& tile = registry.mapTiles.emplace(entity);
-    tile.position = position;
-    tile.scale = size;
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = vec3(position, 0.0);
+	motion.scale = size;
 	
     registry.renderRequests.insert(
         entity, 
@@ -766,8 +776,10 @@ Entity createObstacle(vec2 position, vec2 size, TEXTURE_ASSET_ID assetId) {
 Entity createBottomCliff(vec2 position, vec2 size) {
     auto entity = Entity();
 	MapTile& tile = registry.mapTiles.emplace(entity);
-    tile.position = position;
-    tile.scale = size;
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = vec3(position, 0.0);
+	motion.scale = size;
 
     registry.renderRequests.insert(
         entity, 
@@ -783,8 +795,10 @@ Entity createBottomCliff(vec2 position, vec2 size) {
 Entity createSideCliff(vec2 position, vec2 size) {
     auto entity = Entity();
 	MapTile& tile = registry.mapTiles.emplace(entity);
-    tile.position = position;
-    tile.scale = size;
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = vec3(position, 0.0);
+	motion.scale = size;
 
     registry.renderRequests.insert(
         entity, 
@@ -799,8 +813,10 @@ Entity createSideCliff(vec2 position, vec2 size) {
 Entity createTopCliff(vec2 position, vec2 size) {
     auto entity = Entity();
 	MapTile& tile = registry.mapTiles.emplace(entity);
-    tile.position = position;
-    tile.scale = size;
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = vec3(position, 0.0);
+	motion.scale = size;
 
     registry.renderRequests.insert(
         entity, 

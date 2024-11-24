@@ -49,6 +49,7 @@ void main()
 	for (int i = 0; i < num_point_lights; i++) {
         colour += CalcPointLight(pointLights[i], worldPos) * initialColour; 
     }
+    colour = vec4(0.0, worldPos.y / 3200 , 0.0, 1.0);
 }
 
 vec4 CalcPointLight(PointLight light, vec3 worldPos)

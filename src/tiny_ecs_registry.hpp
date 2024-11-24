@@ -48,6 +48,7 @@ public:
 	ComponentContainer<HelpMenuComponent> helpMenuComponents;
 
 	std::map<char, TextChar> textChars; //for initializing text glyphs from freetype
+	std::vector<vec3> explosionsToTrigger;
 
 	// Render component containers
 	ComponentContainer<RenderRequest> renderRequests;

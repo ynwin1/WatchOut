@@ -76,7 +76,7 @@ class RenderSystem {
 		textures_path("bomber/Run.png"),
 		textures_path("bomber/Dead.png"),
 		textures_path("bomb/bomb.png"),
-		textures_path("explosion/explosion.png"),
+		textures_path("explosion/explosion.png"),		// https://craftpix.net/freebies/free-animated-explosion-sprite-pack/
 	};
 
 

@@ -145,6 +145,7 @@ bool WorldSystem::step(float elapsed_ms)
     despawnTraps(elapsed_ms);
     updateCollectedTimer(elapsed_ms);
     resetTrappedEntities();
+    triggerExplosions();
 
     if (camera->isToggled()) {
         Motion& playerMotion = registry.motions.get(playerEntity);
@@ -705,6 +706,14 @@ void WorldSystem::entity_trap_collision(Entity entity, Entity entity_other, std:
 	}
 }
 
+void WorldSystem::triggerExplosions() {
+    for(vec3 position : registry.explosionsToTrigger) {
+        createExplosion(position);
+        sound->playSoundEffect(Sound::EXPLOSION, 0);
+    }
+    registry.explosionsToTrigger.clear();
+}
+
 void WorldSystem::entity_damaging_collision(Entity entity, Entity entity_other, std::vector<Entity>& was_damaged)
 {
     Damaging& damaging = registry.damagings.get(entity_other);
@@ -712,8 +721,7 @@ void WorldSystem::entity_damaging_collision(Entity entity, Entity entity_other, 
     // entities can be only be damaged once per explosion
     if(registry.explosions.has(entity_other)) {
         Explosion& explosion = registry.explosions.get(entity_other);
-        bool alreadyAffected = explosion.affectedEntities.find(entity) != explosion.affectedEntities.end();
-        if(alreadyAffected) {
+        if(explosion.affectedEntities.count(entity)) {
             return;
         }
         knock(entity, entity_other);

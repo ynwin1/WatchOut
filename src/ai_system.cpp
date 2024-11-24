@@ -450,6 +450,7 @@ void AISystem::throwBomb(Entity thrower, vec3 targetPos)
     vec2 horizontal_velocity_vector = horizontal_velocity * horizontal_direction;
 
     createBomb(pos, vec3(horizontal_velocity_vector, vertical_velocity));
+    sound->playSoundEffect(Sound::WOOSH, 0);
 }
 
 void AISystem::archerBehaviour(Entity entity, vec3 playerPosition, float elapsed_ms)

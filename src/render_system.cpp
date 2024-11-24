@@ -1,7 +1,6 @@
 // internal
 #include "render_system.hpp"
 #include "tiny_ecs_registry.hpp"
-#include "world_init.hpp"
 
 // external
 #include <SDL.h>
@@ -376,8 +375,7 @@ void RenderSystem::step(float elapsed_ms)
 			projectile.sticksInGround -= elapsed_ms;
 			if (projectile.sticksInGround <= 0) {
 				if(registry.bombs.has(entity)) {
-					vec3 pos = motion.position;
-					createExplosion(pos);
+					registry.explosionsToTrigger.push_back(motion.position);
 				}
 				registry.remove_all_components_of(entity);
 			}

@@ -709,6 +709,7 @@ void WorldSystem::entity_damaging_collision(Entity entity, Entity entity_other, 
 {
     Damaging& damaging = registry.damagings.get(entity_other);
 
+    // entities can be only be damaged once per explosion
     if(registry.explosions.has(entity_other)) {
         Explosion& explosion = registry.explosions.get(entity_other);
         bool alreadyAffected = explosion.affectedEntities.find(entity) != explosion.affectedEntities.end();
@@ -889,6 +890,10 @@ void WorldSystem::despawn_collectibles(float elapsed_ms) {
 
 void WorldSystem::destroyDamagings() {
     for (auto& damagingEntity : registry.damagings.entities) {
+        if(registry.bombs.has(damagingEntity) || registry.explosions.has(damagingEntity)) {
+            continue;
+        }
+
         Damaging& damaging = registry.damagings.get(damagingEntity);
         Motion& motion = registry.motions.get(damagingEntity);
 

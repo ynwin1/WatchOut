@@ -81,7 +81,7 @@ private:
 		{"bird", 0},
 		{"wizard", 0},
 		{"troll", 0},
-		{"bomber", 2},
+		{"bomber", 1},
 		{"heart", 2},
 		{"collectible_trap", 2}
 	};

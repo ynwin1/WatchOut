@@ -49,7 +49,7 @@ void PhysicsSystem::handleBoundsCheck() {
 	ComponentContainer<Motion>& motion_container = registry.motions;
 
 	for (uint i = 0; i < motion_container.components.size(); i++) {
-		if (registry.birds.has(motion_container.entities[i]) ||
+		if (registry.birds.has(motion_container.entities[i]) || 
 			registry.explosions.has(motion_container.entities[i])) {
 			continue;
 		}
@@ -412,7 +412,7 @@ void PhysicsSystem::handle_mesh_collision(Entity mesh, Entity entity)
 	}
 
 	// Example - fireball
-	if (registry.damagings.has(entity)) {
+	if (registry.damagings.has(entity) && registry.damagings.get(entity).type == "fireball") {
 		// Destroy the damaging
 		registry.remove_all_components_of(entity);
 		return;

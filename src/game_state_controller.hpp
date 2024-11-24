@@ -103,6 +103,8 @@ public:
 
     const GAME_STATE getGameState() const;
 
+	void restart();
+
 	GameTimer gameTimer;
 	GameScore gameScore;
 	TrapsCounter trapsCounter;

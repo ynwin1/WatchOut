@@ -60,7 +60,7 @@ void WorldSystem::restart_game()
     createPlayerHealthBar(playerEntity, camera->getSize());
     createPlayerStaminaBar(playerEntity, camera->getSize());
 
-    gameStateController.setGameState(GAME_STATE::PLAYING);
+    gameStateController.restart();
     show_mesh = false;
     resetSpawnSystem();
     initText();
@@ -99,11 +99,8 @@ void WorldSystem::handleSurvivalBonusPoints(float elapsed_ms) {
 void WorldSystem::initText() {
     createPauseHelpText(camera->getSize());
     renderer->fpsTracker.textEntity = createFPSText(camera->getSize());
-    gameStateController.gameTimer.reset();
     gameStateController.gameTimer.textEntity = createGameTimerText(camera->getSize());
-    gameStateController.trapsCounter.reset();
     gameStateController.trapsCounter.textEntity = createTrapsCounterText(camera->getSize());
-    gameStateController.gameScore.reset();
     gameStateController.gameScore.textEntity = createScoreText(camera->getSize());
 }
 

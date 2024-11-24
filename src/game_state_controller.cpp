@@ -46,3 +46,12 @@ void GameStateController::beforeEnterState(GAME_STATE newState) {
     }
     return;
 }
+
+void GameStateController::restart() {
+    currentGameState = GAME_STATE::PLAYING;
+    gameTimer.reset();
+    trapsCounter.reset();
+    gameScore.reset();
+    enemiesKilled.resetKillSpan();
+    survivalBonusTimer = 0;
+}

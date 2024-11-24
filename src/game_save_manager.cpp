@@ -580,6 +580,8 @@ void GameSaveManager::deserialize_containers(const json& j) {
 	// set up background components
 	createMapTiles();
 	createCliffs(window);
+	// TODO - creating trees like this
+	createTrees(renderer);
 
 	deserialize_game_timer(j);
 	deserialize_game_score(j);
@@ -623,12 +625,14 @@ void GameSaveManager::createEntity(std::vector<std::string> componentNames, std:
 	else if (std::find(componentNames.begin(), componentNames.end(), "damagings") != componentNames.end()) {
 		createDamagingsDeserialization(componentsMap);
 	}
+	// TODO - not using trees from save
 	/*else if (std::find(componentNames.begin(), componentNames.end(), "meshPtrs") != componentNames.end()) {
 		createTreeDeserialization(componentsMap);
 	}*/
-	/*else if (std::find(componentNames.begin(), componentNames.end(), "obstacles") != componentNames.end()) {
+	else if (std::find(componentNames.begin(), componentNames.end(), "obstacles") != componentNames.end() &&
+		std::find(componentNames.begin(), componentNames.end(), "meshPtrs") == componentNames.end()) {
 		createObstacleDeserialization(componentsMap);
-	}*/
+	}
 }
 
 void GameSaveManager::createObstacleDeserialization(std::map<std::string, nlohmann::json> componentsMap) {

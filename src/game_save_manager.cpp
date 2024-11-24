@@ -563,11 +563,6 @@ void GameSaveManager::deserialize_containers(const json& j) {
 	//	std::cout << component.first << std::endl;
 	//}
 
-
-	// set up background components
-	createMapTiles();
-	createCliffs(window);
-
 	for (auto& item : entityComponentGroups) {
 		int entityID = item.first;
 		auto& componentsMap = item.second;
@@ -582,19 +577,17 @@ void GameSaveManager::deserialize_containers(const json& j) {
 		createEntity(componentNames, componentsMap);
 	}
 
+	// set up background components
+	createMapTiles();
+	createCliffs(window);
+
 	deserialize_game_timer(j);
 	deserialize_game_score(j);
 }
 
 void GameSaveManager::createEntity(std::vector<std::string> componentNames, std::map<std::string, nlohmann::json> componentsMap) {
 	// map related components
-	if (std::find(componentNames.begin(), componentNames.end(), "meshPtrs") != componentNames.end()) {
-		createTreeDeserialization(componentsMap);
-	}
-	else if (std::find(componentNames.begin(), componentNames.end(), "obstacles") != componentNames.end()) {
-		createObstacleDeserialization(componentsMap);
-	}
-	else if (std::find(componentNames.begin(), componentNames.end(), "players") != componentNames.end()) {
+	if (std::find(componentNames.begin(), componentNames.end(), "players") != componentNames.end()) {
 		createPlayerDeserialization(componentsMap);
 	}
 	else if (std::find(componentNames.begin(), componentNames.end(), "boars") != componentNames.end()) {
@@ -627,6 +620,15 @@ void GameSaveManager::createEntity(std::vector<std::string> componentNames, std:
 	else if (std::find(componentNames.begin(), componentNames.end(), "targetAreas") != componentNames.end()) {
 		createTargetAreaDeserialization(componentsMap);
 	}
+	else if (std::find(componentNames.begin(), componentNames.end(), "damagings") != componentNames.end()) {
+		createDamagingsDeserialization(componentsMap);
+	}
+	/*else if (std::find(componentNames.begin(), componentNames.end(), "meshPtrs") != componentNames.end()) {
+		createTreeDeserialization(componentsMap);
+	}*/
+	/*else if (std::find(componentNames.begin(), componentNames.end(), "obstacles") != componentNames.end()) {
+		createObstacleDeserialization(componentsMap);
+	}*/
 }
 
 void GameSaveManager::createObstacleDeserialization(std::map<std::string, nlohmann::json> componentsMap) {
@@ -872,7 +874,15 @@ void GameSaveManager::createTrapDeserialization(std::map<std::string, nlohmann::
 void GameSaveManager::createTreeDeserialization(std::map<std::string, nlohmann::json> componentsMap) {
 	// motion data
 	vec2 position = { (float)componentsMap["motions"]["position"][0], (float)componentsMap["motions"]["position"][1] };
-	createTree(renderer, position);
+	Entity tree = createTree(renderer, position);
+
+	// Motion
+	Motion& motion = registry.motions.get(tree);
+	motion.position = vec3(position, motion.position.z);
+	motion.angle = componentsMap["motions"]["angle"];
+	motion.scale = { (float)componentsMap["motions"]["scale"][0], (float)componentsMap["motions"]["scale"][1] };
+	motion.hitbox = { (float)componentsMap["motions"]["hitbox"][0], (float)componentsMap["motions"]["hitbox"][1], (float)componentsMap["motions"]["hitbox"][2] };
+
 }
 
 void GameSaveManager::createTargetAreaDeserialization(std::map<std::string, nlohmann::json> componentsMap) {
@@ -883,13 +893,33 @@ void GameSaveManager::createTargetAreaDeserialization(std::map<std::string, nloh
 	cooldown.remaining = componentsMap["cooldowns"]["remaining"];
 }
 
+void GameSaveManager::createDamagingsDeserialization(std::map<std::string, nlohmann::json> componentsMap) {
+	std::string type = componentsMap["damagings"]["type"];
+	float damage = (float) componentsMap["damagings"]["damage"];
+
+	vec3 position = { (float)componentsMap["motions"]["position"][0], (float)componentsMap["motions"]["position"][1], (float)componentsMap["motions"]["position"][2] };
+	vec3 velocity = { (float)componentsMap["motions"]["velocity"][0], (float)componentsMap["motions"]["velocity"][1], (float)componentsMap["motions"]["velocity"][2] };
+
+	if (type == "arrow") {
+		createArrow(position, velocity, damage);
+	}
+	else if (type == "fireball") {
+		float angle = (float) componentsMap["motions"]["angle"];
+		vec2 direction = vec2(cos(angle), sin(angle));
+		createFireball(position, direction);
+	}
+	else if (type == "lightning") {
+		createLightning(position);
+	}
+}
+
 void GameSaveManager::deserialize_game_timer(const json& j) {
 	registry.gameTimer.hours = j["gameTimer"]["hour"].get<int>();
 	registry.gameTimer.minutes = j["gameTimer"]["minute"].get<int>();
 	registry.gameTimer.seconds = j["gameTimer"]["second"].get<int>();
 	registry.gameTimer.ms = j["gameTimer"]["ms"].get<int>();
-	// TODO 
-	// registry.gameTimer.textEntity = Entity(j["gameTimer"]["textEntity"]);
+
+	printf("Game Timer: %d:%d:%d:%d\n", registry.gameTimer.hours, registry.gameTimer.minutes, registry.gameTimer.seconds, registry.gameTimer.ms);
 }
 
 void GameSaveManager::deserialize_game_score(const json& j) {

@@ -353,6 +353,8 @@ void WorldSystem::pauseControls(int key, int action, int mod)
             printf("Saved game\n");
             break;
         case GLFW_KEY_L:
+            initText();
+            printf("init text\n");
 			saveManager->load_game();
 			printf("Loaded game\n");
             gameStateController.setGameState(GAME_STATE::PLAYING);

@@ -62,4 +62,5 @@ private:
 	void createTreeDeserialization(std::map<std::string, nlohmann::json> componentsMap);
 	void createObstacleDeserialization(std::map<std::string, nlohmann::json> componentsMap);
 	void createTargetAreaDeserialization(std::map<std::string, nlohmann::json> componentsMap);
+	void createDamagingsDeserialization(std::map<std::string, nlohmann::json> componentsMap);
 };

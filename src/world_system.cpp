@@ -365,6 +365,7 @@ void WorldSystem::pauseControls(int key, int action, int mod)
             reloadText();
 			printf("Loaded game\n");
 			playerEntity = registry.players.entities[0];
+            trapsCounter.count = registry.collectibleTraps.size();
             gameStateController.setGameState(GAME_STATE::PLAYING);
 			break;
         case GLFW_KEY_ENTER:

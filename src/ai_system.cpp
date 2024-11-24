@@ -29,6 +29,18 @@ vec2 AISystem::randomDirection()
     return vec2(cos(angle), sin(angle));
 }
 
+// Returns whether the enemy should pathfind right now
+// Updates enemy's pathfind timer
+bool AISystem::decideToPathfind(Entity enemy, float baseThinkingTime, float elapsed_ms) {
+    float& pathfindTime = registry.enemies.get(enemy).pathfindTime;
+    pathfindTime -= elapsed_ms;
+    if (pathfindTime > 0) {
+        return false;
+    }
+    pathfindTime = baseThinkingTime + uniform_dist(rng) * 400;
+    return true;
+}
+
 void AISystem::moveTowardsPlayer(Entity enemy, vec3 playerPosition, float elapsed_ms)
 {
     Motion& enemyMotion = registry.motions.get(enemy);
@@ -38,17 +50,13 @@ void AISystem::moveTowardsPlayer(Entity enemy, vec3 playerPosition, float elapse
         return;
     }
     
-    float& pathfindTime = registry.enemies.get(enemy).pathfindTime;
-    pathfindTime -= elapsed_ms;
-    if (pathfindTime > 0) {
+    if (!decideToPathfind(enemy, 100, elapsed_ms)) {
         return;
     }
-    pathfindTime = 100 + uniform_dist(rng) * 400;
 
     vec2 direction = chooseDirection(enemyMotion, playerPosition);
     enemyMotion.facing = direction;
-    float speed = registry.enemies.get(enemy).speed;
-    enemyMotion.velocity = vec3(direction * speed, enemyMotion.velocity.z);
+    enemyMotion.velocity = vec3(direction * enemyMotion.speed, enemyMotion.velocity.z);
 }
 
 vec2 AISystem::chooseDirection(Motion& motion, vec3 playerPosition)
@@ -174,12 +182,13 @@ bool AISystem::pathClear(Motion& motion, vec2 direction, float howFar, const std
             }
 
             Motion& obstacleMotion = registry.motions.get(obstacle);
-            std::vector<vec2> obstaclePolygon;
             vec2 centre = vec2(obstacleMotion.position);
-            obstaclePolygon.push_back(centre + vec2( obstacleMotion.hitbox.x,  obstacleMotion.hitbox.y) / 2.f * hitboxFactor);
-            obstaclePolygon.push_back(centre + vec2(-obstacleMotion.hitbox.x,  obstacleMotion.hitbox.y) / 2.f * hitboxFactor);
-            obstaclePolygon.push_back(centre + vec2(-obstacleMotion.hitbox.x, -obstacleMotion.hitbox.y) / 2.f * hitboxFactor);
-            obstaclePolygon.push_back(centre + vec2( obstacleMotion.hitbox.x, -obstacleMotion.hitbox.y) / 2.f * hitboxFactor);
+            std::vector<vec2> obstaclePolygon = {
+                centre + vec2(obstacleMotion.hitbox.x,  obstacleMotion.hitbox.y) * 0.9f / 2.f * hitboxFactor,
+                centre + vec2(-obstacleMotion.hitbox.x,  obstacleMotion.hitbox.y) * 0.9f / 2.f * hitboxFactor,
+                centre + vec2(-obstacleMotion.hitbox.x, -obstacleMotion.hitbox.y) * 0.9f / 2.f * hitboxFactor,
+                centre + vec2(obstacleMotion.hitbox.x, -obstacleMotion.hitbox.y) * 0.9f / 2.f * hitboxFactor
+            };
             return polygonsCollide(polygon, obstaclePolygon);
         });
 
@@ -205,7 +214,7 @@ bool AISystem::pathClear(Motion& motion, vec2 direction, float howFar, const std
 void AISystem::boarBehaviour(Entity boar, vec3 playerPosition, float elapsed_ms)
 {
     // boar can't charge if trapped
-    if(registry.enemies.has(boar) && registry.enemies.get(boar).isTrapped) {
+    if(registry.enemies.has(boar) && registry.trappables.get(boar).isTrapped) {
         moveTowardsPlayer(boar, playerPosition, elapsed_ms);
         return;
     }
@@ -297,6 +306,48 @@ void AISystem::barbarianBehaviour(Entity barbarian, vec3 playerPosition, float e
     moveTowardsPlayer(barbarian, playerPosition, elapsed_ms);
 }
 
+void AISystem::trollBehaviour(Entity troll, vec3 playerPosition, float elapsed_ms)
+{
+    if (registry.deathTimers.has(troll)) {
+        return;
+    }
+
+    float TROLL_TURNING_SPEED = 0.001;
+    Troll& trollComponent = registry.trolls.get(troll);
+    Motion& motion = registry.motions.get(troll);
+
+    // Skip if in the air
+    if (motion.position.z - motion.hitbox.z / 2 > getElevation(vec2(motion.position)) + 1) {
+        return;
+    }
+
+    if (!decideToPathfind(troll, 100, elapsed_ms)) {
+        vec2 direction = chooseDirection(motion, playerPosition);
+        trollComponent.desiredAngle = atan2(direction.y, direction.x);
+    }
+
+    // Continue to align towards desired direction
+    float currentAngle = atan2(motion.facing.y, motion.facing.x);
+    float angleToGo = trollComponent.desiredAngle - currentAngle;
+    if (angleToGo < -M_PI) {
+        angleToGo += 2 * M_PI;
+    }
+    else if (angleToGo > M_PI) {
+        angleToGo -= 2 * M_PI;
+    }
+    float nextAngle = trollComponent.desiredAngle;
+    if (abs(angleToGo) > TROLL_TURNING_SPEED * elapsed_ms) {
+        if (angleToGo > 0) {
+            nextAngle = currentAngle + TROLL_TURNING_SPEED * elapsed_ms;
+        }
+        else if (angleToGo < 0) {
+            nextAngle = currentAngle - TROLL_TURNING_SPEED * elapsed_ms;
+        }
+    }
+    motion.facing = vec2(cos(nextAngle), sin(nextAngle));
+    motion.velocity = vec3(motion.facing * motion.speed, motion.velocity.z);
+}
+
 void AISystem::shootArrow(Entity shooter, vec3 targetPos)
 {
     // Always shoot arrow at 45 degree angle (makes calculations simpler)
@@ -349,7 +400,7 @@ void AISystem::shootArrow(Entity shooter, vec3 targetPos)
     // Determine velocities for each dimension
     vec2 horizontal_velocity = velocity * cos(ARROW_ANGLE) * horizontal_direction;
     float vertical_velocity = velocity * sin(ARROW_ANGLE);
-    createArrow(pos, vec3(horizontal_velocity, vertical_velocity));
+    createArrow(pos, vec3(horizontal_velocity, vertical_velocity), registry.enemies.get(shooter).damage);
 	sound->playSoundEffect(Sound::ARROW, 0);
 }
 
@@ -735,11 +786,15 @@ void AISystem::step(float elapsed_ms)
         }
         else if (registry.archers.has(enemy)) {
             archerBehaviour(enemy, playerPosition, elapsed_ms);
-        } else if (registry.birds.has(enemy)){
+        } 
+        else if (registry.birds.has(enemy)){
             birdBehaviour(enemy, playerPosition, elapsed_ms);
         }
 		else if (registry.wizards.has(enemy)) {
 			wizardBehaviour(enemy, playerPosition, elapsed_ms);
 		}
+        else if (registry.trolls.has(enemy)) {
+            trollBehaviour(enemy, playerPosition, elapsed_ms);
+        }
     }
 }

@@ -13,6 +13,7 @@ You are the lone survivor trapped in the world of Draugamoor, forced to face Kin
 | Dash      | D |
 | Jump      | Space bar|
 | Place trap| Q (behind) or W (front)|
+| Mute/Unmute| M|
 | Pause     | P |
 | Help      | H |
 | Restart   | Enter |

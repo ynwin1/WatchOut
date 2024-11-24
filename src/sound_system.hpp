@@ -26,7 +26,8 @@ enum class Sound {
 	FIREBALL,
 	COLLECT,
 	BIRD_FLOCK,
-	BIRD_ATTACK
+	BIRD_ATTACK,
+	TROLL_LAUGH
 };
 
 class SoundSystem
@@ -35,25 +36,37 @@ public:
 	SoundSystem();
 	~SoundSystem();
 
-	const std::map<Music, std::string> musics = {
-		{ Music::BACKGROUND,	audio_path("mystery_background.wav") },
-		{ Music::PLAYER_DEATH,	audio_path("playerDeath.wav") }
+	bool mute = false;
+
+	// Constants
+	int INITIAL_MUSIC_VOLUME = 10;
+	float TROLL_LAUGH_COOLDOWN = 20000.f;
+
+	// path and volume
+	const std::map<Music, std::pair<std::string, int>> musics = {
+		{ Music::BACKGROUND, std::pair<std::string, int>(audio_path("mystery_background.wav"), INITIAL_MUSIC_VOLUME) },
+		{ Music::PLAYER_DEATH,	std::pair<std::string, int>(audio_path("playerDeath.wav"), INITIAL_MUSIC_VOLUME) }
 	};
 
-	const std::map<Sound, std::string> sounds = {
-		{ Sound::ARROW,			audio_path("arrow.wav") },
-		{ Sound::BOAR_CHARGE,	audio_path("boar_charge.wav") },
-		{ Sound::THUNDER,		audio_path("thunder.wav") },
-		{ Sound::STORM,			audio_path("storm.wav") },
-		{ Sound::WALKING,		audio_path("walking.wav") },
-		{ Sound::JUMPING,		audio_path("jumping.wav") },
-		{ Sound::DASHING,		audio_path("dashing.wav") },
-		{ Sound::LEVELUP,		audio_path("levelUp.wav") },
-		{ Sound::FIREBALL,		audio_path("fireball.wav") },
-		{ Sound::COLLECT,		audio_path("collect.wav") },
-		{ Sound::BIRD_FLOCK,	audio_path("birds_flock.wav") },
-		{ Sound::BIRD_ATTACK,	audio_path("bird_attack.wav") }
+	const std::map<Sound, std::pair<std::string, int>> sounds = {
+		{ Sound::ARROW,			std::pair<std::string, int>(audio_path("arrow.wav"), 100) },
+		{ Sound::BOAR_CHARGE,	std::pair<std::string, int>(audio_path("boar_charge.wav"), 100) },
+		{ Sound::THUNDER,		std::pair<std::string, int>(audio_path("thunder.wav"), 128) },
+		{ Sound::STORM,			std::pair<std::string, int>(audio_path("storm.wav"), 128) },
+		{ Sound::WALKING,		std::pair<std::string, int>(audio_path("walking.wav"), 120) },
+		{ Sound::JUMPING,		std::pair<std::string, int>(audio_path("jumping.wav"), 120) },
+		{ Sound::DASHING,		std::pair<std::string, int>(audio_path("dashing.wav"), 120) },
+		{ Sound::LEVELUP,		std::pair<std::string, int>(audio_path("levelUp.wav"), 120) },
+		{ Sound::FIREBALL,		std::pair<std::string, int>(audio_path("fireball.wav"), 128) },
+		{ Sound::COLLECT,		std::pair<std::string, int>(audio_path("collect.wav"), 128) },
+		{ Sound::BIRD_FLOCK,	std::pair<std::string, int>(audio_path("birds_flock.wav"), 5) },
+		{ Sound::BIRD_ATTACK,	std::pair<std::string, int>(audio_path("bird_attack.wav"), 5) },
+		{ Sound::TROLL_LAUGH,	std::pair<std::string, int>(audio_path("troll_laugh.wav"), 128) }
 	};
+
+	// Sound variables
+	bool isMovingSoundPlaying = false;
+	bool isBirdFlockSoundPlaying = false;
 
 	// FUNCTIONS
 	// Initialize sound system
@@ -62,29 +75,62 @@ public:
 	void loadAllMusic();
 	void loadAllSoundEffects();
 
-	// Play music; duration = -1 for infinite loop
-	void playMusic(Music key, int duration, int volume);
+	void step(float elapsed_ms);
 
+	// PLAY
+	// Play music; duration = -1 for infinite loop
+	void playMusic(Music key, int duration);
 	// Play sound effect
 	void playSoundEffect(Sound key, int count);
 
+	// PAUSE
+	// Pause music
+	void pauseMusic(Music key);
+	// Pause sound effect
+	void pauseSoundEffect(Sound key);
+	// Pause all music
+	void pauseAllMusic();
+	// Pause all sound effects
+	void pauseAllSoundEffects();
+	// Pause all sounds
+	void pauseAllSounds();
+
+	// RESUME
+	// Resume music
+	void resumeMusic(Music key);
+	// Resume sound effect
+	void resumeSoundEffect(Sound key);
+	// Resume all music
+	void resumeAllMusic();
+	// Resume all sound effects
+	void resumeAllSoundEffects();
+	// Resume all sounds
+	void resumeAllSounds();
+
+	// STOP
 	// Stop music
 	void stopMusic(Music key);
-
 	// Stop sound effect
 	void stopSoundEffect(Sound key);
-
 	// Stop all music
 	void stopAllMusic();
-
 	// Stop all sound effects
 	void stopAllSoundEffects();
-
 	// Stop all sounds
 	void stopAllSounds();
 
+	// MUTE
+	// Mute all sounds
+	void muteAllSounds();
+	// Unmute all sounds
+	void unmuteAllSounds();
+
 	// Remove all sounds from memory
 	void unloadAllSounds();
+
+	// Special functions
+	void controlPlayerSound();
+	void controlBirdSound();
 
 private:
 	std::map<Music, Mix_Music*> loadedMusic;
@@ -107,4 +153,5 @@ Sound credits
 - Collect: https://freesound.org/people/METKIR/sounds/623593/
 - Bird Flock: https://www.youtube.com/watch?v=22dZEAMmxpk
 - Bird Attack: https://freesound.org/people/dinodilopho/sounds/263530/
+- Troll Laugh: https://freesound.org/people/browerbeats/sounds/762796/
 */

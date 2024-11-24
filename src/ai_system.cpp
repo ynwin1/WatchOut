@@ -494,17 +494,27 @@ void AISystem::archerBehaviour(Entity entity, vec3 playerPosition, float elapsed
     }
 }
 
-void AISystem::bomberBehaviour(Entity entity, vec3 playerPosition, float elapsed_ms)
+vec3 AISystem::predictPlayerPosition(Entity playerEntity, float timeToTarget_ms)
+{
+    Motion& playerMotion = registry.motions.get(playerEntity);
+    vec3 predictedPosition = playerMotion.position + vec3(playerMotion.velocity * playerMotion.speed * timeToTarget_ms);
+
+    return predictedPosition;
+}
+
+void AISystem::bomberBehaviour(Entity entity, Entity playerEntity, float elapsed_ms)
 {
     const float BOMBER_RANGE = 600;
-    const float THROW_BOMB_DELAY = 1000;
+    const float THROW_BOMB_MIN_DELAY = 1000;
+    const float THROW_BOMB_MAX_DELAY = 2000;
     if (registry.deathTimers.has(entity)) {
         return;
     }
     Motion& motion = registry.motions.get(entity);
     Bomber& bomber = registry.bombers.get(entity);
+    vec3 playerPosition = registry.motions.get(playerEntity).position;
     float d = distance(motion.position, playerPosition);
-    if (d < BOMBER_RANGE) {
+    if (d < BOMBER_RANGE && !bomber.aiming) {
         bomber.aiming = true;
         motion.velocity.x = 0;
         motion.velocity.y = 0;
@@ -514,18 +524,23 @@ void AISystem::bomberBehaviour(Entity entity, vec3 playerPosition, float elapsed
 
     if (bomber.aiming) {
         motion.facing = normalize(vec2(playerPosition) - vec2(motion.position));
-        if (bomber.throwBombDelayTimer > THROW_BOMB_DELAY) {
-            throwBomb(entity, playerPosition);
+        if (bomber.throwBombDelayTimer > bomber.throwBombDelay) {
+            vec3 predictedPlayerPosition = predictPlayerPosition(playerEntity, 1000);
+            throwBomb(entity, predictedPlayerPosition);
+
             bomber.throwBombDelayTimer = 0;
-            AnimationController& animationController = registry.animationControllers.get(entity);
-            animationController.changeState(entity, AnimationState::Idle);
             bomber.aiming = false;
+            bomber.throwBombDelay = uniform_dist(rng) * THROW_BOMB_MAX_DELAY + THROW_BOMB_MIN_DELAY;
         }
         else {
             bomber.throwBombDelayTimer += elapsed_ms;
         }
     }
     else {
+        AnimationController& animationController = registry.animationControllers.get(entity);
+        if(animationController.currentState != AnimationState::Running) {
+            animationController.changeState(entity, AnimationState::Running);
+        }
         moveTowardsPlayer(entity, playerPosition, elapsed_ms);
     }
 }
@@ -880,7 +895,7 @@ void AISystem::step(float elapsed_ms)
             trollBehaviour(enemy, playerPosition, elapsed_ms);
         }
         else if (registry.bombers.has(enemy)) {
-            bomberBehaviour(enemy, playerPosition, elapsed_ms);
+            bomberBehaviour(enemy, registry.players.entities.at(0), elapsed_ms);
         }
     }
 }

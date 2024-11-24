@@ -324,6 +324,7 @@ struct Troll {
 };
 
 struct Bomber {
+	float throwBombDelay = 0;
 	float throwBombDelayTimer = 0;
 	bool aiming = false;
 };

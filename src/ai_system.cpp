@@ -411,47 +411,45 @@ void AISystem::throwBomb(Entity thrower, vec3 targetPos)
 
     Motion& motion = registry.motions.get(thrower);
 
-    // Get start position of the arrow
+    // Get start position of the bomb
     vec2 horizontal_direction = normalize(vec2(targetPos) - vec2(motion.position));
     const float maxBombDimension = max(BOMB_BB_HEIGHT, BOMB_BB_WIDTH);
     vec3 pos = motion.position;
     if (abs(horizontal_direction.x) > abs(horizontal_direction.y)) {
-        if (horizontal_direction.x > 0) {
-            pos.x += motion.hitbox.x / 2 + maxBombDimension;
-        }
-        else if (horizontal_direction.x < 0) {
-            pos.x -= motion.hitbox.x / 2 + maxBombDimension;
-        }
-    }
-    else {
-        if (horizontal_direction.y > 0) {
-            pos.y += motion.hitbox.y / 2 + maxBombDimension;
-        }
-        else if (horizontal_direction.x < 0) {
-            pos.y -= motion.hitbox.y / 2 + maxBombDimension;
-        }
+        pos.x += (horizontal_direction.x > 0 ? 1 : -1) * (motion.hitbox.x / 2 + maxBombDimension);
+    } else {
+        pos.y += (horizontal_direction.y > 0 ? 1 : -1) * (motion.hitbox.y / 2 + maxBombDimension);
     }
     pos.z += motion.hitbox.z / 2 + maxBombDimension;
     horizontal_direction = normalize(vec2(targetPos) - vec2(pos));
 
     // Get distances from start to target
-    float horizontal_distance = distance(vec2(pos), vec2(targetPos));
+    float total_horizontal_distance = distance(vec2(pos), vec2(targetPos));
     float vertical_distance = targetPos.z - pos.z;
 
-    // Prevent trying to shoot above what is possible
-    if (vertical_distance >= horizontal_distance)
+    // Prevent trying to throw above what's possible
+    if (vertical_distance >= total_horizontal_distance)
         return;
 
-    float velocity = horizontal_distance * sqrt(-GRAVITATIONAL_CONSTANT / (vertical_distance - horizontal_distance));
+    // Split horizontal distance into pre-bounce and post-bounce parts
+    float post_bounce_distance = total_horizontal_distance / (1 + BOUNCE_FACTOR);
+    float pre_bounce_distance = total_horizontal_distance - post_bounce_distance;
+
+    // Compute initial horizontal velocity
+    float horizontal_velocity = sqrt(-GRAVITATIONAL_CONSTANT * pre_bounce_distance / 
+                                      (tan(BOMB_ANGLE) * (vertical_distance / pre_bounce_distance - tan(BOMB_ANGLE))));
 
     // Prevent shooting at crazy speeds
-    if (velocity > MAX_BOMB_VELOCITY)
+    if (horizontal_velocity > MAX_BOMB_VELOCITY)
         return;
 
-    // Determine velocities for each dimension
-    vec2 horizontal_velocity = velocity * cos(BOMB_ANGLE) * horizontal_direction;
-    float vertical_velocity = velocity * sin(BOMB_ANGLE);
-    createBomb(pos, vec3(horizontal_velocity, vertical_velocity));
+    // Compute vertical velocity
+    float vertical_velocity = horizontal_velocity * tan(BOMB_ANGLE);
+
+    // Apply horizontal and vertical velocities
+    vec2 horizontal_velocity_vector = horizontal_velocity * horizontal_direction;
+
+    createBomb(pos, vec3(horizontal_velocity_vector, vertical_velocity));
 }
 
 void AISystem::archerBehaviour(Entity entity, vec3 playerPosition, float elapsed_ms)
@@ -513,12 +511,6 @@ void AISystem::bomberBehaviour(Entity entity, vec3 playerPosition, float elapsed
         AnimationController& animationController = registry.animationControllers.get(entity);
         animationController.changeState(entity, AnimationState::Idle);
     }
-    else {
-        bomber.aiming = false;
-        bomber.throwBombDelayTimer = 0;
-        AnimationController& animationController = registry.animationControllers.get(entity);
-        animationController.changeState(entity, AnimationState::Running);
-    }
 
     if (bomber.aiming) {
         motion.facing = normalize(vec2(playerPosition) - vec2(motion.position));
@@ -527,6 +519,7 @@ void AISystem::bomberBehaviour(Entity entity, vec3 playerPosition, float elapsed
             bomber.throwBombDelayTimer = 0;
             AnimationController& animationController = registry.animationControllers.get(entity);
             animationController.changeState(entity, AnimationState::Idle);
+            bomber.aiming = false;
         }
         else {
             bomber.throwBombDelayTimer += elapsed_ms;

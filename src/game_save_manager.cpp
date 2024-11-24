@@ -185,9 +185,9 @@ nlohmann::json GameSaveManager::serialize_component<Enemy>(const Enemy& enemy) {
 template<>
 nlohmann::json GameSaveManager::serialize_component<Motion>(const Motion& motion) {
 	nlohmann::json j;
-	j["position"] = { motion.position.x, motion.position.y };
+	j["position"] = { motion.position.x, motion.position.y, motion.position.z };
 	j["angle"] = motion.angle;
-	j["velocity"] = { motion.velocity.x, motion.velocity.y };
+	j["velocity"] = { motion.velocity.x, motion.velocity.y, motion.velocity.z };
 	j["speed"] = motion.speed;
 	j["scale"] = { motion.scale.x, motion.scale.y };
 	j["facing"] = { motion.facing.x, motion.facing.y };

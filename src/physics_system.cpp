@@ -50,7 +50,7 @@ void PhysicsSystem::handleBoundsCheck() {
 	ComponentContainer<Motion>& motion_container = registry.motions;
 
 	for (uint i = 0; i < motion_container.components.size(); i++) {
-		if (registry.birds.has(motion_container.entities[i])) {
+		if (registry.birds.has(motion_container.entities[i]) || registry.mapTiles.has(motion_container.entities[i])) {
 			continue;
 		}
 

@@ -105,13 +105,13 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection, const mat4& p
 
 		modelMatrix.translate(motion.position);
 		modelMatrix.rotate(motion.angle);
-		modelMatrix.scale(vec2(motion.scale.x, motion.scale.y / yConversionFactor));
+		// TODO: Add a flat component for determining this
+		bool flat = registry.mapTiles.has(entity);
+		modelMatrix.scale(vec2(motion.scale.x, motion.scale.y / yConversionFactor), flat);
 	}
-	else if(registry.mapTiles.has(entity)) {
-		MapTile& tile = registry.mapTiles.get(entity);
-		transform.translate(tile.position);
-		transform.scale(tile.scale);
-	}
+	//else {
+	//	registry.list_all_components_of(entity);
+	//}
 
 	assert(registry.renderRequests.has(entity));
 	const RenderRequest& render_request = registry.renderRequests.get(entity);
@@ -149,27 +149,6 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection, const mat4& p
 		} else {
 			printf("Failed to find modelMatrix uniform!\n");
 		}
-
-		// Point light 1
-		//GLint location = glGetUniformLocation(program, "num_point_lights");
-		//if (location == -1) {
-		//	std::cerr << "Uniform 'num_point_lights' not found or optimized out!" << std::endl;
-		//} else {
-		//	glUniform1i(location, 70); // Use glUniform1i for integer uniforms
-		//}
-		//location = glGetUniformLocation(program, "pointLights[0].ambient");
-		// Set pointLights[0]
-		//GLint posLoc = glGetUniformLocation(program, "pointLights[0].position");
-		//GLint ambLoc = glGetUniformLocation(program, "pointLights[0].ambient");
-		//GLint constLoc = glGetUniformLocation(program, "pointLights[0].constant");
-		//GLint linearLoc = glGetUniformLocation(program, "pointLights[0].linear");
-		//GLint quadLoc = glGetUniformLocation(program, "pointLights[0].quadratic");
-
-		//if (posLoc != -1) glUniform3f(posLoc, 1000.0f, 1000.0f, 50.0f);
-		//if (ambLoc != -1) glUniform4f(ambLoc, 1.0f, 1.0f, 1.0f, 1.0f);
-		//if (constLoc != -1) glUniform1f(constLoc, 1.0f);
-		//if (linearLoc != -1) glUniform1f(linearLoc, 0.00014f);	
-		//if (quadLoc != -1) glUniform1f(quadLoc, 0.000007f);
     }
 	else if (render_request.used_effect == EFFECT_ASSET_ID::TEXTURED_FLAT) {
 		bindTextureAttributes(program, entity);

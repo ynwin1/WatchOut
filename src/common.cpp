@@ -30,9 +30,15 @@ vec2 rotate(vec2 v, float radians)
 	return vertex;
 }
 
-void Transform3D::scale(vec2 scale)
+void Transform3D::scale(vec2 scale, bool flat)
 {
-    mat4 S = { { scale.x, 0.f, 0.f, 0.f }, { 0.f, 0.f, -scale.y, 0.f }, { 0.f, 1.f, 0.f, 0.f }, { 0.f, 0.f, 0.f, 1.f } };
+	mat4 S;
+	if (!flat) {
+		S = { { scale.x, 0.f, 0.f, 0.f }, { 0.f, 0.f, -scale.y, 0.f }, { 0.f, 1.f, 0.f, 0.f }, { 0.f, 0.f, 0.f, 1.f } };
+	}
+	else {
+		S = { { scale.x, 0.f, 0.f, 0.f }, { 0.f, scale.y, 0.f, 0.f }, { 0.f, 0.f, 1.f, 0.f }, { 0.f, 0.f, 0.f, 1.f } };
+	}
     mat = mat * S;
 }
 

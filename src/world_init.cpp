@@ -376,8 +376,7 @@ Entity createJeff(vec2 position)
 	auto& pointLight = registry.pointLights.emplace(entity);
 	pointLight.position = motion.position;
 	pointLight.ambient = vec4(1.0, .75, 0.25, 1.0);
-	pointLight.diffuse = vec4(1.0, 1.0 , 1.0, 0.3);
-	pointLight.specular = vec4(0, 0, 0, 0);
+	pointLight.diffuse = vec4(1.0, .75, 0.25, .1);
 	pointLight.max_distance = 3250;
 	pointLight.constant = 1.0;
 	pointLight.linear = .00014;

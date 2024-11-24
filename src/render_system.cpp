@@ -358,7 +358,6 @@ void RenderSystem::bindPointLights(const GLuint program, const Entity& entity, c
 		glUniform3fv(glGetUniformLocation(program, (base + "position").c_str()), 1, glm::value_ptr(validPointLights[i].position));
 		glUniform4fv(glGetUniformLocation(program, (base + "ambient").c_str()), 1, glm::value_ptr(validPointLights[i].ambient));
 		glUniform4fv(glGetUniformLocation(program, (base + "diffuse").c_str()), 1, glm::value_ptr(validPointLights[i].diffuse));
-		glUniform4fv(glGetUniformLocation(program, (base + "specular").c_str()), 1, glm::value_ptr(validPointLights[i].specular));
 		glUniform1f(glGetUniformLocation(program, (base + "max_distance").c_str()), validPointLights[i].max_distance);
 		glUniform1f(glGetUniformLocation(program, (base + "constant").c_str()), validPointLights[i].constant);
 		glUniform1f(glGetUniformLocation(program, (base + "linear").c_str()), validPointLights[i].linear);

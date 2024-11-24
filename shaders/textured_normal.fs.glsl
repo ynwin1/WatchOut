@@ -5,7 +5,6 @@ struct PointLight {
   
     vec4 ambient;
     vec4 diffuse;
-    vec4 specular;
 	
     float constant;
     float linear;

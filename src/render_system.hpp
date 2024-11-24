@@ -32,7 +32,6 @@ class RenderSystem {
 
 	// Make sure these paths remain in sync with the associated enumerators.
 	const std::array<std::string, texture_count> texture_paths = 
-
 	{ 
 		textures_path("barbarian/Idle32x36.png"),     // BARBARIAN_IDLE
 		textures_path("barbarian/Run32x36.png"),      // BARBARIAN_RUN
@@ -74,12 +73,19 @@ class RenderSystem {
 		textures_path("troll/Troll-1f-48x64.png")
 	};
 
+	std::array<GLuint, normal_count> normal_gl_handles;
+	const std::array<std::string, normal_count> normal_paths = 
+	{ 
+		textures_path("rock/rock_n.png")               // ROCK
+	};
+
 
 	std::array<GLuint, effect_count> effects;
 	// Make sure these paths remain in sync with the associated enumerators.
 	const std::array<std::string, effect_count> effect_paths = {
 		shader_path("textured"),
 		shader_path("textured_basic"), 
+		shader_path("textured_normal"),
 		shader_path("untextured"), 
 		shader_path("animated"), 
 		shader_path("font"), 
@@ -104,7 +110,9 @@ public:
 
 	void initializeGlTextures();
 
-	void initializeGlEffects();
+    void initializeGlNormals();
+
+    void initializeGlEffects();
 
 	void initializeGlGeometryBuffers();
 
@@ -140,6 +148,8 @@ private:
     void bindAnimationAttributes(const GLuint program, const Entity &entity);
 
     void bindTextureAttributes(const GLuint program, const Entity &entity);
+
+    void bindNormalMap(const GLuint program, const Entity &entity);
 
     void bindLightingAttributes(const GLuint program, const Entity &entity);
 

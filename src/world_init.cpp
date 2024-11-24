@@ -376,6 +376,8 @@ Entity createJeff(vec2 position)
 	auto& pointLight = registry.pointLights.emplace(entity);
 	pointLight.position = motion.position;
 	pointLight.ambient = vec4(1.0, .75, 0.25, 1.0);
+	pointLight.diffuse = vec4(1.0, 1.0 , 1.0, 0.3);
+	pointLight.specular = vec4(0, 0, 0, 0);
 	pointLight.max_distance = 3250;
 	pointLight.constant = 1.0;
 	pointLight.linear = .00014;
@@ -813,7 +815,7 @@ void createObstacles() {
 	while(numRocks != 0) {
 		float posX = uniform_dist(rng) * (rightBound - leftBound) + leftBound;
 		float posY = uniform_dist(rng) * (bottomBound - topBound) + topBound;
-		createObstacle({posX, posY}, {ROCK_BB_WIDTH, ROCK_BB_HEIGHT}, TEXTURE_ASSET_ID::ROCK);
+		createNormalObstacle({posX, posY}, {ROCK_BB_WIDTH, ROCK_BB_HEIGHT}, TEXTURE_ASSET_ID::ROCK, NORMAL_ASSET_ID::ROCK);
 		numRocks--;
     }
 }
@@ -840,6 +842,32 @@ Entity createObstacle(vec2 position, vec2 size, TEXTURE_ASSET_ID assetId) {
 
     return entity;
 }
+
+Entity createNormalObstacle(vec2 position, vec2 size, TEXTURE_ASSET_ID assetId, NORMAL_ASSET_ID normalId) {
+    auto entity = Entity();
+    registry.obstacles.emplace(entity);
+
+    Motion& motion = registry.motions.emplace(entity);
+    motion.scale = size;
+
+    motion.position = vec3(position.x, position.y, getElevation(position) + size.y / 2);
+	motion.hitbox = { size.x, size.x, size.y / zConversionFactor };
+	motion.solid = true;
+
+    registry.renderRequests.insert(
+        entity, 
+        {
+            assetId,
+            EFFECT_ASSET_ID::TEXTURED_NORMAL,
+            GEOMETRY_BUFFER_ID::SPRITE,
+			PRIMITIVE_TYPE::TRIANGLES,
+			normalId
+        });
+    registry.midgrounds.emplace(entity);
+
+    return entity;
+}
+
 
 
 Entity createBottomCliff(vec2 position, vec2 size) {

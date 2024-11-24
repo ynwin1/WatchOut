@@ -82,6 +82,7 @@ bool RenderSystem::init(Camera* camera)
 	gl_has_errors();
 
 	initializeGlTextures();
+	initializeGlNormals();
 	initializeGlEffects();
 	initializeGlGeometryBuffers();
 
@@ -107,6 +108,34 @@ void RenderSystem::initializeGlTextures()
 			assert(false);
 		}
 		glBindTexture(GL_TEXTURE_2D, texture_gl_handles[i]);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, dimensions.x, dimensions.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		gl_has_errors();
+		stbi_image_free(data);
+	}
+	gl_has_errors();
+}
+
+void RenderSystem::initializeGlNormals()
+{
+	glGenTextures((GLsizei)normal_gl_handles.size(), normal_gl_handles.data());
+
+	for (uint i = 0; i < normal_paths.size(); i++)
+	{
+		const std::string& path = normal_paths[i];
+		ivec2& dimensions = texture_dimensions[i];
+
+		stbi_uc* data;
+		data = stbi_load(path.c_str(), &dimensions.x, &dimensions.y, NULL, 4);
+
+		if (data == NULL)
+		{
+			const std::string message = "Could not load the file " + path + ".";
+			fprintf(stderr, "%s", message.c_str());
+			assert(false);
+		}
+		glBindTexture(GL_TEXTURE_2D, normal_gl_handles[i]);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, dimensions.x, dimensions.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);

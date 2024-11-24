@@ -86,11 +86,20 @@ enum class TEXTURE_ASSET_ID
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
+enum class NORMAL_ASSET_ID
+{
+	NONE = -1,
+	ROCK = NONE + 1,
+	NORMAL_COUNT = ROCK + 1
+};
+const int normal_count = (int)NORMAL_ASSET_ID::NORMAL_COUNT;
+
 enum class EFFECT_ASSET_ID
 {
 	TEXTURED = 0,
 	TEXTURED_FLAT = TEXTURED + 1,
-	UNTEXTURED = TEXTURED_FLAT + 1,
+	TEXTURED_NORMAL = TEXTURED_FLAT + 1,
+	UNTEXTURED = TEXTURED_NORMAL + 1,
 	ANIMATED = UNTEXTURED + 1,
 	FONT = ANIMATED + 1,
 	TREE = FONT + 1,
@@ -122,6 +131,7 @@ struct RenderRequest
 	EFFECT_ASSET_ID used_effect = EFFECT_ASSET_ID::EFFECT_COUNT;
 	GEOMETRY_BUFFER_ID used_geometry = GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;
 	PRIMITIVE_TYPE primitive_type = PRIMITIVE_TYPE::TRIANGLES;
+	NORMAL_ASSET_ID used_normal = NORMAL_ASSET_ID::NONE;
 };
 
 struct Background {};
@@ -135,6 +145,8 @@ struct PointLight {
 	vec3 position;
 
 	vec4 ambient;
+	vec4 diffuse;
+    vec4 specular;
 
 	float max_distance;
 

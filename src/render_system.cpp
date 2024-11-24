@@ -143,6 +143,22 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection, const mat4& p
 		}
         bindModelMatrix(program, modelMatrix);
     }
+	// set attributes for textured meshes
+	else if (render_request.used_effect == EFFECT_ASSET_ID::TEXTURED_NORMAL)
+	{
+		GLint textureSamplerLocation = glGetUniformLocation(program, "sampler0");
+		GLint normalSamplerLocation  = glGetUniformLocation(program, "normalSampler");
+
+		glUniform1i(textureSamplerLocation, 0);
+		glUniform1i(normalSamplerLocation,  1);
+        bindTextureAttributes(program, entity);
+		bindNormalMap(program, entity);
+		bindLightingAttributes(program, entity);
+		if (registry.motions.has(entity)) {
+			bindPointLights(program, entity, registry.motions.get(entity));
+		}
+        bindModelMatrix(program, modelMatrix);
+    }
 	else if (render_request.used_effect == EFFECT_ASSET_ID::TEXTURED_FLAT) {
 		bindTextureAttributes(program, entity);
 	}
@@ -293,6 +309,19 @@ void RenderSystem::bindTextureAttributes(const GLuint program, const Entity &ent
     gl_has_errors();
 }
 
+void RenderSystem::bindNormalMap(const GLuint program, const Entity &entity) {
+	// Enabling and binding texture to slot 1
+	glActiveTexture(GL_TEXTURE1);
+    gl_has_errors();
+
+	assert(registry.renderRequests.has(entity));
+	RenderRequest renderRequest = registry.renderRequests.get(entity);
+	assert(renderRequest.used_normal != NORMAL_ASSET_ID::NONE);
+    GLuint normal_id = normal_gl_handles[(GLuint)renderRequest.used_normal];
+	glBindTexture(GL_TEXTURE_2D, normal_id);
+    gl_has_errors();
+}
+
 void RenderSystem::bindLightingAttributes(const GLuint program, const Entity &entity)
 {
 	// Pass lighting information to shaders
@@ -328,6 +357,8 @@ void RenderSystem::bindPointLights(const GLuint program, const Entity& entity, c
 
 		glUniform3fv(glGetUniformLocation(program, (base + "position").c_str()), 1, glm::value_ptr(validPointLights[i].position));
 		glUniform4fv(glGetUniformLocation(program, (base + "ambient").c_str()), 1, glm::value_ptr(validPointLights[i].ambient));
+		glUniform4fv(glGetUniformLocation(program, (base + "diffuse").c_str()), 1, glm::value_ptr(validPointLights[i].diffuse));
+		glUniform4fv(glGetUniformLocation(program, (base + "specular").c_str()), 1, glm::value_ptr(validPointLights[i].specular));
 		glUniform1f(glGetUniformLocation(program, (base + "max_distance").c_str()), validPointLights[i].max_distance);
 		glUniform1f(glGetUniformLocation(program, (base + "constant").c_str()), validPointLights[i].constant);
 		glUniform1f(glGetUniformLocation(program, (base + "linear").c_str()), validPointLights[i].linear);

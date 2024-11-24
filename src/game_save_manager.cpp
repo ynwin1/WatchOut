@@ -539,17 +539,17 @@ void GameSaveManager::groupComponentsForEntities(const json& j) {
 		}
 	}
 
-	// print the map
-	//for (const auto& entity : entityComponentGroups) {
-	//	std::cout << "Entity ID: " << entity.first << std::endl;
+	 // print the map
+	for (const auto& entity : entityComponentGroups) {
+		std::cout << "Entity ID: " << entity.first << std::endl;
 
-	//	for (const auto& component : entity.second) {
-	//		std::cout << "  Component Name: " << component.first << std::endl;
-	//		std::cout << "  Data: " << component.second.dump(4) << std::endl;  // Using dump(4) for pretty-printing with an indent of 4 spaces
-	//	}
+		for (const auto& component : entity.second) {
+			std::cout << "  Component Name: " << component.first << std::endl;
+			std::cout << "  Data: " << component.second.dump(4) << std::endl;  // Using dump(4) for pretty-printing with an indent of 4 spaces
+		}
 
-	//	std::cout << std::endl;  // Add a newline for better separation between entities
-	//}
+		std::cout << std::endl;  // Add a newline for better separation between entities
+	}
 }
 
 void GameSaveManager::deserialize_containers(const json& j) {
@@ -681,12 +681,25 @@ void GameSaveManager::createBoarDeserialization(std::map<std::string, nlohmann::
 	dash.dashTimer = (float)componentsMap["dashers"]["dashTimer"];
 	dash.dashDuration = (float)componentsMap["dashers"]["dashDuration"];
 
-	Enemy& enemy = registry.enemies.get(boar);
-	enemy.health = componentsMap["enemies"]["health"];
-	enemy.damage = componentsMap["enemies"]["damage"];
-	enemy.type = componentsMap["enemies"]["type"];
-	enemy.cooldown = componentsMap["enemies"]["cooldown"];
-	enemy.pathfindTime = componentsMap["enemies"]["pathfindTime"];
+	if (componentsMap.find("deathTimers") != componentsMap.end()) {
+		DeathTimer& deathTimer = registry.deathTimers.emplace(boar);
+		AnimationController& animationController = registry.animationControllers.get(boar);
+		animationController.changeState(boar, AnimationState::Dead);
+		deathTimer.timer = componentsMap["deathTimers"]["timer"];
+		HealthBar& hpbar = registry.healthBars.get(boar);
+		registry.remove_all_components_of(hpbar.meshEntity);
+		registry.remove_all_components_of(hpbar.frameEntity);
+		registry.healthBars.remove(boar);
+	}
+	else {
+		Enemy& enemy = registry.enemies.get(boar);
+		printf("Boar health: %d\n", componentsMap["enemies"]["health"]);
+		enemy.health = componentsMap["enemies"]["health"];
+		enemy.damage = componentsMap["enemies"]["damage"];
+		enemy.type = componentsMap["enemies"]["type"];
+		enemy.cooldown = componentsMap["enemies"]["cooldown"];
+		enemy.pathfindTime = componentsMap["enemies"]["pathfindTime"];
+	}
 
 	Motion& motion = registry.motions.get(boar);
 	motion.position = vec3(boarPosition, motion.position.z);
@@ -709,12 +722,24 @@ void GameSaveManager::createBarbarianDeserialization(std::map<std::string, nlohm
 	Entity barbarian = createBarbarian(barbarianPosition);
 
 	// essential values to update
-	Enemy& enemy = registry.enemies.get(barbarian);
-	enemy.health = componentsMap["enemies"]["health"];
-	enemy.damage = componentsMap["enemies"]["damage"];
-	enemy.type = componentsMap["enemies"]["type"];
-	enemy.cooldown = componentsMap["enemies"]["cooldown"];
-	enemy.pathfindTime = componentsMap["enemies"]["pathfindTime"];
+	if (componentsMap.find("deathTimers") != componentsMap.end()) {
+		DeathTimer& deathTimer = registry.deathTimers.emplace(barbarian);
+		AnimationController& animationController = registry.animationControllers.get(barbarian);
+		animationController.changeState(barbarian, AnimationState::Dead);
+		deathTimer.timer = componentsMap["deathTimers"]["timer"];
+		HealthBar& hpbar = registry.healthBars.get(barbarian);
+		registry.remove_all_components_of(hpbar.meshEntity);
+		registry.remove_all_components_of(hpbar.frameEntity);
+		registry.healthBars.remove(barbarian);
+	}
+	else {
+		Enemy& enemy = registry.enemies.get(barbarian);
+		enemy.health = componentsMap["enemies"]["health"];
+		enemy.damage = componentsMap["enemies"]["damage"];
+		enemy.type = componentsMap["enemies"]["type"];
+		enemy.cooldown = componentsMap["enemies"]["cooldown"];
+		enemy.pathfindTime = componentsMap["enemies"]["pathfindTime"];
+	}
 
 	Motion& motion = registry.motions.get(barbarian);
 	motion.position = vec3(barbarianPosition, motion.position.z);
@@ -741,13 +766,25 @@ void GameSaveManager::createArcherDeserialization(std::map<std::string, nlohmann
 	archerComponent.drawArrowTime = componentsMap["archers"]["drawArrowTime"];
 	archerComponent.aiming = componentsMap["archers"]["aiming"];
 
-	Enemy& enemy = registry.enemies.get(archer);
-	enemy.health = componentsMap["enemies"]["health"];
-	enemy.health = componentsMap["enemies"]["health"];
-	enemy.damage = componentsMap["enemies"]["damage"];
-	enemy.type = componentsMap["enemies"]["type"];
-	enemy.cooldown = componentsMap["enemies"]["cooldown"];
-	enemy.pathfindTime = componentsMap["enemies"]["pathfindTime"];
+	if (componentsMap.find("deathTimers") != componentsMap.end()) {
+		DeathTimer& deathTimer = registry.deathTimers.emplace(archer);
+		AnimationController& animationController = registry.animationControllers.get(archer);
+		animationController.changeState(archer, AnimationState::Dead);
+		deathTimer.timer = componentsMap["deathTimers"]["timer"];
+		HealthBar& hpbar = registry.healthBars.get(archer);
+		registry.remove_all_components_of(hpbar.meshEntity);
+		registry.remove_all_components_of(hpbar.frameEntity);
+		registry.healthBars.remove(archer);
+	}
+	else {
+		Enemy& enemy = registry.enemies.get(archer);
+		enemy.health = componentsMap["enemies"]["health"];
+		enemy.health = componentsMap["enemies"]["health"];
+		enemy.damage = componentsMap["enemies"]["damage"];
+		enemy.type = componentsMap["enemies"]["type"];
+		enemy.cooldown = componentsMap["enemies"]["cooldown"];
+		enemy.pathfindTime = componentsMap["enemies"]["pathfindTime"];
+	}
 
 	Motion& motion = registry.motions.get(archer);
 	motion.position = vec3(archerPosition, motion.position.z);
@@ -784,12 +821,24 @@ void GameSaveManager::createWizardDeserialization(std::map<std::string, nlohmann
 	wizardComponent.prepareLightningTime = componentsMap["wizards"]["prepareLightningTime"];
 	wizardComponent.locked_target = { (float)componentsMap["wizards"]["locked_target"][0], (float)componentsMap["wizards"]["locked_target"][1], (float)componentsMap["wizards"]["locked_target"][2] };
 
-	Enemy& enemy = registry.enemies.get(wizard);
-	enemy.health = componentsMap["enemies"]["health"];
-	enemy.damage = componentsMap["enemies"]["damage"];
-	enemy.type = componentsMap["enemies"]["type"];
-	enemy.cooldown = componentsMap["enemies"]["cooldown"];
-	enemy.pathfindTime = componentsMap["enemies"]["pathfindTime"];
+	if (componentsMap.find("deathTimers") != componentsMap.end()) {
+		DeathTimer& deathTimer = registry.deathTimers.emplace(wizard);
+		AnimationController& animationController = registry.animationControllers.get(wizard);
+		animationController.changeState(wizard, AnimationState::Dead);
+		deathTimer.timer = componentsMap["deathTimers"]["timer"];
+		HealthBar& hpbar = registry.healthBars.get(wizard);
+		registry.remove_all_components_of(hpbar.meshEntity);
+		registry.remove_all_components_of(hpbar.frameEntity);
+		registry.healthBars.remove(wizard);
+	}
+	else {
+		Enemy& enemy = registry.enemies.get(wizard);
+		enemy.health = componentsMap["enemies"]["health"];
+		enemy.damage = componentsMap["enemies"]["damage"];
+		enemy.type = componentsMap["enemies"]["type"];
+		enemy.cooldown = componentsMap["enemies"]["cooldown"];
+		enemy.pathfindTime = componentsMap["enemies"]["pathfindTime"];
+	}
 
 	Motion& motion = registry.motions.get(wizard);
 	motion.position = vec3(wizardPosition, motion.position.z);
@@ -814,12 +863,24 @@ void GameSaveManager::createTrollDeserialization(std::map<std::string, nlohmann:
 	Troll& trollComponent = registry.trolls.get(troll);
 	trollComponent.desiredAngle = componentsMap["trolls"]["desiredAngle"];
 
-	Enemy& enemy = registry.enemies.get(troll);
-	enemy.health = componentsMap["enemies"]["health"];
-	enemy.damage = componentsMap["enemies"]["damage"];
-	enemy.type = componentsMap["enemies"]["type"];
-	enemy.cooldown = componentsMap["enemies"]["cooldown"];
-	enemy.pathfindTime = componentsMap["enemies"]["pathfindTime"];
+	if (componentsMap.find("deathTimers") != componentsMap.end()) {
+		DeathTimer& deathTimer = registry.deathTimers.emplace(troll);
+		AnimationController& animationController = registry.animationControllers.get(troll);
+		animationController.changeState(troll, AnimationState::Dead);
+		deathTimer.timer = componentsMap["deathTimers"]["timer"];
+		HealthBar& hpbar = registry.healthBars.get(troll);
+		registry.remove_all_components_of(hpbar.meshEntity);
+		registry.remove_all_components_of(hpbar.frameEntity);
+		registry.healthBars.remove(troll);
+	}
+	else {
+		Enemy& enemy = registry.enemies.get(troll);
+		enemy.health = componentsMap["enemies"]["health"];
+		enemy.damage = componentsMap["enemies"]["damage"];
+		enemy.type = componentsMap["enemies"]["type"];
+		enemy.cooldown = componentsMap["enemies"]["cooldown"];
+		enemy.pathfindTime = componentsMap["enemies"]["pathfindTime"];
+	}
 
 	Motion& motion = registry.motions.get(troll);
 	motion.position = vec3(trollPosition, motion.position.z);

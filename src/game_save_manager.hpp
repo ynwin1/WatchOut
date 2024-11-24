@@ -9,7 +9,7 @@ class GameSaveManager {
 public:
 	using json = nlohmann::json;
 
-	GameSaveManager(RenderSystem* renderer, GLFWwindow* window, Camera* camera);
+	void init(RenderSystem* renderer, GLFWwindow* window, Camera* camera);
 
 	// Save the game
 	void save_game();

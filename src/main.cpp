@@ -29,6 +29,7 @@ int main()
 	SoundSystem sound;
 	AISystem ai = AISystem(rng, &sound);
 	Camera camera;
+	GameSaveManager saveManager;
 	
 
 	// Initializing window
@@ -44,7 +45,7 @@ int main()
 	camera.init(window);
 	renderer.init(&camera);
 	sound.init();
-	GameSaveManager saveManager = GameSaveManager(&renderer, window, &camera);
+	saveManager.init(&renderer, window, &camera);
 	world.init(&renderer, window, &camera, &physics, &ai, &sound, &saveManager);
 
 	auto t = Clock::now();

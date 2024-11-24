@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 
-GameSaveManager::GameSaveManager(RenderSystem* renderer, GLFWwindow* window, Camera* camera) {
+void GameSaveManager::init(RenderSystem* renderer, GLFWwindow* window, Camera* camera) {
 	this->renderer = renderer;
 	this->window = window;
 	this->camera = camera;
@@ -623,9 +623,9 @@ void GameSaveManager::createEntity(std::vector<std::string> componentNames, std:
 	else if (std::find(componentNames.begin(), componentNames.end(), "damagings") != componentNames.end()) {
 		createDamagingsDeserialization(componentsMap);
 	}
-	/*else if (std::find(componentNames.begin(), componentNames.end(), "meshPtrs") != componentNames.end()) {
+	else if (std::find(componentNames.begin(), componentNames.end(), "meshPtrs") != componentNames.end()) {
 		createTreeDeserialization(componentsMap);
-	}*/
+	}
 	/*else if (std::find(componentNames.begin(), componentNames.end(), "obstacles") != componentNames.end()) {
 		createObstacleDeserialization(componentsMap);
 	}*/

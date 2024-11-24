@@ -514,7 +514,7 @@ void AISystem::bomberBehaviour(Entity entity, Entity playerEntity, float elapsed
     Bomber& bomber = registry.bombers.get(entity);
     vec3 playerPosition = registry.motions.get(playerEntity).position;
     float d = distance(motion.position, playerPosition);
-    if (d < BOMBER_RANGE && !bomber.aiming) {
+    if (d < BOMBER_RANGE) {
         bomber.aiming = true;
         motion.velocity.x = 0;
         motion.velocity.y = 0;

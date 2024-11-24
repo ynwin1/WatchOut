@@ -1116,20 +1116,19 @@ void createTrees(RenderSystem* renderer) {
 void createExplosion(vec3 pos)
 {
 	auto entity = Entity();
-	const int explosionWidth = 350.0f;
-	const int explosionHeight = 350.0f;
-	const int explosionHitboxW = explosionWidth - 30.0f;
-	const int explosionHitboxH = explosionHeight - 30.0f;
 
 	registry.explosions.emplace(entity);
 	Damaging& dmg = registry.damagings.emplace(entity);
-	dmg.damage = 0;
+	dmg.damage = 30;
 
 	// Setting intial motion values
 	Motion& motion = registry.motions.emplace(entity);
 	motion.position = pos;
-	motion.scale = { explosionWidth, explosionHeight };
-	motion.hitbox = { explosionHitboxW, explosionHitboxH, 0.0f};
+	motion.scale = { EXPLOSION_BB_WIDTH + 30.0f, EXPLOSION_BB_HEIGHT + 30.0f };
+	motion.hitbox = { EXPLOSION_BB_WIDTH, EXPLOSION_BB_HEIGHT, 0.0f};
+
+	Knocker& knocker = registry.knockers.emplace(entity);
+	knocker.strength = 1.5f;
 	
 	initExplosionAnimationController(entity);
 	registry.midgrounds.emplace(entity);

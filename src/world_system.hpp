@@ -77,7 +77,7 @@ private:
 	const std::unordered_map<std::string, int> initial_max_entities = {
 		{"boar", 0},
 		{"barbarian", 0},
-		{"archer", 0},
+		{"archer", 1},
 		{"bird", 0},
 		{"wizard", 0},
 		{"troll", 0},

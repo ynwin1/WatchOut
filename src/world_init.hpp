@@ -51,6 +51,8 @@ const float LIGHTNING_BB_WIDTH = 48.f * SPRITE_SCALE;
 const float LIGHTNING_BB_HEIGHT = 400.f * SPRITE_SCALE;
 const float BOMB_BB_WIDTH = 19.0f * SPRITE_SCALE;
 const float BOMB_BB_HEIGHT = 16.0f * SPRITE_SCALE;
+const float EXPLOSION_BB_WIDTH = 107.0f * SPRITE_SCALE;
+const float EXPLOSION_BB_HEIGHT = 107.0f * SPRITE_SCALE;
 
 const float FIREBALL_HITBOX_WIDTH = 10.f * SPRITE_SCALE;
 const float FIREBALL_ACCELERATION = 0.5f;
@@ -77,7 +79,7 @@ const int BOMBER_HEALTH = 100;
 
 const int BOAR_DAMAGE = 30;
 const int BARBARIAN_DAMAGE = 20;
-const int ARCHER_DAMAGE = 0;
+const int ARCHER_DAMAGE = 25;
 const int BIRD_DAMAGE = 10;
 const int WIZARD_DAMAGE = 50;
 const int TROLL_DAMAGE = 5;

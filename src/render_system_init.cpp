@@ -129,12 +129,6 @@ void RenderSystem::initializeGlNormals()
 		stbi_uc* data;
 		data = stbi_load(path.c_str(), &dimensions.x, &dimensions.y, NULL, 4);
 
-		if (data == NULL)
-		{
-			const std::string message = "Could not load the file " + path + ".";
-			fprintf(stderr, "%s", message.c_str());
-			assert(false);
-		}
 		glBindTexture(GL_TEXTURE_2D, normal_gl_handles[i]);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, dimensions.x, dimensions.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);

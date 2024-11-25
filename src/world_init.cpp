@@ -807,14 +807,14 @@ void createObstacles() {
 	while(numShrubs != 0) {
 		float posX = uniform_dist(rng) * (rightBound - leftBound) + leftBound;
 		float posY = uniform_dist(rng) * (bottomBound - topBound) + topBound;
-		createObstacle({posX, posY}, {SHRUB_BB_WIDTH, SHRUB_BB_HEIGHT}, TEXTURE_ASSET_ID::SHRUB);
+		createNormalObstacle({posX, posY}, {SHRUB_BB_WIDTH, SHRUB_BB_HEIGHT}, TEXTURE_ASSET_ID::SHRUB);
 		numShrubs--;
     }
 	int numRocks = 15;
 	while(numRocks != 0) {
 		float posX = uniform_dist(rng) * (rightBound - leftBound) + leftBound;
 		float posY = uniform_dist(rng) * (bottomBound - topBound) + topBound;
-		createNormalObstacle({posX, posY}, {ROCK_BB_WIDTH, ROCK_BB_HEIGHT}, TEXTURE_ASSET_ID::ROCK, NORMAL_ASSET_ID::ROCK);
+		createNormalObstacle({posX, posY}, {ROCK_BB_WIDTH, ROCK_BB_HEIGHT}, TEXTURE_ASSET_ID::ROCK);
 		numRocks--;
     }
 }
@@ -842,7 +842,7 @@ Entity createObstacle(vec2 position, vec2 size, TEXTURE_ASSET_ID assetId) {
     return entity;
 }
 
-Entity createNormalObstacle(vec2 position, vec2 size, TEXTURE_ASSET_ID assetId, NORMAL_ASSET_ID normalId) {
+Entity createNormalObstacle(vec2 position, vec2 size, TEXTURE_ASSET_ID assetId) {
     auto entity = Entity();
     registry.obstacles.emplace(entity);
 
@@ -859,8 +859,7 @@ Entity createNormalObstacle(vec2 position, vec2 size, TEXTURE_ASSET_ID assetId, 
             assetId,
             EFFECT_ASSET_ID::TEXTURED_NORMAL,
             GEOMETRY_BUFFER_ID::SPRITE,
-			PRIMITIVE_TYPE::TRIANGLES,
-			normalId
+			PRIMITIVE_TYPE::TRIANGLES
         });
     registry.midgrounds.emplace(entity);
 

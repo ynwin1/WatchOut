@@ -68,7 +68,7 @@ AnimationController& initJeffAnimationController(Entity& jeff) {
 		jeff,
 		{
 			TEXTURE_ASSET_ID::JEFF_IDLE,
-			EFFECT_ASSET_ID::ANIMATED,
+			EFFECT_ASSET_ID::ANIMATED_NORMAL,
 			GEOMETRY_BUFFER_ID::SPRITE
 		});
 

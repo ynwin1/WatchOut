@@ -172,6 +172,22 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection, const mat4& p
 		}
 		bindModelMatrix(program, modelMatrix);
     }
+	else if (render_request.used_effect == EFFECT_ASSET_ID::ANIMATED_NORMAL)
+	{
+		GLint textureSamplerLocation = glGetUniformLocation(program, "sampler0");
+		GLint normalSamplerLocation  = glGetUniformLocation(program, "normalSampler");
+		glUniform1i(textureSamplerLocation, 0);
+		glUniform1i(normalSamplerLocation,  1);
+		
+		bindTextureAttributes(program, entity);
+        bindAnimationAttributes(program, entity);
+		bindLightingAttributes(program, entity);
+		bindNormalMap(program, entity);
+		if (registry.motions.has(entity)) {
+			bindPointLights(program, entity, registry.motions.get(entity));
+		}
+		bindModelMatrix(program, modelMatrix);
+    }
 	// set attributes for untextured meshes
 	else if(render_request.used_effect == EFFECT_ASSET_ID::UNTEXTURED)
 	{
@@ -316,8 +332,7 @@ void RenderSystem::bindNormalMap(const GLuint program, const Entity &entity) {
 
 	assert(registry.renderRequests.has(entity));
 	RenderRequest renderRequest = registry.renderRequests.get(entity);
-	assert(renderRequest.used_normal != NORMAL_ASSET_ID::NONE);
-    GLuint normal_id = normal_gl_handles[(GLuint)renderRequest.used_normal];
+    GLuint normal_id = normal_gl_handles[(GLuint)renderRequest.used_texture];
 	glBindTexture(GL_TEXTURE_2D, normal_id);
     gl_has_errors();
 }

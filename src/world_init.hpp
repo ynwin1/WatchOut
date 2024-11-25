@@ -153,4 +153,7 @@ Entity createSideCliff(vec2 position, vec2 scale);
 Entity createTopCliff(vec2 position, vec2 scale);
 void createTrees(RenderSystem* renderer);
 
+//Tutorial
+Entity createTutorialTarget(vec3 position);
+
 float getElevation(vec2 xy);

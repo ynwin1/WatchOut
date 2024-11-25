@@ -153,7 +153,7 @@ void WorldSystem::updateEnemyTutorial() {
             motion.position.y < exclusionBottom && motion.position.y > exclusionTop) {
             std::string enemyType = registry.enemies.get(enemy).type; 
             if (encounteredEnemies.find(enemyType) == encounteredEnemies.end()) {
-                createTargetArea(motion.position, 200.0f);
+                createTutorialTarget(motion.position);
                 if (enemyType == "BOAR") {
                     gameStateController.setGameState(GAME_STATE::BOAR_TUTORIAL);
                 }

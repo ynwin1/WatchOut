@@ -676,6 +676,32 @@ Entity createTargetArea(vec3 position, float radius) {
 	return entity;
 }
 
+Entity createTutorialTarget(vec3 position) {
+	auto entity = Entity();
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = position;
+	motion.position.z = 0.f;
+
+	float ogRadius = 170.f;
+	float scaledFactor = 150.0f / ogRadius;
+	motion.scale = { 2 * ogRadius * scaledFactor, 2 * ogRadius * scaledFactor * zConversionFactor };
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::TARGET_AREA,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	registry.backgrounds.emplace(entity);
+	registry.targetAreas.emplace(entity);
+	Cooldown& cooldown = registry.cooldowns.emplace(entity);
+	cooldown.remaining = 500.f; 
+	return entity;
+}
+
 Entity createPauseHelpText(vec2 windowSize) {
 	auto entity = Entity();
 

@@ -492,6 +492,7 @@ void PhysicsSystem::step(float elapsed_ms)
 std::vector<vec3> boundingBoxVertices(Motion& motion)
 {
 	std::vector<vec3> vertices;
+	vertices.reserve(8);
 	for (auto i : { -0.5f, 0.5f }) {
 		for (auto j : { -0.5f, 0.5f }) {
 			for (auto k : { -0.5f, 0.5f }) {

@@ -992,7 +992,7 @@ void WorldSystem::toggleMesh() {
             registry.renderRequests.insert(
                 meshEntity, {
                     TEXTURE_ASSET_ID::TREE,
-                    EFFECT_ASSET_ID::TEXTURED,
+                    EFFECT_ASSET_ID::TEXTURED_NORMAL,
                     GEOMETRY_BUFFER_ID::SPRITE });
         }
     }

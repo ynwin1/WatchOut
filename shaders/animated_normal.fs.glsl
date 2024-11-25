@@ -45,7 +45,7 @@ void main()
 	vec2 frame_texcoord = vec2(texcoord.x * frame_width + current_frame*frame_width, texcoord.y);
 
     // Get normal in range [-1, 1]
-    vec3 normal = texture(normalSampler, vec2(texcoord.x, texcoord.y)).rbg;
+    vec3 normal = texture(normalSampler, vec2(frame_texcoord.x, frame_texcoord.y)).rbg;
     normal = normalize(normal * 2.0 - 1.0);  
 
 	// Colour of raw texture/ damage effect 

@@ -375,12 +375,12 @@ Entity createJeff(vec2 position)
 
 	auto& pointLight = registry.pointLights.emplace(entity);
 	pointLight.position = motion.position;
-	pointLight.ambient = vec4(1.0, .75, 0.25, 1.0);
-	pointLight.diffuse = vec4(1.0, .75, 0.25, .1);
+	pointLight.ambient = vec4(1.0, .75, 0.25, .2);
+	pointLight.diffuse = vec4(1.0, .75, 0.25, 1.0);
 	pointLight.max_distance = 3250;
 	pointLight.constant = 1.0;
 	pointLight.linear = .00014;
-	pointLight.quadratic = 0.000007;
+	pointLight.quadratic = 0.00001;
 	
 	return entity;
 }
@@ -404,7 +404,7 @@ Entity createTree(RenderSystem* renderer, vec2 pos)
 	registry.renderRequests.insert(
 		entity, {
 			TEXTURE_ASSET_ID::TREE,
-			EFFECT_ASSET_ID::TEXTURED,
+			EFFECT_ASSET_ID::TEXTURED_NORMAL,
 			GEOMETRY_BUFFER_ID::SPRITE });
 
 	/*if (!RENDERING_MESH) {

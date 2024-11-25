@@ -214,7 +214,7 @@ AnimationController& initTrollAnimationController(Entity& entity) {
 		entity,
 		{
 			TEXTURE_ASSET_ID::TROLL_RUN,
-			EFFECT_ASSET_ID::ANIMATED,
+			EFFECT_ASSET_ID::ANIMATED_NORMAL,
 			GEOMETRY_BUFFER_ID::SPRITE
 		});
 

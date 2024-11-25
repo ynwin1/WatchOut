@@ -9,6 +9,9 @@
 #include "tiny_ecs.hpp"
 #include "components.hpp"
 
+
+const int MAX_POINT_LIGHTS = 3;
+
 // System responsible for setting up OpenGL and for rendering all the
 // visual entities in the game
 class RenderSystem {
@@ -131,6 +134,10 @@ class RenderSystem {
 		shader_path("font"), 
 		shader_path("tree")
 	};
+	std::array<GLuint, effect_count> in_position_locations;
+	std::array<GLuint, effect_count> in_texcoord_locations;
+	std::array<GLuint, effect_count> to_screen_locations;
+	std::array<std::array<GLuint, MAX_POINT_LIGHTS * 7>, effect_count> point_light_uniform_locations;
 
 	std::array<GLuint, geometry_count> vertex_buffers;
 	std::array<GLuint, geometry_count> index_buffers;
@@ -156,7 +163,7 @@ public:
 
 	void initializeGlGeometryBuffers();
 
-	void initializePointLightUniformLocations();
+	void initializeGlAttributeLocations();
 
 	void initRectangleBuffer();
 
@@ -182,8 +189,6 @@ private:
 	Camera* camera;
 	const float AMBIENT_LIGHT = .2;
 
-	std::vector<std::string> pointLightsUniformLocations;
-
 	// Internal drawing functions for each entity type
 	void drawMesh(Entity entity, const mat3& projection, const mat4& projection_screen);
 
@@ -191,13 +196,13 @@ private:
 
     void bindAnimationAttributes(const GLuint program, const Entity &entity);
 
-    void bindTextureAttributes(const GLuint program, const Entity &entity);
+    void bindTextureAttributes(const GLuint program, const Entity &entity, const GLuint effect_id);
 
     void bindNormalMap(const GLuint program, const Entity &entity);
 
     void bindLightingAttributes(const GLuint program, const Entity &entity);
 
-	void bindPointLights(const GLuint program, const Entity& entity, const Motion& motion);
+	void bindPointLights(const GLuint program, const Entity& entity, const Motion& motion, const GLuint effect_id);
 
 	void drawText(Entity entity, const mat4& projection_screen);
 
@@ -223,5 +228,3 @@ float visualToWorldY(float y);
 vec2 worldToVisual(vec3 pos);
 static const float yConversionFactor = 1 / sqrt(2);
 static const float zConversionFactor = 1 / sqrt(2);
-
-const int MAX_POINT_LIGHTS = 3;

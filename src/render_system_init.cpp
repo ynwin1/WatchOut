@@ -85,7 +85,7 @@ bool RenderSystem::init(Camera* camera)
 	initializeGlNormals();
 	initializeGlEffects();
 	initializeGlGeometryBuffers();
-	initializePointLightUniformLocations();
+	initializeGlAttributeLocations();
 
 	return true;
 }
@@ -149,6 +149,32 @@ void RenderSystem::initializeGlEffects()
 
 		bool is_valid = loadEffectFromFile(vertex_shader_name, fragment_shader_name, effects[i]);
 		assert(is_valid && (GLuint)effects[i] != 0);
+	}
+}
+
+void RenderSystem::initializeGlAttributeLocations()
+{
+	for (uint i = 0; i < effect_paths.size(); i++) {
+		const GLuint program = (GLuint)effects[i];
+		glUseProgram(program);
+
+		GLint in_position_loc = glGetAttribLocation(program, "in_position");
+		GLint in_texcoord_loc = glGetAttribLocation(program, "in_texcoord");
+		GLint to_screen = glGetUniformLocation(program, "toScreen");
+		in_position_locations[i] = in_position_loc;
+		in_texcoord_locations[i] = in_texcoord_loc;
+		to_screen_locations[i] = to_screen;
+
+		for (size_t j = 0; j < MAX_POINT_LIGHTS; j++) {
+			std::string base = "pointLights[" + std::to_string(j) + "].";
+			point_light_uniform_locations[i][j * 7 + 0] = glGetUniformLocation(program, (base + "position").c_str());
+			point_light_uniform_locations[i][j * 7 + 1] = glGetUniformLocation(program, (base + "ambient").c_str());
+			point_light_uniform_locations[i][j * 7 + 2] = glGetUniformLocation(program, (base + "diffuse").c_str());
+			point_light_uniform_locations[i][j * 7 + 3] = glGetUniformLocation(program, (base + "max_distance").c_str());
+			point_light_uniform_locations[i][j * 7 + 4] = glGetUniformLocation(program, (base + "constant").c_str());
+			point_light_uniform_locations[i][j * 7 + 5] = glGetUniformLocation(program, (base + "linear").c_str());
+			point_light_uniform_locations[i][j * 7 + 6] = glGetUniformLocation(program, (base + "quadratic").c_str());
+		}
 	}
 }
 
@@ -262,20 +288,6 @@ void RenderSystem::initRectangleBuffer() {
 
     const std::vector<uint16_t> rectangle_indices = { 0, 1, 2, 0, 2, 3 };
     bindVBOandIBO(GEOMETRY_BUFFER_ID::RECTANGLE, rectangle_vertices, rectangle_indices);
-}
-
-void RenderSystem::initializePointLightUniformLocations() {
-	pointLightsUniformLocations.reserve(MAX_POINT_LIGHTS * 7);
-	for (size_t i = 0; i < MAX_POINT_LIGHTS; i++) {
-		std::string base = "pointLights[" + std::to_string(i) + "].";
-		pointLightsUniformLocations.push_back(base + "position");
-		pointLightsUniformLocations.push_back(base + "ambient");
-		pointLightsUniformLocations.push_back(base + "diffuse");
-		pointLightsUniformLocations.push_back(base + "max_distance");
-		pointLightsUniformLocations.push_back(base + "constant");
-		pointLightsUniformLocations.push_back(base + "linear");
-		pointLightsUniformLocations.push_back(base + "quadratic");
-	}
 }
 
 void RenderSystem::initText() {

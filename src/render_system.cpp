@@ -136,10 +136,10 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection, const mat4& p
 	// set attributes for textured meshes
 	if (render_request.used_effect == EFFECT_ASSET_ID::TEXTURED)
 	{
-        bindTextureAttributes(program, entity);
+        bindTextureAttributes(program, entity, used_effect_enum);
 		bindLightingAttributes(program, entity);
 		if (registry.motions.has(entity)) {
-			bindPointLights(program, entity, registry.motions.get(entity));
+			bindPointLights(program, entity, registry.motions.get(entity), used_effect_enum);
 		}
         bindModelMatrix(program, modelMatrix);
     }
@@ -151,24 +151,24 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection, const mat4& p
 
 		glUniform1i(textureSamplerLocation, 0);
 		glUniform1i(normalSamplerLocation,  1);
-        bindTextureAttributes(program, entity);
+        bindTextureAttributes(program, entity, used_effect_enum);
 		bindNormalMap(program, entity);
 		bindLightingAttributes(program, entity);
 		if (registry.motions.has(entity)) {
-			bindPointLights(program, entity, registry.motions.get(entity));
+			bindPointLights(program, entity, registry.motions.get(entity), used_effect_enum);
 		}
         bindModelMatrix(program, modelMatrix);
     }
 	else if (render_request.used_effect == EFFECT_ASSET_ID::TEXTURED_FLAT) {
-		bindTextureAttributes(program, entity);
+		bindTextureAttributes(program, entity, used_effect_enum);
 	}
 	else if (render_request.used_effect == EFFECT_ASSET_ID::ANIMATED)
 	{
-		bindTextureAttributes(program, entity);
+		bindTextureAttributes(program, entity, used_effect_enum);
         bindAnimationAttributes(program, entity);
 		bindLightingAttributes(program, entity);
 		if (registry.motions.has(entity)) {
-			bindPointLights(program, entity, registry.motions.get(entity));
+			bindPointLights(program, entity, registry.motions.get(entity), used_effect_enum);
 		}
 		bindModelMatrix(program, modelMatrix);
     }
@@ -179,12 +179,12 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection, const mat4& p
 		glUniform1i(textureSamplerLocation, 0);
 		glUniform1i(normalSamplerLocation,  1);
 		
-		bindTextureAttributes(program, entity);
+		bindTextureAttributes(program, entity, used_effect_enum);
         bindAnimationAttributes(program, entity);
 		bindLightingAttributes(program, entity);
 		bindNormalMap(program, entity);
 		if (registry.motions.has(entity)) {
-			bindPointLights(program, entity, registry.motions.get(entity));
+			bindPointLights(program, entity, registry.motions.get(entity), used_effect_enum);
 		}
 		bindModelMatrix(program, modelMatrix);
     }
@@ -192,7 +192,7 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection, const mat4& p
 	else if(render_request.used_effect == EFFECT_ASSET_ID::UNTEXTURED)
 	{
 		bindLightingAttributes(program, entity);
-		GLint in_position_loc = glGetAttribLocation(program, "in_position");
+		GLint in_position_loc = in_position_locations[used_effect_enum];
 		gl_has_errors();
 		glEnableVertexAttribArray(in_position_loc);
 		glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(UntexturedVertex), (void*)0);
@@ -223,14 +223,11 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection, const mat4& p
 	glUniform4fv(colour_uloc, 1, (float*)&colour);
 	gl_has_errors();
 
-	GLint currProgram;
-	glGetIntegerv(GL_CURRENT_PROGRAM, &currProgram);
-
-	GLuint toScreen = glGetUniformLocation(currProgram, "toScreen");
+	GLuint toScreen = to_screen_locations[used_effect_enum];
 
 	if(registry.foregrounds.has(entity)) { // screen space
 		glUniform1i(toScreen, 1);
-		GLuint projection_loc = glGetUniformLocation(currProgram, "projection4");
+		GLuint projection_loc = glGetUniformLocation(program, "projection4");
 		glUniformMatrix4fv(projection_loc, 1, GL_FALSE, value_ptr(projection_screen));
 		gl_has_errors();
 
@@ -240,26 +237,27 @@ void RenderSystem::drawMesh(Entity entity, const mat3& projection, const mat4& p
 		glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(fg.scale.x, fg.scale.y, 1.0f));
 		transform4 = transform4 * scale;
 
-		unsigned int transformLoc = glGetUniformLocation(currProgram, "transform4");
+		unsigned int transformLoc = glGetUniformLocation(program, "transform4");
 		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, value_ptr(transform4));
 		gl_has_errors();
 	} else {
 		glUniform1i(toScreen, 0);
 		// Setting uniform values to the currently bound program
-		GLuint transform_loc = glGetUniformLocation(currProgram, "transform");
+		GLuint transform_loc = glGetUniformLocation(program, "transform");
 		glUniformMatrix3fv(transform_loc, 1, GL_FALSE, (float*)&transform.mat);
-		GLuint projection_loc = glGetUniformLocation(currProgram, "projection");
+		GLuint projection_loc = glGetUniformLocation(program, "projection");
 		glUniformMatrix3fv(projection_loc, 1, GL_FALSE, (float*)&projection);
 		gl_has_errors();
 	}
 
-	if(render_request.primitive_type == PRIMITIVE_TYPE::LINES) {
+	if (render_request.primitive_type == PRIMITIVE_TYPE::LINES) {
 		GLint buffer_size = 0;
 		glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &buffer_size);
 		gl_has_errors();
 		GLsizei num_vertices = buffer_size / sizeof(UntexturedVertex);
 		glDrawArrays(GL_LINE_LOOP, 0, num_vertices);
-	} else {
+	}
+	else {
 		// Get number of indices from index buffer, which has elements uint16_t
 		GLint size = 0;
 		glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
@@ -300,10 +298,10 @@ void RenderSystem::bindAnimationAttributes(const GLuint program, const Entity &e
     gl_has_errors();
 }
 
-void RenderSystem::bindTextureAttributes(const GLuint program, const Entity &entity)
+void RenderSystem::bindTextureAttributes(const GLuint program, const Entity &entity, const GLuint effect_id)
 {
-    GLint in_position_loc = glGetAttribLocation(program, "in_position");
-    GLint in_texcoord_loc = glGetAttribLocation(program, "in_texcoord");
+    GLint in_position_loc = in_position_locations[effect_id];
+    GLint in_texcoord_loc = in_texcoord_locations[effect_id];
     gl_has_errors();
     assert(in_texcoord_loc >= 0);
 
@@ -348,7 +346,7 @@ void RenderSystem::bindLightingAttributes(const GLuint program, const Entity &en
 	}
 }
 
-void RenderSystem::bindPointLights(const GLuint program, const Entity& entity, const Motion& motion)
+void RenderSystem::bindPointLights(const GLuint program, const Entity& entity, const Motion& motion, const GLuint effect_id)
 {
 	PointLight validPointLights[MAX_POINT_LIGHTS]{};
 	int num_point_lights = 0;
@@ -368,13 +366,13 @@ void RenderSystem::bindPointLights(const GLuint program, const Entity& entity, c
 		glUniform1i(location, max(0, num_point_lights)); // Use glUniform1i for integer uniforms
 	}
 	for (size_t i = 0; i < MAX_POINT_LIGHTS; ++i) {
-		glUniform3fv(glGetUniformLocation(program, pointLightsUniformLocations[i * 7 + 0].c_str()), 1, glm::value_ptr(validPointLights[i].position));
-		glUniform4fv(glGetUniformLocation(program, pointLightsUniformLocations[i * 7 + 1].c_str()), 1, glm::value_ptr(validPointLights[i].ambient));
-		glUniform4fv(glGetUniformLocation(program, pointLightsUniformLocations[i * 7 + 2].c_str()), 1, glm::value_ptr(validPointLights[i].diffuse));
-		glUniform1f( glGetUniformLocation(program, pointLightsUniformLocations[i * 7 + 3].c_str()), validPointLights[i].max_distance);
-		glUniform1f( glGetUniformLocation(program, pointLightsUniformLocations[i * 7 + 4].c_str()), validPointLights[i].constant);
-		glUniform1f( glGetUniformLocation(program, pointLightsUniformLocations[i * 7 + 5].c_str()), validPointLights[i].linear);
-		glUniform1f( glGetUniformLocation(program, pointLightsUniformLocations[i * 7 + 6].c_str()), validPointLights[i].quadratic);
+		glUniform3fv(point_light_uniform_locations[effect_id][i * 7 + 0], 1, glm::value_ptr(validPointLights[i].position));
+		glUniform4fv(point_light_uniform_locations[effect_id][i * 7 + 1], 1, glm::value_ptr(validPointLights[i].ambient));
+		glUniform4fv(point_light_uniform_locations[effect_id][i * 7 + 2], 1, glm::value_ptr(validPointLights[i].diffuse));
+		glUniform1f (point_light_uniform_locations[effect_id][i * 7 + 3], validPointLights[i].max_distance);
+		glUniform1f (point_light_uniform_locations[effect_id][i * 7 + 4], validPointLights[i].constant);
+		glUniform1f (point_light_uniform_locations[effect_id][i * 7 + 5], validPointLights[i].linear);
+		glUniform1f (point_light_uniform_locations[effect_id][i * 7 + 6], validPointLights[i].quadratic);
 	}
 }
 

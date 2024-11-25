@@ -56,7 +56,6 @@ private:
 	std::string OBSTACLES = "obstacles";
 	std::string MESHES = "meshPtrs";
 	std::string COLLECTED = "collected";
-	std::string TRAPPABLES = "trappables";
 	std::string MESHPTRS = "meshPtrs";
 	std::string BOARS = "boars";
 	std::string BARBARIANS = "barbarians";
@@ -107,4 +106,20 @@ private:
 	void createObstacleDeserialization(std::map<std::string, nlohmann::json> componentsMap);
 	void createTargetAreaDeserialization(std::map<std::string, nlohmann::json> componentsMap);
 	void createDamagingsDeserialization(std::map<std::string, nlohmann::json> componentsMap);
+
+	// helpers
+	void handleDeathTimer(Entity& entity, std::map<std::string, nlohmann::json> componentsMap);
+	void handleMotion(Entity& entity, std::map<std::string, nlohmann::json> componentsMap);
+	void handleTrappable(Entity& entity, std::map<std::string, nlohmann::json> componentsMap);
+	void handleEnemy(Entity& entity, std::map<std::string, nlohmann::json> componentsMap);
+	void handleDasher(Entity& entity, std::map<std::string, nlohmann::json> componentsMap);
+	void handleKnocker(Entity& entity, std::map<std::string, nlohmann::json> componentsMap);
+	void handleCooldown(Entity& entity, std::map<std::string, nlohmann::json> componentsMap);
+
+	void handleBoar(Entity& entity, std::map<std::string, nlohmann::json> componentsMap);
+	void handleBarbarian(Entity& entity, std::map<std::string, nlohmann::json> componentsMap);
+	void handleArcher(Entity& entity, std::map<std::string, nlohmann::json> componentsMap);
+	void handleBirdFlock(Entity& entity, std::map<std::string, nlohmann::json> componentsMap);
+	void handleWizard(Entity& entity, std::map<std::string, nlohmann::json> componentsMap);
+	void handleTroll(Entity& entity, std::map<std::string, nlohmann::json> componentsMap);
 };

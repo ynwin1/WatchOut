@@ -82,7 +82,7 @@ void WorldSystem::load_game() {
     reloadText();
 
     playerEntity = registry.players.entities[0];
-    trapsCounter.count = registry.collectibleTraps.size();
+    trapsCounter.count = saveManager->getTrapCounter();
     gameStateController.setGameState(GAME_STATE::PLAYING);
 }
 
@@ -367,7 +367,7 @@ void WorldSystem::pauseControls(int key, int action, int mod)
             gameStateController.setGameState(GAME_STATE::HELP);
             break;
         case GLFW_KEY_S:
-            saveManager->save_game();
+            saveManager->save_game(trapsCounter.count);
             printf("Saved game\n");
             break;
         case GLFW_KEY_L:

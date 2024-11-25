@@ -12,16 +12,21 @@ public:
 	void init(RenderSystem* renderer, GLFWwindow* window, Camera* camera);
 
 	// Save the game
-	void save_game();
+	void save_game(int trapCounter);
 
 	// Load the game
 	void load_game();
+	
+	// get trap counter
+	int getTrapCounter();
 
 private:
 
 	RenderSystem* renderer;
 	GLFWwindow* window;
 	Camera* camera;
+
+	int trapCounter = 0;
 
 	// CONSTANTS
 	// CONTAINERS

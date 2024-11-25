@@ -18,10 +18,11 @@ void GameSaveManager::init(RenderSystem* renderer, GLFWwindow* window, Camera* c
 }
 
 // Serialize the game state to a JSON file
-void GameSaveManager::save_game() {
+void GameSaveManager::save_game(int trapCounter) {
 	json j;
 
 	serialize_containers(j);
+	j["trapCounter"] = trapCounter;
 
 	std::ofstream file(gameSaveFilePath);
 	if (file.is_open()) {
@@ -36,6 +37,7 @@ void GameSaveManager::save_game() {
 void GameSaveManager::serialize_containers(json& j) {
 	j["gameTimer"] = serialize_game_timer(registry.gameTimer);
 	j["gameScore"] = serialize_game_score(registry.gameScore);
+
 
 	// Serialize all component containers
 	j[PLAYERS] = serialize_container<Player>(registry.players);
@@ -533,7 +535,7 @@ void GameSaveManager::groupComponentsForEntities(const json& j) {
 		auto& container = item.value();
 
 		// skip gameTimer and gameScore
-		if (containerName == "gameTimer" || containerName == "gameScore") {
+		if (containerName == "gameTimer" || containerName == "gameScore" || containerName == "trapCounter") {
 			continue;
 		}
 
@@ -585,6 +587,8 @@ void GameSaveManager::deserialize_containers(const json& j) {
 
 	deserialize_game_timer(j);
 	deserialize_game_score(j);
+
+	trapCounter = (int) j["trapCounter"];
 }
 
 //void GameSaveManager::createEntity(std::vector<std::string> componentNames, std::map<std::string, nlohmann::json> componentsMap) {
@@ -984,4 +988,7 @@ void GameSaveManager::handleTroll(Entity& entity, std::map<std::string, nlohmann
 	troll.desiredAngle = componentsMap[TROLLS]["desiredAngle"];
 }
 
+int GameSaveManager::getTrapCounter() {
+	return this->trapCounter;
+}
 

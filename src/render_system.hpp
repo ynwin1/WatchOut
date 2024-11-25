@@ -66,13 +66,18 @@ class RenderSystem {
 	  	textures_path("border/cliff2.png"),           // SIDE CLIFF
 	  	textures_path("border/cliffTop.png"),         // TOP CLIFF
 	  	textures_path("menu/HelpMenu.png"),           // MENU_HELP
-		textures_path("menu/PauseMenu.png"),           // MENU_PAUSED
-		textures_path("tutorial/Tutorial1.png"),       // TUTORIAL SLIDE 1
-		textures_path("tutorial/Tutorial2.png"),       // TUTORIAL SLIDE 2
-		textures_path("tutorial/Tutorial3.png"),       // TUTORIAL SLIDE 3
-		textures_path("bird/bird_fly.png"),				 // BIRD FLY
-		textures_path("bird/bird_swoop.png"),			// BIRD SWOOP
-		textures_path("bird/bird_dead.png"),				 // BIRD DEAD
+		textures_path("menu/PauseMenu.png"),          // MENU_PAUSED
+		textures_path("tutorial/Tutorial1.png"),      // TUTORIAL SLIDE 1
+		textures_path("tutorial/Tutorial2.png"),      // TUTORIAL SLIDE 2
+		textures_path("tutorial/Tutorial3.png"),      // TUTORIAL SLIDE 3
+		textures_path("enemy_intros/boar.png"),       // BOAR INTO
+		textures_path("enemy_intros/bird.png"),       // BIRD INTRO
+		textures_path("enemy_intros/wizard.png"),     // WIZARD INTRO
+		textures_path("enemy_intros/troll.png"),      // TROLL INTRO
+		textures_path("enemy_intros/archer.png"),     // ARCHER INTRO
+		textures_path("bird/bird_fly.png"),			  // BIRD FLY
+		textures_path("bird/bird_swoop.png"),		  // BIRD SWOOP
+		textures_path("bird/bird_dead.png"),		  // BIRD DEAD
 		textures_path("troll/Troll-6f-48x64.png"),
 		textures_path("troll/Troll-1f-48x64.png")
 	};

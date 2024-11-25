@@ -141,8 +141,44 @@ void WorldSystem::updateTutorial(float elapsed_ms) {
     }
 }
 
+void WorldSystem::updateEnemyTutorial() {
+    for(Entity enemy: registry.enemies.entities){
+        Motion& motion = registry.motions.get(enemy);
+        //same logic as spawning
+        float exclusionTop = (camera->getPosition().y - camera->getSize().y / 2) / yConversionFactor + 100;
+        float exclusionBottom = (camera->getPosition().y + camera->getSize().y / 2) / yConversionFactor - 400;
+        float exclusionLeft = camera->getPosition().x - camera->getSize().x / 2 + 100;
+        float exclusionRight = camera->getPosition().x + camera->getSize().x / 2 - 100;
+        if (motion.position.x < exclusionRight && motion.position.x > exclusionLeft &&
+            motion.position.y < exclusionBottom && motion.position.y > exclusionTop) {
+            std::string enemyType = registry.enemies.get(enemy).type; 
+            if (encounteredEnemies.find(enemyType) == encounteredEnemies.end()) {
+                createTargetArea(motion.position, 200.0f);
+                if (enemyType == "BOAR") {
+                    gameStateController.setGameState(GAME_STATE::BOAR_TUTORIAL);
+                }
+                if (enemyType == "BIRD") {
+                    gameStateController.setGameState(GAME_STATE::BIRD_TUTORIAL);
+                }
+                if (enemyType == "TROLL") {
+                    gameStateController.setGameState(GAME_STATE::TROLL_TUTORIAL);
+                }
+                if (enemyType == "WIZARD") {
+                    gameStateController.setGameState(GAME_STATE::WIZARD_TUTORIAL);
+                }
+                if (enemyType == "ARCHER") {
+                    gameStateController.setGameState(GAME_STATE::ARCHER_TUTORIAL);
+                }
+                encounteredEnemies.insert(enemyType);
+                break; 
+            }
+        }
+    }
+}
+
 bool WorldSystem::step(float elapsed_ms)
 {
+    updateEnemyTutorial();
     updateTutorial(elapsed_ms);
     adjustSpawnSystem(elapsed_ms);
     spawn(elapsed_ms);
@@ -164,7 +200,6 @@ bool WorldSystem::step(float elapsed_ms)
         Motion& playerMotion = registry.motions.get(playerEntity);
         camera->followPosition(vec2(playerMotion.position.x, playerMotion.position.y * yConversionFactor));
     }
-
 
     Player& player = registry.players.get(playerEntity);
     if(player.health == 0) {
@@ -322,6 +357,13 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     case GAME_STATE::TUTORIAL: 
         tutorialControls(key, action, mod);
         break;
+    case GAME_STATE::BOAR_TUTORIAL: 
+    case GAME_STATE::BIRD_TUTORIAL: 
+    case GAME_STATE::WIZARD_TUTORIAL: 
+    case GAME_STATE::TROLL_TUTORIAL: 
+    case GAME_STATE::ARCHER_TUTORIAL: 
+        enemyTutorialControls(key, action, mod);
+        break;
     }
     allStateControls(key, action, mod);
     movementControls(key, action, mod);
@@ -391,6 +433,24 @@ void WorldSystem::tutorialControls(int key, int action, int mod) {
         }
     }
 }
+
+void WorldSystem::enemyTutorialControls(int key, int action, int mod) {
+    if (action == GLFW_PRESS) {
+        switch (key) {
+        case GLFW_KEY_Q:
+            glfwSetWindowShouldClose(window, true);
+            break;
+        case GLFW_KEY_ENTER:
+        case GLFW_KEY_SPACE:
+            gameStateController.setGameState(GAME_STATE::PLAYING);
+            break;
+        case GLFW_KEY_ESCAPE:
+            gameStateController.setGameState(GAME_STATE::PAUSED);
+            break;
+        }
+    }
+}
+
 void WorldSystem::onTutorialClick() {
     Entity entity = registry.tutorialComponents.entities[0];
     TutorialComponent& tutorial = registry.tutorialComponents.get(entity);

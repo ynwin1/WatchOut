@@ -24,6 +24,11 @@ void GameStateController::onExitState(GAME_STATE oldState) {
     if (oldState == GAME_STATE::TUTORIAL) {
         world->exitTutorial();
     }
+    if (oldState == GAME_STATE::BOAR_TUTORIAL || oldState == GAME_STATE::WIZARD_TUTORIAL ||
+        oldState == GAME_STATE::BIRD_TUTORIAL || oldState == GAME_STATE::TROLL_TUTORIAL ||
+        oldState == GAME_STATE::ARCHER_TUTORIAL) {
+        world->exitEnemyTutorial();
+    }
     if (oldState == GAME_STATE::PAUSED) {
         world->exitPauseMenu();
     }
@@ -48,6 +53,26 @@ void GameStateController::beforeEnterState(GAME_STATE newState) {
     }
     if (newState == GAME_STATE::HELP) {
         world->createHelpMenu(world->camera->getSize());
+        return;
+    }
+    if (newState == GAME_STATE::BOAR_TUTORIAL) {
+        world->createBoarTutorial(world->camera->getSize());
+        return;
+    }
+    if (newState == GAME_STATE::BIRD_TUTORIAL) {
+        world->createBirdTutorial(world->camera->getSize());
+        return;
+    }
+    if (newState == GAME_STATE::WIZARD_TUTORIAL) {
+        world->createWizardTutorial(world->camera->getSize());
+        return;
+    }
+    if (newState == GAME_STATE::TROLL_TUTORIAL) {
+        world->createTrollTutorial(world->camera->getSize());
+        return;
+    }
+    if (newState == GAME_STATE::ARCHER_TUTORIAL) {
+        world->createArcherTutorial(world->camera->getSize());
         return;
     }
     return;

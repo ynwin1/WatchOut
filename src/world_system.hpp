@@ -3,6 +3,7 @@
 // stlib
 #include <vector>
 #include <random>
+#include <unordered_set>
 
 // internal 
 #include <render_system.hpp>
@@ -36,11 +37,7 @@ public:
 
 	// Should the game be over ?
 	bool is_over()const;
-
-	//Tutorial initialization
-	float tutorialDelayTimer = 0.0f; 
-    bool hasSwitchedToTutorial = false;
-
+	
 	friend class GameStateController;
 
 private:
@@ -60,6 +57,12 @@ private:
 
 	// Lighting variables
 	float ambientLight = .5;
+
+	//Tutorial initialization
+	float tutorialDelayTimer = 0.0f; 
+    bool hasSwitchedToTutorial = false;
+
+	std::unordered_set<std::string> encounteredEnemies;
 
 	Entity playerEntity;
 	std::unordered_map<std::string, float> spawn_delays;
@@ -148,6 +151,7 @@ private:
 	void updateCollectedTimer(float elapsed_ms);
 	void resetTrappedEntities();
 	void updateTutorial(float elapsed_ms);
+	void updateEnemyTutorial();
 
 	// Collision functions
 	void entity_collectible_collision(Entity entity, Entity collectible);
@@ -168,6 +172,7 @@ private:
 	void gameOverControls(int key, int action, int mod);
 	void helpControls(int key, int action, int mod);
 	void tutorialControls(int key, int action, int mod);
+	void enemyTutorialControls(int key, int action, int mod);
 	void onTutorialClick();
 
 	// Help/Pause Menu functions
@@ -175,8 +180,14 @@ private:
     void exitHelpMenu();
     Entity createPauseMenu(vec2 cameraPosition);
     void exitPauseMenu();
-	 Entity createTutorial(vec2 cameraPosition);
+	Entity createTutorial(vec2 cameraPosition);
 	void exitTutorial();
+	Entity createBoarTutorial(vec2 cameraPosition);
+	Entity createBirdTutorial(vec2 cameraPosition);
+	Entity createWizardTutorial(vec2 cameraPosition);
+	Entity createTrollTutorial(vec2 cameraPosition);
+	Entity createArcherTutorial(vec2 cameraPosition);
+	void exitEnemyTutorial();
 
 	// C++ random number generator
 	std::default_random_engine rng;

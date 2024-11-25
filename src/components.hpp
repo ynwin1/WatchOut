@@ -323,3 +323,4 @@ struct TutorialComponent{
 	int tutorialStep = 1;
 	int maxTutorialSteps = 3;
 };
+struct EnemyTutorialComponents{};

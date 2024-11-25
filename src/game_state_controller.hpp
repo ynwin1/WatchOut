@@ -9,7 +9,12 @@ enum class GAME_STATE
     PAUSED,
     GAMEOVER,
     HELP,
-    TUTORIAL
+    TUTORIAL,
+    BOAR_TUTORIAL,
+    WIZARD_TUTORIAL,
+    ARCHER_TUTORIAL,
+    BIRD_TUTORIAL,
+    TROLL_TUTORIAL
 };
 
 class WorldSystem;

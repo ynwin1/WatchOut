@@ -367,16 +367,14 @@ void RenderSystem::bindPointLights(const GLuint program, const Entity& entity, c
 	else {
 		glUniform1i(location, max(0, num_point_lights)); // Use glUniform1i for integer uniforms
 	}
-	for (int i = 0; i < MAX_POINT_LIGHTS; ++i) {
-		std::string base = "pointLights[" + std::to_string(i) + "].";
-
-		glUniform3fv(glGetUniformLocation(program, (base + "position").c_str()), 1, glm::value_ptr(validPointLights[i].position));
-		glUniform4fv(glGetUniformLocation(program, (base + "ambient").c_str()), 1, glm::value_ptr(validPointLights[i].ambient));
-		glUniform4fv(glGetUniformLocation(program, (base + "diffuse").c_str()), 1, glm::value_ptr(validPointLights[i].diffuse));
-		glUniform1f(glGetUniformLocation(program, (base + "max_distance").c_str()), validPointLights[i].max_distance);
-		glUniform1f(glGetUniformLocation(program, (base + "constant").c_str()), validPointLights[i].constant);
-		glUniform1f(glGetUniformLocation(program, (base + "linear").c_str()), validPointLights[i].linear);
-		glUniform1f(glGetUniformLocation(program, (base + "quadratic").c_str()), validPointLights[i].quadratic);
+	for (size_t i = 0; i < MAX_POINT_LIGHTS; ++i) {
+		glUniform3fv(glGetUniformLocation(program, pointLightsUniformLocations[i * 7 + 0].c_str()), 1, glm::value_ptr(validPointLights[i].position));
+		glUniform4fv(glGetUniformLocation(program, pointLightsUniformLocations[i * 7 + 1].c_str()), 1, glm::value_ptr(validPointLights[i].ambient));
+		glUniform4fv(glGetUniformLocation(program, pointLightsUniformLocations[i * 7 + 2].c_str()), 1, glm::value_ptr(validPointLights[i].diffuse));
+		glUniform1f( glGetUniformLocation(program, pointLightsUniformLocations[i * 7 + 3].c_str()), validPointLights[i].max_distance);
+		glUniform1f( glGetUniformLocation(program, pointLightsUniformLocations[i * 7 + 4].c_str()), validPointLights[i].constant);
+		glUniform1f( glGetUniformLocation(program, pointLightsUniformLocations[i * 7 + 5].c_str()), validPointLights[i].linear);
+		glUniform1f( glGetUniformLocation(program, pointLightsUniformLocations[i * 7 + 6].c_str()), validPointLights[i].quadratic);
 	}
 }
 

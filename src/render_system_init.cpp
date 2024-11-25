@@ -85,6 +85,7 @@ bool RenderSystem::init(Camera* camera)
 	initializeGlNormals();
 	initializeGlEffects();
 	initializeGlGeometryBuffers();
+	initializePointLightUniformLocations();
 
 	return true;
 }
@@ -261,6 +262,20 @@ void RenderSystem::initRectangleBuffer() {
 
     const std::vector<uint16_t> rectangle_indices = { 0, 1, 2, 0, 2, 3 };
     bindVBOandIBO(GEOMETRY_BUFFER_ID::RECTANGLE, rectangle_vertices, rectangle_indices);
+}
+
+void RenderSystem::initializePointLightUniformLocations() {
+	pointLightsUniformLocations.reserve(MAX_POINT_LIGHTS * 7);
+	for (size_t i = 0; i < MAX_POINT_LIGHTS; i++) {
+		std::string base = "pointLights[" + std::to_string(i) + "].";
+		pointLightsUniformLocations.push_back(base + "position");
+		pointLightsUniformLocations.push_back(base + "ambient");
+		pointLightsUniformLocations.push_back(base + "diffuse");
+		pointLightsUniformLocations.push_back(base + "max_distance");
+		pointLightsUniformLocations.push_back(base + "constant");
+		pointLightsUniformLocations.push_back(base + "linear");
+		pointLightsUniformLocations.push_back(base + "quadratic");
+	}
 }
 
 void RenderSystem::initText() {

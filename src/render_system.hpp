@@ -156,6 +156,8 @@ public:
 
 	void initializeGlGeometryBuffers();
 
+	void initializePointLightUniformLocations();
+
 	void initRectangleBuffer();
 
 	void initText();
@@ -180,8 +182,10 @@ private:
 	Camera* camera;
 	const float AMBIENT_LIGHT = .2;
 
+	std::vector<std::string> pointLightsUniformLocations;
+
 	// Internal drawing functions for each entity type
-    void drawMesh(Entity entity, const mat3 &projection, const mat4 &projection_screen);
+	void drawMesh(Entity entity, const mat3& projection, const mat4& projection_screen);
 
     void bindModelMatrix(const GLuint program, Transform3D &modelMatrix);
 

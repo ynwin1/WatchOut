@@ -122,10 +122,6 @@ private:
 	// Key uses entities cast to ints for comparisons.
 	std::map<std::pair<int, int>, float> collisionCooldowns;
 
-	// Sound variables
-	bool isMovingSoundPlaying = false;
-	bool isBirdFlockSoundPlaying = false;
-
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);
 	void on_mouse_move(vec2 mouse_position);
@@ -150,7 +146,6 @@ private:
 	void toggleMesh();
 	void adjustSpawnSystem(float elapsed_ms);
 	void resetSpawnSystem();
-	void inGameSounds();
 	void loadAndSaveHighScore(bool save);
 	void on_window_focus(int focused);
 	void destroyDamagings();

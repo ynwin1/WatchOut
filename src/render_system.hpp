@@ -8,6 +8,7 @@
 #include "render_components.hpp"
 #include "tiny_ecs.hpp"
 #include "components.hpp"
+#include "particle_system.hpp"
 
 // System responsible for setting up OpenGL and for rendering all the
 // visual entities in the game
@@ -83,7 +84,8 @@ class RenderSystem {
 		shader_path("untextured"), 
 		shader_path("animated"), 
 		shader_path("font"), 
-		shader_path("tree")
+		shader_path("tree"),
+		shader_path("particle")
 	};
 
 	std::array<GLuint, geometry_count> vertex_buffers;
@@ -97,7 +99,7 @@ public:
 	GLFWwindow* create_window();
 
 	// Initialize the window
-	bool init(Camera* camera);
+	bool init(Camera* camera, ParticleSystem* particles);
 
 	template <class T>
 	void bindVBOandIBO(GEOMETRY_BUFFER_ID gid, std::vector<T> vertices, std::vector<uint16_t> indices);
@@ -130,6 +132,7 @@ public:
 
 private:
 	Camera* camera;
+	ParticleSystem* particles;
 	const float AMBIENT_LIGHT = .4;
 
 	// Internal drawing functions for each entity type

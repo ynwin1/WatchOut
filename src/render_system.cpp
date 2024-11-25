@@ -343,6 +343,9 @@ void RenderSystem::draw()
 		}
 	}
 
+	// Draw all particles
+	particles->draw((GLuint)effects[(GLuint)EFFECT_ASSET_ID::PARTICLE]);
+
 	// flicker-free display with a double buffer
 	glfwSwapBuffers(window);
 	gl_has_errors();

@@ -25,6 +25,7 @@ int main()
 	WorldSystem world = WorldSystem(rng);
 	RenderSystem renderer;
 	PhysicsSystem physics;
+	ParticleSystem particles;
 	SoundSystem sound;
 	AISystem ai = AISystem(rng, &sound);
 	Camera camera;
@@ -40,7 +41,7 @@ int main()
 
 	// Initialize the main systems
 	camera.init(window);
-	renderer.init(&camera);
+	renderer.init(&camera, &particles);
 	world.init(&renderer, window, &camera, &physics, &ai, &sound);
 	sound.init();
 

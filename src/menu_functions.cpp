@@ -165,6 +165,23 @@ Entity WorldSystem::createArcherTutorial(vec2 windowSize) {
 
     return entity;
 }
+Entity WorldSystem::createBarbarianTutorial(vec2 windowSize) {
+    auto entity = Entity();
+    registry.enemyTutorialComponents.emplace(entity);
+
+    Foreground& fg = registry.foregrounds.emplace(entity);
+    fg.position = {windowSize.x / 2, windowSize.y / 2};
+    fg.scale = {960, 540};
+    registry.renderRequests.insert(
+        entity,
+        {
+            TEXTURE_ASSET_ID::BARBARIAN_INTRO,
+            EFFECT_ASSET_ID::TEXTURED,
+            GEOMETRY_BUFFER_ID::SPRITE
+        }); 
+
+    return entity;
+}
 
 void WorldSystem::exitEnemyTutorial() {
 	for (auto& entity: registry.enemyTutorialComponents.entities) {

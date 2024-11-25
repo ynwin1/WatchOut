@@ -187,6 +187,7 @@ private:
 	Entity createWizardTutorial(vec2 cameraPosition);
 	Entity createTrollTutorial(vec2 cameraPosition);
 	Entity createArcherTutorial(vec2 cameraPosition);
+	Entity createBarbarianTutorial(vec2 cameraPosition);
 	void exitEnemyTutorial();
 
 	// C++ random number generator

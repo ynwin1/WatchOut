@@ -65,6 +65,7 @@ Entity createBarbarian(vec2 pos)
 	enemy.cooldown = 1000;
 	enemy.maxHealth = BARBARIAN_HEALTH;
 	enemy.health = enemy.maxHealth;
+	enemy.type = "BARBARIAN";
 	motion.speed = BARBARIAN_SPEED;
 
 	registry.barbarians.emplace(entity);

@@ -26,7 +26,7 @@ void GameStateController::onExitState(GAME_STATE oldState) {
     }
     if (oldState == GAME_STATE::BOAR_TUTORIAL || oldState == GAME_STATE::WIZARD_TUTORIAL ||
         oldState == GAME_STATE::BIRD_TUTORIAL || oldState == GAME_STATE::TROLL_TUTORIAL ||
-        oldState == GAME_STATE::ARCHER_TUTORIAL) {
+        oldState == GAME_STATE::ARCHER_TUTORIAL || oldState == GAME_STATE::BARBARIAN_TUTORIAL) {
         world->exitEnemyTutorial();
     }
     if (oldState == GAME_STATE::PAUSED) {
@@ -73,6 +73,10 @@ void GameStateController::beforeEnterState(GAME_STATE newState) {
     }
     if (newState == GAME_STATE::ARCHER_TUTORIAL) {
         world->createArcherTutorial(world->camera->getSize());
+        return;
+    }
+    if (newState == GAME_STATE::BARBARIAN_TUTORIAL) {
+        world->createBarbarianTutorial(world->camera->getSize());
         return;
     }
     return;

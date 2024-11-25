@@ -145,10 +145,10 @@ void WorldSystem::updateEnemyTutorial() {
     for(Entity enemy: registry.enemies.entities){
         Motion& motion = registry.motions.get(enemy);
         //same logic as spawning
-        float exclusionTop = (camera->getPosition().y - camera->getSize().y / 2) / yConversionFactor + 100;
+        float exclusionTop = (camera->getPosition().y - camera->getSize().y / 2) / yConversionFactor + 200;
         float exclusionBottom = (camera->getPosition().y + camera->getSize().y / 2) / yConversionFactor - 400;
-        float exclusionLeft = camera->getPosition().x - camera->getSize().x / 2 + 100;
-        float exclusionRight = camera->getPosition().x + camera->getSize().x / 2 - 100;
+        float exclusionLeft = camera->getPosition().x - camera->getSize().x / 2 + 200;
+        float exclusionRight = camera->getPosition().x + camera->getSize().x / 2 - 200;
         if (motion.position.x < exclusionRight && motion.position.x > exclusionLeft &&
             motion.position.y < exclusionBottom && motion.position.y > exclusionTop) {
             std::string enemyType = registry.enemies.get(enemy).type; 
@@ -168,6 +168,9 @@ void WorldSystem::updateEnemyTutorial() {
                 }
                 if (enemyType == "ARCHER") {
                     gameStateController.setGameState(GAME_STATE::ARCHER_TUTORIAL);
+                }
+                if (enemyType == "BARBARIAN") {
+                    gameStateController.setGameState(GAME_STATE::BARBARIAN_TUTORIAL);
                 }
                 encounteredEnemies.insert(enemyType);
                 break; 
@@ -362,6 +365,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     case GAME_STATE::WIZARD_TUTORIAL: 
     case GAME_STATE::TROLL_TUTORIAL: 
     case GAME_STATE::ARCHER_TUTORIAL: 
+    case GAME_STATE::BARBARIAN_TUTORIAL: 
         enemyTutorialControls(key, action, mod);
         break;
     }

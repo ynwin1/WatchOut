@@ -366,6 +366,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     case GAME_STATE::TROLL_TUTORIAL: 
     case GAME_STATE::ARCHER_TUTORIAL: 
     case GAME_STATE::BARBARIAN_TUTORIAL: 
+        sound->pauseAllSoundEffects();
         enemyTutorialControls(key, action, mod);
         break;
     }
@@ -447,6 +448,7 @@ void WorldSystem::enemyTutorialControls(int key, int action, int mod) {
         case GLFW_KEY_ENTER:
         case GLFW_KEY_SPACE:
             gameStateController.setGameState(GAME_STATE::PLAYING);
+            sound->resumeAllSoundEffects();
             break;
         case GLFW_KEY_ESCAPE:
             gameStateController.setGameState(GAME_STATE::PAUSED);

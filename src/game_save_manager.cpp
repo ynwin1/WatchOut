@@ -593,7 +593,7 @@ void GameSaveManager::createEntity(std::vector<std::string> componentNames, std:
 		{BOARS, std::bind(&GameSaveManager::createBoarDeserialization, this, std::placeholders::_1)},
 		{BARBARIANS, std::bind(&GameSaveManager::createBarbarianDeserialization, this, std::placeholders::_1)},
 		{ARCHERS, std::bind(&GameSaveManager::createArcherDeserialization, this, std::placeholders::_1)},
-		//{"BIRDS", std::bind(&GameSaveManager::createBirdFlockDeserialization, this, std::placeholders::_1)},
+		{BIRDS, std::bind(&GameSaveManager::createBirdDeserialization, this, std::placeholders::_1)},
 		{WIZARDS, std::bind(&GameSaveManager::createWizardDeserialization, this, std::placeholders::_1)},
 		{TROLLS, std::bind(&GameSaveManager::createTrollDeserialization, this, std::placeholders::_1)},
 		{COLLECTIBLETRAPS, std::bind(&GameSaveManager::createCollectibleTrapDeserialization, this, std::placeholders::_1)},
@@ -698,20 +698,13 @@ void GameSaveManager::createArcherDeserialization(std::map<std::string, nlohmann
 }
 
 // TODO
-void GameSaveManager::createBirdFlockDeserialization(std::map<std::string, nlohmann::json> componentsMap) {
+void GameSaveManager::createBirdDeserialization(std::map<std::string, nlohmann::json> componentsMap) {
 	
 	// motion data
 	vec2 position = { (float)componentsMap[MOTIONS]["position"][0], (float)componentsMap[MOTIONS]["position"][1] };
 	Entity bird = createBird(position);
 
-	Bird& birdComponent = registry.birds.get(bird);
-	birdComponent.swarmSpeed = componentsMap[BIRDS]["swarmSpeed"];
-	birdComponent.swoopSpeed = componentsMap[BIRDS]["swoopSpeed"];
-	birdComponent.isSwooping = componentsMap[BIRDS]["isSwooping"];
-	birdComponent.swoopTimer = componentsMap[BIRDS]["swoopTimer"];
-	birdComponent.swoopDirection = { (float)componentsMap[BIRDS]["swoopDirection"][0], (float)componentsMap[BIRDS]["swoopDirection"][1] };
-	birdComponent.originalZ = componentsMap[BIRDS]["originalZ"];
-	birdComponent.swoopCooldown = componentsMap[BIRDS]["swoopCooldown"];
+	handleBird(bird, componentsMap);
 
 	if (componentsMap.find(DEATHTIMERS) != componentsMap.end()) {
 		handleDeathTimer(bird, componentsMap);
@@ -801,6 +794,7 @@ void GameSaveManager::createTargetAreaDeserialization(std::map<std::string, nloh
 	vec3 position = { (float)componentsMap[MOTIONS]["position"][0], (float)componentsMap[MOTIONS]["position"][1], 0 };
 	Entity targetArea = createTargetArea(position);
 
+	handleMotion(targetArea, componentsMap);
 	handleCooldown(targetArea, componentsMap);
 }
 
@@ -922,6 +916,17 @@ void GameSaveManager::handleArcher(Entity& entity, std::map<std::string, nlohman
 	Archer& archer = registry.archers.get(entity);
 	archer.drawArrowTime = componentsMap[ARCHERS]["drawArrowTime"];
 	archer.aiming = componentsMap[ARCHERS]["aiming"];
+}
+
+void GameSaveManager::handleBird(Entity& entity, std::map<std::string, nlohmann::json> componentsMap) {
+	Bird& bird = registry.birds.get(entity);
+	bird.swarmSpeed = componentsMap[BIRDS]["swarmSpeed"];
+	bird.swoopSpeed = componentsMap[BIRDS]["swoopSpeed"];
+	bird.isSwooping = componentsMap[BIRDS]["isSwooping"];
+	bird.swoopTimer = componentsMap[BIRDS]["swoopTimer"];
+	bird.swoopDirection = { (float)componentsMap[BIRDS]["swoopDirection"][0], (float)componentsMap[BIRDS]["swoopDirection"][1] };
+	bird.originalZ = componentsMap[BIRDS]["originalZ"];
+	bird.swoopCooldown = componentsMap[BIRDS]["swoopCooldown"];
 }
 
 void GameSaveManager::handleWizard(Entity& entity, std::map<std::string, nlohmann::json> componentsMap) {

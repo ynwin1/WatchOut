@@ -647,7 +647,6 @@ void createHealthBar(Entity characterEntity, vec4 color) {
 Entity createTargetArea(vec3 position) {
 	auto entity = Entity();
 
-	// TODO - link radius with ai system's radius
 	float radius = 200.f;
 	Motion& motion = registry.motions.emplace(entity);
 	motion.position = position;
@@ -667,10 +666,9 @@ Entity createTargetArea(vec3 position) {
 
 	registry.backgrounds.emplace(entity);
 	registry.targetAreas.emplace(entity);
-	Cooldown& cooldown = registry.cooldowns.emplace(entity);
-	cooldown.remaining = 3000.f; // 5s
 
-	printf("Target area created\n");
+	Cooldown& cooldown = registry.cooldowns.emplace(entity);
+	cooldown.remaining = 3000.f; // 3s
 	return entity;
 }
 

@@ -96,7 +96,7 @@ private:
 	void createBoarDeserialization(std::map<std::string, nlohmann::json> componentsMap);
 	void createBarbarianDeserialization(std::map<std::string, nlohmann::json> componentsMap);
 	void createArcherDeserialization(std::map<std::string, nlohmann::json> componentsMap);
-	void createBirdFlockDeserialization(std::map<std::string, nlohmann::json> componentsMap);
+	void createBirdDeserialization(std::map<std::string, nlohmann::json> componentsMap);
 	void createWizardDeserialization(std::map<std::string, nlohmann::json> componentsMap);
 	void createTrollDeserialization(std::map<std::string, nlohmann::json> componentsMap);
 	void createHeartDeserialization(std::map<std::string, nlohmann::json> componentsMap);
@@ -119,7 +119,7 @@ private:
 	void handleBoar(Entity& entity, std::map<std::string, nlohmann::json> componentsMap);
 	void handleBarbarian(Entity& entity, std::map<std::string, nlohmann::json> componentsMap);
 	void handleArcher(Entity& entity, std::map<std::string, nlohmann::json> componentsMap);
-	void handleBirdFlock(Entity& entity, std::map<std::string, nlohmann::json> componentsMap);
+	void handleBird(Entity& entity, std::map<std::string, nlohmann::json> componentsMap);
 	void handleWizard(Entity& entity, std::map<std::string, nlohmann::json> componentsMap);
 	void handleTroll(Entity& entity, std::map<std::string, nlohmann::json> componentsMap);
 };

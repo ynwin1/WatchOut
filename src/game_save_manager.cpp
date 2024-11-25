@@ -548,16 +548,16 @@ void GameSaveManager::groupComponentsForEntities(const json& j) {
 	}
 
 	// print the map
-	//for (const auto& entity : entityComponentGroups) {
-	//	std::cout << "Entity ID: " << entity.first << std::endl;
+	for (const auto& entity : entityComponentGroups) {
+		std::cout << "Entity ID: " << entity.first << std::endl;
 
-	//	for (const auto& component : entity.second) {
-	//		std::cout << "  Component Name: " << component.first << std::endl;
-	//		std::cout << "  Data: " << component.second.dump(4) << std::endl; 
-	//	}
+		for (const auto& component : entity.second) {
+			std::cout << "  Component Name: " << component.first << std::endl;
+			std::cout << "  Data: " << component.second.dump(4) << std::endl; 
+		}
 
-	//	std::cout << std::endl;
-	//}
+		std::cout << std::endl;
+	}
 }
 
 // Start of deserialization
@@ -581,7 +581,7 @@ void GameSaveManager::deserialize_containers(const json& j) {
 	createMapTiles();
 	createCliffs(window);
 	// TODO - creating trees like this
-	createTrees(renderer);
+	// createTrees(renderer);
 
 	deserialize_game_timer(j);
 	deserialize_game_score(j);
@@ -601,7 +601,7 @@ void GameSaveManager::createEntity(std::vector<std::string> componentNames, std:
 		{HEARTS, std::bind(&GameSaveManager::createHeartDeserialization, this, std::placeholders::_1)},
 		{TARGETAREAS, std::bind(&GameSaveManager::createTargetAreaDeserialization, this, std::placeholders::_1)},
 		{DAMAGINGS, std::bind(&GameSaveManager::createDamagingsDeserialization, this, std::placeholders::_1)},
-		//{"MESHPTRS", std::bind(&GameSaveManager::createTreeDeserialization, this, std::placeholders::_1)},
+		{MESHPTRS, std::bind(&GameSaveManager::createTreeDeserialization, this, std::placeholders::_1)},
 		{OBSTACLES, std::bind(&GameSaveManager::createObstacleDeserialization, this, std::placeholders::_1)}
 	};
 
@@ -697,7 +697,6 @@ void GameSaveManager::createArcherDeserialization(std::map<std::string, nlohmann
 	handleTrappable(archer, componentsMap);
 }
 
-// TODO
 void GameSaveManager::createBirdDeserialization(std::map<std::string, nlohmann::json> componentsMap) {
 	
 	// motion data
@@ -783,11 +782,7 @@ void GameSaveManager::createTrapDeserialization(std::map<std::string, nlohmann::
 void GameSaveManager::createTreeDeserialization(std::map<std::string, nlohmann::json> componentsMap) {
 	// motion data
 	vec2 position = { (float)componentsMap[MOTIONS]["position"][0], (float)componentsMap[MOTIONS]["position"][1] };
-	Entity tree = createTree(renderer, position);
-
-	// Motion
-	handleMotion(tree, componentsMap);
-
+	createTree(renderer, position);
 }
 
 void GameSaveManager::createTargetAreaDeserialization(std::map<std::string, nlohmann::json> componentsMap) {
@@ -848,7 +843,7 @@ void GameSaveManager::handleDeathTimer(Entity& entity, std::map<std::string, nlo
 
 void GameSaveManager::handleMotion(Entity& entity, std::map<std::string, nlohmann::json> componentsMap) {
 	Motion& motion = registry.motions.get(entity);
-	motion.position = vec3((float)componentsMap[MOTIONS]["position"][0], (float)componentsMap[MOTIONS]["position"][1], motion.position.z);
+	motion.position = vec3((float)componentsMap[MOTIONS]["position"][0], (float)componentsMap[MOTIONS]["position"][1], (float)componentsMap[MOTIONS]["position"][2]);
 	motion.angle = componentsMap[MOTIONS]["angle"];
 	motion.velocity = { (float)componentsMap[MOTIONS]["velocity"][0], (float)componentsMap[MOTIONS]["velocity"][1], 0 };
 	motion.speed = componentsMap[MOTIONS]["speed"];

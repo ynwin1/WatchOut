@@ -8,7 +8,8 @@ enum class GAME_STATE
     PLAYING,
     PAUSED,
     GAMEOVER,
-    HELP
+    HELP,
+    TUTORIAL
 };
 
 class WorldSystem;

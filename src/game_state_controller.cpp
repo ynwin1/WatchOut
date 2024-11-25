@@ -21,6 +21,9 @@ void GameStateController::setGameState(GAME_STATE newGameState) {
 
 void GameStateController::onExitState(GAME_STATE oldState) {
     // Implement the logic for exiting a state
+    if (oldState == GAME_STATE::TUTORIAL) {
+        world->exitTutorial();
+    }
     if (oldState == GAME_STATE::PAUSED) {
         world->exitPauseMenu();
     }
@@ -31,6 +34,10 @@ void GameStateController::onExitState(GAME_STATE oldState) {
 
 void GameStateController::beforeEnterState(GAME_STATE newState) {
     // Implement the logic before entering a state
+    if (newState == GAME_STATE::TUTORIAL) {
+        world->createTutorial(world->camera->getSize());
+        return;
+    }
     if (newState == GAME_STATE::PAUSED) {
        world->createPauseMenu(world->camera->getSize());
         return;

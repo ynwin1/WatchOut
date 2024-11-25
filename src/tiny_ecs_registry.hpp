@@ -44,6 +44,7 @@ public:
 	
 	ComponentContainer<PauseMenuComponent> pauseMenuComponents;
 	ComponentContainer<HelpMenuComponent> helpMenuComponents;
+	ComponentContainer<TutorialComponent> tutorialComponents;
 
 	std::map<char, TextChar> textChars; //for initializing text glyphs from freetype
 
@@ -120,6 +121,7 @@ public:
 
 		registry_list.push_back(&pauseMenuComponents);
 		registry_list.push_back(&helpMenuComponents);
+		registry_list.push_back(&tutorialComponents);
 
 		spawnable_lists["boar"] = &boars;
 		spawnable_lists["barbarian"] = &barbarians;

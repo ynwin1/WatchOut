@@ -71,6 +71,9 @@ void WorldSystem::restart_game()
         next_spawns[name] = 1000;
     }
     loadAndSaveHighScore(false);
+
+    tutorialDelayTimer = 0.0f;
+    hasSwitchedToTutorial = false;
 }
 
 void WorldSystem::updateGameTimer(float elapsed_ms) {
@@ -128,8 +131,19 @@ void WorldSystem::updateCollectedTimer(float elapsed_ms) {
     }
 }
 
+void WorldSystem::updateTutorial(float elapsed_ms) {
+    if (!hasSwitchedToTutorial) {
+        tutorialDelayTimer += elapsed_ms / 1000.0f; 
+        if (tutorialDelayTimer >= 0.1f) {
+            gameStateController.setGameState(GAME_STATE::TUTORIAL);
+            hasSwitchedToTutorial = true;
+        }
+    }
+}
+
 bool WorldSystem::step(float elapsed_ms)
 {
+    updateTutorial(elapsed_ms);
     adjustSpawnSystem(elapsed_ms);
     spawn(elapsed_ms);
     update_cooldown(elapsed_ms);
@@ -305,6 +319,9 @@ void WorldSystem::on_key(int key, int, int action, int mod)
         sound->pauseAllSoundEffects();
         helpControls(key, action, mod);
         break;
+    case GAME_STATE::TUTORIAL: 
+        tutorialControls(key, action, mod);
+        break;
     }
     allStateControls(key, action, mod);
     movementControls(key, action, mod);
@@ -352,6 +369,57 @@ void WorldSystem::pauseControls(int key, int action, int mod)
         }
     }
 }
+
+void WorldSystem::tutorialControls(int key, int action, int mod) {
+    if (action == GLFW_PRESS) {
+        switch (key) {
+        case GLFW_KEY_Q:
+            glfwSetWindowShouldClose(window, true);
+            break;
+        case GLFW_KEY_ENTER:
+        case GLFW_KEY_SPACE:
+            onTutorialClick();
+            break;
+        case GLFW_KEY_H:
+            gameStateController.setGameState(GAME_STATE::PLAYING);
+            sound->resumeAllSoundEffects();
+            exitTutorial();
+            break;
+        case GLFW_KEY_ESCAPE:
+            gameStateController.setGameState(GAME_STATE::PAUSED);
+            break;
+        }
+    }
+}
+void WorldSystem::onTutorialClick() {
+    Entity entity = registry.tutorialComponents.entities[0];
+    TutorialComponent& tutorial = registry.tutorialComponents.get(entity);
+
+
+    if (tutorial.tutorialStep >= tutorial.maxTutorialSteps) {
+        gameStateController.setGameState(GAME_STATE::PLAYING);
+        exitTutorial();
+        return;
+    }
+    tutorial.tutorialStep++;
+    for (auto& entity : registry.tutorialComponents.entities) {
+        TEXTURE_ASSET_ID nextTexture;
+        switch (tutorial.tutorialStep) {
+        case 2:
+            nextTexture = TEXTURE_ASSET_ID::TUTORIAL_2;
+            break;
+        case 3:
+            nextTexture = TEXTURE_ASSET_ID::TUTORIAL_3;
+            break;
+        default:
+            nextTexture = TEXTURE_ASSET_ID::TUTORIAL_1;
+            break;
+        }
+
+        registry.renderRequests.get(entity).used_texture = nextTexture;
+    }
+}
+
 
 void WorldSystem::playingControls(int key, int action, int mod)
 {

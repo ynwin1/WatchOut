@@ -54,3 +54,28 @@ void WorldSystem::exitPauseMenu() {
 		registry.remove_all_components_of(entity);
 	}
 }
+
+//Tutorial at the start
+Entity WorldSystem::createTutorial(vec2 windowSize) {
+    auto entity = Entity();
+    registry.tutorialComponents.emplace(entity);
+
+    Foreground& fg = registry.foregrounds.emplace(entity);
+    fg.position = {windowSize.x / 2, windowSize.y / 2};
+    fg.scale = {960, 540};
+    registry.renderRequests.insert(
+        entity,
+        {
+            TEXTURE_ASSET_ID::TUTORIAL_1,
+            EFFECT_ASSET_ID::TEXTURED,
+            GEOMETRY_BUFFER_ID::SPRITE
+        }); 
+
+    return entity;
+}
+
+void WorldSystem::exitTutorial() {
+	for (auto& entity: registry.tutorialComponents.entities) {
+		registry.remove_all_components_of(entity);
+	}
+}

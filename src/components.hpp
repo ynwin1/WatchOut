@@ -319,3 +319,7 @@ struct CollectibleTrap {};
 
 struct PauseMenuComponent {};
 struct HelpMenuComponent {};
+struct TutorialComponent{
+	int tutorialStep = 1;
+	int maxTutorialSteps = 3;
+};

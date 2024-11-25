@@ -37,6 +37,10 @@ public:
 	// Should the game be over ?
 	bool is_over()const;
 
+	//Tutorial initialization
+	float tutorialDelayTimer = 0.0f; 
+    bool hasSwitchedToTutorial = false;
+
 	friend class GameStateController;
 
 private:
@@ -143,7 +147,7 @@ private:
 	void despawnTraps(float elapsed_ms);
 	void updateCollectedTimer(float elapsed_ms);
 	void resetTrappedEntities();
-
+	void updateTutorial(float elapsed_ms);
 
 	// Collision functions
 	void entity_collectible_collision(Entity entity, Entity collectible);
@@ -163,12 +167,16 @@ private:
 	void pauseControls(int key, int action, int mod);
 	void gameOverControls(int key, int action, int mod);
 	void helpControls(int key, int action, int mod);
+	void tutorialControls(int key, int action, int mod);
+	void onTutorialClick();
 
 	// Help/Pause Menu functions
 	Entity createHelpMenu(vec2 cameraPosition);
     void exitHelpMenu();
     Entity createPauseMenu(vec2 cameraPosition);
     void exitPauseMenu();
+	 Entity createTutorial(vec2 cameraPosition);
+	void exitTutorial();
 
 	// C++ random number generator
 	std::default_random_engine rng;

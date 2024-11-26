@@ -465,7 +465,7 @@ void WorldSystem::movementControls(int key, int action, int mod)
             player_comp.isRolling = false;
         }
         break;
-    case GLFW_KEY_C:
+    case GLFW_KEY_X:
         if (pressed) {
             if (player_stamina.stamina > DASH_STAMINA) {
                 const float dashDistance = 300;

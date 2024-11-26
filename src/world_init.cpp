@@ -711,14 +711,14 @@ Entity createFPSText(vec2 windowSize) {
 	return entity;
 }
 
-Entity createTitleText(vec2 windowSize) {
+Entity createTitleScreenText(vec2 windowSize, std::string value, float fontSize, vec2 position) {
 	auto entity = Entity();
 
 	Text& text = registry.texts.emplace(entity);
-	text.value = "Watch Out!";
+	text.value = value;
 	Foreground& fg = registry.foregrounds.emplace(entity);
-	fg.position = { windowSize.x / 2 - 200, windowSize.y / 2 };
-	fg.scale = { 3.0f, 3.0f };
+	fg.position = position;
+	fg.scale = { fontSize, fontSize };
 
 	registry.renderRequests.insert(
 		entity,
@@ -730,6 +730,8 @@ Entity createTitleText(vec2 windowSize) {
 
 	return entity;
 }
+
+
 
 Entity createGameTimerText(vec2 windowSize) {
 	auto entity = Entity();

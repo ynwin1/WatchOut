@@ -120,8 +120,7 @@ Entity createFireball(vec3 pos, vec2 direction);
 Entity createLightning(vec2 pos);
 
 // TitleScreen UI
-Entity createTitleText(vec2 windowSize);
-Entity createCountdownText(vec2 windowSize, int countdown);
+Entity createTitleScreenText(vec2 windowSize, std::string value, float fontSize, vec2 position);
 
 // Playing UI
 Entity createPauseHelpText(vec2 windowSize);

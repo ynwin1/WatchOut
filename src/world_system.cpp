@@ -432,9 +432,6 @@ void WorldSystem::tutorialControls(int key, int action, int mod) {
             sound->resumeAllSoundEffects();
             exitTutorial();
             break;
-        case GLFW_KEY_ESCAPE:
-            gameStateController.setGameState(GAME_STATE::PAUSED);
-            break;
         }
     }
 }

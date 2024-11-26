@@ -74,6 +74,7 @@ void WorldSystem::restart_game()
 
     tutorialDelayTimer = 0.0f;
     hasSwitchedToTutorial = false;
+    encounteredEnemies.clear();
 }
 
 void WorldSystem::updateGameTimer(float elapsed_ms) {

@@ -1042,7 +1042,7 @@ Entity createPointsEarnedText(std::string textValue, Entity anchoredWorldEntity,
 	text.anchoredWorldEntity = anchoredWorldEntity;
 	text.anchoredWorldOffset = {-70.0f, -anchoredMotion.scale.y / 2 - 20.0f};
 	if(isSuvivalBonus) {
-		text.anchoredWorldOffset.x = -120.0f;
+		text.anchoredWorldOffset.x = -150.0f;
 	}
 
 	Foreground& fg = registry.foregrounds.emplace(entity);

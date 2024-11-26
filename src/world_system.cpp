@@ -193,7 +193,7 @@ void WorldSystem::handleEnemiesKilledInSpan(float elapsed_ms) {
 
 void WorldSystem::updateComboText() {
     EnemiesKilled& enemiesKilled = gameStateController.enemiesKilled;
-    if(registry.texts.has(enemiesKilled.comboTextEntity)) {
+    if(registry.texts.has(enemiesKilled.comboTextEntity) && enemiesKilled.killSpanCount > 1) {
         Text& text = registry.texts.get(enemiesKilled.comboTextEntity);
         SlideUp& slideUp = registry.slideUps.get(enemiesKilled.comboTextEntity);
         text.value = "COMBO *" + std::to_string(enemiesKilled.killSpanCount);

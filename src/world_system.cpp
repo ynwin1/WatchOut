@@ -337,29 +337,25 @@ void WorldSystem::launchProjectile(vec3 targetPos) {
 }
 
 void WorldSystem::targetBirds(vec2 mousePos) {
-    vec2 mouseScreenPos = renderer->mouseToScreen(mousePos);
-    // std::cout << "Mouse clicked at: " << mouseScreenPos.x << " " << mouseScreenPos.y << std::endl;
-    Motion& playerMotion = registry.motions.get(playerEntity);
-    std::cout << "Player World Pos at: " << playerMotion.position.x << " " << playerMotion.position.y << std::endl;
-    vec2 playerPos = renderer->worldToScreen(registry.motions.get(playerEntity).position);
-    std::cout << "Player Screen Pos at: " << playerPos.x << " " << playerPos.y << std::endl;
+    vec3 mouseWorldPos = renderer->mouseToWorld(mousePos);
 
-
-    // for(Entity birdE : registry.birds.entities) {
-    //     Motion& birdM = registry.motions.get(birdE);
-    //     vec2 birdScreenPos = renderer->worldToScreen(birdM.position);
-        // vec2 birdScreenBBBottomLeft = {birdScreenPos.x - BIRD_BB_WIDTH / 2, birdScreenPos.y - BIRD_BB_HEIGHT / 2};
-        // vec2 birdScreenBBBTopRight = {birdScreenPos.x + BIRD_BB_WIDTH / 2, birdScreenPos.y + BIRD_BB_HEIGHT / 2};
-        // std::cout << "Bird at: " << birdScreenPos.x << " " << birdScreenPos.y << std::endl;
+    for(Entity birdE : registry.birds.entities) {
+        Motion& birdM = registry.motions.get(birdE);
+        vec2 visualPos = worldToVisual(birdM.position);
+        vec2 worldPos = {visualPos.x, visualToWorldY(visualPos.y)};
+        vec2 birdBBTopLeft = {worldPos.x - BIRD_BB_WIDTH / 2, worldPos.y - BIRD_BB_HEIGHT / 2};
+        vec2 birdBBBottomRight = {worldPos.x + BIRD_BB_WIDTH / 2, worldPos.y + BIRD_BB_HEIGHT / 2};
         // apply AABB
-        // bool mouseCollide = birdScreenBBBottomLeft.x < mouseScreenPos.x &&
-        //                    birdScreenBBBottomLeft.y < mouseScreenPos.y &&
-        //                    birdScreenBBBTopRight.x > mouseScreenPos.x &&
-        //                    birdScreenBBBTopRight.y > mouseScreenPos.y;
-        // if(mouseCollide) {
-        //     std::cout << "Bird clicked" << std::endl;
-        // }
-    // }
+        bool mouseCollide = birdBBTopLeft.x < mouseWorldPos.x &&
+                           birdBBTopLeft.y < mouseWorldPos.y &&
+                           birdBBBottomRight.x > mouseWorldPos.x &&
+                           birdBBBottomRight.y > mouseWorldPos.y;
+        if(mouseCollide) {
+            std::cout << "Bird clicked" << std::endl;
+        } else {
+            std::cout << " " << std::endl;
+        }
+    }
 }
 
 void WorldSystem::on_mouse_button(int button, int action, int mod) {
@@ -369,8 +365,8 @@ void WorldSystem::on_mouse_button(int button, int action, int mod) {
 
         switch (button) {
         case GLFW_MOUSE_BUTTON_LEFT:
-            // vec3 world_pos = renderer->mouseToWorld({ (float)xpos, (float)ypos });
-            std::cout << "Mouse clicked at: " << xpos << " " << ypos << std::endl;
+            vec3 world_pos = renderer->mouseToWorld({ (float)xpos, (float)ypos });
+            // std::cout << "Mouse clicked at: " << xpos << " " << ypos << std::endl;
             // launchProjectile(world_pos);
             targetBirds({ (float)xpos, (float)ypos });
             

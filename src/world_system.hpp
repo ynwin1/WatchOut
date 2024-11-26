@@ -41,7 +41,7 @@ public:
 
 private:
 	const float DIFFICULTY_INTERVAL = 45000.0f;
-	const unsigned int MAX_TOTAL_ENEMIES = 0;
+	const unsigned int MAX_TOTAL_ENEMIES = 1;
 
 	// GLFW Window handle
 	GLFWwindow* window;

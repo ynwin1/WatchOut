@@ -117,7 +117,7 @@ Entity createArcher(vec2 pos)
 // Bird creation (Flock of 5 birds)
 Entity createBirdFlock(vec2 pos)
 {
-    const int flockSize = 5;
+    const int flockSize = 1;
     const float spacing = 20.f; 
     Entity repBird;
 

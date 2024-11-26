@@ -129,7 +129,6 @@ public:
 	mat4 createProjectionToScreenSpace();
 
 	vec3 mouseToWorld(vec2 mousePos);
-	vec2 mouseToScreen(vec2 mousePos);
 	vec2 worldToScreen(vec3 worldPos);
 
 private:

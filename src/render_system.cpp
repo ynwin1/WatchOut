@@ -565,52 +565,18 @@ void RenderSystem::updateEntityFacing() {
 	}
 }
 
-vec2 RenderSystem::worldToScreen(vec3 worldPos) {
-	float screenPosX;
-	float screenPosY;
-
-	if(camera->isToggled()) {
-		// bottom left corner of the screen
-		float cameraLeft = camera->getPosition().x - camera->getSize().x / 2;
-		float cameraBottom = visualToWorldY(camera->getPosition().y) + camera->getSize().y / 2;
-		float cameraTop = visualToWorldY(camera->getPosition().y) - camera->getSize().y / 2;
-		float cameraRight = camera->getPosition().x + camera->getSize().x / 2;
-
-		// convert world position to screen position
-		screenPosX = worldPos.x - cameraLeft; 
-		screenPosY = cameraBottom - worldPos.y;
-	} else {
-		int window_width;
-    	int window_height;
-    	glfwGetWindowSize(window, &window_width, &window_height);
-
-		screenPosX = (worldPos.x * window_width) / world_size_x;
-		screenPosY = window_height - (worldPos.y * window_height) / world_size_y;
-	}
-
-	return { screenPosX, screenPosY };
-}
-
-vec2 RenderSystem::mouseToScreen(vec2 mousePos) {
-	int window_width;
-	int window_height;
-	glfwGetWindowSize(window, &window_width, &window_height);
-	return { mousePos.x, window_height - mousePos.y };
-}
-
 vec3 RenderSystem::mouseToWorld(vec2 mousePos) {
     float worldPosX;
     float worldPosY;
 
     if (camera->isToggled()) {
         // top-left corner of the screen in world coordinates
-        float cameraWorldOriginX = camera->getPosition().x - camera->getSize().x / 2;
-        float cameraWorldOriginY = visualToWorldY(camera->getPosition().y) - visualToWorldY(camera->getSize().y) / 2;
+        float cameraLeft = camera->getPosition().x - camera->getSize().x / 2;
+        float cameraTop = visualToWorldY(camera->getPosition().y) - visualToWorldY(camera->getSize().y) / 2;
 
         // Convert mouse position to world position
-        worldPosX = cameraWorldOriginX + mousePos.x;
-        worldPosY = cameraWorldOriginY + (mousePos.y / yConversionFactor);
-		std::cout << mousePos.x << " " << mousePos.y << " " << worldPosX << " " << worldPosY << std::endl;
+        worldPosX = cameraLeft + mousePos.x;
+        worldPosY = cameraTop + (mousePos.y / yConversionFactor);
     } else {
         int window_width;
         int window_height;
@@ -620,7 +586,7 @@ vec3 RenderSystem::mouseToWorld(vec2 mousePos) {
         worldPosY = (mousePos.y * world_size_y) / window_height;
     }
 
-    return { worldPosX, worldPosY, 0.0f }; // Assuming z = 0 for 2D coordinates
+    return { worldPosX, worldPosY, 0.0f };
 }
 
 mat4 RenderSystem::createProjectionToScreenSpace()  {

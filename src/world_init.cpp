@@ -711,6 +711,26 @@ Entity createFPSText(vec2 windowSize) {
 	return entity;
 }
 
+Entity createTitleText(vec2 windowSize) {
+	auto entity = Entity();
+
+	Text& text = registry.texts.emplace(entity);
+	text.value = "Watch Out!";
+	Foreground& fg = registry.foregrounds.emplace(entity);
+	fg.position = { windowSize.x / 2 - 200, windowSize.y / 2 };
+	fg.scale = { 3.0f, 3.0f };
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::FONT,
+			GEOMETRY_BUFFER_ID::TEXT
+		});
+
+	return entity;
+}
+
 Entity createGameTimerText(vec2 windowSize) {
 	auto entity = Entity();
 

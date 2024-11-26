@@ -119,6 +119,10 @@ Entity createFireball(vec3 pos, vec2 direction);
 // Lightning bolt from the sky
 Entity createLightning(vec2 pos);
 
+// TitleScreen UI
+Entity createTitleText(vec2 windowSize);
+Entity createCountdownText(vec2 windowSize, int countdown);
+
 // Playing UI
 Entity createPauseHelpText(vec2 windowSize);
 Entity createFPSText(vec2 windowSize);

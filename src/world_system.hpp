@@ -30,6 +30,7 @@ public:
 	bool step(float elapsed_ms);
 	
 	bool show_mesh;
+	float countdown = 0.0f;
 
 	// Check for collisions
 	void handle_collisions();
@@ -115,6 +116,9 @@ private:
 	void on_key(int key, int, int action, int mod);
 	void on_mouse_move(vec2 mouse_position);
 
+	// Title screen
+	void createTitleScreen();
+
 	// restart level
 	void restart_game();
 	void initText();
@@ -159,6 +163,7 @@ private:
 	// Controls
 	void allStateControls(int key, int action, int mod);
 	void movementControls(int key, int action, int mod);
+	void titleControls(int key, int action, int mod);
 	void playingControls(int key, int action, int mod);
 	void pauseControls(int key, int action, int mod);
 	void gameOverControls(int key, int action, int mod);

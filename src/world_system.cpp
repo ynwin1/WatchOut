@@ -38,12 +38,30 @@ void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camer
     auto focus_redirect = [](GLFWwindow* wnd, int focused) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_window_focus(focused); };
     glfwSetWindowFocusCallback(window, focus_redirect);
 
-    restart_game();
+	createTitleScreen();
+    // restart_game();
 }
 
 WorldSystem::~WorldSystem() {
     // Destroy all created components
     registry.clear_all_components();
+}
+
+void WorldSystem::createTitleScreen() {
+    registry.clear_all_components();
+
+	// Create map tiles
+	createMapTiles();
+    createObstacles();
+	createTrees(renderer);
+
+	createBoar(vec2(100, 100));
+
+	createTitleText(camera->getSize());
+	camera->followPosition({ world_size_x / 2.f, world_size_y / 2.f });
+
+    soundSetUp();
+    gameStateController.setGameState(GAME_STATE::TITLE);
 }
 
 void WorldSystem::restart_game()
@@ -287,8 +305,12 @@ void WorldSystem::on_mouse_move(vec2 mouse_position) {
 void WorldSystem::on_key(int key, int, int action, int mod)
 {
     switch (gameStateController.getGameState()) {
+	case GAME_STATE::TITLE:
+		titleControls(key, action, mod);
+		break;
     case GAME_STATE::PLAYING:
         playingControls(key, action, mod);
+        movementControls(key, action, mod);
         break;
     case GAME_STATE::PAUSED:
 		sound->isBirdFlockSoundPlaying = false;
@@ -307,7 +329,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
         break;
     }
     allStateControls(key, action, mod);
-    movementControls(key, action, mod);
+    
 }
 
 void WorldSystem::helpControls(int key, int action, int mod)
@@ -353,6 +375,19 @@ void WorldSystem::pauseControls(int key, int action, int mod)
     }
 }
 
+void WorldSystem::titleControls(int key, int action, int mod) {
+	if (action == GLFW_PRESS) {
+		switch (key) {
+		case GLFW_KEY_ENTER:
+			restart_game();
+			break;
+		case GLFW_KEY_Q:
+			glfwSetWindowShouldClose(window, true);
+			break;
+		}
+	}
+}
+
 void WorldSystem::playingControls(int key, int action, int mod)
 {
     Player& player_comp = registry.players.get(playerEntity);
@@ -382,14 +417,13 @@ void WorldSystem::gameOverControls(int key, int action, int mod)
     if (action == GLFW_PRESS) {
         switch (key) {
         case GLFW_KEY_ENTER:
-            restart_game();
+			createTitleScreen();
             break;
         case GLFW_KEY_Q:
             glfwSetWindowShouldClose(window, true);
         }
     }
 }
-
 
 void WorldSystem::allStateControls(int key, int action, int mod)
 {

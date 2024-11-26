@@ -47,25 +47,6 @@ WorldSystem::~WorldSystem() {
     registry.clear_all_components();
 }
 
-void WorldSystem::createTitleScreen() {
-    registry.clear_all_components();
-
-	// Create map tiles
-	createMapTiles();
-    createObstacles();
-	createTrees(renderer);
-
-	createBoar(vec2(100, 100));
-
-	vec2 windowSize = camera->getSize();
-	createTitleScreenText(windowSize, "Watch Out!", 3.f, vec2(windowSize.x / 2 - 230.f, windowSize.y / 2 + 100));
-	createTitleScreenText(windowSize, "Press Enter to Begin", 1.f, vec2(windowSize.x / 2 - 155.f, windowSize.y / 2 - 100));
-	camera->followPosition({ world_size_x / 2.f, world_size_y / 2.f });
-
-    soundSetUp();
-    gameStateController.setGameState(GAME_STATE::TITLE);
-}
-
 void WorldSystem::restart_game()
 {
     registry.clear_all_components();

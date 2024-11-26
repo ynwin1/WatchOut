@@ -711,6 +711,24 @@ Entity createFPSText(vec2 windowSize) {
 	return entity;
 }
 
+Entity createTitleScreenBackground(vec2 windowSize) {
+	auto entity = Entity();
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::TITLE_BACKGROUND,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	Foreground& bg = registry.foregrounds.emplace(entity);
+	bg.position = { windowSize.x / 2, windowSize.y / 2 };
+	bg.scale = windowSize;
+		
+	return entity;
+}
+
 Entity createTitleScreenText(vec2 windowSize, std::string value, float fontSize, vec2 position) {
 	auto entity = Entity();
 
@@ -730,8 +748,6 @@ Entity createTitleScreenText(vec2 windowSize, std::string value, float fontSize,
 
 	return entity;
 }
-
-
 
 Entity createGameTimerText(vec2 windowSize) {
 	auto entity = Entity();

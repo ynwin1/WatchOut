@@ -690,7 +690,7 @@ Entity createTutorialTarget(vec3 position) {
 	registry.renderRequests.insert(
 		entity,
 		{
-			TEXTURE_ASSET_ID::TARGET_AREA,
+			TEXTURE_ASSET_ID::TUTORIAL_TARGET,
 			EFFECT_ASSET_ID::TEXTURED,
 			GEOMETRY_BUFFER_ID::SPRITE
 		});

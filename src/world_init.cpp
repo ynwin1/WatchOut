@@ -981,7 +981,7 @@ void createGameOverText(vec2 windowSize, GameStateController& gameStateControlle
 	registry.colours.insert(entity2, {1.0f, 0.85f, 0.0f, 1.0f});
 
 	std::ostringstream oss;
-    oss << "You survived for ";
+    oss << "You Survived for ";
     if (gameTimer.hours > 0) {
         oss << gameTimer.hours << "h ";
     }
@@ -989,21 +989,16 @@ void createGameOverText(vec2 windowSize, GameStateController& gameStateControlle
         oss << gameTimer.minutes << "m ";
     }
     oss << gameTimer.seconds << "s";
-	text2.value = oss.str();
-
-	oss.str("");
 	oss << "\nYour Score: " << gameScore.score;
-	text2.value += oss.str();
-
-	oss.str("");
 	oss << "\nYour High Score: " << gameScore.highScore;
+	oss << "\nYour Highest Survived Time: " << std::to_string(gameScore.highScoreHours) + "h " + std::to_string(gameScore.highScoreMinutes) + "m " + std::to_string(gameScore.highScoreSeconds) + "s ";
 	text2.value += oss.str();
 
 	auto entity3 = Entity();
 	Text& text3 = registry.texts.emplace(entity3);
 	text3.value = "Press ENTER to play again";
 	Foreground& text3Fg = registry.foregrounds.emplace(entity3);
-	text3Fg.position = {windowSize.x / 2 - 200.f, windowSize.y / 2 - 170.f};
+	text3Fg.position = {windowSize.x / 2 - 200.f, windowSize.y / 2 - 200.f};
 	text3Fg.scale = {1.f, 1.f};
 
 	entities.push_back(entity1);

@@ -75,6 +75,7 @@ void WorldSystem::restart_game()
     tutorialDelayTimer = 0.0f;
     hasSwitchedToTutorial = false;
     encounteredEnemies.clear();
+    encounteredCollectibles.clear();
 }
 
 void WorldSystem::updateGameTimer(float elapsed_ms) {
@@ -180,9 +181,36 @@ void WorldSystem::updateEnemyTutorial() {
     }
 }
 
+void WorldSystem::updateCollectibleTutorial() {
+    for(Entity collectible: registry.collectibles.entities){
+        Motion& motion = registry.motions.get(collectible);
+        //same logic as spawning
+        float exclusionTop = (camera->getPosition().y - camera->getSize().y / 2) / yConversionFactor + 200;
+        float exclusionBottom = (camera->getPosition().y + camera->getSize().y / 2) / yConversionFactor - 400;
+        float exclusionLeft = camera->getPosition().x - camera->getSize().x / 2 + 200;
+        float exclusionRight = camera->getPosition().x + camera->getSize().x / 2 - 200;
+        if (motion.position.x < exclusionRight && motion.position.x > exclusionLeft &&
+            motion.position.y < exclusionBottom && motion.position.y > exclusionTop) {
+            std::string collectibleType = registry.collectibles.get(collectible).type; 
+            if (encounteredCollectibles.find(collectibleType) == encounteredCollectibles.end()) {
+                createTutorialTarget(motion.position);
+                if (collectibleType == "HEART") {
+                    gameStateController.setGameState(GAME_STATE::HEART_TUTORIAL);
+                }
+                if (collectibleType == "TRAP") {
+                    gameStateController.setGameState(GAME_STATE::TRAP_TUTORIAL);
+                }
+                encounteredCollectibles.insert(collectibleType);
+                break; 
+            }
+        }
+    }
+}
+
 bool WorldSystem::step(float elapsed_ms)
 {
     updateEnemyTutorial();
+    updateCollectibleTutorial();
     updateTutorial(elapsed_ms);
     adjustSpawnSystem(elapsed_ms);
     spawn(elapsed_ms);
@@ -370,6 +398,11 @@ void WorldSystem::on_key(int key, int, int action, int mod)
         sound->pauseAllSoundEffects();
         enemyTutorialControls(key, action, mod);
         break;
+    case GAME_STATE::HEART_TUTORIAL: 
+    case GAME_STATE::TRAP_TUTORIAL: 
+        sound->pauseAllSoundEffects();
+        collectibleTutorialControls(key, action, mod);
+        break;
     }
     allStateControls(key, action, mod);
     movementControls(key, action, mod);
@@ -438,6 +471,24 @@ void WorldSystem::tutorialControls(int key, int action, int mod) {
 }
 
 void WorldSystem::enemyTutorialControls(int key, int action, int mod) {
+    if (action == GLFW_PRESS) {
+        switch (key) {
+        case GLFW_KEY_Q:
+            glfwSetWindowShouldClose(window, true);
+            break;
+        case GLFW_KEY_ENTER:
+        case GLFW_KEY_SPACE:
+            gameStateController.setGameState(GAME_STATE::PLAYING);
+            sound->resumeAllSoundEffects();
+            break;
+        case GLFW_KEY_ESCAPE:
+            gameStateController.setGameState(GAME_STATE::PAUSED);
+            break;
+        }
+    }
+}
+
+void WorldSystem::collectibleTutorialControls(int key, int action, int mod) {
     if (action == GLFW_PRESS) {
         switch (key) {
         case GLFW_KEY_Q:

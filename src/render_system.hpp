@@ -77,6 +77,8 @@ class RenderSystem {
 		textures_path("enemy_intros/archer.png"),     // ARCHER INTRO
 		textures_path("enemy_intros/barbarian.png"),  // BARBARIAN INTRO
 		textures_path("enemy_intros/target.png"),     // ENEMY TARGET AREA
+		textures_path("collectible_intros/heart.png"),// HEART INTRO
+		textures_path("collectible_intros/trap.png"), // TRAP INTRO
 		textures_path("bird/bird_fly.png"),			  // BIRD FLY
 		textures_path("bird/bird_swoop.png"),		  // BIRD SWOOP
 		textures_path("bird/bird_dead.png"),		  // BIRD DEAD

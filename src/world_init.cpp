@@ -253,7 +253,8 @@ Entity createCollectibleTrap(vec2 pos)
 	motion.scale = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT };
 	motion.hitbox = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT / zConversionFactor };
 
-	registry.collectibles.emplace(entity);
+	Collectible& collectible = registry.collectibles.emplace(entity);
+	collectible.type = "TRAP";
 
 	initTrapBottleAnimationController(entity);
 
@@ -277,7 +278,8 @@ Entity createHeart(vec2 pos)
 	fixed.scale = { HEART_BB_WIDTH, HEART_BB_WIDTH };
 	fixed.hitbox = { HEART_BB_WIDTH, HEART_BB_WIDTH, HEART_BB_HEIGHT / zConversionFactor };
 
-	registry.collectibles.emplace(entity);
+	Collectible& collectible = registry.collectibles.emplace(entity);
+	collectible.type = "HEART";
 
 	initHeartAnimationController(entity);
 

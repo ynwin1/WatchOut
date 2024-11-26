@@ -63,6 +63,7 @@ private:
     bool hasSwitchedToTutorial = false;
 
 	std::unordered_set<std::string> encounteredEnemies;
+	std::unordered_set<std::string> encounteredCollectibles;
 
 	Entity playerEntity;
 	std::unordered_map<std::string, float> spawn_delays;
@@ -152,6 +153,7 @@ private:
 	void resetTrappedEntities();
 	void updateTutorial(float elapsed_ms);
 	void updateEnemyTutorial();
+	void updateCollectibleTutorial();
 
 	// Collision functions
 	void entity_collectible_collision(Entity entity, Entity collectible);
@@ -173,6 +175,7 @@ private:
 	void helpControls(int key, int action, int mod);
 	void tutorialControls(int key, int action, int mod);
 	void enemyTutorialControls(int key, int action, int mod);
+	void collectibleTutorialControls(int key, int action, int mod);
 	void onTutorialClick();
 
 	// Help/Pause Menu functions
@@ -189,6 +192,9 @@ private:
 	Entity createArcherTutorial(vec2 cameraPosition);
 	Entity createBarbarianTutorial(vec2 cameraPosition);
 	void exitEnemyTutorial();
+	Entity createHeartTutorial(vec2 cameraPosition);
+	Entity createTrapTutorial(vec2 cameraPosition);
+	void exitCollectibleTutorial();
 
 	// C++ random number generator
 	std::default_random_engine rng;

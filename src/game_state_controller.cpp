@@ -29,6 +29,9 @@ void GameStateController::onExitState(GAME_STATE oldState) {
         oldState == GAME_STATE::ARCHER_TUTORIAL || oldState == GAME_STATE::BARBARIAN_TUTORIAL) {
         world->exitEnemyTutorial();
     }
+    if (oldState == GAME_STATE::HEART_TUTORIAL || oldState == GAME_STATE::TRAP_TUTORIAL) {
+        world->exitCollectibleTutorial();
+    }
     if (oldState == GAME_STATE::PAUSED) {
         world->exitPauseMenu();
     }
@@ -77,6 +80,14 @@ void GameStateController::beforeEnterState(GAME_STATE newState) {
     }
     if (newState == GAME_STATE::BARBARIAN_TUTORIAL) {
         world->createBarbarianTutorial(world->camera->getSize());
+        return;
+    }
+    if (newState == GAME_STATE::HEART_TUTORIAL) {
+        world->createHeartTutorial(world->camera->getSize());
+        return;
+    }
+    if (newState == GAME_STATE::TRAP_TUTORIAL) {
+        world->createTrapTutorial(world->camera->getSize());
         return;
     }
     return;

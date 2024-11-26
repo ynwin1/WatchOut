@@ -310,6 +310,7 @@ struct Wizard {
 
 struct Troll {
 	float desiredAngle = 0;
+	float laughCooldown = 20000.f;
 };
 
 // Collectible types

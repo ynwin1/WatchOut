@@ -141,7 +141,6 @@ bool WorldSystem::step(float elapsed_ms)
     updateGameTimer(elapsed_ms);
     updateTrapsCounterText();
     toggleMesh();
-    inGameSounds();
     accelerateFireballs(elapsed_ms);
     despawnTraps(elapsed_ms);
     updateCollectedTimer(elapsed_ms);
@@ -292,18 +291,18 @@ void WorldSystem::on_key(int key, int, int action, int mod)
         playingControls(key, action, mod);
         break;
     case GAME_STATE::PAUSED:
-        isMovingSoundPlaying = false;
-        isBirdFlockSoundPlaying = false;
-        sound->stopAllSoundEffects();
+		sound->isBirdFlockSoundPlaying = false;
+		sound->isMovingSoundPlaying = false;
+        sound->pauseAllSoundEffects();
         pauseControls(key, action, mod);
         break;
     case GAME_STATE::GAMEOVER:
         gameOverControls(key, action, mod);
         break;
     case GAME_STATE::HELP:
-        isMovingSoundPlaying = false;
-        isBirdFlockSoundPlaying = false;
-        sound->stopAllSoundEffects();
+        sound->isMovingSoundPlaying = false;
+        sound->isBirdFlockSoundPlaying = false;
+        sound->pauseAllSoundEffects();
         helpControls(key, action, mod);
         break;
     }
@@ -322,6 +321,7 @@ void WorldSystem::helpControls(int key, int action, int mod)
             restart_game();
         case GLFW_KEY_H:
             gameStateController.setGameState(GAME_STATE::PLAYING);
+            sound->resumeAllSoundEffects();
             break;
         case GLFW_KEY_P:
         case GLFW_KEY_ESCAPE:
@@ -347,6 +347,7 @@ void WorldSystem::pauseControls(int key, int action, int mod)
         case GLFW_KEY_P:
         case GLFW_KEY_ESCAPE:
             gameStateController.setGameState(GAME_STATE::PLAYING);
+			sound->resumeAllSoundEffects();
             break;
         }
     }
@@ -401,6 +402,16 @@ void WorldSystem::allStateControls(int key, int action, int mod)
         case GLFW_KEY_F:
             // toggle fps
             registry.fpsTracker.toggled = !registry.fpsTracker.toggled;
+            break;
+		case GLFW_KEY_M:
+            // toggle sound
+			sound->mute = !sound->mute;
+			if (sound->mute) {
+				sound->muteAllSounds();
+			}
+			else {
+				sound->unmuteAllSounds();
+			}
             break;
         case GLFW_KEY_V:
             isWindowed = !isWindowed;
@@ -891,7 +902,7 @@ void WorldSystem::checkAndHandlePlayerDeath(Entity& entity) {
         motion.hitbox = { motion.hitbox.z, motion.hitbox.y, motion.hitbox.x }; // Change hitbox to be on its side
 
         sound->stopAllSounds();
-		sound->playMusic(Music::PLAYER_DEATH, -1, 10);
+		sound->playMusic(Music::PLAYER_DEATH, -1);
 	}
 }
 
@@ -1042,46 +1053,10 @@ void WorldSystem::accelerateFireballs(float elapsed_ms) {
 }
 
 void WorldSystem::soundSetUp() {
-    int VOLUME = 10;
     // stop all sounds first
     sound->stopAllSounds();
     // init sound system
     sound->init();
     // play background music
-    sound->playMusic(Music::BACKGROUND, -1, VOLUME);
-}
-
-void WorldSystem::inGameSounds() {
-	Player& player = registry.players.get(playerEntity);
-    // monitoring player movement
-    if (player.isMoving) {
-        if (!isMovingSoundPlaying) {
-            // walking sound
-            sound->playSoundEffect(Sound::WALKING, -1);
-            isMovingSoundPlaying = true;
-        }
-    }
-    else {
-        if (isMovingSoundPlaying) {
-            // stop walking sound
-            sound->stopSoundEffect(Sound::WALKING);
-            isMovingSoundPlaying = false;
-        }
-    }
-
-    // monitoring birds movement
-    if (registry.birds.size() > 0) {
-        if (!isBirdFlockSoundPlaying) {
-            // birds sound
-            sound->playSoundEffect(Sound::BIRD_FLOCK, -1);
-            isBirdFlockSoundPlaying = true;
-        }
-    }
-    else {
-        if (isBirdFlockSoundPlaying) {
-            // stop birds sound
-            sound->stopSoundEffect(Sound::BIRD_FLOCK);
-            isBirdFlockSoundPlaying = false;
-        }
-    }
+    sound->playMusic(Music::BACKGROUND, -1);
 }

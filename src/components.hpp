@@ -59,6 +59,13 @@ struct Projectile {
 	float sticksInGround = 3000; // ms it lasts on the ground
 };
 
+struct HomingArrow {
+	Entity targetEntity;
+	HomingArrow(Entity& targetEntity) { 
+		this->targetEntity = targetEntity; 
+	}
+};
+
 struct HealthBar {
 	Entity meshEntity;
 	Entity frameEntity;

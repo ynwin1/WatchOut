@@ -147,6 +147,7 @@ bool WorldSystem::step(float elapsed_ms)
     despawnTraps(elapsed_ms);
     updateCollectedTimer(elapsed_ms);
     resetTrappedEntities();
+    updateHomingArrows(elapsed_ms);
 
     if (camera->isToggled()) {
         Motion& playerMotion = registry.motions.get(playerEntity);
@@ -286,6 +287,34 @@ void WorldSystem::on_mouse_move(vec2 mouse_position) {
 
 }
 
+void WorldSystem::shootHomingArrow(Entity targetEntity, float angle) {
+    Motion& targetM = registry.motions.get(targetEntity);
+    Motion& motion = registry.motions.get(registry.players.entities.at(0));
+
+    vec2 direction = normalize(vec2(targetM.position) - vec2(motion.position));
+    vec3 pos = motion.position;
+
+    float x_offset = FIREBALL_HITBOX_WIDTH + motion.hitbox.x / 2;
+    float y_offset = FIREBALL_HITBOX_WIDTH + motion.hitbox.y / 2;
+	// travelling more horizontally so no y offset
+    if (abs(direction.x) > abs(direction.y)) {
+        y_offset = 0;
+    }
+    else if (abs(direction.x) < abs(direction.y)) {
+        x_offset = 0;
+    }
+    // offset must be on the left if travelling left
+    if (direction.x < 0) {
+        x_offset = -x_offset;
+    }
+    if (direction.y < 0) {
+        y_offset = -y_offset;
+    }
+    pos += vec3(x_offset, y_offset, 0);
+
+    createHomingArrow(pos, targetEntity, angle);
+}
+
 void WorldSystem::launchProjectile(vec3 targetPos) {
         // Always shoot arrow at 45 degree angle (makes calculations simpler)
     const float ARROW_ANGLE = M_PI / 4;
@@ -338,23 +367,27 @@ void WorldSystem::launchProjectile(vec3 targetPos) {
 
 void WorldSystem::targetBirds(vec2 mousePos) {
     vec3 mouseWorldPos = renderer->mouseToWorld(mousePos);
+    vec3 playerPos = registry.motions.get(playerEntity).position;
 
     for(Entity birdE : registry.birds.entities) {
         Motion& birdM = registry.motions.get(birdE);
-        vec2 visualPos = worldToVisual(birdM.position);
-        vec2 worldPos = {visualPos.x, visualToWorldY(visualPos.y)};
-        vec2 birdBBTopLeft = {worldPos.x - BIRD_BB_WIDTH / 2, worldPos.y - BIRD_BB_HEIGHT / 2};
-        vec2 birdBBBottomRight = {worldPos.x + BIRD_BB_WIDTH / 2, worldPos.y + BIRD_BB_HEIGHT / 2};
-        // apply AABB
-        bool mouseCollide = birdBBTopLeft.x < mouseWorldPos.x &&
-                           birdBBTopLeft.y < mouseWorldPos.y &&
-                           birdBBBottomRight.x > mouseWorldPos.x &&
-                           birdBBBottomRight.y > mouseWorldPos.y;
-        if(mouseCollide) {
-            std::cout << "Bird clicked" << std::endl;
-        } else {
-            std::cout << " " << std::endl;
-        }
+        vec2 direction = mouseWorldPos - playerPos;
+        float angle = atan2(direction.y, direction.x); // Angle in radians
+        shootHomingArrow(birdE, angle);
+        // vec2 visualPos = worldToVisual(birdM.position);
+        // vec2 worldPos = {visualPos.x, visualToWorldY(visualPos.y)};
+        // vec2 birdBBTopLeft = {worldPos.x - BIRD_BB_WIDTH / 2, worldPos.y - BIRD_BB_HEIGHT / 2};
+        // vec2 birdBBBottomRight = {worldPos.x + BIRD_BB_WIDTH / 2, worldPos.y + BIRD_BB_HEIGHT / 2};
+        // // apply AABB
+        // bool mouseCollide = birdBBTopLeft.x < mouseWorldPos.x &&
+        //                    birdBBTopLeft.y < mouseWorldPos.y &&
+        //                    birdBBBottomRight.x > mouseWorldPos.x &&
+        //                    birdBBBottomRight.y > mouseWorldPos.y;
+        // if(mouseCollide) {
+        //     std::cout << "Bird clicked" << std::endl;
+        // } else {
+        //     std::cout << " " << std::endl;
+        // }
     }
 }
 
@@ -1140,6 +1173,30 @@ void WorldSystem::accelerateFireballs(float elapsed_ms) {
             fireballMotion.velocity.x += (direction.x) * FIREBALL_ACCELERATION * (elapsed_ms / 1000);
             fireballMotion.velocity.y += (direction.y) * FIREBALL_ACCELERATION * (elapsed_ms / 1000);
         }
+    }
+}
+
+void WorldSystem::updateHomingArrows(float elapsed_ms) {
+    for (Entity entity : registry.homingArrows.entities) {
+        HomingArrow& arrow = registry.homingArrows.get(entity);
+        Motion& arrowM = registry.motions.get(entity);
+        Motion& targetM = registry.motions.get(arrow.targetEntity);
+
+        // calculate direction towards target
+        vec3 targetPos = targetM.position; 
+        vec3 arrowPos = arrowM.position;   
+        vec3 direction = targetPos - arrowPos;
+        direction = normalize(direction);
+
+        // set the arrow's velocity towards the target 
+        arrowM.velocity.x = direction.x * HOMING_ARROW_SPEED;
+        arrowM.velocity.y = direction.y * HOMING_ARROW_SPEED;
+        arrowM.velocity.z = direction.z * HOMING_ARROW_SPEED;
+
+        // update position based on velocity
+        arrowM.position.x += arrowM.velocity.x * elapsed_ms / 1000.0f; // Convert ms to seconds
+        arrowM.position.y += arrowM.velocity.y * elapsed_ms / 1000.0f;
+        arrowM.position.z += arrowM.velocity.z * elapsed_ms / 1000.0f;
     }
 }
 

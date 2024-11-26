@@ -144,6 +144,7 @@ private:
 	void despawnTraps(float elapsed_ms);
 	void updateCollectedTimer(float elapsed_ms);
 	void resetTrappedEntities();
+	void updateHomingArrows(float elapsed_ms);
 
 
 	// Collision functions
@@ -173,6 +174,7 @@ private:
 
 	void launchProjectile(vec3 targetPos);
 	void targetBirds(vec2 mousePos);
+	void shootHomingArrow(Entity targetEntity, float angle);
 
 	// C++ random number generator
 	std::default_random_engine rng;

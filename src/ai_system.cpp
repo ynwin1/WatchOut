@@ -557,7 +557,7 @@ void AISystem::birdBehaviour(Entity bird, vec3 playerPosition, float elapsed_ms)
         }
     }
     // Swoop Attack
-    swoopAttack(bird, playerPosition, elapsed_ms, flockMates);
+    // swoopAttack(bird, playerPosition, elapsed_ms, flockMates);
     if (birdComponent.isSwooping) {
         return;
     }

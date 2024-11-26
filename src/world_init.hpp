@@ -59,6 +59,8 @@ const float WIZARD_SPEED = 0.1;
 const float PLAYER_SPEED = 0.5;
 const float TROLL_SPEED = 0.1;
 
+const float HOMING_ARROW_SPEED = 2.5f;
+
 const float JUMP_STAMINA = 20.f;
 const float DASH_STAMINA = 30.f;
 
@@ -112,6 +114,8 @@ Entity createDamageTrap(vec2 pos);
 
 // Arrows fired by the archer
 Entity createArrow(vec3 pos, vec3 velocity, int damage);
+
+Entity createHomingArrow(vec3 pos, Entity targetEntity, float angle);
 
 // Fireballs fired by the wizard
 Entity createFireball(vec3 pos, vec2 direction);

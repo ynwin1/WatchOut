@@ -463,6 +463,32 @@ Entity createFireball(vec3 pos, vec2 direction) {
 	return entity;
 }
 
+Entity createHomingArrow(vec3 pos, Entity targetEntity, float angle) {
+	auto entity = Entity();
+
+	registry.homingArrows.emplace(entity, targetEntity);
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.angle = angle;
+	motion.scale = { ARROW_BB_WIDTH, ARROW_BB_HEIGHT };
+	motion.hitbox = { ARROW_BB_WIDTH, ARROW_BB_HEIGHT, ARROW_BB_HEIGHT / zConversionFactor };
+
+	Damaging& damaging = registry.damagings.emplace(entity);
+	damaging.damage = 0;
+	registry.midgrounds.emplace(entity);
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::ARROW,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	return entity;
+}
+
 Entity createLightning(vec2 pos) {
 	auto entity = Entity();
 

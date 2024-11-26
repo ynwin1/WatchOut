@@ -700,7 +700,7 @@ Entity createTutorialTarget(vec3 position) {
 	registry.backgrounds.emplace(entity);
 	registry.targetAreas.emplace(entity);
 	Cooldown& cooldown = registry.cooldowns.emplace(entity);
-	cooldown.remaining = 500.f; 
+	cooldown.remaining = 200.f; 
 	return entity;
 }
 

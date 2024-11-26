@@ -86,7 +86,7 @@ Entity WorldSystem::createBoarTutorial(vec2 windowSize) {
 
     Foreground& fg = registry.foregrounds.emplace(entity);
     fg.position = {windowSize.x / 2, 150};
-    fg.scale = {700, 300};
+    fg.scale = {900, 300};
     registry.renderRequests.insert(
         entity,
         {
@@ -103,7 +103,7 @@ Entity WorldSystem::createBirdTutorial(vec2 windowSize) {
 
     Foreground& fg = registry.foregrounds.emplace(entity);
     fg.position = {windowSize.x / 2, 150};
-    fg.scale = {700, 300};
+    fg.scale = {900, 300};
     registry.renderRequests.insert(
         entity,
         {
@@ -120,7 +120,7 @@ Entity WorldSystem::createWizardTutorial(vec2 windowSize) {
 
     Foreground& fg = registry.foregrounds.emplace(entity);
     fg.position = {windowSize.x / 2, 150};
-    fg.scale = {700, 300};
+    fg.scale = {900, 300};
     registry.renderRequests.insert(
         entity,
         {
@@ -137,7 +137,7 @@ Entity WorldSystem::createTrollTutorial(vec2 windowSize) {
 
     Foreground& fg = registry.foregrounds.emplace(entity);
     fg.position = {windowSize.x / 2, 150};
-    fg.scale = {700, 300};
+    fg.scale = {900, 300};
     registry.renderRequests.insert(
         entity,
         {
@@ -154,7 +154,7 @@ Entity WorldSystem::createArcherTutorial(vec2 windowSize) {
 
     Foreground& fg = registry.foregrounds.emplace(entity);
     fg.position = {windowSize.x / 2, 150};
-    fg.scale = {700, 300};
+    fg.scale = {900, 300};
     registry.renderRequests.insert(
         entity,
         {
@@ -171,7 +171,7 @@ Entity WorldSystem::createBarbarianTutorial(vec2 windowSize) {
 
     Foreground& fg = registry.foregrounds.emplace(entity);
     fg.position = {windowSize.x / 2, 150};
-    fg.scale = {700, 300};
+    fg.scale = {900, 300};
     registry.renderRequests.insert(
         entity,
         {

@@ -22,7 +22,7 @@ void GameSaveManager::save_game(int trapCounter) {
 	json j;
 
 	serialize_containers(j);
-	j["trapCounter"] = trapCounter;
+	j[TRAPCOUNTER] = trapCounter;
 
 	std::ofstream file(gameSaveFilePath);
 	if (file.is_open()) {
@@ -35,8 +35,8 @@ void GameSaveManager::save_game(int trapCounter) {
 }
 
 void GameSaveManager::serialize_containers(json& j) {
-	j["gameTimer"] = serialize_game_timer(registry.gameTimer);
-	j["gameScore"] = serialize_game_score(registry.gameScore);
+	j[GAMETIMER] = serialize_game_timer(registry.gameTimer);
+	j[GAMESCORE] = serialize_game_score(registry.gameScore);
 
 
 	// Serialize all component containers
@@ -535,7 +535,7 @@ void GameSaveManager::groupComponentsForEntities(const json& j) {
 		auto& container = item.value();
 
 		// skip gameTimer and gameScore
-		if (containerName == "gameTimer" || containerName == "gameScore" || containerName == "trapCounter") {
+		if (containerName == GAMETIMER || containerName == GAMESCORE || containerName == TRAPCOUNTER) {
 			continue;
 		}
 
@@ -588,7 +588,7 @@ void GameSaveManager::deserialize_containers(const json& j) {
 	deserialize_game_timer(j);
 	deserialize_game_score(j);
 
-	trapCounter = (int) j["trapCounter"];
+	trapCounter = (int) j[TRAPCOUNTER];
 }
 
 //void GameSaveManager::createEntity(std::vector<std::string> componentNames, std::map<std::string, nlohmann::json> componentsMap) {
@@ -865,18 +865,18 @@ void GameSaveManager::createDamagingsDeserialization(std::map<std::string, nlohm
 }
 
 void GameSaveManager::deserialize_game_timer(const json& j) {
-	registry.gameTimer.hours = j["gameTimer"]["hour"].get<int>();
-	registry.gameTimer.minutes = j["gameTimer"]["minute"].get<int>();
-	registry.gameTimer.seconds = j["gameTimer"]["second"].get<int>();
-	registry.gameTimer.ms = j["gameTimer"]["ms"].get<int>();
+	registry.gameTimer.hours = j[GAMETIMER]["hour"].get<int>();
+	registry.gameTimer.minutes = j[GAMETIMER]["minute"].get<int>();
+	registry.gameTimer.seconds = j[GAMETIMER]["second"].get<int>();
+	registry.gameTimer.ms = j[GAMETIMER]["ms"].get<int>();
 
 	printf("Game Timer: %d:%d:%d:%d\n", registry.gameTimer.hours, registry.gameTimer.minutes, registry.gameTimer.seconds, registry.gameTimer.ms);
 }
 
 void GameSaveManager::deserialize_game_score(const json& j) {
-	registry.gameScore.highScoreHours = j["gameScore"]["highScoreHours"].get<int>();
-	registry.gameScore.highScoreMinutes = j["gameScore"]["highScoreMinutes"].get<int>();
-	registry.gameScore.highScoreSeconds = j["gameScore"]["highScoreSeconds"].get<int>();
+	registry.gameScore.highScoreHours = j[GAMESCORE]["highScoreHours"].get<int>();
+	registry.gameScore.highScoreMinutes = j[GAMESCORE]["highScoreMinutes"].get<int>();
+	registry.gameScore.highScoreSeconds = j[GAMESCORE]["highScoreSeconds"].get<int>();
 }
 
 

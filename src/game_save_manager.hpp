@@ -71,6 +71,10 @@ private:
 	std::string HEARTS = "hearts";
 	std::string COLLECTIBLETRAPS = "collectibleTraps";
 
+	std::string GAMETIMER = "gameTimer";
+	std::string GAMESCORE = "gameScore";
+	std::string TRAPCOUNTER = "trapCounter";
+
 	// Game Save file path
 	std::string gameSaveFilePath = data_path() + "/save/game_save.json";
 	// Map to store group of components for each entity

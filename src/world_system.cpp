@@ -576,6 +576,14 @@ void WorldSystem::despawnTraps(float elapsed_ms) {
             registry.remove_all_components_of(trapE);
         }
     }
+
+	for (Entity& trapE : registry.phantomTraps.entities) {
+		PhantomTrap& trap = registry.phantomTraps.get(trapE);
+		trap.duration -= elapsed_ms;
+		if (trap.duration <= 0) {
+			registry.remove_all_components_of(trapE);
+		}
+	}
 }
 
 void WorldSystem::update_cooldown(float elapsed_ms) {

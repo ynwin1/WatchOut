@@ -345,7 +345,8 @@ Entity createPhantomTrap(vec2 pos) {
 	motion.solid = false;
 
 	// Setting initial trap values
-	registry.phantomTraps.emplace(entity);
+	PhantomTrap& phantomTrap = registry.phantomTraps.emplace(entity);
+	phantomTrap.duration = 7000.f; // 7s
 
 	registry.renderRequests.insert(
 		entity,

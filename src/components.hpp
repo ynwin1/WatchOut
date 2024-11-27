@@ -2,6 +2,13 @@
 #include "common.hpp"
 #include <vector>
 
+/*
+
+Making changes to the structure of the components will require changes to the following files:
+game_save_manager.cpp (serialize and deserialize the attributes you are adding or removing)
+
+*/
+
 
 // PlayerComponents 
 struct Player {

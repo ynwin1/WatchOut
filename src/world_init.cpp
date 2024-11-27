@@ -346,7 +346,7 @@ Entity createPhantomTrap(vec2 pos) {
 
 	// Setting initial trap values
 	PhantomTrap& phantomTrap = registry.phantomTraps.emplace(entity);
-	phantomTrap.duration = 7000.f; // 7s
+	phantomTrap.duration = 15000.f; // 7s
 
 	registry.renderRequests.insert(
 		entity,

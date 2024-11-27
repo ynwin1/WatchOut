@@ -41,10 +41,6 @@ bool AISystem::decideToPathfind(Entity enemy, float baseThinkingTime, float elap
     return true;
 }
 
-float groundDistance(vec3 phantom, vec3 enemy) {
-	return sqrt(pow(phantom.x - enemy.x, 2) + pow(phantom.y - enemy.y, 2));
-}
-
 void AISystem::decideTarget(Entity enemy, vec3 playerPosition, float elapsed_ms) {
 	if (registry.phantomTraps.size() == 0) {
 		moveTowardsTarget(enemy, playerPosition, elapsed_ms);
@@ -53,8 +49,7 @@ void AISystem::decideTarget(Entity enemy, vec3 playerPosition, float elapsed_ms)
         for (Entity phantomTrap : registry.phantomTraps.entities) {
             vec3 phantomTrapPos = registry.motions.get(phantomTrap).position;
             vec3 enemyPos = registry.motions.get(enemy).position;
-            if (groundDistance(phantomTrapPos, enemyPos) < PHANTOM_TRAP_RADIUS) {
-                printf("Moving towards phantom\n");
+            if (distance(phantomTrapPos, enemyPos) < PHANTOM_TRAP_RADIUS) {
                 moveTowardsTarget(enemy, phantomTrapPos, elapsed_ms);
             }
             else {
@@ -255,31 +250,34 @@ void AISystem::boarBehaviour(Entity boar, vec3 playerPosition, float elapsed_ms)
         return;
     }
 
+    float distanceToTarget = distanceToPlayer;
+	vec2 directionToTarget = directionToPlayer;
+
     for (Entity phantomTrap : registry.phantomTraps.entities) {
         vec3 phantomTrapPos = registry.motions.get(phantomTrap).position;
         vec3 enemyPos = motion.position;
         if (distance(phantomTrapPos, enemyPos) < PHANTOM_TRAP_RADIUS) {
-            moveTowardsTarget(boar, phantomTrapPos, elapsed_ms);
-            return;
+			distanceToTarget = distance(phantomTrapPos, enemyPos);
+			directionToTarget = normalize(vec2(phantomTrapPos) - vec2(enemyPos));
         }
     }
 
     // Set state based on distance
     float clearDistance;
-    if (distanceToPlayer < BOAR_AGGRO_RANGE && boars.cooldownTimer <= 0 && !boars.preparing && !boars.charging &&
-            pathClear(motion, directionToPlayer, distanceToPlayer, registry.obstacles.entities, clearDistance)) {
+    if (distanceToTarget < BOAR_AGGRO_RANGE && boars.cooldownTimer <= 0 && !boars.preparing && !boars.charging &&
+            pathClear(motion, directionToTarget, distanceToTarget, registry.obstacles.entities, clearDistance)) {
         boars.preparing = true;
         boars.prepareTimer = BOAR_PREPARE_TIME;
         boars.chargeTimer = BOAR_CHARGE_DURATION;
         animationController.changeState(boar, AnimationState::Idle);
-    } else if (distanceToPlayer > BOAR_DISENGAGE_RANGE) {
+    } else if (distanceToTarget > BOAR_DISENGAGE_RANGE) {
         boars.preparing = false;
         boars.charging = false;
     }
 
     if (boars.preparing) {
         // Preparation shake
-        motion.facing = directionToPlayer;
+        motion.facing = directionToTarget;
         if (boars.prepareTimer > 0) {
             boars.prepareTimer -= elapsed_ms;
 
@@ -293,10 +291,10 @@ void AISystem::boarBehaviour(Entity boar, vec3 playerPosition, float elapsed_ms)
 
         } else {
             boars.preparing = false;
-            if (pathClear(motion, directionToPlayer, distanceToPlayer, registry.obstacles.entities, clearDistance)) {
+            if (pathClear(motion, directionToTarget, distanceToTarget, registry.obstacles.entities, clearDistance)) {
                 animationController.changeState(boar, AnimationState::Running);
                 boars.charging = true;
-                boars.chargeDirection = directionToPlayer;
+                boars.chargeDirection = directionToTarget;
                 motion.velocity = vec3(boars.chargeDirection * BOAR_CHARGE_SPEED, 0);
                 sound->playSoundEffect(Sound::BOAR_CHARGE, 0);
             }
@@ -455,12 +453,15 @@ void AISystem::archerBehaviour(Entity entity, vec3 playerPosition, float elapsed
     Archer& archer = registry.archers.get(entity);
     float d = distance(motion.position, playerPosition);
 
+	vec3 targetPosition = playerPosition;
+
     for (Entity phantomTrap : registry.phantomTraps.entities) {
         vec3 phantomTrapPos = registry.motions.get(phantomTrap).position;
         vec3 enemyPos = motion.position;
         if (distance(phantomTrapPos, enemyPos) < PHANTOM_TRAP_RADIUS) {
+			d = distance(motion.position, phantomTrapPos);
+			targetPosition = phantomTrapPos;
             moveTowardsTarget(entity, phantomTrapPos, elapsed_ms);
-            return;
         }
     }
 
@@ -479,9 +480,9 @@ void AISystem::archerBehaviour(Entity entity, vec3 playerPosition, float elapsed
     }
 
     if (archer.aiming) {
-        motion.facing = normalize(vec2(playerPosition) - vec2(motion.position));
+        motion.facing = normalize(vec2(targetPosition) - vec2(motion.position));
         if (archer.drawArrowTime > DRAW_ARROW_TIME) {
-            shootArrow(entity, playerPosition);
+            shootArrow(entity, targetPosition);
             archer.drawArrowTime = 0;
             AnimationController& animationController = registry.animationControllers.get(entity);
             animationController.changeState(entity, AnimationState::Idle);

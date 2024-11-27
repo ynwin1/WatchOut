@@ -329,6 +329,33 @@ Entity createDamageTrap(vec2 pos)
 	return entity;
 };
 
+Entity createPhantomTrap(vec2 pos) {
+	auto entity = Entity();
+
+	// Setting intial motion values
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = vec3(pos, getElevation(pos) + PHANTOM_TRAP_BB_HEIGHT / 2);
+	motion.angle = 0.f;
+	motion.scale = { PHANTOM_TRAP_BB_WIDTH, PHANTOM_TRAP_BB_HEIGHT };
+	motion.hitbox = { PHANTOM_TRAP_BB_WIDTH, PHANTOM_TRAP_BB_WIDTH, PHANTOM_TRAP_BB_HEIGHT / zConversionFactor };
+
+	// Setting initial trap values
+	registry.phantomTraps.emplace(entity);
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::JEFF_PHANTOM_TRAP,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	registry.backgrounds.emplace(entity);
+
+	return entity;
+}
+
+
 // Create Player Jeff
 Entity createJeff(vec2 position)
 {

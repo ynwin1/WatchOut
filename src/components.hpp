@@ -97,14 +97,23 @@ struct Collected {
 };
 
 // Trap Component
-struct Trap
-{
-	// fixed position and scale once set
+struct BaseTrap {
 	vec2 position = { 0, 0 };
 	vec2 scale = { 3, 3 };
-	unsigned int damage = 15.0;
 	float duration = 10000;
+};
+
+// Inheritance
+struct Trap : public BaseTrap
+{
+	// fixed position and scale once set
+	unsigned int damage = 15.0;
 	float slowFactor = 0.1f;
+};
+
+struct PhantomTrap : public BaseTrap
+{
+	using BaseTrap::BaseTrap;
 };
 
 // All data relevant to the shape and motion of entities

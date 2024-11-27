@@ -32,6 +32,8 @@ const float TREE_BB_WIDTH = 48 * 2 * SPRITE_SCALE;
 
 const float TRAP_BB_WIDTH = 45.f * SPRITE_SCALE;
 const float TRAP_BB_HEIGHT = 13.f * SPRITE_SCALE;
+const float PHANTOM_TRAP_BB_WIDTH = 20.f * SPRITE_SCALE;
+const float PHANTOM_TRAP_BB_HEIGHT = 28.f * SPRITE_SCALE;
 const float TRAP_COLLECTABLE_BB_WIDTH = 13.f * SPRITE_SCALE;
 const float TRAP_COLLECTABLE_BB_HEIGHT = 17.f * SPRITE_SCALE;
 const float HEART_BB_WIDTH = 17. * SPRITE_SCALE;
@@ -109,6 +111,8 @@ Entity createCollected(Motion& playerM, vec2 size, TEXTURE_ASSET_ID assetID);
 
 // The damage trap
 Entity createDamageTrap(vec2 pos);
+
+Entity createPhantomTrap(vec2 pos);
 
 // Arrows fired by the archer
 Entity createArrow(vec3 pos, vec3 velocity, int damage);

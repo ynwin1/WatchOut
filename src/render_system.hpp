@@ -53,6 +53,7 @@ class RenderSystem {
 		textures_path("jeff/32Run.png"),              // JEFF_RUN
 		textures_path("jeff/32Idle.png"),             // JEFF_IDLE
 		textures_path("jeff/32Jump.png"),             // JEFF_JUMP
+		textures_path("jeff/phantom-jeff.png"),		  // JEFF_PHANTOM_TRAP
 		textures_path("collectables/heart.png"),      // HEART
 		textures_path("collectables/heart_fade.png"),
 		textures_path("collectables/trapbottle.png"), // TRAPCOLLECTABLE

@@ -68,7 +68,7 @@ AnimationController& initJeffAnimationController(Entity& jeff) {
 		jeff,
 		{
 			TEXTURE_ASSET_ID::JEFF_IDLE,
-			EFFECT_ASSET_ID::ANIMATED,
+			EFFECT_ASSET_ID::ANIMATED_NORMAL,
 			GEOMETRY_BUFFER_ID::SPRITE
 		});
 
@@ -86,7 +86,7 @@ AnimationController& initBarbarianAnimationController(Entity& entity) {
 		entity,
 		{
 			TEXTURE_ASSET_ID::BARBARIAN_RUN,
-			EFFECT_ASSET_ID::ANIMATED,
+			EFFECT_ASSET_ID::ANIMATED_NORMAL,
 			GEOMETRY_BUFFER_ID::SPRITE
 		});
 
@@ -105,7 +105,7 @@ AnimationController& initBoarAnimationController(Entity& entity) {
 		entity,
 		{
 			TEXTURE_ASSET_ID::BOAR_RUN,
-			EFFECT_ASSET_ID::ANIMATED,
+			EFFECT_ASSET_ID::ANIMATED_NORMAL,
 			GEOMETRY_BUFFER_ID::SPRITE
 		});
 
@@ -125,7 +125,7 @@ AnimationController& initArcherAnimationController(Entity& entity) {
 		entity,
 		{
 			TEXTURE_ASSET_ID::ARCHER_RUN,
-			EFFECT_ASSET_ID::ANIMATED,
+			EFFECT_ASSET_ID::ANIMATED_NORMAL,
 			GEOMETRY_BUFFER_ID::SPRITE
 		});
 
@@ -144,7 +144,7 @@ AnimationController& initBirdAnimationController(Entity& entity) {
 		entity,
 		{
 			TEXTURE_ASSET_ID::BIRD_FLY,
-			EFFECT_ASSET_ID::ANIMATED,
+			EFFECT_ASSET_ID::ANIMATED_NORMAL,
 			GEOMETRY_BUFFER_ID::SPRITE
 		});
 	animationcontroller.changeState(entity, AnimationState::Flying);
@@ -162,7 +162,7 @@ AnimationController& initWizardAnimationController(Entity& entity) {
 		entity,
 		{
 			TEXTURE_ASSET_ID::WIZARD_RUN,
-			EFFECT_ASSET_ID::ANIMATED,
+			EFFECT_ASSET_ID::ANIMATED_NORMAL,
 			GEOMETRY_BUFFER_ID::SPRITE
 		});
 
@@ -214,7 +214,7 @@ AnimationController& initTrollAnimationController(Entity& entity) {
 		entity,
 		{
 			TEXTURE_ASSET_ID::TROLL_RUN,
-			EFFECT_ASSET_ID::ANIMATED,
+			EFFECT_ASSET_ID::ANIMATED_NORMAL,
 			GEOMETRY_BUFFER_ID::SPRITE
 		});
 

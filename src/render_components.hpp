@@ -86,13 +86,16 @@ enum class TEXTURE_ASSET_ID
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
+
 enum class EFFECT_ASSET_ID
 {
 	TEXTURED = 0,
 	TEXTURED_FLAT = TEXTURED + 1,
-	UNTEXTURED = TEXTURED_FLAT + 1,
+	TEXTURED_NORMAL = TEXTURED_FLAT + 1,
+	UNTEXTURED = TEXTURED_NORMAL + 1,
 	ANIMATED = UNTEXTURED + 1,
-	FONT = ANIMATED + 1,
+	ANIMATED_NORMAL = ANIMATED + 1,
+	FONT = ANIMATED_NORMAL + 1,
 	TREE = FONT + 1,
 	EFFECT_COUNT = TREE + 1,
 };
@@ -129,4 +132,17 @@ struct Midground {};
 struct Foreground {
 	vec2 position;
 	vec2 scale;
+};
+
+struct PointLight {
+	vec3 position;
+
+	vec4 ambient;
+	vec4 diffuse;
+
+	float max_distance;
+
+	float constant;
+	float linear;
+	float quadratic;
 };

@@ -168,8 +168,6 @@ struct TrapsCounter {
 };
 
 struct MapTile {
-	vec2 position;
-	vec2 scale;
 };
 
 struct Obstacle {

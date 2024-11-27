@@ -144,7 +144,7 @@ private:
 	void despawnTraps(float elapsed_ms);
 	void updateCollectedTimer(float elapsed_ms);
 	void resetTrappedEntities();
-	void updateHomingArrows(float elapsed_ms);
+	void updateHomingProjectiles(float elapsed_ms);
 	void updateEquippedPosition();
 
 
@@ -173,6 +173,7 @@ private:
     Entity createPauseMenu(vec2 cameraPosition);
     void exitPauseMenu();
 
+	void shootProjectile(vec3 mouseWorldPos);
 	void shootArrow(vec3 mouseWorldPos);
 	void shotArchingArrow(vec3 targetPos);
 	void shootHomingArrow(Entity targetEntity, float angle);

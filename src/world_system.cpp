@@ -62,8 +62,7 @@ void WorldSystem::restart_game()
     createPlayerHealthBar(playerEntity, camera->getSize());
     createPlayerStaminaBar(playerEntity, camera->getSize());
 
-    gameStateController.inventory.equipped = EQUIPPED::BOW;
-    gameStateController.inventory.equippedEntity = createEquipped(TEXTURE_ASSET_ID::BOW, {BOW_BB_WIDTH, BOW_BB_HEIGHT});
+    gameStateController.inventory.itemCounts[EQUIPMENT::BOW] = 1;
 
     gameStateController.setGameState(GAME_STATE::PLAYING);
     show_mesh = false;
@@ -152,7 +151,7 @@ void WorldSystem::updateEquippedPosition() {
 
         equippedM.position = playerM.position + normalizedDirection * fixedDistance;
 
-        if(gameStateController.inventory.equipped == EQUIPPED::BOW) {
+        if(gameStateController.inventory.equipped == EQUIPMENT::BOW) {
             float angle = atan2(direction.y, direction.x);
             equippedM.angle = angle;
         }
@@ -176,7 +175,7 @@ bool WorldSystem::step(float elapsed_ms)
     despawnTraps(elapsed_ms);
     updateCollectedTimer(elapsed_ms);
     resetTrappedEntities();
-    updateHomingArrows(elapsed_ms);
+    updateHomingProjectiles(elapsed_ms);
     updateEquippedPosition();
 
     if (camera->isToggled()) {
@@ -342,7 +341,10 @@ void WorldSystem::shootHomingArrow(Entity targetEntity, float angle) {
     }
     pos += vec3(x_offset, y_offset, 0);
 
-    createHomingArrow(pos, targetEntity, angle);
+    Entity arrowE = createArrow(pos, vec3(0), PLAYER_ARROW_DAMAGE);
+    registry.motions.get(arrowE).angle = angle;
+    registry.homingProjectiles.emplace(arrowE, targetEntity).speed = HOMING_ARROW_SPEED;
+    registry.playerDamagings.emplace(arrowE);
 }
 
 void WorldSystem::shotArchingArrow(vec3 targetPos) {
@@ -392,7 +394,8 @@ void WorldSystem::shotArchingArrow(vec3 targetPos) {
     // Determine velocities for each dimension
     vec2 horizontal_velocity = velocity * cos(ARROW_ANGLE) * horizontal_direction;
     float vertical_velocity = velocity * sin(ARROW_ANGLE);
-    createArrow(pos, vec3(horizontal_velocity, vertical_velocity), PLAYER_ARROW_DAMAGE, true);
+    Entity arrowE = createArrow(pos, vec3(horizontal_velocity, vertical_velocity), PLAYER_ARROW_DAMAGE);
+    registry.playerDamagings.emplace(arrowE);
 }
 
 void WorldSystem::shootArrow(vec3 mouseWorldPos) {
@@ -431,16 +434,27 @@ void WorldSystem::shootArrow(vec3 mouseWorldPos) {
     sound->playSoundEffect(Sound::ARROW, 0);
 }
 
-void WorldSystem::on_mouse_button(int button, int action, int mod) {
-    if (action == GLFW_PRESS) {
-        double xpos, ypos;
-        glfwGetCursorPos(window, &xpos, &ypos); // Get the current cursor position
-
-        switch (button) {
-        case GLFW_MOUSE_BUTTON_LEFT:
-            vec3 mouseWorldPos = renderer->mouseToWorld({xpos, ypos});
+void WorldSystem::shootProjectile(vec3 mouseWorldPos) {
+    switch(gameStateController.inventory.equipped) {
+        case EQUIPMENT::BOW:
             shootArrow(mouseWorldPos);
             break;
+    }
+}
+
+void WorldSystem::on_mouse_button(int button, int action, int mod) {
+    if (action == GLFW_PRESS) {
+        switch (button) {
+        case GLFW_MOUSE_BUTTON_LEFT:
+            double xpos, ypos;
+            glfwGetCursorPos(window, &xpos, &ypos); // get the current cursor position
+            vec3 mouseWorldPos = renderer->mouseToWorld({xpos, ypos});
+
+            shootProjectile(mouseWorldPos);
+        break;
+        case GLFW_MOUSE_BUTTON_RIGHT:
+            gameStateController.inventory.unequip();
+        break;
         }
     }
 }
@@ -526,6 +540,9 @@ void WorldSystem::playingControls(int key, int action, int mod)
             break;
         case GLFW_KEY_Q:
             place_trap(player_comp, player_motion, false);
+            break;
+        case GLFW_KEY_1:
+            gameStateController.inventory.equipItem(EQUIPMENT::BOW);
             break;
         case GLFW_KEY_H:
             gameStateController.setGameState(GAME_STATE::HELP);
@@ -871,7 +888,8 @@ void WorldSystem::entity_damaging_collision(Entity entity, Entity entity_other, 
     Damaging& damaging = registry.damagings.get(entity_other);
 
     if (registry.players.has(entity)) {
-        if(registry.playerArrows.has(entity_other)) {
+        // prevent player taking damage from own damaging object
+        if(registry.playerDamagings.has(entity_other)) {
             return;
         }
         // reduce player health
@@ -1216,27 +1234,27 @@ void WorldSystem::accelerateFireballs(float elapsed_ms) {
     }
 }
 
-void WorldSystem::updateHomingArrows(float elapsed_ms) {
-    for (Entity entity : registry.homingArrows.entities) {
-        HomingArrow& arrow = registry.homingArrows.get(entity);
-        Motion& arrowM = registry.motions.get(entity);
-        Motion& targetM = registry.motions.get(arrow.targetEntity);
+void WorldSystem::updateHomingProjectiles(float elapsed_ms) {
+    for (Entity entity : registry.homingProjectiles.entities) {
+        HomingProjectile& projectile = registry.homingProjectiles.get(entity);
+        Motion& projectileM = registry.motions.get(entity);
+        Motion& targetM = registry.motions.get(projectile.targetEntity);
 
         // calculate direction towards target
         vec3 targetPos = targetM.position; 
-        vec3 arrowPos = arrowM.position;   
+        vec3 arrowPos = projectileM.position;   
         vec3 direction = targetPos - arrowPos;
         direction = normalize(direction);
 
         // set the arrow's velocity towards the target 
-        arrowM.velocity.x = direction.x * HOMING_ARROW_SPEED;
-        arrowM.velocity.y = direction.y * HOMING_ARROW_SPEED;
-        arrowM.velocity.z = direction.z * HOMING_ARROW_SPEED;
+        projectileM.velocity.x = direction.x * projectile.speed;
+        projectileM.velocity.y = direction.y * projectile.speed;
+        projectileM.velocity.z = direction.z * projectile.speed;
 
         // update position based on velocity
-        arrowM.position.x += arrowM.velocity.x * elapsed_ms / 1000.0f; // Convert ms to seconds
-        arrowM.position.y += arrowM.velocity.y * elapsed_ms / 1000.0f;
-        arrowM.position.z += arrowM.velocity.z * elapsed_ms / 1000.0f;
+        projectileM.position.x += projectileM.velocity.x * elapsed_ms / 1000.0f; // Convert ms to seconds
+        projectileM.position.y += projectileM.velocity.y * elapsed_ms / 1000.0f;
+        projectileM.position.z += projectileM.velocity.z * elapsed_ms / 1000.0f;
     }
 }
 

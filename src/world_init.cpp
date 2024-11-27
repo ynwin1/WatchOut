@@ -418,13 +418,9 @@ Entity createTree(RenderSystem* renderer, vec2 pos)
 	return entity;
 }
 
-Entity createArrow(vec3 pos, vec3 velocity, int damage, bool isPlayerArrow)
+Entity createArrow(vec3 pos, vec3 velocity, int damage)
 {
 	auto entity = Entity();
-
-	if(isPlayerArrow) {
-		registry.playerArrows.emplace(entity);
-	}
 
 	Motion& motion = registry.motions.emplace(entity);
 	motion.position = pos;
@@ -467,32 +463,6 @@ Entity createFireball(vec3 pos, vec2 direction) {
 	return entity;
 }
 
-Entity createHomingArrow(vec3 pos, Entity targetEntity, float angle) {
-	auto entity = Entity();
-
-	registry.homingArrows.emplace(entity, targetEntity);
-	registry.playerArrows.emplace(entity);
-
-	Motion& motion = registry.motions.emplace(entity);
-	motion.position = pos;
-	motion.angle = angle;
-	motion.scale = { ARROW_BB_WIDTH, ARROW_BB_HEIGHT };
-	motion.hitbox = { ARROW_BB_WIDTH, ARROW_BB_HEIGHT, ARROW_BB_HEIGHT / zConversionFactor };
-
-	Damaging& damaging = registry.damagings.emplace(entity);
-	damaging.damage = PLAYER_ARROW_DAMAGE;
-	registry.midgrounds.emplace(entity);
-
-	registry.renderRequests.insert(
-		entity,
-		{
-			TEXTURE_ASSET_ID::ARROW,
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE
-		});
-
-	return entity;
-}
 
 Entity createEquipped(TEXTURE_ASSET_ID assetId, vec2 size) {
 	auto entity = Entity();

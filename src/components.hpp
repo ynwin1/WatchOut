@@ -59,14 +59,15 @@ struct Projectile {
 	float sticksInGround = 3000; // ms it lasts on the ground
 };
 
-struct HomingArrow {
+struct HomingProjectile{
 	Entity targetEntity;
-	HomingArrow(Entity& targetEntity) { 
+	HomingProjectile(Entity& targetEntity) { 
 		this->targetEntity = targetEntity; 
 	}
+	float speed;
 };
 
-struct PlayerArrow {
+struct PlayerDamaging {
 
 };
 

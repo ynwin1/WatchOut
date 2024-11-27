@@ -119,9 +119,7 @@ Entity createEquipped(TEXTURE_ASSET_ID assetId, vec2 size);
 Entity createDamageTrap(vec2 pos);
 
 // Arrows fired by the archer/player
-Entity createArrow(vec3 pos, vec3 velocity, int damage, bool isPlayerArrow = false);
-
-Entity createHomingArrow(vec3 pos, Entity targetEntity, float angle);
+Entity createArrow(vec3 pos, vec3 velocity, int damage);
 
 // Fireballs fired by the wizard
 Entity createFireball(vec3 pos, vec2 direction);

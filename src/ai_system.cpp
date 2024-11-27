@@ -605,8 +605,19 @@ void AISystem::birdBehaviour(Entity bird, vec3 playerPosition, float elapsed_ms)
             flockMates.push_back(registry.motions.get(entity));
         }
     }
+
+    vec3 targetPosition = playerPosition;
+    for (Entity phantomTrap : registry.phantomTraps.entities) {
+        vec3 phantomTrapPos = registry.motions.get(phantomTrap).position;
+        vec3 enemyPos = birdMotion.position;
+        if (distance(phantomTrapPos, enemyPos) < PHANTOM_TRAP_RADIUS) {
+			targetPosition = phantomTrapPos;
+            break;
+        }
+    }
+
     // Swoop Attack
-    swoopAttack(bird, playerPosition, elapsed_ms, flockMates);
+    swoopAttack(bird, targetPosition, elapsed_ms, flockMates);
     if (birdComponent.isSwooping) {
         return;
     }
@@ -619,10 +630,10 @@ void AISystem::birdBehaviour(Entity bird, vec3 playerPosition, float elapsed_ms)
     vec2 alignmentForce = alignment(birdMotion, flockMates);
     vec2 cohesionForce = cohesion(birdMotion, flockMates);
     vec2 birdPosition2D = vec2(birdMotion.position.x, birdMotion.position.y);
-    vec2 playerPosition2D = vec2(playerPosition.x, playerPosition.y);
-    float distanceToPlayer = distance(birdPosition2D, playerPosition2D);
+    vec2 targetPosition2D = vec2(targetPosition.x, targetPosition.y);
+    float distanceToPlayer = distance(birdPosition2D, targetPosition2D);
 
-    vec2 directionToPlayer = normalize(playerPosition2D - birdPosition2D);
+    vec2 directionToTarget = normalize(targetPosition2D - birdPosition2D);
     const float SEPARATION_WEIGHT = 2.f;
     const float ALIGNMENT_WEIGHT = 0.1f;
     const float COHESION_WEIGHT = 0.5f;
@@ -633,7 +644,7 @@ void AISystem::birdBehaviour(Entity bird, vec3 playerPosition, float elapsed_ms)
         alignmentForce * ALIGNMENT_WEIGHT + 
         cohesionForce * COHESION_WEIGHT;
     
-    vec2 movementForce = flockingForce + directionToPlayer * PLAYER_ATTRACTION_WEIGHT;
+    vec2 movementForce = flockingForce + directionToTarget * PLAYER_ATTRACTION_WEIGHT;
     float speed = registry.birds.get(bird).swarmSpeed;
     animationController.changeState(bird, AnimationState::Flying);
     birdMotion.velocity = vec3(movementForce, 0.0f);
@@ -646,19 +657,29 @@ void AISystem::wizardBehaviour(Entity entity, vec3 playerPosition, float elapsed
 		return;
 	}
 
+    vec3 targetPostion = playerPosition;
+    for (Entity phantomTrap : registry.phantomTraps.entities) {
+        vec3 phantomTrapPos = registry.motions.get(phantomTrap).position;
+		Motion& motion = registry.motions.get(entity);
+        vec3 enemyPos = motion.position;
+        if (distance(phantomTrapPos, enemyPos) < PHANTOM_TRAP_RADIUS) {
+			targetPostion = phantomTrapPos;
+        }
+    }
+
 	Wizard& wizard = registry.wizards.get(entity);
     switch (wizard.state) {
     case WizardState::Moving:
-        processWizardMoving(entity, playerPosition, elapsed_ms);
+        processWizardMoving(entity, targetPostion, elapsed_ms);
         break;
     case WizardState::Aiming:
-		processWizardAiming(entity, playerPosition, elapsed_ms);
+		processWizardAiming(entity, targetPostion, elapsed_ms);
         break;
 	case WizardState::Preparing:
-        processWizardPreparing(entity, playerPosition, elapsed_ms);
+        processWizardPreparing(entity, targetPostion, elapsed_ms);
         break;
 	case WizardState::Shooting:
-		processWizardShooting(entity, playerPosition, elapsed_ms);
+		processWizardShooting(entity, targetPostion, elapsed_ms);
 		break;
     default:
         break;
@@ -673,15 +694,6 @@ void AISystem::processWizardMoving(Entity entity, vec3 playerPosition, float ela
     AnimationController& animationController = registry.animationControllers.get(entity);
     float d = distance(motion.position, playerPosition);
 
-    for (Entity phantomTrap : registry.phantomTraps.entities) {
-        vec3 phantomTrapPos = registry.motions.get(phantomTrap).position;
-        vec3 enemyPos = motion.position;
-        if (distance(phantomTrapPos, enemyPos) < PHANTOM_TRAP_RADIUS) {
-            moveTowardsTarget(entity, phantomTrapPos, elapsed_ms);
-            return;
-        }
-    }
-
     if (d < WIZARD_RANGE) {
         wizard.state = WizardState::Aiming;
         motion.velocity.x = 0;
@@ -689,7 +701,7 @@ void AISystem::processWizardMoving(Entity entity, vec3 playerPosition, float ela
         animationController.changeState(entity, AnimationState::Idle);
     }
     else {
-		moveTowardsTarget(entity, playerPosition, elapsed_ms);
+		decideTarget(entity, playerPosition, elapsed_ms);
     }
 }
 

@@ -132,6 +132,7 @@ nlohmann::json GameSaveManager::serialize_game_timer(const GameTimer& gameTimer)
 	j["minute"] = gameTimer.minutes;
 	j["second"] = gameTimer.seconds;
 	j["ms"] = gameTimer.ms;
+	j["elapsed"] = gameTimer.elapsed;
 	j["textEntity"] = gameTimer.textEntity.getId();
 	return j;
 }
@@ -868,6 +869,7 @@ void GameSaveManager::deserialize_game_timer(const json& j) {
 	registry.gameTimer.hours = j[GAMETIMER]["hour"].get<int>();
 	registry.gameTimer.minutes = j[GAMETIMER]["minute"].get<int>();
 	registry.gameTimer.seconds = j[GAMETIMER]["second"].get<int>();
+	registry.gameTimer.elapsed = j[GAMETIMER]["elapsed"].get<float>();
 	registry.gameTimer.ms = j[GAMETIMER]["ms"].get<int>();
 
 	printf("Game Timer: %d:%d:%d:%d\n", registry.gameTimer.hours, registry.gameTimer.minutes, registry.gameTimer.seconds, registry.gameTimer.ms);

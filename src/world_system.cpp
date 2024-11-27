@@ -89,9 +89,9 @@ void WorldSystem::updateGameTimerText(float elapsed_ms) {
 void WorldSystem::handleSurvivalBonusPoints(float elapsed_ms) {
     gameStateController.survivalBonusTimer += elapsed_ms;
     if (gameStateController.survivalBonusTimer >= SURVIVAL_BONUS_INTERVAL) {
-        int points = 200;
+        int points = 35;
         gameStateController.gameScore.score += points;
-        createPointsEarnedText("SURVIVAL BONUS +" + std::to_string(points), playerEntity, {0.8f, 0.8f, 0.0f, 1.0f}, true);
+        createPointsEarnedText("SURVIVAL BONUS +" + std::to_string(points), playerEntity, {0.8f, 0.8f, 0.0f, 1.0f}, -130.0f);
         gameStateController.survivalBonusTimer = 0;
     }
 }
@@ -179,13 +179,13 @@ void WorldSystem::handleEnemiesKilledInSpan(float elapsed_ms) {
     if(enemiesKilled.spanCountdown <= 0) {
         if(enemiesKilled.killSpanCount > 1) {
             int points;
-            if(enemiesKilled.killSpanCount < 4) {
-                points = enemiesKilled.killSpanCount * 20;
+            if(enemiesKilled.killSpanCount < 5) {
+                points = enemiesKilled.killSpanCount * 2;
             } else  {
-                points = enemiesKilled.killSpanCount * 100;
+                points = enemiesKilled.killSpanCount * 5;
             }
             gameStateController.gameScore.score += points;
-            createPointsEarnedText("BONUS +" + std::to_string(points), playerEntity, {0.8f, 0.8f, 0.0f, 1.0f}, false);
+            createPointsEarnedText("BONUS +" + std::to_string(points), playerEntity, {0.8f, 0.8f, 0.0f, 1.0f}, -60.0f);
         }
         enemiesKilled.resetKillSpan();
     }
@@ -880,7 +880,7 @@ void WorldSystem::checkAndHandleEnemyDeath(Entity enemy) {
 
         gameStateController.gameScore.score += enemyData.points;
         gameStateController.enemiesKilled.updateKillSpanCount();
-        createPointsEarnedText("Points +" + std::to_string(enemyData.points), enemy, {1.0f, 1.0f, 1.0f, 1.0f}, false);
+        createPointsEarnedText("+" + std::to_string(enemyData.points), enemy, {1.0f, 1.0f, 1.0f, 1.0f}, -20.0f);
         updateComboText();
 
         HealthBar& hpbar = registry.healthBars.get(enemy);

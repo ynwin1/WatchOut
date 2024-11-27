@@ -995,7 +995,14 @@ void createGameOverText(vec2 windowSize, GameStateController& gameStateControlle
     oss << gameTimer.seconds << "s";
 	oss << "\nYour Score: " << gameScore.score;
 	oss << "\nYour High Score: " << gameScore.highScore;
-	oss << "\nYour Highest Survived Time: " << std::to_string(gameScore.highScoreHours) + "h " + std::to_string(gameScore.highScoreMinutes) + "m " + std::to_string(gameScore.highScoreSeconds) + "s ";
+	oss << "\nYour Highest Survived Time: ";
+	if (gameScore.highScoreHours > 0) {
+        oss << gameScore.highScoreHours << "h ";
+    }
+    if (gameScore.highScoreMinutes > 0 || gameScore.highScoreHours > 0) {
+        oss << gameScore.highScoreMinutes << "m ";
+    }
+	oss << gameScore.highScoreSeconds << "s";
 	text2.value += oss.str();
 
 	auto entity3 = Entity();

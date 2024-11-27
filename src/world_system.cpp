@@ -146,13 +146,15 @@ void WorldSystem::updateTutorial(float elapsed_ms) {
 void WorldSystem::updateEnemyTutorial() {
     for(Entity enemy: registry.enemies.entities){
         Motion& motion = registry.motions.get(enemy);
-        //same logic as spawning
+        //same logic as spawning but using visual coordinates (for z)
+        vec2 visualPosition = worldToVisual(vec3(motion.position.x, motion.position.y, motion.position.z));
         float exclusionTop = (camera->getPosition().y - camera->getSize().y / 2) / yConversionFactor + 200;
         float exclusionBottom = (camera->getPosition().y + camera->getSize().y / 2) / yConversionFactor - 400;
         float exclusionLeft = camera->getPosition().x - camera->getSize().x / 2 + 200;
         float exclusionRight = camera->getPosition().x + camera->getSize().x / 2 - 200;
-        if (motion.position.x < exclusionRight && motion.position.x > exclusionLeft &&
-            motion.position.y < exclusionBottom && motion.position.y > exclusionTop) {
+
+        if (visualPosition.x < exclusionRight && visualPosition.x > exclusionLeft &&
+            visualPosition.y < exclusionBottom && visualPosition.y > exclusionTop) {
             std::string enemyType = registry.enemies.get(enemy).type; 
             if (encounteredEnemies.find(enemyType) == encounteredEnemies.end()) {
                 createTutorialTarget(motion.position);

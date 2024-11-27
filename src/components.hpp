@@ -1,6 +1,7 @@
 #pragma once
 #include "common.hpp"
 #include <vector>
+#include <unordered_map>
 
 
 // PlayerComponents 
@@ -169,10 +170,15 @@ struct Knocker
 };
 
 struct TrapsCounter {
-	int count = 0;
-	Entity textEntity;
+	// <trap type, <number of traps, trap text entity>>
+	std::unordered_map<std::string, std::pair<int, Entity>> trapsMap;
+
 	void reset() {
-		count = 0;
+		// reset trap counts to 0
+		//for (auto& trap : trapsMap) {
+		//	trap.second.first = 0;
+		//}
+		trapsMap.clear();
 	}
 };
 
@@ -324,7 +330,10 @@ struct Troll {
 
 // Collectible types
 struct Heart { unsigned int health = 20; };
-struct CollectibleTrap {};
+struct CollectibleTrap 
+{ 
+	std::string type = "trap"; 
+};
 
 struct PauseMenuComponent {};
 struct HelpMenuComponent {};

@@ -128,6 +128,7 @@ Entity createPauseHelpText(vec2 windowSize);
 Entity createFPSText(vec2 windowSize);
 Entity createGameTimerText(vec2 windowSize);
 Entity createTrapsCounterText(vec2 windowSize);
+Entity createPhantomTrapsCounterText(vec2 windowSize);
 
 // Game over UI
 void createGameOverText(vec2 windowSize);

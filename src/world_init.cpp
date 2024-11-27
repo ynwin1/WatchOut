@@ -238,7 +238,11 @@ Entity createTroll(vec2 pos)
 Entity createCollectibleTrap(vec2 pos)
 {
 	auto entity = Entity();
-	registry.collectibleTraps.emplace(entity);
+	CollectibleTrap& collectibleTrap = registry.collectibleTraps.emplace(entity);
+	int random = rand() % 2;
+	if (random >= 0.5) {
+		collectibleTrap.type = "phantom_trap";
+	}
 
 	// Setting intial motion values
 	Motion& motion = registry.motions.emplace(entity);
@@ -338,6 +342,7 @@ Entity createPhantomTrap(vec2 pos) {
 	motion.angle = 0.f;
 	motion.scale = { PHANTOM_TRAP_BB_WIDTH, PHANTOM_TRAP_BB_HEIGHT };
 	motion.hitbox = { PHANTOM_TRAP_BB_WIDTH, PHANTOM_TRAP_BB_WIDTH, PHANTOM_TRAP_BB_HEIGHT / zConversionFactor };
+	motion.solid = false;
 
 	// Setting initial trap values
 	registry.phantomTraps.emplace(entity);
@@ -792,6 +797,43 @@ Entity createTrapsCounterText(vec2 windowSize) {
 			GEOMETRY_BUFFER_ID::SPRITE
 		});
 	
+	return textE;
+}
+
+Entity createPhantomTrapsCounterText(vec2 windowSize) {
+	auto textE = Entity();
+
+	vec2 position = { (windowSize.x / 2) - 280.0f, windowSize.y - 80.0f };
+
+	registry.texts.emplace(textE);
+	Foreground& fg = registry.foregrounds.emplace(textE);
+	fg.position = position;
+	fg.scale = { 1.5f, 1.5f };
+
+	registry.colours.insert(textE, { 0.8f, 0.8f, 0.0f, 1.0f });
+
+	registry.renderRequests.insert(
+		textE,
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::FONT,
+			GEOMETRY_BUFFER_ID::TEXT
+		});
+
+	auto iconE = Entity();
+
+	Foreground& icon = registry.foregrounds.emplace(iconE);
+	icon.scale = { PHANTOM_TRAP_BB_WIDTH * 0.85, PHANTOM_TRAP_BB_HEIGHT * 0.85 };
+	icon.position = { position.x - 40.0f, position.y + 16.0f };
+
+	registry.renderRequests.insert(
+		iconE,
+		{
+			TEXTURE_ASSET_ID::JEFF_PHANTOM_TRAP,
+			EFFECT_ASSET_ID::TEXTURED_FLAT,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
 	return textE;
 }
 

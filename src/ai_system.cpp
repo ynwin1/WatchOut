@@ -227,11 +227,11 @@ bool AISystem::pathClear(Motion& motion, vec2 direction, float howFar, const std
     return false;
 }
 
-void AISystem::boarBehaviour(Entity boar, vec3 playerPosition, float elapsed_ms)
+void AISystem::boarBehaviour(Entity boar, vec3 targetPosition, float elapsed_ms)
 {
     // boar can't charge if trapped
     if(registry.enemies.has(boar) && registry.trappables.get(boar).isTrapped) {
-        decideTarget(boar, playerPosition, elapsed_ms);
+        moveTowardsTarget(boar, targetPosition, elapsed_ms);
         return;
     }
 
@@ -242,24 +242,12 @@ void AISystem::boarBehaviour(Entity boar, vec3 playerPosition, float elapsed_ms)
     Motion& motion = registry.motions.get(boar);
     Boar& boars = registry.boars.get(boar);
     AnimationController& animationController = registry.animationControllers.get(boar);
-    float distanceToPlayer = distance(motion.position, playerPosition);
-    vec2 directionToPlayer = normalize(vec2(playerPosition) - vec2(motion.position));
+    float distanceToTarget = distance(motion.position, targetPosition);
+    vec2 directionToTarget = normalize(vec2(targetPosition) - vec2(motion.position));
 
     if (boars.cooldownTimer > 0) {
         boars.cooldownTimer -= elapsed_ms;
         return;
-    }
-
-    float distanceToTarget = distanceToPlayer;
-	vec2 directionToTarget = directionToPlayer;
-
-    for (Entity phantomTrap : registry.phantomTraps.entities) {
-        vec3 phantomTrapPos = registry.motions.get(phantomTrap).position;
-        vec3 enemyPos = motion.position;
-        if (distance(phantomTrapPos, enemyPos) < PHANTOM_TRAP_RADIUS) {
-			distanceToTarget = distance(phantomTrapPos, enemyPos);
-			directionToTarget = normalize(vec2(phantomTrapPos) - vec2(enemyPos));
-        }
     }
 
     // Set state based on distance
@@ -310,7 +298,7 @@ void AISystem::boarBehaviour(Entity boar, vec3 playerPosition, float elapsed_ms)
         }
     } 
     else if (!boars.preparing) {
-        decideTarget(boar, playerPosition, elapsed_ms);
+		moveTowardsTarget(boar, targetPosition, elapsed_ms);
         animationController.changeState(boar, AnimationState::Running);
     }
 }
@@ -326,15 +314,15 @@ void AISystem::boarReset(Entity boar)
     motion.velocity = vec3(0, 0, 0);
 }
 
-void AISystem::barbarianBehaviour(Entity barbarian, vec3 playerPosition, float elapsed_ms)
+void AISystem::barbarianBehaviour(Entity barbarian, vec3 targetPosition, float elapsed_ms)
 {
     if (registry.deathTimers.has(barbarian)) {
         return;
     }
-    decideTarget(barbarian, playerPosition, elapsed_ms);
+	moveTowardsTarget(barbarian, targetPosition, elapsed_ms);
 }
 
-void AISystem::trollBehaviour(Entity troll, vec3 playerPosition, float elapsed_ms)
+void AISystem::trollBehaviour(Entity troll, vec3 targetPosition, float elapsed_ms)
 {
     if (registry.deathTimers.has(troll)) {
         return;
@@ -350,16 +338,7 @@ void AISystem::trollBehaviour(Entity troll, vec3 playerPosition, float elapsed_m
     }
 
     if (!decideToPathfind(troll, 100, elapsed_ms)) {
-        for (Entity phantomTrap : registry.phantomTraps.entities) {
-            vec3 phantomTrapPos = registry.motions.get(phantomTrap).position;
-            vec3 enemyPos = motion.position;
-            if (distance(phantomTrapPos, enemyPos) < PHANTOM_TRAP_RADIUS) {
-                moveTowardsTarget(troll, phantomTrapPos, elapsed_ms);
-                return;
-            }
-        }
-
-        vec2 direction = chooseDirection(motion, playerPosition);
+        vec2 direction = chooseDirection(motion, targetPosition);
         trollComponent.desiredAngle = atan2(direction.y, direction.x);
     }
 
@@ -441,7 +420,7 @@ void AISystem::shootArrow(Entity shooter, vec3 targetPos)
 	sound->playSoundEffect(Sound::ARROW, 0);
 }
 
-void AISystem::archerBehaviour(Entity entity, vec3 playerPosition, float elapsed_ms)
+void AISystem::archerBehaviour(Entity entity, vec3 targetPosition, float elapsed_ms)
 {
     const float ARCHER_RANGE = 600;
     const float DISENGAGE_RANGE = 800;
@@ -451,19 +430,7 @@ void AISystem::archerBehaviour(Entity entity, vec3 playerPosition, float elapsed
     }
     Motion& motion = registry.motions.get(entity);
     Archer& archer = registry.archers.get(entity);
-    float d = distance(motion.position, playerPosition);
-
-	vec3 targetPosition = playerPosition;
-
-    for (Entity phantomTrap : registry.phantomTraps.entities) {
-        vec3 phantomTrapPos = registry.motions.get(phantomTrap).position;
-        vec3 enemyPos = motion.position;
-        if (distance(phantomTrapPos, enemyPos) < PHANTOM_TRAP_RADIUS) {
-			d = distance(motion.position, phantomTrapPos);
-			targetPosition = phantomTrapPos;
-            moveTowardsTarget(entity, phantomTrapPos, elapsed_ms);
-        }
-    }
+    float d = distance(motion.position, targetPosition);
 
     if (d < ARCHER_RANGE) {
         archer.aiming = true;
@@ -492,7 +459,7 @@ void AISystem::archerBehaviour(Entity entity, vec3 playerPosition, float elapsed
         }
     }
     else {
-        decideTarget(entity, playerPosition, elapsed_ms);
+		moveTowardsTarget(entity, targetPosition, elapsed_ms);
     }
 }
 
@@ -547,14 +514,14 @@ vec2 cohesion(const Motion& motion, const std::vector<Motion>& flockMates) {
     return cohesionForce * COHESION_WEIGHT;
 }
 
-void AISystem::swoopAttack(Entity bird, vec3 playerPosition, float elapsed_ms, const std::vector<Motion>& flockMates) {
+void AISystem::swoopAttack(Entity bird, vec3 targetPosition, float elapsed_ms, const std::vector<Motion>& flockMates) {
     Motion& birdMotion = registry.motions.get(bird);
     Bird& birdComponent = registry.birds.get(bird);
     AnimationController& animationController = registry.animationControllers.get(bird);
 
     // Initiate swoop when within range
     vec2 birdPosition2D = vec2(birdMotion.position.x, birdMotion.position.y);
-    vec2 playerPosition2D = vec2(playerPosition.x, playerPosition.y);
+    vec2 playerPosition2D = vec2(targetPosition.x, targetPosition.y);
     float distanceToPlayer = distance(birdPosition2D, playerPosition2D);
 
     if (!birdComponent.isSwooping && birdComponent.swoopCooldown <= 0 && distanceToPlayer < BIRD_AGGRO_RANGE) {
@@ -595,7 +562,7 @@ void AISystem::swoopAttack(Entity bird, vec3 playerPosition, float elapsed_ms, c
     }
 }
 
-void AISystem::birdBehaviour(Entity bird, vec3 playerPosition, float elapsed_ms) {
+void AISystem::birdBehaviour(Entity bird, vec3 targetPosition, float elapsed_ms) {
     Motion& birdMotion = registry.motions.get(bird);
     Bird& birdComponent = registry.birds.get(bird);
     AnimationController& animationController = registry.animationControllers.get(bird);
@@ -603,16 +570,6 @@ void AISystem::birdBehaviour(Entity bird, vec3 playerPosition, float elapsed_ms)
     for (const auto& entity : registry.birds.entities) {
         if (entity.getId() != bird.getId() && registry.motions.has(entity)) {
             flockMates.push_back(registry.motions.get(entity));
-        }
-    }
-
-    vec3 targetPosition = playerPosition;
-    for (Entity phantomTrap : registry.phantomTraps.entities) {
-        vec3 phantomTrapPos = registry.motions.get(phantomTrap).position;
-        vec3 enemyPos = birdMotion.position;
-        if (distance(phantomTrapPos, enemyPos) < PHANTOM_TRAP_RADIUS) {
-			targetPosition = phantomTrapPos;
-            break;
         }
     }
 
@@ -651,35 +608,25 @@ void AISystem::birdBehaviour(Entity bird, vec3 playerPosition, float elapsed_ms)
     birdMotion.facing = normalize(movementForce);
 }
 
-void AISystem::wizardBehaviour(Entity entity, vec3 playerPosition, float elapsed_ms) {
+void AISystem::wizardBehaviour(Entity entity, vec3 targetPosition, float elapsed_ms) {
     
 	if (registry.deathTimers.has(entity)) {
 		return;
 	}
 
-    vec3 targetPostion = playerPosition;
-    for (Entity phantomTrap : registry.phantomTraps.entities) {
-        vec3 phantomTrapPos = registry.motions.get(phantomTrap).position;
-		Motion& motion = registry.motions.get(entity);
-        vec3 enemyPos = motion.position;
-        if (distance(phantomTrapPos, enemyPos) < PHANTOM_TRAP_RADIUS) {
-			targetPostion = phantomTrapPos;
-        }
-    }
-
 	Wizard& wizard = registry.wizards.get(entity);
     switch (wizard.state) {
     case WizardState::Moving:
-        processWizardMoving(entity, targetPostion, elapsed_ms);
+        processWizardMoving(entity, targetPosition, elapsed_ms);
         break;
     case WizardState::Aiming:
-		processWizardAiming(entity, targetPostion, elapsed_ms);
+		processWizardAiming(entity, targetPosition, elapsed_ms);
         break;
 	case WizardState::Preparing:
-        processWizardPreparing(entity, targetPostion, elapsed_ms);
+        processWizardPreparing(entity, targetPosition, elapsed_ms);
         break;
 	case WizardState::Shooting:
-		processWizardShooting(entity, targetPostion, elapsed_ms);
+		processWizardShooting(entity, targetPosition, elapsed_ms);
 		break;
     default:
         break;
@@ -848,23 +795,36 @@ void AISystem::step(float elapsed_ms)
     }
     vec3 playerPosition = registry.motions.get(registry.players.entities.at(0)).position;
     for (Entity enemy : registry.enemies.entities) {
+        vec3 targetPosition = is_phantom_closer(enemy).first ? is_phantom_closer(enemy).second : playerPosition;
         if (registry.boars.has(enemy)) {
-            boarBehaviour(enemy, playerPosition, elapsed_ms);
+            boarBehaviour(enemy, targetPosition, elapsed_ms);
         }
         else if (registry.barbarians.has(enemy)) {
-            barbarianBehaviour(enemy, playerPosition, elapsed_ms);
+            barbarianBehaviour(enemy, targetPosition, elapsed_ms);
         }
         else if (registry.archers.has(enemy)) {
-            archerBehaviour(enemy, playerPosition, elapsed_ms);
+            archerBehaviour(enemy, targetPosition, elapsed_ms);
         } 
         else if (registry.birds.has(enemy)){
-            birdBehaviour(enemy, playerPosition, elapsed_ms);
+            birdBehaviour(enemy, targetPosition, elapsed_ms);
         }
 		else if (registry.wizards.has(enemy)) {
-			wizardBehaviour(enemy, playerPosition, elapsed_ms);
+			wizardBehaviour(enemy, targetPosition, elapsed_ms);
 		}
         else if (registry.trolls.has(enemy)) {
-            trollBehaviour(enemy, playerPosition, elapsed_ms);
+            trollBehaviour(enemy, targetPosition, elapsed_ms);
         }
     }
+}
+
+std::pair<bool, vec3> AISystem::is_phantom_closer(Entity enemy) {
+    for (Entity phantomTrap : registry.phantomTraps.entities) {
+        vec3 phantomTrapPos = registry.motions.get(phantomTrap).position;
+        Motion& motion = registry.motions.get(enemy);
+        vec3 enemyPos = motion.position;
+        if (distance(phantomTrapPos, enemyPos) < PHANTOM_TRAP_RADIUS) {
+			return std::make_pair(true, phantomTrapPos);
+        }
+    }
+	return std::make_pair(false, vec3(0, 0, 0));
 }

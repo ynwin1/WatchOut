@@ -814,7 +814,7 @@ Entity createTrapsCounterText(vec2 windowSize) {
 Entity createPhantomTrapsCounterText(vec2 windowSize) {
 	auto textE = Entity();
 
-	vec2 position = { (windowSize.x / 2) - 280.0f, windowSize.y - 80.0f };
+	vec2 position = { (windowSize.x / 2) - 380.0f, windowSize.y - 80.0f };
 
 	registry.texts.emplace(textE);
 	Foreground& fg = registry.foregrounds.emplace(textE);
@@ -844,6 +844,8 @@ Entity createPhantomTrapsCounterText(vec2 windowSize) {
 			EFFECT_ASSET_ID::TEXTURED_FLAT,
 			GEOMETRY_BUFFER_ID::SPRITE
 		});
+
+	registry.colours.emplace(iconE, vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
 	return textE;
 }

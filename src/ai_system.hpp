@@ -20,6 +20,7 @@ private:
 	void moveTowardsTarget(Entity enemy, vec3 targetPosition, float elapsed_ms);
 	vec2 chooseDirection(Motion& motion, vec3 playerPosition);
 	bool pathClear(Motion& motion, vec2 direction, float howFar, const std::vector<Entity> &obstacles, float& clearDistance);
+	std::pair<bool, vec3> is_phantom_closer(Entity enemy);
 	
 	void boarBehaviour(Entity boar, vec3 playerPosition, float elapsed_ms);
 	void barbarianBehaviour(Entity barbarian, vec3 playerPosition, float elapsed_ms);

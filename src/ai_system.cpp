@@ -41,24 +41,6 @@ bool AISystem::decideToPathfind(Entity enemy, float baseThinkingTime, float elap
     return true;
 }
 
-void AISystem::decideTarget(Entity enemy, vec3 playerPosition, float elapsed_ms) {
-	if (registry.phantomTraps.size() == 0) {
-		moveTowardsTarget(enemy, playerPosition, elapsed_ms);
-    }
-    else {
-        for (Entity phantomTrap : registry.phantomTraps.entities) {
-            vec3 phantomTrapPos = registry.motions.get(phantomTrap).position;
-            vec3 enemyPos = registry.motions.get(enemy).position;
-            if (distance(phantomTrapPos, enemyPos) < PHANTOM_TRAP_RADIUS) {
-                moveTowardsTarget(enemy, phantomTrapPos, elapsed_ms);
-            }
-            else {
-                moveTowardsTarget(enemy, playerPosition, elapsed_ms);
-            }
-        }
-    }
-}
-
 void AISystem::moveTowardsTarget(Entity enemy, vec3 playerPosition, float elapsed_ms)
 {
     Motion& enemyMotion = registry.motions.get(enemy);
@@ -648,7 +630,7 @@ void AISystem::processWizardMoving(Entity entity, vec3 playerPosition, float ela
         animationController.changeState(entity, AnimationState::Idle);
     }
     else {
-		decideTarget(entity, playerPosition, elapsed_ms);
+		moveTowardsTarget(entity, playerPosition, elapsed_ms);
     }
 }
 

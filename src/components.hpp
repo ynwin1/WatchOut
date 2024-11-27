@@ -66,6 +66,10 @@ struct HomingArrow {
 	}
 };
 
+struct PlayerArrow {
+
+};
+
 struct HealthBar {
 	Entity meshEntity;
 	Entity frameEntity;

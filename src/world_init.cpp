@@ -117,7 +117,7 @@ Entity createArcher(vec2 pos)
 // Bird creation (Flock of 5 birds)
 Entity createBirdFlock(vec2 pos)
 {
-    const int flockSize = 1;
+    const int flockSize = 5;
     const float spacing = 20.f; 
     Entity repBird;
 
@@ -418,9 +418,13 @@ Entity createTree(RenderSystem* renderer, vec2 pos)
 	return entity;
 }
 
-Entity createArrow(vec3 pos, vec3 velocity, int damage)
+Entity createArrow(vec3 pos, vec3 velocity, int damage, bool isPlayerArrow)
 {
 	auto entity = Entity();
+
+	if(isPlayerArrow) {
+		registry.playerArrows.emplace(entity);
+	}
 
 	Motion& motion = registry.motions.emplace(entity);
 	motion.position = pos;
@@ -467,6 +471,7 @@ Entity createHomingArrow(vec3 pos, Entity targetEntity, float angle) {
 	auto entity = Entity();
 
 	registry.homingArrows.emplace(entity, targetEntity);
+	registry.playerArrows.emplace(entity);
 
 	Motion& motion = registry.motions.emplace(entity);
 	motion.position = pos;
@@ -475,7 +480,7 @@ Entity createHomingArrow(vec3 pos, Entity targetEntity, float angle) {
 	motion.hitbox = { ARROW_BB_WIDTH, ARROW_BB_HEIGHT, ARROW_BB_HEIGHT / zConversionFactor };
 
 	Damaging& damaging = registry.damagings.emplace(entity);
-	damaging.damage = 0;
+	damaging.damage = PLAYER_ARROW_DAMAGE;
 	registry.midgrounds.emplace(entity);
 
 	registry.renderRequests.insert(

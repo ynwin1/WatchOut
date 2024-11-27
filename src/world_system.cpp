@@ -315,8 +315,8 @@ void WorldSystem::shootHomingArrow(Entity targetEntity, float angle) {
     createHomingArrow(pos, targetEntity, angle);
 }
 
-void WorldSystem::launchProjectile(vec3 targetPos) {
-        // Always shoot arrow at 45 degree angle (makes calculations simpler)
+void WorldSystem::shotArchingArrow(vec3 targetPos) {
+    // Always shoot arrow at 45 degree angle (makes calculations simpler)
     const float ARROW_ANGLE = M_PI / 4;
     const float MAX_ARROW_VELOCITY = 10;
 
@@ -362,33 +362,43 @@ void WorldSystem::launchProjectile(vec3 targetPos) {
     // Determine velocities for each dimension
     vec2 horizontal_velocity = velocity * cos(ARROW_ANGLE) * horizontal_direction;
     float vertical_velocity = velocity * sin(ARROW_ANGLE);
-    createArrow(pos, vec3(horizontal_velocity, vertical_velocity), 20);
+    createArrow(pos, vec3(horizontal_velocity, vertical_velocity), PLAYER_ARROW_DAMAGE, true);
 }
 
-void WorldSystem::targetBirds(vec2 mousePos) {
-    vec3 mouseWorldPos = renderer->mouseToWorld(mousePos);
+void WorldSystem::shootArrow(vec3 mouseWorldPos) {
     vec3 playerPos = registry.motions.get(playerEntity).position;
 
+    float birdClicked = false;
+
     for(Entity birdE : registry.birds.entities) {
+        if(registry.deathTimers.has(birdE)) {
+            continue;
+        }
+
         Motion& birdM = registry.motions.get(birdE);
-        vec2 direction = mouseWorldPos - playerPos;
-        float angle = atan2(direction.y, direction.x); // Angle in radians
-        shootHomingArrow(birdE, angle);
-        // vec2 visualPos = worldToVisual(birdM.position);
-        // vec2 worldPos = {visualPos.x, visualToWorldY(visualPos.y)};
-        // vec2 birdBBTopLeft = {worldPos.x - BIRD_BB_WIDTH / 2, worldPos.y - BIRD_BB_HEIGHT / 2};
-        // vec2 birdBBBottomRight = {worldPos.x + BIRD_BB_WIDTH / 2, worldPos.y + BIRD_BB_HEIGHT / 2};
-        // // apply AABB
-        // bool mouseCollide = birdBBTopLeft.x < mouseWorldPos.x &&
-        //                    birdBBTopLeft.y < mouseWorldPos.y &&
-        //                    birdBBBottomRight.x > mouseWorldPos.x &&
-        //                    birdBBBottomRight.y > mouseWorldPos.y;
-        // if(mouseCollide) {
-        //     std::cout << "Bird clicked" << std::endl;
-        // } else {
-        //     std::cout << " " << std::endl;
-        // }
+
+        vec2 visualPos = worldToVisual(birdM.position);
+        vec2 worldPos = {visualPos.x, visualToWorldY(visualPos.y)};
+        vec2 birdBBTopLeft = {worldPos.x - BIRD_BB_WIDTH / 2, worldPos.y - BIRD_BB_HEIGHT / 2};
+        vec2 birdBBBottomRight = {worldPos.x + BIRD_BB_WIDTH / 2, worldPos.y + BIRD_BB_HEIGHT / 2};
+        // apply AABB
+        birdClicked = birdBBTopLeft.x < mouseWorldPos.x &&
+                    birdBBTopLeft.y < mouseWorldPos.y &&
+                    birdBBBottomRight.x > mouseWorldPos.x &&
+                    birdBBBottomRight.y > mouseWorldPos.y;
+        if(birdClicked) {
+            vec2 direction = mouseWorldPos - playerPos;
+            float angle = atan2(direction.y, direction.x);
+            shootHomingArrow(birdE, angle);
+            break;
+        }
     }
+
+    if(!birdClicked) {
+        shotArchingArrow(mouseWorldPos);
+    }
+
+    sound->playSoundEffect(Sound::ARROW, 0);
 }
 
 void WorldSystem::on_mouse_button(int button, int action, int mod) {
@@ -398,11 +408,8 @@ void WorldSystem::on_mouse_button(int button, int action, int mod) {
 
         switch (button) {
         case GLFW_MOUSE_BUTTON_LEFT:
-            vec3 world_pos = renderer->mouseToWorld({ (float)xpos, (float)ypos });
-            // std::cout << "Mouse clicked at: " << xpos << " " << ypos << std::endl;
-            // launchProjectile(world_pos);
-            targetBirds({ (float)xpos, (float)ypos });
-            
+            vec3 mouseWorldPos = renderer->mouseToWorld({xpos, ypos});
+            shootArrow(mouseWorldPos);
             break;
         }
     }
@@ -834,6 +841,9 @@ void WorldSystem::entity_damaging_collision(Entity entity, Entity entity_other, 
     Damaging& damaging = registry.damagings.get(entity_other);
 
     if (registry.players.has(entity)) {
+        if(registry.playerArrows.has(entity_other)) {
+            return;
+        }
         // reduce player health
         Player& player = registry.players.get(entity);
         int new_health = player.health - damaging.damage;

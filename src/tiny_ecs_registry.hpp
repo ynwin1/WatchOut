@@ -42,11 +42,13 @@ public:
 	ComponentContainer<TargetArea> targetAreas;
 	ComponentContainer<Collected> collected;
 	ComponentContainer<HomingArrow> homingArrows;
+	ComponentContainer<PlayerArrow> playerArrows;
 	
 	ComponentContainer<PauseMenuComponent> pauseMenuComponents;
 	ComponentContainer<HelpMenuComponent> helpMenuComponents;
 
 	std::map<char, TextChar> textChars; //for initializing text glyphs from freetype
+	std::vector<Entity> textCharVec; //for initializing text glyphs from freetype
 
 	// Render component containers
 	ComponentContainer<RenderRequest> renderRequests;
@@ -95,6 +97,7 @@ public:
 		registry_list.push_back(&meshPtrs);
 		registry_list.push_back(&collected);
 		registry_list.push_back(&homingArrows);
+		registry_list.push_back(&playerArrows);
 		
 		registry_list.push_back(&healthBars);
 		registry_list.push_back(&staminaBars);

@@ -14,8 +14,8 @@ const float BARBARIAN_BB_WIDTH = 19.f * SPRITE_SCALE;
 const float BARBARIAN_BB_HEIGHT = 34.f * SPRITE_SCALE;
 const float ARCHER_BB_WIDTH = 32.f * SPRITE_SCALE;
 const float ARCHER_BB_HEIGHT = 32.f * SPRITE_SCALE;
-const float BIRD_BB_WIDTH = 16.f * SPRITE_SCALE;
-const float BIRD_BB_HEIGHT = 8.f * SPRITE_SCALE;
+const float BIRD_BB_WIDTH = (16.f + 20.f) * SPRITE_SCALE;
+const float BIRD_BB_HEIGHT = (8.f + 20.f) * SPRITE_SCALE;
 const float WIZARD_BB_WIDTH = 32.f * SPRITE_SCALE;
 const float WIZARD_BB_HEIGHT = 32.f * SPRITE_SCALE;
 const float TROLL_SIZE_FACTOR = 2.f;
@@ -78,6 +78,8 @@ const int BIRD_DAMAGE = 10;
 const int WIZARD_DAMAGE = 50;
 const int TROLL_DAMAGE = 5;
 
+const int PLAYER_ARROW_DAMAGE = 25;
+
 // Jeff the Player
 Entity createJeff(vec2 position);
 
@@ -112,8 +114,8 @@ Entity createCollected(Motion& playerM, vec2 size, TEXTURE_ASSET_ID assetID);
 // The damage trap
 Entity createDamageTrap(vec2 pos);
 
-// Arrows fired by the archer
-Entity createArrow(vec3 pos, vec3 velocity, int damage);
+// Arrows fired by the archer/player
+Entity createArrow(vec3 pos, vec3 velocity, int damage, bool isPlayerArrow = false);
 
 Entity createHomingArrow(vec3 pos, Entity targetEntity, float angle);
 

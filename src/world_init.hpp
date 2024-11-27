@@ -36,6 +36,8 @@ const float TRAP_COLLECTABLE_BB_WIDTH = 13.f * SPRITE_SCALE;
 const float TRAP_COLLECTABLE_BB_HEIGHT = 17.f * SPRITE_SCALE;
 const float HEART_BB_WIDTH = 17. * SPRITE_SCALE;
 const float HEART_BB_HEIGHT = 15. * SPRITE_SCALE;
+const float BOW_BB_WIDTH = 14.f * SPRITE_SCALE;
+const float BOW_BB_HEIGHT = 27.f * SPRITE_SCALE;
 
 const float SHRUB_BB_WIDTH = 30.f * SPRITE_SCALE;
 const float SHRUB_BB_HEIGHT = 33.f * SPRITE_SCALE;
@@ -110,6 +112,8 @@ Entity createHeart(vec2 pos);
 
 // indicator showing the collected item
 Entity createCollected(Motion& playerM, vec2 size, TEXTURE_ASSET_ID assetID);
+
+Entity createEquipped(TEXTURE_ASSET_ID assetId, vec2 size);
 
 // The damage trap
 Entity createDamageTrap(vec2 pos);

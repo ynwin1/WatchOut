@@ -145,6 +145,7 @@ private:
 	void updateCollectedTimer(float elapsed_ms);
 	void resetTrappedEntities();
 	void updateHomingArrows(float elapsed_ms);
+	void updateEquippedPosition();
 
 
 	// Collision functions

@@ -62,6 +62,9 @@ void WorldSystem::restart_game()
     createPlayerHealthBar(playerEntity, camera->getSize());
     createPlayerStaminaBar(playerEntity, camera->getSize());
 
+    gameStateController.inventory.equipped = EQUIPPED::BOW;
+    gameStateController.inventory.equippedEntity = createEquipped(TEXTURE_ASSET_ID::BOW, {BOW_BB_WIDTH, BOW_BB_HEIGHT});
+
     gameStateController.setGameState(GAME_STATE::PLAYING);
     show_mesh = false;
     resetSpawnSystem();
@@ -130,6 +133,32 @@ void WorldSystem::updateCollectedTimer(float elapsed_ms) {
     }
 }
 
+void WorldSystem::updateEquippedPosition() {
+	Entity& playerE = registry.players.entities[0];
+	Motion& playerM = registry.motions.get(playerE);
+
+    if(registry.equipped.has(gameStateController.inventory.equippedEntity)) {
+        Motion& equippedM = registry.motions.get(gameStateController.inventory.equippedEntity);
+        equippedM.position = playerM.position;
+        
+        double mousePosX, mousePosY;
+        glfwGetCursorPos(window, &mousePosX, &mousePosY);
+        vec3 mouseWorldPos = renderer->mouseToWorld({mousePosX, mousePosY});
+
+        const float fixedDistance = abs(playerM.scale.x) / 2;
+
+        vec3 direction = mouseWorldPos - playerM.position;
+        vec3 normalizedDirection = normalize(direction);
+
+        equippedM.position = playerM.position + normalizedDirection * fixedDistance;
+
+        if(gameStateController.inventory.equipped == EQUIPPED::BOW) {
+            float angle = atan2(direction.y, direction.x);
+            equippedM.angle = angle;
+        }
+    }
+}
+
 bool WorldSystem::step(float elapsed_ms)
 {
     adjustSpawnSystem(elapsed_ms);
@@ -148,6 +177,7 @@ bool WorldSystem::step(float elapsed_ms)
     updateCollectedTimer(elapsed_ms);
     resetTrappedEntities();
     updateHomingArrows(elapsed_ms);
+    updateEquippedPosition();
 
     if (camera->isToggled()) {
         Motion& playerMotion = registry.motions.get(playerEntity);

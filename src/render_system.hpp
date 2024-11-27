@@ -58,6 +58,7 @@ class RenderSystem {
 		textures_path("collectables/trapbottle.png"), // TRAPCOLLECTABLE
 		textures_path("collectables/trapbottle_fade.png"),
 		textures_path("collectables/trap.png"),       // TRAP
+		textures_path("collectables/bow.png"),
 		textures_path("grass_tile/grass_tile.png"),   // GRASS_TILE
 		textures_path("tree/tree.png"),               // TREE
 		textures_path("shrub/shrub.png"),             // SHRUB

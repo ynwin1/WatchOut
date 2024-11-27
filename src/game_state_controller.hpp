@@ -2,6 +2,26 @@
 
 #include "common.hpp"
 
+enum class EQUIPPED
+{
+    NONE,
+    TRAP,
+    BOW,
+};
+
+struct Inventory
+{
+    int traps = 0;
+    int bows = 0;
+    Entity equippedEntity;
+    EQUIPPED equipped = EQUIPPED::NONE;
+    void reset()
+    {
+        traps = 0;
+        bows = 0;
+        equipped = EQUIPPED::NONE;
+    }
+};
 
 enum class GAME_STATE
 {
@@ -25,6 +45,8 @@ public:
     void beforeEnterState(GAME_STATE newState);
 
     const GAME_STATE getGameState() const;
+
+    Inventory inventory;
 
 private:
     GAME_STATE currentGameState;

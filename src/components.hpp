@@ -70,6 +70,10 @@ struct PlayerArrow {
 
 };
 
+struct Equipped {
+
+};
+
 struct HealthBar {
 	Entity meshEntity;
 	Entity frameEntity;

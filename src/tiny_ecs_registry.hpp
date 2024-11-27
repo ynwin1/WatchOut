@@ -43,6 +43,7 @@ public:
 	ComponentContainer<Collected> collected;
 	ComponentContainer<HomingArrow> homingArrows;
 	ComponentContainer<PlayerArrow> playerArrows;
+	ComponentContainer<Equipped> equipped;
 	
 	ComponentContainer<PauseMenuComponent> pauseMenuComponents;
 	ComponentContainer<HelpMenuComponent> helpMenuComponents;
@@ -98,6 +99,7 @@ public:
 		registry_list.push_back(&collected);
 		registry_list.push_back(&homingArrows);
 		registry_list.push_back(&playerArrows);
+		registry_list.push_back(&equipped);
 		
 		registry_list.push_back(&healthBars);
 		registry_list.push_back(&staminaBars);

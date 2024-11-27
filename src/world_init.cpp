@@ -494,6 +494,27 @@ Entity createHomingArrow(vec3 pos, Entity targetEntity, float angle) {
 	return entity;
 }
 
+Entity createEquipped(TEXTURE_ASSET_ID assetId, vec2 size) {
+	auto entity = Entity();
+
+	registry.equipped.emplace(entity);
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.scale = size;
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			assetId,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	registry.midgrounds.emplace(entity);
+
+	return entity;
+}
+
 Entity createLightning(vec2 pos) {
 	auto entity = Entity();
 

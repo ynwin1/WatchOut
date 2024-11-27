@@ -148,10 +148,10 @@ void WorldSystem::updateEnemyTutorial() {
         Motion& motion = registry.motions.get(enemy);
         //same logic as spawning but using visual coordinates (for z)
         vec2 visualPosition = worldToVisual(vec3(motion.position.x, motion.position.y, motion.position.z));
-        float exclusionTop = (camera->getPosition().y - camera->getSize().y / 2) / yConversionFactor + 200;
-        float exclusionBottom = (camera->getPosition().y + camera->getSize().y / 2) / yConversionFactor - 400;
-        float exclusionLeft = camera->getPosition().x - camera->getSize().x / 2 + 200;
-        float exclusionRight = camera->getPosition().x + camera->getSize().x / 2 - 200;
+        float exclusionTop = (camera->getPosition().y - camera->getSize().y / 2) / yConversionFactor + 50;
+        float exclusionBottom = (camera->getPosition().y + camera->getSize().y / 2) / yConversionFactor - 200;
+        float exclusionLeft = camera->getPosition().x - camera->getSize().x / 2 + 50;
+        float exclusionRight = camera->getPosition().x + camera->getSize().x / 2 - 50;
 
         if (visualPosition.x < exclusionRight && visualPosition.x > exclusionLeft &&
             visualPosition.y < exclusionBottom && visualPosition.y > exclusionTop) {

@@ -1128,7 +1128,7 @@ void WorldSystem::handle_stamina(float elapsed_ms) {
         Dash& dash_comp = registry.dashers.get(staminaEntity);
         Jumper& player_jump = registry.jumpers.get(staminaEntity);
     
-        if (player_comp.isRunning && stamina.stamina > 0) {
+        if (player_comp.isRunning && player_comp.isMoving && stamina.stamina > 0) {
             stamina.stamina -= elapsed_ms / 1000.0f * stamina.stamina_loss_rate;
 
             if (stamina.stamina < 0) {

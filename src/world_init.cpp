@@ -2,6 +2,7 @@
 #include "tiny_ecs_registry.hpp"
 #include "animation_system.hpp"
 #include "animation_system_init.hpp"
+#include "ai_system.hpp"
 #include <random>
 #include <sstream>
 
@@ -126,45 +127,46 @@ Entity createBirdFlock(vec2 pos)
 
     for (int i = 0; i < flockSize; ++i)
     {
-        auto entity = Entity();
-
-        // Spawn birds with spacing
-        vec2 birdPosition = pos + vec2(i * spacing, 0); 
-
-        Motion& motion = registry.motions.emplace(entity);
-        motion.position = vec3(birdPosition, TREE_BB_HEIGHT - BIRD_BB_WIDTH);
-        motion.angle = 0.f;
-        motion.scale = { 16 * SPRITE_SCALE, 16 * SPRITE_SCALE};
-        motion.hitbox = { BIRD_BB_WIDTH, BIRD_BB_HEIGHT, BIRD_BB_HEIGHT / zConversionFactor };
-        motion.solid = true;
-
-        Enemy& enemy = registry.enemies.emplace(entity);
-        enemy.damage = BIRD_DAMAGE;
-		enemy.type = "BIRD";
-        enemy.cooldown = 2000.f;
-		enemy.maxHealth = BIRD_HEALTH;
-		enemy.health = enemy.maxHealth;
-        motion.speed = BIRD_SPEED;
-
-        registry.birds.emplace(entity);
-
-        initBirdAnimationController(entity);
-        registry.midgrounds.emplace(entity);
-
-        createHealthBar(entity, vec4(1.0f, 0.0f, 0.0f, 1.0f));
-        if (i == 0)
-        {
-            repBird = entity;
-        }
-
-		registry.knockables.emplace(entity);
-		auto& trappable = registry.trappables.emplace(entity);
-		trappable.originalSpeed = BIRD_SPEED;
+		// Spawn birds with spacing
+		vec2 birdPosition = pos + vec2(i * spacing, 0);
+		Entity bird = createBird(birdPosition);
+		if (i == 0) {
+			repBird = bird;
+		}
     }
     return repBird;
 }
 
+Entity createBird(vec2 birdPosition) {
+	auto entity = Entity();
 
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = vec3(birdPosition, TREE_BB_HEIGHT - BIRD_BB_WIDTH);
+	motion.angle = 0.f;
+	motion.scale = { 16 * SPRITE_SCALE, 16 * SPRITE_SCALE };
+	motion.hitbox = { BIRD_BB_WIDTH, BIRD_BB_HEIGHT, BIRD_BB_HEIGHT / zConversionFactor };
+	motion.solid = true;
+
+	Enemy& enemy = registry.enemies.emplace(entity);
+	enemy.damage = BIRD_DAMAGE;
+	enemy.cooldown = 2000.f;
+	enemy.maxHealth = BIRD_HEALTH;
+	enemy.health = enemy.maxHealth;
+	enemy.type = "BIRD";
+	motion.speed = BIRD_SPEED;
+
+	registry.birds.emplace(entity);
+
+	initBirdAnimationController(entity);
+	registry.midgrounds.emplace(entity);
+
+	createHealthBar(entity, vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	registry.knockables.emplace(entity);
+	auto& trappable = registry.trappables.emplace(entity);
+	trappable.originalSpeed = BIRD_SPEED;
+
+	return entity;
+}
 // Wizard creation
 Entity createWizard(vec2 pos) {
 	auto entity = Entity();
@@ -244,19 +246,31 @@ Entity createTroll(vec2 pos)
 Entity createCollectibleTrap(vec2 pos)
 {
 	auto entity = Entity();
-	registry.collectibleTraps.emplace(entity);
-
-	// Setting intial motion values
+	CollectibleTrap& collectibleTrap = registry.collectibleTraps.emplace(entity);
+	int random = rand() % 2;
 	Motion& motion = registry.motions.emplace(entity);
-	motion.position = vec3(pos, getElevation(pos) + TRAP_COLLECTABLE_BB_HEIGHT / 2);
-	motion.angle = 0.f;
-	motion.scale = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT };
-	motion.hitbox = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT / zConversionFactor };
 
-	Collectible& collectible = registry.collectibles.emplace(entity);
-	collectible.type = "TRAP";
+	if (random >= 0.5) {
+		collectibleTrap.type = "phantom_trap";
+		initPhantomTrapAnimationController(entity);
+		Collectible& collectible = registry.collectibles.emplace(entity);
+		collectible.type = "PHANTOM_TRAP";
+		
+		motion.position = vec3(pos, getElevation(pos) + PHANTOM_TRAP_COLLECTABLE_BB_HEIGHT / 2);
+		motion.angle = 0.f;
+		motion.scale = { PHANTOM_TRAP_COLLECTABLE_BB_WIDTH, PHANTOM_TRAP_COLLECTABLE_BB_HEIGHT };
+		motion.hitbox = { PHANTOM_TRAP_COLLECTABLE_BB_WIDTH, PHANTOM_TRAP_COLLECTABLE_BB_WIDTH, PHANTOM_TRAP_COLLECTABLE_BB_HEIGHT / zConversionFactor };
+	}
+	else {
+		initTrapBottleAnimationController(entity);
+		Collectible& collectible = registry.collectibles.emplace(entity);
+		collectible.type = "TRAP";
 
-	initTrapBottleAnimationController(entity);
+		motion.position = vec3(pos, getElevation(pos) + TRAP_COLLECTABLE_BB_HEIGHT / 2);
+		motion.angle = 0.f;
+		motion.scale = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT };
+		motion.hitbox = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT / zConversionFactor };
+	}
 
 	registry.midgrounds.emplace(entity);
 
@@ -336,6 +350,35 @@ Entity createDamageTrap(vec2 pos)
 
 	return entity;
 };
+
+Entity createPhantomTrap(vec2 pos) {
+	auto entity = Entity();
+
+	// Setting intial motion values
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = vec3(pos, getElevation(pos) + PHANTOM_TRAP_BB_HEIGHT / 2);
+	motion.angle = 0.f;
+	motion.scale = { PHANTOM_TRAP_BB_WIDTH, PHANTOM_TRAP_BB_HEIGHT };
+	motion.hitbox = { PHANTOM_TRAP_BB_WIDTH, PHANTOM_TRAP_BB_WIDTH, PHANTOM_TRAP_BB_HEIGHT / zConversionFactor };
+	motion.solid = false;
+
+	// Setting initial trap values
+	PhantomTrap& phantomTrap = registry.phantomTraps.emplace(entity);
+	phantomTrap.duration = 15000.f; // 7s
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::JEFF_PHANTOM_TRAP,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	registry.backgrounds.emplace(entity);
+
+	return entity;
+}
+
 
 // Create Player Jeff
 Entity createJeff(vec2 position)
@@ -660,9 +703,10 @@ void createHealthBar(Entity characterEntity, vec4 color) {
 	hpbar.height = height;
 }
 
-Entity createTargetArea(vec3 position, float radius) {
+Entity createTargetArea(vec3 position) {
 	auto entity = Entity();
 
+	float radius = 200.f;
 	Motion& motion = registry.motions.emplace(entity);
 	motion.position = position;
 	motion.position.z = 0.f;
@@ -681,10 +725,9 @@ Entity createTargetArea(vec3 position, float radius) {
 
 	registry.backgrounds.emplace(entity);
 	registry.targetAreas.emplace(entity);
-	Cooldown& cooldown = registry.cooldowns.emplace(entity);
-	cooldown.remaining = 3000.f; // 5s
 
-	printf("Target area created\n");
+	Cooldown& cooldown = registry.cooldowns.emplace(entity);
+	cooldown.remaining = 3000.f; // 3s
 	return entity;
 }
 
@@ -809,6 +852,45 @@ Entity createTrapsCounterText(vec2 windowSize) {
 			GEOMETRY_BUFFER_ID::SPRITE
 		});
 	
+	return textE;
+}
+
+Entity createPhantomTrapsCounterText(vec2 windowSize) {
+	auto textE = Entity();
+
+	vec2 position = { (windowSize.x / 2) - 380.0f, windowSize.y - 80.0f };
+
+	registry.texts.emplace(textE);
+	Foreground& fg = registry.foregrounds.emplace(textE);
+	fg.position = position;
+	fg.scale = { 1.5f, 1.5f };
+
+	registry.colours.insert(textE, { 0.8f, 0.8f, 0.0f, 1.0f });
+
+	registry.renderRequests.insert(
+		textE,
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::FONT,
+			GEOMETRY_BUFFER_ID::TEXT
+		});
+
+	auto iconE = Entity();
+
+	Foreground& icon = registry.foregrounds.emplace(iconE);
+	icon.scale = { PHANTOM_TRAP_COLLECTABLE_BB_WIDTH * 0.85, PHANTOM_TRAP_COLLECTABLE_BB_HEIGHT * 0.85 };
+	icon.position = { position.x - 40.0f, position.y + 16.0f };
+
+	registry.renderRequests.insert(
+		iconE,
+		{
+			TEXTURE_ASSET_ID::PHANTOM_TRAP_BOTTLE_ONE,
+			EFFECT_ASSET_ID::TEXTURED_FLAT,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	registry.colours.emplace(iconE, vec4(1.0f, 1.0f, 1.0f, 1.0f));
+
 	return textE;
 }
 
@@ -1106,6 +1188,29 @@ void createGameOverText(vec2 windowSize) {
 		});
 	}
 
+}
+
+void createGameSaveText(vec2 windowSize) {
+	auto entity = Entity();
+
+	Text& text = registry.texts.emplace(entity);
+	text.value = "Game Saved!";
+	Foreground& fg = registry.foregrounds.emplace(entity);
+	fg.position = { windowSize.x / 2 - 170.f, windowSize.y / 2 + 300.f };
+	fg.scale = { 2.f, 2.f };
+
+	Cooldown& cooldown = registry.cooldowns.emplace(entity);
+	cooldown.remaining = 2000.f;
+
+	registry.colours.insert(entity, { 0.0f, 1.0f, 0.0f, 1.0f });
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::FONT,
+			GEOMETRY_BUFFER_ID::TEXT
+		});
 }
 
 void createTrees(RenderSystem* renderer) {

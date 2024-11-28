@@ -23,6 +23,7 @@ public:
 	ComponentContainer<Cooldown> cooldowns;
 	ComponentContainer<Collectible> collectibles;
 	ComponentContainer<Trap> traps;
+	ComponentContainer<PhantomTrap> phantomTraps;
 	ComponentContainer<Damaged> damageds;
 	ComponentContainer<Damaging> damagings;
 	ComponentContainer<DeathTimer> deathTimers;
@@ -86,6 +87,7 @@ public:
 		registry_list.push_back(&cooldowns);
 		registry_list.push_back(&collectibles);
 		registry_list.push_back(&traps);
+		registry_list.push_back(&phantomTraps);
 		registry_list.push_back(&damageds);
 		registry_list.push_back(&damagings);
 		registry_list.push_back(&deathTimers);

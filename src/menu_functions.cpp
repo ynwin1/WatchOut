@@ -225,6 +225,24 @@ Entity WorldSystem::createTrapTutorial(vec2 windowSize) {
     return entity;
 }
 
+Entity WorldSystem::createPhantomTrapTutorial(vec2 windowSize) {
+    auto entity = Entity();
+    registry.collectibleTutorialComponents.emplace(entity);
+
+    Foreground& fg = registry.foregrounds.emplace(entity);
+    fg.position = {windowSize.x / 2, 100};
+    fg.scale = {900, 700};
+    registry.renderRequests.insert(
+        entity,
+        {
+            TEXTURE_ASSET_ID::PHANTOM_TRAP_INTRO,
+            EFFECT_ASSET_ID::TEXTURED,
+            GEOMETRY_BUFFER_ID::SPRITE
+        }); 
+
+    return entity;
+}
+
 void WorldSystem::exitCollectibleTutorial() {
 	for (auto& entity: registry.collectibleTutorialComponents.entities) {
 		registry.remove_all_components_of(entity);

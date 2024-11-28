@@ -245,6 +245,9 @@ void WorldSystem::updateCollectibleTutorial() {
                 if (collectibleType == "TRAP") {
                     gameStateController.setGameState(GAME_STATE::TRAP_TUTORIAL);
                 }
+                if (collectibleType == "PHANTOM_TRAP") {
+                    gameStateController.setGameState(GAME_STATE::PHANTOM_TRAP_TUTORIAL);
+                }
                 encounteredCollectibles.insert(collectibleType);
                 break; 
             }
@@ -452,6 +455,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
         break;
     case GAME_STATE::HEART_TUTORIAL: 
     case GAME_STATE::TRAP_TUTORIAL: 
+    case GAME_STATE::PHANTOM_TRAP_TUTORIAL: 
         sound->pauseAllSoundEffects();
         collectibleTutorialControls(key, action, mod);
         break;

@@ -208,6 +208,7 @@ private:
 	void exitEnemyTutorial();
 	Entity createHeartTutorial(vec2 cameraPosition);
 	Entity createTrapTutorial(vec2 cameraPosition);
+	Entity createPhantomTrapTutorial(vec2 cameraPosition);
 	void exitCollectibleTutorial();
 
 	// C++ random number generator

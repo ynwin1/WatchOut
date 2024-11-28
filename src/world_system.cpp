@@ -34,6 +34,10 @@ void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camer
     auto cursor_pos_redirect = [](GLFWwindow* wnd, double _0, double _1) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse_move({ _0, _1 }); };
     glfwSetKeyCallback(window, key_redirect);
     glfwSetCursorPosCallback(window, cursor_pos_redirect);
+    glfwSetMouseButtonCallback(window, [](GLFWwindow* wnd, int button, int action, int mods) {
+    ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse_click(button, action, mods);
+});
+
     // Window focus callback
     auto focus_redirect = [](GLFWwindow* wnd, int focused) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_window_focus(focused); };
     glfwSetWindowFocusCallback(window, focus_redirect);
@@ -313,6 +317,30 @@ void WorldSystem::on_mouse_move(vec2 mouse_position) {
 
 }
 
+void WorldSystem::on_mouse_click(int button, int action, int mods) {
+    if (action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_LEFT && isPlacingTrap) {
+        if (registry.players.has(playerEntity)) {
+            Player& player = registry.players.get(playerEntity);
+            Motion& motion = registry.motions.get(playerEntity);
+
+            int windowWidth, windowHeight;
+            glfwGetWindowSize(window, &windowWidth, &windowHeight);
+            double mouseX, mouseY;
+            glfwGetCursorPos(window, &mouseX, &mouseY);
+            double normalizedMouseX = mouseX / windowWidth * world_size_x;
+            //printf("Cursor X position: %f, Player X position: %f\n", normalizedMouseX, motion.position.x);
+            bool placeInFront = (normalizedMouseX > motion.position.x);
+            place_trap(player, motion, placeInFront, selectedTrapType);
+
+            isPlacingTrap = false;
+            selectedTrapType = "";
+        }
+    }
+}
+
+
+
+
 void WorldSystem::on_key(int key, int, int action, int mod)
 {
     switch (gameStateController.getGameState()) {
@@ -389,17 +417,13 @@ void WorldSystem::playingControls(int key, int action, int mod)
   
     if (action == GLFW_PRESS) {
         switch (key) {
-        case GLFW_KEY_W:
-            place_trap(player_comp, player_motion, true, DAMAGE_TRAP);
-            break;
         case GLFW_KEY_Q:
-            place_trap(player_comp, player_motion, false, DAMAGE_TRAP);
+            isPlacingTrap = true;
+            selectedTrapType = DAMAGE_TRAP;
             break;
-		case GLFW_KEY_L:
-			place_trap(player_comp, player_motion, true, PHANTOM_TRAP);
-			break;
 		case GLFW_KEY_K:
-			place_trap(player_comp, player_motion, false, PHANTOM_TRAP);
+			isPlacingTrap = true;
+            selectedTrapType = PHANTOM_TRAP;
 			break;
         case GLFW_KEY_H:
             gameStateController.setGameState(GAME_STATE::HELP);

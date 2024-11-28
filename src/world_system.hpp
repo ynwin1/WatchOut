@@ -45,6 +45,8 @@ private:
 
 	std::string DAMAGE_TRAP = "trap";
 	std::string PHANTOM_TRAP = "phantom_trap";
+	bool isPlacingTrap = false;
+	std::string selectedTrapType = "";
 
 	// GLFW Window handle
 	GLFWwindow* window;
@@ -114,6 +116,7 @@ private:
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);
 	void on_mouse_move(vec2 mouse_position);
+	void on_mouse_click(int button, int action, int mods);
 
 	// restart level
 	void restart_game();

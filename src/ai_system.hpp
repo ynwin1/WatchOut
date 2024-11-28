@@ -12,6 +12,7 @@ public:
 	void boarReset(Entity boar);
 
 private:
+
 	const float LIGHTNING_RADIUS = 200.f;
 	const float PHANTOM_TRAP_RADIUS = 600.f;
 

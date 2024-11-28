@@ -240,18 +240,29 @@ Entity createTroll(vec2 pos)
 Entity createCollectibleTrap(vec2 pos)
 {
 	auto entity = Entity();
-	registry.collectibleTraps.emplace(entity);
-
-	// Setting intial motion values
+	CollectibleTrap& collectibleTrap = registry.collectibleTraps.emplace(entity);
+	int random = rand() % 2;
 	Motion& motion = registry.motions.emplace(entity);
-	motion.position = vec3(pos, getElevation(pos) + TRAP_COLLECTABLE_BB_HEIGHT / 2);
-	motion.angle = 0.f;
-	motion.scale = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT };
-	motion.hitbox = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT / zConversionFactor };
+
+	if (random >= 0.5) {
+		collectibleTrap.type = "phantom_trap";
+		initPhantomTrapAnimationController(entity);
+		
+		motion.position = vec3(pos, getElevation(pos) + PHANTOM_TRAP_COLLECTABLE_BB_HEIGHT / 2);
+		motion.angle = 0.f;
+		motion.scale = { PHANTOM_TRAP_COLLECTABLE_BB_WIDTH, PHANTOM_TRAP_COLLECTABLE_BB_HEIGHT };
+		motion.hitbox = { PHANTOM_TRAP_COLLECTABLE_BB_WIDTH, PHANTOM_TRAP_COLLECTABLE_BB_WIDTH, PHANTOM_TRAP_COLLECTABLE_BB_HEIGHT / zConversionFactor };
+	}
+	else {
+		initTrapBottleAnimationController(entity);
+
+		motion.position = vec3(pos, getElevation(pos) + TRAP_COLLECTABLE_BB_HEIGHT / 2);
+		motion.angle = 0.f;
+		motion.scale = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT };
+		motion.hitbox = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT / zConversionFactor };
+	}
 
 	registry.collectibles.emplace(entity);
-
-	initTrapBottleAnimationController(entity);
 
 	registry.midgrounds.emplace(entity);
 
@@ -330,6 +341,35 @@ Entity createDamageTrap(vec2 pos)
 
 	return entity;
 };
+
+Entity createPhantomTrap(vec2 pos) {
+	auto entity = Entity();
+
+	// Setting intial motion values
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = vec3(pos, getElevation(pos) + PHANTOM_TRAP_BB_HEIGHT / 2);
+	motion.angle = 0.f;
+	motion.scale = { PHANTOM_TRAP_BB_WIDTH, PHANTOM_TRAP_BB_HEIGHT };
+	motion.hitbox = { PHANTOM_TRAP_BB_WIDTH, PHANTOM_TRAP_BB_WIDTH, PHANTOM_TRAP_BB_HEIGHT / zConversionFactor };
+	motion.solid = false;
+
+	// Setting initial trap values
+	PhantomTrap& phantomTrap = registry.phantomTraps.emplace(entity);
+	phantomTrap.duration = 15000.f; // 7s
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::JEFF_PHANTOM_TRAP,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	registry.backgrounds.emplace(entity);
+
+	return entity;
+}
+
 
 // Create Player Jeff
 Entity createJeff(vec2 position)
@@ -834,6 +874,45 @@ Entity createTrapsCounterText(vec2 windowSize) {
 			GEOMETRY_BUFFER_ID::SPRITE
 		});
 	
+	return textE;
+}
+
+Entity createPhantomTrapsCounterText(vec2 windowSize) {
+	auto textE = Entity();
+
+	vec2 position = { (windowSize.x / 2) - 380.0f, windowSize.y - 80.0f };
+
+	registry.texts.emplace(textE);
+	Foreground& fg = registry.foregrounds.emplace(textE);
+	fg.position = position;
+	fg.scale = { 1.5f, 1.5f };
+
+	registry.colours.insert(textE, { 0.8f, 0.8f, 0.0f, 1.0f });
+
+	registry.renderRequests.insert(
+		textE,
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::FONT,
+			GEOMETRY_BUFFER_ID::TEXT
+		});
+
+	auto iconE = Entity();
+
+	Foreground& icon = registry.foregrounds.emplace(iconE);
+	icon.scale = { PHANTOM_TRAP_COLLECTABLE_BB_WIDTH * 0.85, PHANTOM_TRAP_COLLECTABLE_BB_HEIGHT * 0.85 };
+	icon.position = { position.x - 40.0f, position.y + 16.0f };
+
+	registry.renderRequests.insert(
+		iconE,
+		{
+			TEXTURE_ASSET_ID::PHANTOM_TRAP_BOTTLE_ONE,
+			EFFECT_ASSET_ID::TEXTURED_FLAT,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	registry.colours.emplace(iconE, vec4(1.0f, 1.0f, 1.0f, 1.0f));
+
 	return textE;
 }
 

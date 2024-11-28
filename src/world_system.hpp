@@ -58,7 +58,8 @@ private:
 	const float DIFFICULTY_INTERVAL = 45000.0f;
 	const unsigned int MAX_TOTAL_ENEMIES = 100;
 
-	// Button positions
+	std::string DAMAGE_TRAP = "trap";
+	std::string PHANTOM_TRAP = "phantom_trap";
 
 	// GLFW Window handle
 	GLFWwindow* window;
@@ -142,7 +143,7 @@ private:
 	void despawn_collectibles(float elapsed_ms);
 	void handle_stamina(float elapsed_ms);
 	vec2 get_spawn_location(const std::string& entity_type);
-	void place_trap(Player& player, Motion& motion, bool forward);
+	void place_trap(Player& player, Motion& motion, bool forward, std::string type);
 	void checkAndHandlePlayerDeath(Entity& entity);
 	void trackFPS(float elapsed_ms);
 	void updateGameTimer(float elapsed_ms);

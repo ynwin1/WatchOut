@@ -169,6 +169,7 @@ bool WorldSystem::step(float elapsed_ms)
     despawnTraps(elapsed_ms);
     updateCollectedTimer(elapsed_ms);
     resetTrappedEntities();
+    updateLightPosition();
 
     if (camera->isToggled()) {
         Motion& playerMotion = registry.motions.get(playerEntity);
@@ -183,6 +184,12 @@ bool WorldSystem::step(float elapsed_ms)
     }
 
     return !is_over();
+}
+
+void WorldSystem::updateLightPosition() {
+    PointLight& pointLight = registry.pointLights.get(playerEntity);
+    Motion& motion = registry.motions.get(playerEntity);
+    pointLight.position = motion.position;
 }
 
 void WorldSystem::loadAndSaveHighScore(bool save) {
@@ -1019,7 +1026,7 @@ void WorldSystem::toggleMesh() {
             registry.renderRequests.insert(
                 meshEntity, {
                     TEXTURE_ASSET_ID::TREE,
-                    EFFECT_ASSET_ID::TEXTURED,
+                    EFFECT_ASSET_ID::TEXTURED_NORMAL,
                     GEOMETRY_BUFFER_ID::SPRITE });
         }
     }

@@ -77,12 +77,10 @@ void WorldSystem::restart_game()
 
 void WorldSystem::load_game() {
     saveManager->load_game();
-
+    saveManager->loadTrapsCounter(trapsCounter.trapsMap);
     // set up texts in foreground
     reloadText();
-
     playerEntity = registry.players.entities[0];
-    trapsCounter.count = saveManager->getTrapCounter();
     gameStateController.setGameState(GAME_STATE::PLAYING);
 }
 
@@ -119,7 +117,6 @@ void WorldSystem::reloadText() {
     createPauseHelpText(camera->getSize());
     registry.fpsTracker.textEntity = createFPSText(camera->getSize());
     registry.gameTimer.textEntity = createGameTimerText(camera->getSize());
-    trapsCounter.textEntity = createTrapsCounterText(camera->getSize());
 }
 
 void WorldSystem::trackFPS(float elapsed_ms) {
@@ -397,7 +394,7 @@ void WorldSystem::pauseControls(int key, int action, int mod)
             clearSaveText();
             break;
         case GLFW_KEY_S:
-            saveManager->save_game(trapsCounter.count);
+            saveManager->save_game(trapsCounter.trapsMap);
 			createGameSaveText(camera->getSize());
             printf("Saved game\n");
             break;

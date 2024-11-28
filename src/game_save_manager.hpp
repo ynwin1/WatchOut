@@ -12,13 +12,13 @@ public:
 	void init(RenderSystem* renderer, GLFWwindow* window, Camera* camera);
 
 	// Save the game
-	void save_game(int trapCounter);
+	void save_game(std::unordered_map<std::string, std::pair<int, Entity>> trapCounter);
 
 	// Load the game
 	void load_game();
 	
-	// get trap counter
-	int getTrapCounter();
+	// load trap counter
+	void loadTrapsCounter(std::unordered_map<std::string, std::pair<int, Entity>>& trapCounterWorld);
 
 private:
 
@@ -26,7 +26,7 @@ private:
 	GLFWwindow* window;
 	Camera* camera;
 
-	int trapCounter = 0;
+	std::unordered_map<std::string, std::pair<int, Entity>> trapsCounter;
 
 	// CONSTANTS
 	// CONTAINERS
@@ -73,7 +73,7 @@ private:
 
 	std::string GAMETIMER = "gameTimer";
 	std::string GAMESCORE = "gameScore";
-	std::string TRAPCOUNTER = "trapCounter";
+	std::string TRAPCOUNTER = "trapsCounter";
 
 	// Game Save file path
 	std::string gameSaveFilePath = data_path() + "/save/game_save.json";
@@ -81,7 +81,7 @@ private:
 	std::map<int, std::map<std::string, json>> entityComponentGroups;
 
 	// Serialization
-	void serialize_containers(json& j);
+	void serialize_containers(json& j, std::unordered_map<std::string, std::pair<int, Entity>> trapsCounter);
 
 	template <typename Component>
 	json serialize_container(const ComponentContainer<Component>& container);
@@ -89,6 +89,7 @@ private:
 
 	nlohmann::json serialize_game_timer(const GameTimer& gameTimer);
 	nlohmann::json serialize_game_score(const GameScore& gameScore);
+	nlohmann::json serialize_traps_counter(const std::unordered_map<std::string, std::pair<int, Entity>> trapCounter);
 
 	template <typename Component>
 	nlohmann::json serialize_component(const Component& component);
@@ -100,6 +101,7 @@ private:
 	void createEntity(std::vector<std::string> componentNames, std::map<std::string, nlohmann::json> componentsMap);
 	void deserialize_game_timer(const json& j);
 	void deserialize_game_score(const json& j);
+	void deserialize_traps_counter(const json& j);
 
 	void createPlayerDeserialization(std::map<std::string, nlohmann::json> componentsMap);
 	void createBoarDeserialization(std::map<std::string, nlohmann::json> componentsMap);

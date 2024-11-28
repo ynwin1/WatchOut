@@ -2,6 +2,13 @@
 #include "common.hpp"
 #include <vector>
 
+/*
+
+Making changes to the structure of the components will require changes to the following files:
+game_save_manager.cpp (serialize and deserialize the attributes you are adding or removing)
+
+*/
+
 
 // PlayerComponents 
 struct Player {
@@ -23,7 +30,6 @@ struct Stamina {
     float stamina_loss_rate = 50;
 	float stamina_recovery_rate = 10;
 	float timer = 3000;
-
 };
 
 //Dashing
@@ -118,8 +124,7 @@ struct Motion {
 
 	// Hitbox
 	vec3 hitbox = { 0, 0, 0 };
-	float solid = false;
-
+	bool solid = false;
 };
 
 // Stucture to store collision information

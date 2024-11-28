@@ -2,6 +2,7 @@
 #include "tiny_ecs_registry.hpp"
 #include "animation_system.hpp"
 #include "animation_system_init.hpp"
+#include "ai_system.hpp"
 #include <random>
 #include <sstream>
 
@@ -123,44 +124,45 @@ Entity createBirdFlock(vec2 pos)
 
     for (int i = 0; i < flockSize; ++i)
     {
-        auto entity = Entity();
-
-        // Spawn birds with spacing
-        vec2 birdPosition = pos + vec2(i * spacing, 0); 
-
-        Motion& motion = registry.motions.emplace(entity);
-        motion.position = vec3(birdPosition, TREE_BB_HEIGHT - BIRD_BB_WIDTH);
-        motion.angle = 0.f;
-        motion.scale = { 16 * SPRITE_SCALE, 16 * SPRITE_SCALE};
-        motion.hitbox = { BIRD_BB_WIDTH, BIRD_BB_HEIGHT, BIRD_BB_HEIGHT / zConversionFactor };
-        motion.solid = true;
-
-        Enemy& enemy = registry.enemies.emplace(entity);
-        enemy.damage = BIRD_DAMAGE;
-        enemy.cooldown = 2000.f;
-		enemy.maxHealth = BIRD_HEALTH;
-		enemy.health = enemy.maxHealth;
-        motion.speed = BIRD_SPEED;
-
-        registry.birds.emplace(entity);
-
-        initBirdAnimationController(entity);
-        registry.midgrounds.emplace(entity);
-
-        createHealthBar(entity, vec4(1.0f, 0.0f, 0.0f, 1.0f));
-        if (i == 0)
-        {
-            repBird = entity;
-        }
-
-		registry.knockables.emplace(entity);
-		auto& trappable = registry.trappables.emplace(entity);
-		trappable.originalSpeed = BIRD_SPEED;
+		// Spawn birds with spacing
+		vec2 birdPosition = pos + vec2(i * spacing, 0);
+		Entity bird = createBird(birdPosition);
+		if (i == 0) {
+			repBird = bird;
+		}
     }
     return repBird;
 }
 
+Entity createBird(vec2 birdPosition) {
+	auto entity = Entity();
 
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = vec3(birdPosition, TREE_BB_HEIGHT - BIRD_BB_WIDTH);
+	motion.angle = 0.f;
+	motion.scale = { 16 * SPRITE_SCALE, 16 * SPRITE_SCALE };
+	motion.hitbox = { BIRD_BB_WIDTH, BIRD_BB_HEIGHT, BIRD_BB_HEIGHT / zConversionFactor };
+	motion.solid = true;
+
+	Enemy& enemy = registry.enemies.emplace(entity);
+	enemy.damage = BIRD_DAMAGE;
+	enemy.cooldown = 2000.f;
+	enemy.maxHealth = BIRD_HEALTH;
+	enemy.health = enemy.maxHealth;
+	motion.speed = BIRD_SPEED;
+
+	registry.birds.emplace(entity);
+
+	initBirdAnimationController(entity);
+	registry.midgrounds.emplace(entity);
+
+	createHealthBar(entity, vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	registry.knockables.emplace(entity);
+	auto& trappable = registry.trappables.emplace(entity);
+	trappable.originalSpeed = BIRD_SPEED;
+
+	return entity;
+}
 // Wizard creation
 Entity createWizard(vec2 pos) {
 	auto entity = Entity();
@@ -652,9 +654,10 @@ void createHealthBar(Entity characterEntity, vec4 color) {
 	hpbar.height = height;
 }
 
-Entity createTargetArea(vec3 position, float radius) {
+Entity createTargetArea(vec3 position) {
 	auto entity = Entity();
 
+	float radius = 200.f;
 	Motion& motion = registry.motions.emplace(entity);
 	motion.position = position;
 	motion.position.z = 0.f;
@@ -673,10 +676,9 @@ Entity createTargetArea(vec3 position, float radius) {
 
 	registry.backgrounds.emplace(entity);
 	registry.targetAreas.emplace(entity);
-	Cooldown& cooldown = registry.cooldowns.emplace(entity);
-	cooldown.remaining = 3000.f; // 5s
 
-	printf("Target area created\n");
+	Cooldown& cooldown = registry.cooldowns.emplace(entity);
+	cooldown.remaining = 3000.f; // 3s
 	return entity;
 }
 
@@ -1072,6 +1074,29 @@ void createGameOverText(vec2 windowSize) {
 		});
 	}
 
+}
+
+void createGameSaveText(vec2 windowSize) {
+	auto entity = Entity();
+
+	Text& text = registry.texts.emplace(entity);
+	text.value = "Game Saved!";
+	Foreground& fg = registry.foregrounds.emplace(entity);
+	fg.position = { windowSize.x / 2 - 165.f, windowSize.y / 2 + 300.f };
+	fg.scale = { 2.f, 2.f };
+
+	Cooldown& cooldown = registry.cooldowns.emplace(entity);
+	cooldown.remaining = 2000.f;
+
+	registry.colours.insert(entity, { 0.0f, 1.0f, 0.0f, 1.0f });
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::FONT,
+			GEOMETRY_BUFFER_ID::TEXT
+		});
 }
 
 void createTrees(RenderSystem* renderer) {

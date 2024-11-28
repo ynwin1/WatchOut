@@ -5,3 +5,4 @@ CMakeFiles/
 ext/project_path.hpp
 .vscode/
 /CMakeSettings.json
+/data/save/game_save.json

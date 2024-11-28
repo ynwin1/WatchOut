@@ -333,8 +333,6 @@ nlohmann::json GameSaveManager::serialize_component<Jumper>(const Jumper& jumper
 template<>
 nlohmann::json GameSaveManager::serialize_component<MapTile>(const MapTile& mapTile) {
 	nlohmann::json j;
-	j["position"] = { mapTile.position.x, mapTile.position.y };
-	j["scale"] = { mapTile.scale.x, mapTile.scale.y };
 	return j;
 }
 

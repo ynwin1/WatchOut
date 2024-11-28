@@ -18,11 +18,10 @@ void GameSaveManager::init(RenderSystem* renderer, GLFWwindow* window, Camera* c
 }
 
 // Serialize the game state to a JSON file
-void GameSaveManager::save_game(int trapCounter) {
+void GameSaveManager::save_game(int trapCounter, std::unordered_map<std::string, float> spawn_delays, std::unordered_map<std::string, int> max_entities, std::unordered_map<std::string, float> next_spawns) {
 	json j;
 
-	serialize_containers(j);
-	j[TRAPCOUNTER] = trapCounter;
+	serialize_containers(j, trapCounter, spawn_delays, max_entities, next_spawns);
 
 	std::ofstream file(gameSaveFilePath);
 	if (file.is_open()) {
@@ -34,9 +33,14 @@ void GameSaveManager::save_game(int trapCounter) {
 	}
 }
 
-void GameSaveManager::serialize_containers(json& j) {
+void GameSaveManager::serialize_containers(json& j, int trapCounter, std::unordered_map<std::string, float> spawn_delays, std::unordered_map<std::string, int> max_entities, std::unordered_map<std::string, float> next_spawns) {
 	j[GAMETIMER] = serialize_game_timer(registry.gameTimer);
 	j[GAMESCORE] = serialize_game_score(registry.gameScore);
+	j[TRAPCOUNTER] = trapCounter;
+	j[SPAWNDELAYS] = serialize_spawn_delays(spawn_delays);
+	j[MAXENTITIES] = serialize_max_entities(max_entities);
+	j[NEXTSPAWNS] = serialize_next_spawns(next_spawns);
+
 
 
 	// Serialize all component containers
@@ -145,13 +149,27 @@ nlohmann::json GameSaveManager::serialize_game_score(const GameScore& gameScore)
 	return j;
 }
 
-nlohmann::json GameSaveManager::serialize_spawn_delay() {
+nlohmann::json GameSaveManager::serialize_spawn_delays(std::unordered_map<std::string, float> spawn_delays) {
 	nlohmann::json j;
+	for (const auto& delay : spawn_delays) {
+		j[delay.first] = delay.second;
+	}
 	return j;
 }
 
-nlohmann::json GameSaveManager::serialize_max_entities() {
+nlohmann::json GameSaveManager::serialize_max_entities(std::unordered_map<std::string, int> max_entities) {
 	nlohmann::json j;
+	for (const auto& max : max_entities) {
+		j[max.first] = max.second;
+	}
+	return j;
+}
+
+nlohmann::json GameSaveManager::serialize_next_spawns(std::unordered_map<std::string, float> next_spawns) {
+	nlohmann::json j;
+	for (const auto& next : next_spawns) {
+		j[next.first] = next.second;
+	}
 	return j;
 }
 
@@ -544,7 +562,8 @@ void GameSaveManager::groupComponentsForEntities(const json& j) {
 		auto& container = item.value();
 
 		// skip gameTimer and gameScore
-		if (containerName == GAMETIMER || containerName == GAMESCORE || containerName == TRAPCOUNTER) {
+		if (containerName == GAMETIMER || containerName == GAMESCORE || containerName == TRAPCOUNTER ||
+			containerName == NEXTSPAWNS || containerName == MAXENTITIES || containerName == SPAWNDELAYS) {
 			continue;
 		}
 
@@ -596,6 +615,10 @@ void GameSaveManager::deserialize_containers(const json& j) {
 
 	deserialize_game_timer(j);
 	deserialize_game_score(j);
+	deserialize_spawn_delays(j);
+	deserialize_max_entities(j);
+	deserialize_next_spawns(j);
+
 
 	trapCounter = (int) j[TRAPCOUNTER];
 }
@@ -863,6 +886,27 @@ void GameSaveManager::deserialize_game_score(const json& j) {
 	registry.gameScore.highScoreSeconds = j[GAMESCORE]["highScoreSeconds"].get<int>();
 }
 
+void GameSaveManager::deserialize_spawn_delays(const json& j) {
+	auto& spawnDelaysJ = j.at(SPAWNDELAYS);
+	for (const auto& delay : spawnDelaysJ.items()) {
+		spawnDelays[delay.key()] = delay.value().get<float>();
+	}
+}
+
+void GameSaveManager::deserialize_max_entities(const json& j) {
+	auto& maxEntitiesJ = j[MAXENTITIES];
+	for (const auto& max : maxEntitiesJ.items()) {
+		maxEntities[max.key()] = max.value().get<int>();
+	}
+}
+
+void GameSaveManager::deserialize_next_spawns(const json& j) {
+	auto& nextSpawnsJ = j[NEXTSPAWNS];
+	for (const auto& next : nextSpawnsJ.items()) {
+		nextSpawns[next.key()] = next.value().get<float>();
+	}
+}
+
 
 // DESERIALIZATION HELPERS (COMPONENTS)
 void GameSaveManager::handleDeathTimer(Entity& entity, std::map<std::string, nlohmann::json> componentsMap) {
@@ -975,4 +1019,18 @@ void GameSaveManager::handleTroll(Entity& entity, std::map<std::string, nlohmann
 int GameSaveManager::getTrapCounter() {
 	return this->trapCounter;
 }
+
+std::unordered_map<std::string, float> GameSaveManager::getSpawnDelays() {
+	return this->spawnDelays;
+}
+
+std::unordered_map<std::string, int> GameSaveManager::getMaxEntities() {
+	return this->maxEntities;
+}
+
+std::unordered_map<std::string, float> GameSaveManager::getNextSpawns() {
+	return this->nextSpawns;
+}
+
+
 

@@ -81,11 +81,10 @@ void WorldSystem::load_game() {
     // set up texts in foreground
     reloadText();
 
-    // TODO - serialization needed for spawn variables [temporary fix]
-    resetSpawnSystem(); 
-    for (auto& name : entity_types) {
-        next_spawns[name] = 1000;
-    }
+    // Pick up spawn data from last checkpoint
+    next_spawns = saveManager->getNextSpawns();
+	spawn_delays = saveManager->getSpawnDelays();
+	max_entities = saveManager->getMaxEntities();
 
     show_mesh = false;
     playerEntity = registry.players.entities[0];
@@ -410,7 +409,7 @@ void WorldSystem::pauseControls(int key, int action, int mod)
             clearSaveText();
             break;
         case GLFW_KEY_S:
-            saveManager->save_game(trapsCounter.count);
+            saveManager->save_game(trapsCounter.count, spawn_delays, max_entities, next_spawns);
 			createGameSaveText(camera->getSize());
             printf("Saved game\n");
             break;

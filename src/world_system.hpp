@@ -26,8 +26,10 @@ public:
 	~WorldSystem();
 
 	GameStateController gameStateController;
+
 	std::unordered_map<std::string, float> spawn_delays;
 	std::unordered_map<std::string, int> max_entities;
+	std::unordered_map<std::string, float> next_spawns;
 
 	// Steps the game ahead by ms milliseconds
 	bool step(float elapsed_ms);
@@ -71,7 +73,6 @@ private:
 	bool isWindowed = false;
 
 	Entity playerEntity;
-	std::unordered_map<std::string, float> next_spawns;
 
 	std::vector<std::string> entity_types = {
 		"boar",

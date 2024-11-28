@@ -1,6 +1,7 @@
 // internal
 #include "render_system.hpp"
 #include "tiny_ecs_registry.hpp"
+#include "world_init.hpp"
 
 // external
 #include <SDL.h>
@@ -367,7 +368,9 @@ void RenderSystem::step(float elapsed_ms)
 	for (auto& animationController : registry.animationControllers.components) {
 		updateAnimation(animationController.animations[animationController.currentState], elapsed_ms);
 	}
-	
+
+	updateExplosions(elapsed_ms);
+
 	for (Entity entity : registry.projectiles.entities) {
 		Motion& motion = registry.motions.get(entity);
 		if (length(motion.velocity) == 0) {
@@ -375,7 +378,8 @@ void RenderSystem::step(float elapsed_ms)
 			projectile.sticksInGround -= elapsed_ms;
 			if (projectile.sticksInGround <= 0) {
 				if(registry.bombs.has(entity)) {
-					registry.explosionsToTrigger.push_back(motion.position);
+					createExplosion(motion.position);
+					sound->playSoundEffect(Sound::EXPLOSION, 0);
 				}
 				registry.remove_all_components_of(entity);
 			}
@@ -389,11 +393,13 @@ void RenderSystem::step(float elapsed_ms)
 	update_staminabars();
 	updateEntityFacing();
 	updateCollectedPosition();
-	updateExplosions(elapsed_ms);
 }
 
 void RenderSystem::updateExplosions(float elapsed_ms) {
 	for (Entity entity : registry.explosions.entities) {
+		// explosion damage only happens in one frame
+		registry.damagings.remove(entity);
+
 		Explosion& explosion = registry.explosions.get(entity);
 		explosion.duration -= elapsed_ms;
 		if (explosion.duration < 0) {

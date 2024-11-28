@@ -286,10 +286,9 @@ void PhysicsSystem::updatePositions(float elapsed_ms)
 		// Apply gravity
 		if (motion.position.z > groundZ) {
 			// Don't apply gravity to fireballs or explosions
-			if (registry.damagings.has(entity) && 
-				(registry.damagings.get(entity).type == "fireball" || 
+			if ((registry.damagings.has(entity) && registry.damagings.get(entity).type == "fireball") ||
 				registry.explosions.has(entity))
-			) { 
+			{ 
 				continue;
 			}
 

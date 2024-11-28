@@ -8,6 +8,7 @@
 #include "render_components.hpp"
 #include "tiny_ecs.hpp"
 #include "components.hpp"
+#include "sound_system.hpp"
 
 // System responsible for setting up OpenGL and for rendering all the
 // visual entities in the game
@@ -102,7 +103,7 @@ public:
 	GLFWwindow* create_window();
 
 	// Initialize the window
-	bool init(Camera* camera);
+	bool init(Camera* camera, SoundSystem* sound);
 
 	template <class T>
 	void bindVBOandIBO(GEOMETRY_BUFFER_ID gid, std::vector<T> vertices, std::vector<uint16_t> indices);
@@ -134,6 +135,7 @@ public:
 	mat4 createProjectionToScreenSpace();
 
 private:
+	SoundSystem* sound;
 	Camera* camera;
 	const float AMBIENT_LIGHT = .4;
 

@@ -488,7 +488,7 @@ Entity createBomb(vec3 pos, vec3 velocity)
 	motion.solid = true;
 	
 	Projectile& proj = registry.projectiles.emplace(entity);
-	proj.sticksInGround = 300;
+	proj.sticksInGround = 2000;
 
 	Bomb& bomb = registry.bombs.emplace(entity);
 	bomb.numBounces = 1;

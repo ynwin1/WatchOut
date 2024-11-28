@@ -505,22 +505,32 @@ vec3 AISystem::predictPlayerPosition(Entity playerEntity, float timeToTarget_ms)
 
 void AISystem::bomberBehaviour(Entity entity, Entity playerEntity, float elapsed_ms)
 {
-    const float BOMBER_RANGE = 600;
-    const float THROW_BOMB_MIN_DELAY = 1000;
-    const float THROW_BOMB_MAX_DELAY = 2000;
     if (registry.deathTimers.has(entity)) {
         return;
     }
+
+    const float BOMBER_RANGE = 600;
+    const float THROW_BOMB_MIN_DELAY = 2000;
+    const float THROW_BOMB_MAX_DELAY = 3000;
+
     Motion& motion = registry.motions.get(entity);
     Bomber& bomber = registry.bombers.get(entity);
     vec3 playerPosition = registry.motions.get(playerEntity).position;
-    float d = distance(motion.position, playerPosition);
-    if (d < BOMBER_RANGE) {
+    float dist = distance(motion.position, playerPosition);
+
+	vec2 direction = normalize(vec2(playerPosition) - vec2(motion.position));
+	std::vector<Entity> obstacles = registry.obstacles.entities;
+    float clearDistance;
+
+    if (dist < BOMBER_RANGE) {
         bomber.aiming = true;
         motion.velocity.x = 0;
         motion.velocity.y = 0;
         AnimationController& animationController = registry.animationControllers.get(entity);
         animationController.changeState(entity, AnimationState::Idle);
+    }
+    else {
+        bomber.aiming = false;
     }
 
     if (bomber.aiming) {

@@ -47,8 +47,7 @@ public:
 	ComponentContainer<PauseMenuComponent> pauseMenuComponents;
 	ComponentContainer<HelpMenuComponent> helpMenuComponents;
 
-	std::map<char, TextChar> textChars; //for initializing text glyphs from freetype
-	std::vector<vec3> explosionsToTrigger;
+	std::map<char, TextChar> textChars; //for initializing text glyphs from freetypes
 
 	// Render component containers
 	ComponentContainer<RenderRequest> renderRequests;

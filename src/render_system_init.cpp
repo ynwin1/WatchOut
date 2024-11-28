@@ -63,12 +63,13 @@ GLFWwindow* RenderSystem::create_window() {
 
 
 // World initialization
-bool RenderSystem::init(Camera* camera)
+bool RenderSystem::init(Camera* camera, SoundSystem* sound)
 {
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(1); // vsync
 
 	this->camera = camera;
+	this->sound = sound;
 
 	// Load OpenGL function pointers
 	const int is_fine = gl3w_init();

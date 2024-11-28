@@ -146,7 +146,6 @@ private:
 	void despawnTraps(float elapsed_ms);
 	void updateCollectedTimer(float elapsed_ms);
 	void resetTrappedEntities();
-	void triggerExplosions();
 
 
 	// Collision functions

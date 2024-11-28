@@ -53,7 +53,6 @@ struct Trappable {
 
 struct Explosion {
 	float duration = 500;
-	std::unordered_set<int> affectedEntities;
 };
 
 struct Damaging {

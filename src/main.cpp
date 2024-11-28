@@ -40,7 +40,7 @@ int main()
 
 	// Initialize the main systems
 	camera.init(window);
-	renderer.init(&camera);
+	renderer.init(&camera, &sound);
 	world.init(&renderer, window, &camera, &physics, &ai, &sound);
 	sound.init();
 

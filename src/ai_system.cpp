@@ -667,7 +667,7 @@ void AISystem::processWizardAiming(Entity entity, vec3 playerPosition, float ela
 	}
 	else if (farFromEdge) {
 		// start preparing for lightning
-		createTargetArea(playerPosition, LIGHTNING_RADIUS);
+		createTargetArea(playerPosition);
 		wizard.locked_target = playerPosition;
 		wizard.state = WizardState::Preparing;
     }

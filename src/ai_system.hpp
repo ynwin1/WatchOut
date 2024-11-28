@@ -12,6 +12,7 @@ public:
 	void boarReset(Entity boar);
 
 private:
+
 	const float LIGHTNING_RADIUS = 200.f;
 
 	bool decideToPathfind(Entity enemy, float baseThinkingTime, float elapsed_ms);

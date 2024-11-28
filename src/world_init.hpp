@@ -92,6 +92,7 @@ Entity createArcher(vec2 pos);
 
 // The birds
 Entity createBirdFlock(vec2 pos);
+Entity createBird(vec2 pos);
 
 // The wizard
 Entity createWizard(vec2 pos);
@@ -132,11 +133,8 @@ Entity createTrapsCounterText(vec2 windowSize);
 // Game over UI
 void createGameOverText(vec2 windowSize);
 
-// GameOver
-Entity createGameOver(vec2 pos);
-
-// GameOver
-Entity createGameOver(vec2 pos);
+// Game save text
+void createGameSaveText(vec2 windowSize);
 
 // Display bars
 void createHealthBar(Entity characterEntity, vec4 color);
@@ -147,8 +145,9 @@ void createPlayerStaminaBar(Entity characterEntity, vec2 windowSize);
 void createMapTiles();
 Entity createMapTile(vec2 position, vec2 scale);
 Entity createObstacle(vec2 position, vec2 scale, TEXTURE_ASSET_ID assetID);
+Entity createNormalObstacle(vec2 position, vec2 size, TEXTURE_ASSET_ID assetId);
 void createObstacles();
-Entity createTargetArea(vec3 position, float radius);
+Entity createTargetArea(vec3 position);
 
 // Cliffs
 void createCliffs(GLFWwindow* window);

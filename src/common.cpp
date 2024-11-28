@@ -30,6 +30,32 @@ vec2 rotate(vec2 v, float radians)
 	return vertex;
 }
 
+void Transform3D::scale(vec2 scale, bool flat)
+{
+	mat4 S;
+	if (!flat) {
+		S = { { scale.x, 0.f, 0.f, 0.f }, { 0.f, 0.f, -scale.y, 0.f }, { 0.f, 1.f, 0.f, 0.f }, { 0.f, 0.f, 0.f, 1.f } };
+	}
+	else {
+		S = { { scale.x, 0.f, 0.f, 0.f }, { 0.f, scale.y, 0.f, 0.f }, { 0.f, 0.f, 1.f, 0.f }, { 0.f, 0.f, 0.f, 1.f } };
+	}
+    mat = mat * S;
+}
+
+void Transform3D::translate(vec3 offset)
+{
+    mat4 T = { { 1.f, 0.f, 0.f, 0.f }, { 0.f, 1.f, 0.f, 0.f }, { 0.f, 0.f, 1.f, 0.f }, { offset.x, offset.y, offset.z, 1.f}};
+    mat = mat * T;
+}
+
+void Transform3D::rotate(float radians)
+{
+    float c = cosf(radians);
+    float s = sinf(radians);
+    mat4 R = { { c, 0.f, -s * sqrt(2), 0.f},{0.f, 1.f, 0.f, 0.f},{s / sqrt(2), 0.f, c, 0.f}, {0.f, 0.f, 0.f, 1.f}};
+    mat = mat * R;
+}
+
 bool gl_has_errors()
 {
 #ifndef DEBUG

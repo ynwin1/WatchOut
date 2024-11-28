@@ -4,6 +4,7 @@
 #include "physics_system.hpp"
 #include "sound_system.hpp"
 #include "game_state_controller.hpp"
+#include "game_save_manager.hpp"
 #include <iostream>
 #include <iomanip> 
 #include <sstream>
@@ -16,7 +17,7 @@ WorldSystem::WorldSystem(std::default_random_engine& rng)
     this->rng = rng;
 }
 
-void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics, AISystem* ai, SoundSystem* sound)
+void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics, AISystem* ai, SoundSystem* sound, GameSaveManager* saveManager)
 {
     
     this->renderer = renderer;
@@ -25,6 +26,7 @@ void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camer
     this->physics = physics;
     this->ai = ai;
 	this->sound = sound;
+	this->saveManager = saveManager;
 
     // Setting callbacks to member functions (that's why the redirect is needed)
     // Input is handled using GLFW, for more info see
@@ -74,6 +76,21 @@ void WorldSystem::restart_game()
     loadAndSaveHighScore(false);
 }
 
+void WorldSystem::load_game() {
+    saveManager->load_game();
+
+    // set up texts in foreground
+    reloadText();
+
+    playerEntity = registry.players.entities[0];
+    trapsCounter.count = saveManager->getTrapCounter();
+    gameStateController.setGameState(GAME_STATE::PLAYING);
+}
+
+void WorldSystem::save_game() {
+    std::string filename = "game.txt";
+}
+
 void WorldSystem::updateGameTimer(float elapsed_ms) {
     GameTimer& gameTimer = registry.gameTimer;
 
@@ -93,6 +110,13 @@ void WorldSystem::initText() {
     registry.gameTimer.reset();
     registry.gameTimer.textEntity = createGameTimerText(camera->getSize());
     trapsCounter.reset();
+    trapsCounter.textEntity = createTrapsCounterText(camera->getSize());
+}
+
+void WorldSystem::reloadText() {
+    createPauseHelpText(camera->getSize());
+    registry.fpsTracker.textEntity = createFPSText(camera->getSize());
+    registry.gameTimer.textEntity = createGameTimerText(camera->getSize());
     trapsCounter.textEntity = createTrapsCounterText(camera->getSize());
 }
 
@@ -146,6 +170,7 @@ bool WorldSystem::step(float elapsed_ms)
     despawnTraps(elapsed_ms);
     updateCollectedTimer(elapsed_ms);
     resetTrappedEntities();
+    updateLightPosition();
 
     if (camera->isToggled()) {
         Motion& playerMotion = registry.motions.get(playerEntity);
@@ -160,6 +185,12 @@ bool WorldSystem::step(float elapsed_ms)
     }
 
     return !is_over();
+}
+
+void WorldSystem::updateLightPosition() {
+    PointLight& pointLight = registry.pointLights.get(playerEntity);
+    Motion& motion = registry.motions.get(playerEntity);
+    pointLight.position = motion.position;
 }
 
 void WorldSystem::loadAndSaveHighScore(bool save) {
@@ -346,13 +377,23 @@ void WorldSystem::pauseControls(int key, int action, int mod)
             break;
         case GLFW_KEY_H:
             gameStateController.setGameState(GAME_STATE::HELP);
+            clearSaveText();
             break;
+        case GLFW_KEY_S:
+            saveManager->save_game(trapsCounter.count);
+			createGameSaveText(camera->getSize());
+            printf("Saved game\n");
+            break;
+        case GLFW_KEY_L:
+            load_game();
+			break;
         case GLFW_KEY_ENTER:
             restart_game();
         case GLFW_KEY_P:
         case GLFW_KEY_ESCAPE:
             gameStateController.setGameState(GAME_STATE::PLAYING);
 			sound->resumeAllSoundEffects();
+            clearSaveText();
             break;
         }
     }
@@ -1002,7 +1043,7 @@ void WorldSystem::toggleMesh() {
             registry.renderRequests.insert(
                 meshEntity, {
                     TEXTURE_ASSET_ID::TREE,
-                    EFFECT_ASSET_ID::TEXTURED,
+                    EFFECT_ASSET_ID::TEXTURED_NORMAL,
                     GEOMETRY_BUFFER_ID::SPRITE });
         }
     }
@@ -1076,4 +1117,12 @@ void WorldSystem::soundSetUp() {
     sound->init();
     // play background music
     sound->playMusic(Music::BACKGROUND, -1);
+}
+
+void WorldSystem::clearSaveText() {
+    for (Entity textE : registry.texts.entities) {
+        if (registry.cooldowns.has(textE)) {
+            registry.remove_all_components_of(textE);
+        }
+    }
 }

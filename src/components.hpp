@@ -1,6 +1,7 @@
 #pragma once
 #include "common.hpp"
 #include <vector>
+#include <unordered_map>
 
 /*
 
@@ -103,14 +104,23 @@ struct Collected {
 };
 
 // Trap Component
-struct Trap
-{
-	// fixed position and scale once set
+struct BaseTrap {
 	vec2 position = { 0, 0 };
 	vec2 scale = { 3, 3 };
-	unsigned int damage = 15.0;
 	float duration = 10000;
+};
+
+// Inheritance
+struct Trap : public BaseTrap
+{
+	// fixed position and scale once set
+	unsigned int damage = 15.0;
 	float slowFactor = 0.1f;
+};
+
+struct PhantomTrap : public BaseTrap
+{
+	using BaseTrap::BaseTrap;
 };
 
 // All data relevant to the shape and motion of entities
@@ -165,10 +175,15 @@ struct Knocker
 };
 
 struct TrapsCounter {
-	int count = 0;
-	Entity textEntity;
+	// <trap type, <number of traps, trap text entity>>
+	std::unordered_map<std::string, std::pair<int, Entity>> trapsMap;
+
 	void reset() {
-		count = 0;
+		// reset trap counts to 0
+		//for (auto& trap : trapsMap) {
+		//	trap.second.first = 0;
+		//}
+		trapsMap.clear();
 	}
 };
 
@@ -318,7 +333,10 @@ struct Troll {
 
 // Collectible types
 struct Heart { unsigned int health = 20; };
-struct CollectibleTrap {};
+struct CollectibleTrap 
+{ 
+	std::string type = "trap"; 
+};
 
 struct PauseMenuComponent {};
 struct HelpMenuComponent {};

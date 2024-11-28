@@ -61,6 +61,9 @@ class RenderSystem {
 		textures_path("collectables/trapbottle.png"), // TRAPCOLLECTABLE
 		textures_path("collectables/trapbottle_fade.png"),
 		textures_path("collectables/trap.png"),       // TRAP
+		textures_path("collectables/phantom_trap_bottle.png"), // PHANTOM_TRAP_BOTTLE
+		textures_path("collectables/phantom_trap_bottle_fade.png"),
+		textures_path("collectables/phantom_trap_bottle_one.png"), // PHANTOM_TRAP_BOTTLE OF 1 FRAME
 		textures_path("grass_tile/grass_tile.png"),   // GRASS_TILE
 		textures_path("tree/tree.png"),               // TREE
 		textures_path("shrub/shrub.png"),             // SHRUB
@@ -188,7 +191,7 @@ public:
 
 private:
 	Camera* camera;
-	const float AMBIENT_LIGHT = .2;
+	const float AMBIENT_LIGHT = 1.0;
 
 	// Internal drawing functions for each entity type
 	void drawMesh(Entity entity, const mat3& projection, const mat4& projection_screen);

@@ -240,20 +240,27 @@ Entity createCollectibleTrap(vec2 pos)
 	auto entity = Entity();
 	CollectibleTrap& collectibleTrap = registry.collectibleTraps.emplace(entity);
 	int random = rand() % 2;
+	Motion& motion = registry.motions.emplace(entity);
+
 	if (random >= 0.5) {
 		collectibleTrap.type = "phantom_trap";
+		initPhantomTrapAnimationController(entity);
+		
+		motion.position = vec3(pos, getElevation(pos) + PHANTOM_TRAP_COLLECTABLE_BB_HEIGHT / 2);
+		motion.angle = 0.f;
+		motion.scale = { PHANTOM_TRAP_COLLECTABLE_BB_WIDTH, PHANTOM_TRAP_COLLECTABLE_BB_HEIGHT };
+		motion.hitbox = { PHANTOM_TRAP_COLLECTABLE_BB_WIDTH, PHANTOM_TRAP_COLLECTABLE_BB_WIDTH, PHANTOM_TRAP_COLLECTABLE_BB_HEIGHT / zConversionFactor };
+	}
+	else {
+		initTrapBottleAnimationController(entity);
+		Motion& motion = registry.motions.emplace(entity);
+		motion.position = vec3(pos, getElevation(pos) + TRAP_COLLECTABLE_BB_HEIGHT / 2);
+		motion.angle = 0.f;
+		motion.scale = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT };
+		motion.hitbox = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT / zConversionFactor };
 	}
 
-	// Setting intial motion values
-	Motion& motion = registry.motions.emplace(entity);
-	motion.position = vec3(pos, getElevation(pos) + TRAP_COLLECTABLE_BB_HEIGHT / 2);
-	motion.angle = 0.f;
-	motion.scale = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT };
-	motion.hitbox = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT / zConversionFactor };
-
 	registry.collectibles.emplace(entity);
-
-	initTrapBottleAnimationController(entity);
 
 	registry.midgrounds.emplace(entity);
 
@@ -834,13 +841,13 @@ Entity createPhantomTrapsCounterText(vec2 windowSize) {
 	auto iconE = Entity();
 
 	Foreground& icon = registry.foregrounds.emplace(iconE);
-	icon.scale = { PHANTOM_TRAP_BB_WIDTH * 0.85, PHANTOM_TRAP_BB_HEIGHT * 0.85 };
+	icon.scale = { PHANTOM_TRAP_COLLECTABLE_BB_WIDTH * 0.85, PHANTOM_TRAP_COLLECTABLE_BB_HEIGHT * 0.85 };
 	icon.position = { position.x - 40.0f, position.y + 16.0f };
 
 	registry.renderRequests.insert(
 		iconE,
 		{
-			TEXTURE_ASSET_ID::JEFF_PHANTOM_TRAP,
+			TEXTURE_ASSET_ID::PHANTOM_TRAP_BOTTLE_ONE,
 			EFFECT_ASSET_ID::TEXTURED_FLAT,
 			GEOMETRY_BUFFER_ID::SPRITE
 		});

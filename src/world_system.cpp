@@ -717,8 +717,7 @@ void WorldSystem::entity_collectible_collision(Entity entity, Entity entity_othe
 		}
         else if (collectibleTrap.type == PHANTOM_TRAP) {
             trapsCounter.trapsMap[PHANTOM_TRAP].first++;
-            // TODO - Replace with a new sprite
-            createCollected(playerM, collectibleM.scale, TEXTURE_ASSET_ID::TRAPCOLLECTABLE);
+            createCollected(playerM, collectibleM.scale, TEXTURE_ASSET_ID::PHANTOM_TRAP_BOTTLE_ONE);
         }
     }
     else if (registry.hearts.has(entity_other)) {

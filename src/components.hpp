@@ -172,10 +172,17 @@ struct Obstacle {
 struct TargetArea {
 };
 
+enum class TEXT_ALIGNMENT {
+	LEFT,
+	CENTER,
+	RIGHT
+};
+
 struct Text {
 	std::string value;
 	Entity anchoredWorldEntity;
 	vec2 anchoredWorldOffset;
+	TEXT_ALIGNMENT alignment = TEXT_ALIGNMENT::LEFT;
 	float lineSpacing = 1.3f;
 };
 

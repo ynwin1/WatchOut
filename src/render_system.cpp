@@ -27,8 +27,11 @@ void RenderSystem::drawText(Entity entity, const mat4& projection_screen) {
 
 	glActiveTexture(GL_TEXTURE0);
 
-	float startX = fg.position.x;
-	float startY = fg.position.y;
+	std::vector<vec2> renderPositions = getTextRenderPositions(text.value, fg.scale.x, text.lineSpacing, text.alignment, fg.position);
+	
+	float lineIndex = 0;
+	float startX = renderPositions[lineIndex].x;
+	float startY = renderPositions[lineIndex].y;
 	const float scale = fg.scale.x;
 
 	std::string::const_iterator c;
@@ -37,8 +40,9 @@ void RenderSystem::drawText(Entity entity, const mat4& projection_screen) {
         TextChar ch = registry.textChars[*c];
 
 		if (*c == '\n') {
-        	startX = fg.position.x; 
-        	startY -= registry.textChars[*c].size.y * scale * text.lineSpacing;
+			lineIndex++;
+			startX = renderPositions[lineIndex].x; 
+        	startY = renderPositions[lineIndex].y;
         	continue;
     	}
 
@@ -684,6 +688,37 @@ vec2 RenderSystem::worldToScreen(vec3 worldPos) {
 	}
 
 	return { screenPosX, screenPosY };
+}
+
+std::vector<vec2> getTextRenderPositions(std::string textValue, float scale, float lineSpacing, TEXT_ALIGNMENT alignment, vec2 alignmentPos) {
+    std::vector<vec2> renderPositions;
+    float textLength = 0;
+    float lineIndex = 0;
+	float renderPosY = alignmentPos.y;
+    float lineHeight = registry.textChars['H'].size.y * scale * lineSpacing; 
+
+    for (auto c = textValue.begin(); c != textValue.end(); c++) {
+        if (*c != '\n') {
+            TextChar ch = registry.textChars[*c];
+            textLength += (ch.advance >> 6) * scale;
+        }
+
+        // If newline or last character
+        if (*c == '\n' || c == textValue.end() - 1) {
+            if (alignment == TEXT_ALIGNMENT::CENTER) {
+                renderPositions.push_back({alignmentPos.x - textLength / 2, renderPosY});
+            } else if (alignment == TEXT_ALIGNMENT::RIGHT) {
+                renderPositions.push_back({alignmentPos.x - textLength, renderPosY});
+            } else {
+                renderPositions.push_back({alignmentPos.x, renderPosY});
+            }
+
+			renderPosY -= lineHeight;
+            textLength = 0;
+        }
+    }
+
+    return renderPositions;
 }
 
 float worldToVisualY(float y, float z) 

@@ -166,6 +166,8 @@ private:
 	GLFWwindow* window;
 };
 
+std::vector<vec2> getTextRenderPositions(std::string textValue, float scale, float lineSpacing, TEXT_ALIGNMENT alignment, vec2 alignmentPos);
+
 bool loadEffectFromFile(
 	const std::string& vs_path, const std::string& fs_path, GLuint& out_program);
 

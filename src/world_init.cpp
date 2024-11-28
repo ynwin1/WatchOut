@@ -979,8 +979,9 @@ void createGameOverText(vec2 windowSize, GameStateController& gameStateControlle
 	auto entity2 = Entity();
 	Text& text2 = registry.texts.emplace(entity2);
 	text2.lineSpacing = 1.5f;
+	text2.alignment = TEXT_ALIGNMENT::CENTER;
 	Foreground& text2Fg = registry.foregrounds.emplace(entity2);
-	text2Fg.position = {windowSize.x / 2 - 160.f, windowSize.y / 2 - 20.f};
+	text2Fg.position = {windowSize.x / 2, windowSize.y / 2 - 20.f};
 	text2Fg.scale = {1.f, 1.f};
 	registry.colours.insert(entity2, {1.0f, 0.85f, 0.0f, 1.0f});
 

@@ -75,10 +75,6 @@ int main()
 			sound.step(elapsed_ms);
 		}
 
-		/*if (currentState != GAME_STATE::HELP && currentState != GAME_STATE::PAUSED) {
-			sound.step(elapsed_ms);
-		}*/
-
 		renderer.draw();
 		
 	}

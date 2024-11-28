@@ -129,6 +129,9 @@ Entity createTrapsCounterText(vec2 windowSize);
 // Game over UI
 void createGameOverText(vec2 windowSize);
 
+// Game save text
+void createGameSaveText(vec2 windowSize);
+
 // Display bars
 void createHealthBar(Entity characterEntity, vec4 color);
 void createPlayerHealthBar(Entity characterEntity, vec2 windowSize);

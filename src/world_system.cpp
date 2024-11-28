@@ -365,9 +365,11 @@ void WorldSystem::pauseControls(int key, int action, int mod)
             break;
         case GLFW_KEY_H:
             gameStateController.setGameState(GAME_STATE::HELP);
+            clearSaveText();
             break;
         case GLFW_KEY_S:
             saveManager->save_game(trapsCounter.count);
+			createGameSaveText(camera->getSize());
             printf("Saved game\n");
             break;
         case GLFW_KEY_L:
@@ -379,6 +381,7 @@ void WorldSystem::pauseControls(int key, int action, int mod)
         case GLFW_KEY_ESCAPE:
             gameStateController.setGameState(GAME_STATE::PLAYING);
 			sound->resumeAllSoundEffects();
+            clearSaveText();
             break;
         }
     }
@@ -1090,4 +1093,12 @@ void WorldSystem::soundSetUp() {
     sound->init();
     // play background music
     sound->playMusic(Music::BACKGROUND, -1);
+}
+
+void WorldSystem::clearSaveText() {
+    for (Entity textE : registry.texts.entities) {
+        if (registry.cooldowns.has(textE)) {
+            registry.remove_all_components_of(textE);
+        }
+    }
 }

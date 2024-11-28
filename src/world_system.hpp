@@ -174,6 +174,8 @@ private:
 	void gameOverControls(int key, int action, int mod);
 	void helpControls(int key, int action, int mod);
 
+	void clearSaveText();
+
 	// Help/Pause Menu functions
 	Entity createHelpMenu(vec2 cameraPosition);
     void exitHelpMenu();

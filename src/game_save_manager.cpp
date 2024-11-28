@@ -592,32 +592,6 @@ void GameSaveManager::deserialize_containers(const json& j) {
 	trapCounter = (int) j[TRAPCOUNTER];
 }
 
-//void GameSaveManager::createEntity(std::vector<std::string> componentNames, std::map<std::string, nlohmann::json> componentsMap) {
-//	static const std::unordered_map<std::string, std::function<void(const std::map<std::string, nlohmann::json>&)>> deserializers = {
-//		{PLAYERS, std::bind(&GameSaveManager::createPlayerDeserialization, this, std::placeholders::_1)},
-//		{BOARS, std::bind(&GameSaveManager::createBoarDeserialization, this, std::placeholders::_1)},
-//		{BARBARIANS, std::bind(&GameSaveManager::createBarbarianDeserialization, this, std::placeholders::_1)},
-//		{ARCHERS, std::bind(&GameSaveManager::createArcherDeserialization, this, std::placeholders::_1)},
-//		{BIRDS, std::bind(&GameSaveManager::createBirdDeserialization, this, std::placeholders::_1)},
-//		{WIZARDS, std::bind(&GameSaveManager::createWizardDeserialization, this, std::placeholders::_1)},
-//		{TROLLS, std::bind(&GameSaveManager::createTrollDeserialization, this, std::placeholders::_1)},
-//		{COLLECTIBLETRAPS, std::bind(&GameSaveManager::createCollectibleTrapDeserialization, this, std::placeholders::_1)},
-//		{TRAPS, std::bind(&GameSaveManager::createTrapDeserialization, this, std::placeholders::_1)},
-//		{HEARTS, std::bind(&GameSaveManager::createHeartDeserialization, this, std::placeholders::_1)},
-//		{TARGETAREAS, std::bind(&GameSaveManager::createTargetAreaDeserialization, this, std::placeholders::_1)},
-//		{DAMAGINGS, std::bind(&GameSaveManager::createDamagingsDeserialization, this, std::placeholders::_1)},
-//		{MESHPTRS, std::bind(&GameSaveManager::createTreeDeserialization, this, std::placeholders::_1)},
-//		{OBSTACLES, std::bind(&GameSaveManager::createObstacleDeserialization, this, std::placeholders::_1)}
-//	};
-//
-//	for (const auto& compName : componentNames) {
-//		auto it = deserializers.find(compName);
-//		if (it != deserializers.end()) {
-//			it->second(componentsMap);
-//		}
-//	}
-//}
-
 void GameSaveManager::createEntity(std::vector<std::string> componentNames, std::map<std::string, nlohmann::json> componentsMap) {
 	if (std::find(componentNames.begin(), componentNames.end(), PLAYERS) != componentNames.end()) {
 		createPlayerDeserialization(componentsMap);

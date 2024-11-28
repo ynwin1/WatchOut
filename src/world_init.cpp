@@ -1037,6 +1037,29 @@ void createGameOverText(vec2 windowSize) {
 
 }
 
+void createGameSaveText(vec2 windowSize) {
+	auto entity = Entity();
+
+	Text& text = registry.texts.emplace(entity);
+	text.value = "Game Saved!";
+	Foreground& fg = registry.foregrounds.emplace(entity);
+	fg.position = { windowSize.x / 2 - 165.f, windowSize.y / 2 + 300.f };
+	fg.scale = { 2.f, 2.f };
+
+	Cooldown& cooldown = registry.cooldowns.emplace(entity);
+	cooldown.remaining = 2000.f;
+
+	registry.colours.insert(entity, { 0.0f, 1.0f, 0.0f, 1.0f });
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::FONT,
+			GEOMETRY_BUFFER_ID::TEXT
+		});
+}
+
 void createTrees(RenderSystem* renderer) {
 	int numTrees = 4;
 	std::default_random_engine rng;

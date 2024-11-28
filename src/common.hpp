@@ -29,8 +29,12 @@ inline std::string textures_path(const std::string& name) { return data_path() +
 inline std::string audio_path(const std::string& name) { return data_path() + "/audio/" + std::string(name); };
 inline std::string mesh_path(const std::string& name) { return data_path() + "/meshes/" + std::string(name); };
 
-const int world_size_x = 4200;
-const int world_size_y = 3000;
+const int tile_x = 500;
+const int tile_y = 500;
+const int x_tiles = 10;
+const int y_tiles = 8;
+const int world_size_x = x_tiles * tile_x;
+const int world_size_y = y_tiles * tile_y;
 const int leftBound = 500;
 const int rightBound = world_size_x - 500;
 const int topBound = 500;
@@ -50,6 +54,13 @@ struct Transform {
 	void scale(vec2 scale);
 	void rotate(float radians);
 	void translate(vec2 offset);
+};
+
+struct Transform3D {
+    mat4 mat = { { 1.f, 0.f, 0.f, 0.f }, { 0.f, 1.f, 0.f, 0.f }, { 0.f, 0.f, 1.f, 0.f }, { 0.f, 0.f, 0.f, 1.f } }; // start with the identity
+    void scale(vec2 scale, bool flat);
+    void rotate(float radians);
+    void translate(vec3 offset);
 };
 
 vec2 rotate(vec2 v, float radians);

@@ -138,6 +138,7 @@ void createPlayerStaminaBar(Entity characterEntity, vec2 windowSize);
 void createMapTiles();
 Entity createMapTile(vec2 position, vec2 scale);
 Entity createObstacle(vec2 position, vec2 scale, TEXTURE_ASSET_ID assetID);
+Entity createNormalObstacle(vec2 position, vec2 size, TEXTURE_ASSET_ID assetId);
 void createObstacles();
 Entity createTargetArea(vec3 position);
 

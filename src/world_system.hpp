@@ -55,9 +55,6 @@ private:
 
 	bool isWindowed = false;
 
-	// Lighting variables
-	float ambientLight = .5;
-
 	//Tutorial initialization
 	float tutorialDelayTimer = 0.0f; 
     bool hasSwitchedToTutorial = false;
@@ -154,6 +151,8 @@ private:
 	void updateTutorial(float elapsed_ms);
 	void updateEnemyTutorial();
 	void updateCollectibleTutorial();
+	void updateLightPosition();
+
 
 	// Collision functions
 	void entity_collectible_collision(Entity entity, Entity collectible);

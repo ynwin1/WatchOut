@@ -82,8 +82,10 @@ bool RenderSystem::init(Camera* camera)
 	gl_has_errors();
 
 	initializeGlTextures();
+	initializeGlNormals();
 	initializeGlEffects();
 	initializeGlGeometryBuffers();
+	initializeGlAttributeLocations();
 
 	return true;
 }
@@ -116,6 +118,34 @@ void RenderSystem::initializeGlTextures()
 	gl_has_errors();
 }
 
+void RenderSystem::initializeGlNormals()
+{
+	glGenTextures((GLsizei)normal_gl_handles.size(), normal_gl_handles.data());
+
+	for (uint i = 0; i < normal_paths.size(); i++)
+	{
+		const std::string& path = normal_paths[i];
+		ivec2& dimensions = texture_dimensions[i];
+
+		stbi_uc* data;
+		data = stbi_load(path.c_str(), &dimensions.x, &dimensions.y, NULL, 4);
+		
+		// if (data == NULL)
+		// {
+		// 	const std::string message = "Could not load the file " + path + ".\n";
+		// 	fprintf(stderr, "%s", message.c_str());
+		// }
+
+		glBindTexture(GL_TEXTURE_2D, normal_gl_handles[i]);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, dimensions.x, dimensions.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		gl_has_errors();
+		stbi_image_free(data);
+	}
+	gl_has_errors();
+}
+
 void RenderSystem::initializeGlEffects()
 {
 	for (uint i = 0; i < effect_paths.size(); i++)
@@ -125,6 +155,32 @@ void RenderSystem::initializeGlEffects()
 
 		bool is_valid = loadEffectFromFile(vertex_shader_name, fragment_shader_name, effects[i]);
 		assert(is_valid && (GLuint)effects[i] != 0);
+	}
+}
+
+void RenderSystem::initializeGlAttributeLocations()
+{
+	for (uint i = 0; i < effect_paths.size(); i++) {
+		const GLuint program = (GLuint)effects[i];
+		glUseProgram(program);
+
+		GLint in_position_loc = glGetAttribLocation(program, "in_position");
+		GLint in_texcoord_loc = glGetAttribLocation(program, "in_texcoord");
+		GLint to_screen = glGetUniformLocation(program, "toScreen");
+		in_position_locations[i] = in_position_loc;
+		in_texcoord_locations[i] = in_texcoord_loc;
+		to_screen_locations[i] = to_screen;
+
+		for (size_t j = 0; j < MAX_POINT_LIGHTS; j++) {
+			std::string base = "pointLights[" + std::to_string(j) + "].";
+			point_light_uniform_locations[i][j * 7 + 0] = glGetUniformLocation(program, (base + "position").c_str());
+			point_light_uniform_locations[i][j * 7 + 1] = glGetUniformLocation(program, (base + "ambient").c_str());
+			point_light_uniform_locations[i][j * 7 + 2] = glGetUniformLocation(program, (base + "diffuse").c_str());
+			point_light_uniform_locations[i][j * 7 + 3] = glGetUniformLocation(program, (base + "max_distance").c_str());
+			point_light_uniform_locations[i][j * 7 + 4] = glGetUniformLocation(program, (base + "constant").c_str());
+			point_light_uniform_locations[i][j * 7 + 5] = glGetUniformLocation(program, (base + "linear").c_str());
+			point_light_uniform_locations[i][j * 7 + 6] = glGetUniformLocation(program, (base + "quadratic").c_str());
+		}
 	}
 }
 

@@ -253,7 +253,7 @@ Entity createCollectibleTrap(vec2 pos)
 	}
 	else {
 		initTrapBottleAnimationController(entity);
-		Motion& motion = registry.motions.emplace(entity);
+
 		motion.position = vec3(pos, getElevation(pos) + TRAP_COLLECTABLE_BB_HEIGHT / 2);
 		motion.angle = 0.f;
 		motion.scale = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT };

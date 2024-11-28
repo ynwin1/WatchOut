@@ -127,11 +127,6 @@ private:
 	// Title screen
 	void createTitleScreen();
 
-	// restart level
-	void restart_game();
-	void initText();
-	void soundSetUp();
-
 	// Save game
 	void save_game();
 

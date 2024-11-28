@@ -41,7 +41,6 @@ void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camer
     glfwSetWindowFocusCallback(window, focus_redirect);
 
 	createTitleScreen();
-    // restart_game();
 }
 
 WorldSystem::~WorldSystem() {

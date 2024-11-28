@@ -741,6 +741,25 @@ Entity createTitleScreenBackground(vec2 windowSize) {
 	return entity;
 }
 
+Entity createTitleScreenTitle(vec2 windowSize) {
+	auto entity = Entity();
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::TITLE_TEXT,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	Foreground& fg = registry.foregrounds.emplace(entity);
+	fg.position = { windowSize.x / 2, windowSize.y - 300.f };
+	fg.scale = { 1000.0f, 200.f };
+
+	return entity;
+}
+
+
 Entity createTitleScreenText(vec2 windowSize, std::string value, float fontSize, vec2 position) {
 	auto entity = Entity();
 

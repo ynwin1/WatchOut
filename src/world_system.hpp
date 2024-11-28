@@ -26,6 +26,8 @@ public:
 	~WorldSystem();
 
 	GameStateController gameStateController;
+	std::unordered_map<std::string, float> spawn_delays;
+	std::unordered_map<std::string, int> max_entities;
 
 	// Steps the game ahead by ms milliseconds
 	bool step(float elapsed_ms);
@@ -54,6 +56,8 @@ private:
 	const float DIFFICULTY_INTERVAL = 45000.0f;
 	const unsigned int MAX_TOTAL_ENEMIES = 100;
 
+	// Button positions
+
 	// GLFW Window handle
 	GLFWwindow* window;
 	RenderSystem* renderer;
@@ -67,8 +71,6 @@ private:
 	bool isWindowed = false;
 
 	Entity playerEntity;
-	std::unordered_map<std::string, float> spawn_delays;
-	std::unordered_map<std::string, int> max_entities;
 	std::unordered_map<std::string, float> next_spawns;
 
 	std::vector<std::string> entity_types = {
@@ -155,6 +157,7 @@ private:
 	void updateCollectedTimer(float elapsed_ms);
 	void resetTrappedEntities();
 	void updateLightPosition();
+	void handleTitleMouseMove(vec2 window, vec2 mouse_pos);
 
 
 	// Collision functions

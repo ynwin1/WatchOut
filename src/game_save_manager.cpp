@@ -145,6 +145,16 @@ nlohmann::json GameSaveManager::serialize_game_score(const GameScore& gameScore)
 	return j;
 }
 
+nlohmann::json GameSaveManager::serialize_spawn_delay() {
+	nlohmann::json j;
+	return j;
+}
+
+nlohmann::json GameSaveManager::serialize_max_entities() {
+	nlohmann::json j;
+	return j;
+}
+
 template<>
 nlohmann::json GameSaveManager::serialize_component<Player>(const Player& player) {
 	nlohmann::json j;

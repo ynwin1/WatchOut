@@ -89,6 +89,8 @@ private:
 
 	nlohmann::json serialize_game_timer(const GameTimer& gameTimer);
 	nlohmann::json serialize_game_score(const GameScore& gameScore);
+	nlohmann::json serialize_spawn_delay();
+	nlohmann::json serialize_max_entities();
 
 	template <typename Component>
 	nlohmann::json serialize_component(const Component& component);

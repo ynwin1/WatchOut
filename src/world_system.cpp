@@ -81,9 +81,17 @@ void WorldSystem::load_game() {
     // set up texts in foreground
     reloadText();
 
+    // TODO - serialization needed for spawn variables [temporary fix]
+    resetSpawnSystem(); 
+    for (auto& name : entity_types) {
+        next_spawns[name] = 1000;
+    }
+
+    show_mesh = false;
     playerEntity = registry.players.entities[0];
     trapsCounter.count = saveManager->getTrapCounter();
     gameStateController.setGameState(GAME_STATE::PLAYING);
+    loadAndSaveHighScore(false);
 }
 
 void WorldSystem::save_game() {
@@ -312,7 +320,30 @@ bool WorldSystem::is_over() const {
 }
 
 void WorldSystem::on_mouse_move(vec2 mouse_position) {
+	GAME_STATE currentGameState = gameStateController.getGameState();
+	if (currentGameState == GAME_STATE::TITLE) {
+        handleTitleMouseMove(camera->getSize(), mouse_position);
+	}
+}
 
+void WorldSystem::handleTitleMouseMove(vec2 window, vec2 mouse_position) {
+	// TODO - why are these constants different from init values in createTitleScreenText?
+	vec2 enterButtonPos = { window.x / 2 - 155.f, window.y / 2 + 60 };
+	vec2 loadButtonPos = { window.x / 2 - 200.f, window.y / 2 + 160 };
+	vec2 quitButtonPos = { window.x / 2 - 125.f, window.y / 2 + 260 };
+	// Check if mouse is over the enter button
+    if (mouse_position.x > enterButtonPos.x && mouse_position.x < enterButtonPos.x + 300 &&
+        mouse_position.y > enterButtonPos.y && mouse_position.y < enterButtonPos.y + 20) {
+		printf("Mouse over enter button\n");
+	}
+    else if (mouse_position.x > loadButtonPos.x && mouse_position.x < loadButtonPos.x + 400 &&
+        mouse_position.y > loadButtonPos.y && mouse_position.y < loadButtonPos.y + 20) {
+        printf("Mouse over load button\n");
+    }
+	else if (mouse_position.x > quitButtonPos.x && mouse_position.x < quitButtonPos.x + 230 &&
+		mouse_position.y > quitButtonPos.y && mouse_position.y < quitButtonPos.y + 20) {
+		printf("Mouse over quit button\n");
+	}
 }
 
 void WorldSystem::on_key(int key, int, int action, int mod)
@@ -403,6 +434,9 @@ void WorldSystem::titleControls(int key, int action, int mod) {
 		switch (key) {
 		case GLFW_KEY_ENTER:
 			restart_game();
+			break;
+		case GLFW_KEY_L:
+			load_game();
 			break;
 		case GLFW_KEY_Q:
 			glfwSetWindowShouldClose(window, true);

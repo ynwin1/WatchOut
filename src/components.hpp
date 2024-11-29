@@ -103,7 +103,7 @@ struct StaminaBar {
 struct Collectible
 {
 	float duration = 5000.f; // 5 seconds until it disappears
-	float timer = duration; 
+	float timer = 0; 
 	vec2 position = { 0, 0 };
 	vec2 scale = { 3, 3 };
 };
@@ -332,6 +332,7 @@ struct Troll {
 // Collectible types
 struct Heart { unsigned int health = 20; };
 struct CollectibleTrap {};
+struct Bow {};
 
 struct PauseMenuComponent {};
 struct HelpMenuComponent {};

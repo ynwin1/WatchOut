@@ -439,8 +439,14 @@ void WorldSystem::shootArrow(vec3 mouseWorldPos) {
     if(!birdClicked) {
         shotArchingArrow(mouseWorldPos);
     }
-
+    
     sound->playSoundEffect(Sound::ARROW, 0);
+
+    gameStateController.inventory.itemCounts[INVENTORY_ITEM::BOW]--;
+    if(gameStateController.inventory.itemCounts[INVENTORY_ITEM::BOW] == 0) {
+        gameStateController.inventory.unequip();
+    }
+
 }
 
 void WorldSystem::shootProjectile(vec3 mouseWorldPos) {
@@ -454,15 +460,16 @@ void WorldSystem::shootProjectile(vec3 mouseWorldPos) {
 void WorldSystem::on_mouse_button(int button, int action, int mod) {
     if (action == GLFW_PRESS) {
         switch (button) {
-        case GLFW_MOUSE_BUTTON_LEFT:
+        case GLFW_MOUSE_BUTTON_LEFT: {
             double xpos, ypos;
             glfwGetCursorPos(window, &xpos, &ypos); // get the current cursor position
             vec3 mouseWorldPos = renderer->mouseToWorld({xpos, ypos});
-
             shootProjectile(mouseWorldPos);
+        }
         break;
-        case GLFW_MOUSE_BUTTON_RIGHT:
+        case GLFW_MOUSE_BUTTON_RIGHT: {
             gameStateController.inventory.unequip();
+        }
         break;
         }
     }
@@ -776,8 +783,12 @@ void WorldSystem::handle_deaths(float elapsed_ms) {
         DeathTimer& deathTimer = registry.deathTimers.get(deathEntity);
         deathTimer.timer -= elapsed_ms;
         if (deathTimer.timer < 0) {
-            // Remove
-            if (registry.motions.has(deathEntity)) {
+            if(registry.archers.has(deathEntity)) {
+                Entity bowE = createCollectible(registry.motions.get(deathEntity).position, TEXTURE_ASSET_ID::BOW);
+                registry.bows.emplace(bowE);
+                registry.collectibles.get(bowE).duration = 10000;
+            }
+            else if (registry.motions.has(deathEntity)) {
                 Motion& motion = registry.motions.get(deathEntity);
                 createHeart({ motion.position.x, motion.position.y });
             }
@@ -864,6 +875,13 @@ void WorldSystem::entity_collectible_collision(Entity entity, Entity entity_othe
         player.health += addOn;
         createCollected(playerM, collectibleM.scale, TEXTURE_ASSET_ID::HEART);
 		printf("Player collected a heart\n");
+	}
+    else if (registry.bows.has(entity_other)) {
+        gameStateController.inventory.itemCounts[INVENTORY_ITEM::BOW] += 5;
+        std::cout << "Player collected a bow. Bow count is now " << gameStateController.inventory.itemCounts[INVENTORY_ITEM::BOW] << std::endl;
+        createCollected(playerM, collectibleM.scale, TEXTURE_ASSET_ID::BOW);
+        gameStateController.inventory.equipCollected(INVENTORY_ITEM::BOW);
+		printf("Player collected a bow\n");
 	}
 	else {
 		printf("Unknown collectible type\n");
@@ -1054,13 +1072,15 @@ void WorldSystem::knock(Entity knocked, Entity knocker)
 void WorldSystem::despawn_collectibles(float elapsed_ms) {
 	for (auto& collectibleEntity : registry.collectibles.entities) {
 		Collectible& collectible = registry.collectibles.get(collectibleEntity);
-		collectible.timer -= elapsed_ms;
+		collectible.timer += elapsed_ms;
 
-        if (collectible.timer < 0) {
+        if (collectible.timer >= collectible.duration) {
 			registry.remove_all_components_of(collectibleEntity);
-		} else if(collectible.timer <= collectible.duration / 2) {
+		} else if(collectible.timer >= collectible.duration / 2) {
             AnimationController& animatedCollectible = registry.animationControllers.get(collectibleEntity);
-            animatedCollectible.changeState(collectibleEntity, AnimationState::Fading);
+            if(animatedCollectible.currentState != AnimationState::Fading) {
+                animatedCollectible.changeState(collectibleEntity, AnimationState::Fading);
+            }
         }
 	}
 }

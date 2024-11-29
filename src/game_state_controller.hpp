@@ -1,5 +1,4 @@
 #pragma once
-
 #include "common.hpp"
 #include "tiny_ecs_registry.hpp"
 #include "world_init.hpp"
@@ -23,6 +22,8 @@ struct Inventory
         {
             return;
         }
+
+        unequip();
         
         if(itemCounts[item] > 0)
         {
@@ -35,6 +36,13 @@ struct Inventory
             default:
                 break;
             }
+        }
+    }
+    void equipCollected(INVENTORY_ITEM item)
+    {
+        if(equipped == INVENTORY_ITEM::NONE)
+        {
+            equipItem(item);
         }
     }
     void unequip()

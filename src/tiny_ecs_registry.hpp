@@ -44,6 +44,7 @@ public:
 	ComponentContainer<HomingProjectile> homingProjectiles;
 	ComponentContainer<PlayerDamaging> playerDamagings;
 	ComponentContainer<Equipped> equipped;
+	ComponentContainer<Bow> bows;
 	
 	ComponentContainer<PauseMenuComponent> pauseMenuComponents;
 	ComponentContainer<HelpMenuComponent> helpMenuComponents;
@@ -100,6 +101,7 @@ public:
 		registry_list.push_back(&homingProjectiles);
 		registry_list.push_back(&playerDamagings);
 		registry_list.push_back(&equipped);
+		registry_list.push_back(&bows);
 		
 		registry_list.push_back(&healthBars);
 		registry_list.push_back(&staminaBars);

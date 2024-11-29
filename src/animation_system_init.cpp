@@ -258,3 +258,21 @@ AnimationController& initTrapBottleAnimationController(Entity& entity) {
 
     return animationcontroller;
 }
+
+AnimationController& initBowCollectableAnimationController(Entity& entity) {
+	AnimationController& animationcontroller = registry.animationControllers.emplace(entity);
+	animationcontroller.addAnimation(AnimationState::Idle, COLLECTIBLE_IDLE_FRAME_TIME, COLLECTIBLE_IDLE_NUM_FRAMES, TEXTURE_ASSET_ID::BOW);
+	animationcontroller.addAnimation(AnimationState::Fading, COLLECTIBLE_FADE_FRAME_TIME, COLLECTIBLE_FADE_NUM_FRAMES, TEXTURE_ASSET_ID::BOW_FADE);
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::BOW,
+			EFFECT_ASSET_ID::ANIMATED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	animationcontroller.changeState(entity, AnimationState::Idle);
+
+	return animationcontroller;
+}

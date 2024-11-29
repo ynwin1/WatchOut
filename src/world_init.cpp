@@ -258,6 +258,40 @@ Entity createCollectibleTrap(vec2 pos)
 	return entity;
 };
 
+Entity createCollectible(vec2 pos, TEXTURE_ASSET_ID assetID)
+{
+	auto entity = Entity();
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+
+	registry.collectibles.emplace(entity);
+
+	switch(assetID) {
+		case TEXTURE_ASSET_ID::HEART:
+			motion.scale = { HEART_BB_WIDTH, HEART_BB_WIDTH };
+			initHeartAnimationController(entity);
+			break;
+		case TEXTURE_ASSET_ID::TRAP:
+			motion.scale = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT };
+			initTrapBottleAnimationController(entity);
+			break;
+		case TEXTURE_ASSET_ID::BOW:
+			motion.scale = { BOW_BB_WIDTH, BOW_BB_HEIGHT };
+			initBowCollectableAnimationController(entity);
+			break;
+		default:
+			break;
+	}
+
+	motion.position = vec3(pos, getElevation(pos) + motion.scale.y / 2);
+	motion.hitbox = { motion.scale.x, motion.scale.x, motion.scale.y / zConversionFactor };
+
+	registry.midgrounds.emplace(entity);
+
+	return entity;
+};
+
 // Heart creation
 Entity createHeart(vec2 pos)
 {

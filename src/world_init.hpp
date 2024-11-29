@@ -104,6 +104,8 @@ Entity createWizard(vec2 pos);
 
 Entity createTroll(vec2 pos);
 
+Entity createCollectible(vec2 pos, TEXTURE_ASSET_ID assetID);
+
 // The collectible trap
 Entity createCollectibleTrap(vec2 pos);
 

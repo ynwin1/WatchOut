@@ -18,10 +18,10 @@ void GameSaveManager::init(RenderSystem* renderer, GLFWwindow* window, Camera* c
 }
 
 // Serialize the game state to a JSON file
-void GameSaveManager::save_game(int trapCounter, std::unordered_map<std::string, float> spawn_delays, std::unordered_map<std::string, int> max_entities, std::unordered_map<std::string, float> next_spawns) {
+void GameSaveManager::save_game(std::unordered_map<std::string, std::pair<int, Entity>> trapsCounter, std::unordered_map<std::string, float> spawn_delays, std::unordered_map<std::string, int> max_entities, std::unordered_map<std::string, float> next_spawns) {
 	json j;
 
-	serialize_containers(j, trapCounter, spawn_delays, max_entities, next_spawns);
+	serialize_containers(j, trapsCounter, spawn_delays, max_entities, next_spawns);
 
 	std::ofstream file(gameSaveFilePath);
 	if (file.is_open()) {
@@ -36,12 +36,10 @@ void GameSaveManager::save_game(int trapCounter, std::unordered_map<std::string,
 void GameSaveManager::serialize_containers(json& j, int trapCounter, std::unordered_map<std::string, float> spawn_delays, std::unordered_map<std::string, int> max_entities, std::unordered_map<std::string, float> next_spawns) {
 	j[GAMETIMER] = serialize_game_timer(registry.gameTimer);
 	j[GAMESCORE] = serialize_game_score(registry.gameScore);
-	j[TRAPCOUNTER] = trapCounter;
+	j[TRAPCOUNTER] = serialize_traps_counter(trapsCounter);
 	j[SPAWNDELAYS] = serialize_spawn_delays(spawn_delays);
 	j[MAXENTITIES] = serialize_max_entities(max_entities);
 	j[NEXTSPAWNS] = serialize_next_spawns(next_spawns);
-
-
 
 	// Serialize all component containers
 	j[PLAYERS] = serialize_container<Player>(registry.players);
@@ -169,6 +167,17 @@ nlohmann::json GameSaveManager::serialize_next_spawns(std::unordered_map<std::st
 	nlohmann::json j;
 	for (const auto& next : next_spawns) {
 		j[next.first] = next.second;
+  }
+	return j;
+}
+
+nlohmann::json GameSaveManager::serialize_traps_counter(std::unordered_map<std::string, std::pair<int, Entity>> trapsCounter) {
+	nlohmann::json j;
+	for (const auto& trap : trapsCounter) {
+		nlohmann::json trapData;
+		trapData["count"] = trap.second.first;
+		trapData["textEntity"] = trap.second.second.getId();
+		j[trap.first] = trapData;
 	}
 	return j;
 }
@@ -618,9 +627,7 @@ void GameSaveManager::deserialize_containers(const json& j) {
 	deserialize_spawn_delays(j);
 	deserialize_max_entities(j);
 	deserialize_next_spawns(j);
-
-
-	trapCounter = (int) j[TRAPCOUNTER];
+  deserialize_traps_counter(j);
 }
 
 void GameSaveManager::createEntity(std::vector<std::string> componentNames, std::map<std::string, nlohmann::json> componentsMap) {
@@ -904,6 +911,21 @@ void GameSaveManager::deserialize_next_spawns(const json& j) {
 	auto& nextSpawnsJ = j[NEXTSPAWNS];
 	for (const auto& next : nextSpawnsJ.items()) {
 		nextSpawns[next.key()] = next.value().get<float>();
+    	}
+}
+
+void GameSaveManager::deserialize_traps_counter(const json& j) {
+	for (const auto& trap : j[TRAPCOUNTER].items()) {
+		std::string trapName = trap.key();
+		int count = trap.value()["count"];
+		Entity textEntity;
+		if (trapName == "trap") {
+			textEntity = createTrapsCounterText(camera->getSize());
+		}
+		else {
+			textEntity = createPhantomTrapsCounterText(camera->getSize());
+		}
+		this->trapsCounter[trapName] = std::make_pair(count, textEntity);
 	}
 }
 
@@ -1016,8 +1038,12 @@ void GameSaveManager::handleTroll(Entity& entity, std::map<std::string, nlohmann
 	troll.desiredAngle = componentsMap[TROLLS]["desiredAngle"];
 }
 
-int GameSaveManager::getTrapCounter() {
-	return this->trapCounter;
+void GameSaveManager::loadTrapsCounter(std::unordered_map<std::string, std::pair<int, Entity>>& trapCounterWorld) {
+	// assign entries from local traps counter to world traps counter
+	for (auto& entry : this->trapsCounter) {
+		trapCounterWorld[entry.first] = entry.second;
+		printf("Trap: %s, Count: %d\n", entry.first.c_str(), entry.second.first);	
+	}
 }
 
 std::unordered_map<std::string, float> GameSaveManager::getSpawnDelays() {

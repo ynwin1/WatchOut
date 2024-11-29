@@ -1218,7 +1218,7 @@ void createGameSaveText(vec2 windowSize) {
 	Text& text = registry.texts.emplace(entity);
 	text.value = "Game Saved!";
 	Foreground& fg = registry.foregrounds.emplace(entity);
-	fg.position = { windowSize.x / 2 - 165.f, windowSize.y / 2 + 300.f };
+	fg.position = { windowSize.x / 2 - 170.f, windowSize.y / 2 + 300.f };
 	fg.scale = { 2.f, 2.f };
 
 	Cooldown& cooldown = registry.cooldowns.emplace(entity);

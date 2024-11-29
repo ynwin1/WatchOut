@@ -77,18 +77,17 @@ void WorldSystem::restart_game()
 
 void WorldSystem::load_game() {
     saveManager->load_game();
-
+    saveManager->loadTrapsCounter(trapsCounter.trapsMap);
     // set up texts in foreground
     reloadText();
-
+  
     // Pick up spawn data from last checkpoint
     next_spawns = saveManager->getNextSpawns();
-	spawn_delays = saveManager->getSpawnDelays();
-	max_entities = saveManager->getMaxEntities();
+	  spawn_delays = saveManager->getSpawnDelays();
+	  max_entities = saveManager->getMaxEntities();
 
     show_mesh = false;
     playerEntity = registry.players.entities[0];
-    trapsCounter.count = saveManager->getTrapCounter();
     gameStateController.setGameState(GAME_STATE::PLAYING);
     loadAndSaveHighScore(false);
 }
@@ -126,7 +125,6 @@ void WorldSystem::reloadText() {
     createPauseHelpText(camera->getSize());
     registry.fpsTracker.textEntity = createFPSText(camera->getSize());
     registry.gameTimer.textEntity = createGameTimerText(camera->getSize());
-    trapsCounter.textEntity = createTrapsCounterText(camera->getSize());
 }
 
 void WorldSystem::trackFPS(float elapsed_ms) {

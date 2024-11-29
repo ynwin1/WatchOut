@@ -244,7 +244,7 @@ Entity createCollectibleTrap(vec2 pos)
 	int random = rand() % 2;
 	Motion& motion = registry.motions.emplace(entity);
 
-	if (random >= 0.5) {
+	if (random >= 0.8) {
 		collectibleTrap.type = "phantom_trap";
 		initPhantomTrapAnimationController(entity);
 		

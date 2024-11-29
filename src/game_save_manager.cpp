@@ -33,7 +33,7 @@ void GameSaveManager::save_game(std::unordered_map<std::string, std::pair<int, E
 	}
 }
 
-void GameSaveManager::serialize_containers(json& j, int trapCounter, std::unordered_map<std::string, float> spawn_delays, std::unordered_map<std::string, int> max_entities, std::unordered_map<std::string, float> next_spawns) {
+void GameSaveManager::serialize_containers(json& j, std::unordered_map<std::string, std::pair<int, Entity>> trapsCounter, std::unordered_map<std::string, float> spawn_delays, std::unordered_map<std::string, int> max_entities, std::unordered_map<std::string, float> next_spawns) {
 	j[GAMETIMER] = serialize_game_timer(registry.gameTimer);
 	j[GAMESCORE] = serialize_game_score(registry.gameScore);
 	j[TRAPCOUNTER] = serialize_traps_counter(trapsCounter);

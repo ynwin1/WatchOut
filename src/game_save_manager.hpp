@@ -17,8 +17,6 @@ public:
 	// Load the game
 	void load_game();
 	
-	// get trap counter
-	int getTrapCounter();
 	// get spawn delays
 	std::unordered_map<std::string, float> getSpawnDelays();
 	// get max entities
@@ -81,11 +79,10 @@ private:
 
 	std::string GAMETIMER = "gameTimer";
 	std::string GAMESCORE = "gameScore";
-	std::string TRAPCOUNTER = "trapCounter";
 	std::string SPAWNDELAYS = "spawn_delays";
 	std::string MAXENTITIES = "max_entities";
 	std::string NEXTSPAWNS = "next_spawns";
-  std::string TRAPCOUNTER = "trapsCounter";
+	std::string TRAPCOUNTER = "trapsCounter";
 
 	// Game Save file path
 	std::string gameSaveFilePath = data_path() + "/save/game_save.json";

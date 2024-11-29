@@ -83,8 +83,8 @@ void WorldSystem::load_game() {
   
     // Pick up spawn data from last checkpoint
     next_spawns = saveManager->getNextSpawns();
-	  spawn_delays = saveManager->getSpawnDelays();
-	  max_entities = saveManager->getMaxEntities();
+	spawn_delays = saveManager->getSpawnDelays();
+	max_entities = saveManager->getMaxEntities();
 
     show_mesh = false;
     playerEntity = registry.players.entities[0];
@@ -408,7 +408,7 @@ void WorldSystem::pauseControls(int key, int action, int mod)
             clearSaveText();
             break;
         case GLFW_KEY_S:
-            saveManager->save_game(trapsCounter.count, spawn_delays, max_entities, next_spawns);
+            saveManager->save_game(trapsCounter.trapsMap, spawn_delays, max_entities, next_spawns);
 			createGameSaveText(camera->getSize());
             printf("Saved game\n");
             break;

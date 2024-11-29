@@ -89,10 +89,10 @@ private:
 	const std::unordered_map<std::string, int> initial_max_entities = {
 		{"boar", 1},
 		{"barbarian", 1},
-		{"archer", -2},
+		{"archer", 1},
 		{"bird", 1},
-		{"wizard", -2},
-		{"troll", -3},
+		{"wizard", 1},
+		{"troll", 1},
 		{"heart", 2},
 		{"collectible_trap", 2}
 	};
@@ -159,8 +159,6 @@ private:
 	void updateCollectedTimer(float elapsed_ms);
 	void resetTrappedEntities();
 	void updateLightPosition();
-	void handleTitleMouseMove(vec2 window, vec2 mouse_pos);
-
 
 	// Collision functions
 	void entity_collectible_collision(Entity entity, Entity collectible);
@@ -181,6 +179,8 @@ private:
 	void pauseControls(int key, int action, int mod);
 	void gameOverControls(int key, int action, int mod);
 	void helpControls(int key, int action, int mod);
+
+	void handleSoundOnPauseHelp();
 
 	void clearSaveText();
 

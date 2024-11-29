@@ -45,7 +45,7 @@ public:
 	// path and volume
 	const std::map<Music, std::pair<std::string, int>> musics = {
 		{ Music::BACKGROUND, std::pair<std::string, int>(audio_path("mystery_background.wav"), INITIAL_MUSIC_VOLUME) },
-		{ Music::PLAYER_DEATH,	std::pair<std::string, int>(audio_path("playerDeath.wav"), INITIAL_MUSIC_VOLUME) }
+		{ Music::PLAYER_DEATH,	std::pair<std::string, int>(audio_path("playerDeath.wav"), 100) }
 	};
 
 	const std::map<Sound, std::pair<std::string, int>> sounds = {

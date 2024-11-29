@@ -350,26 +350,23 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		break;
     case GAME_STATE::PLAYING:
         playingControls(key, action, mod);
-        movementControls(key, action, mod);
         break;
     case GAME_STATE::PAUSED:
-		sound->isBirdFlockSoundPlaying = false;
-		sound->isMovingSoundPlaying = false;
-        sound->pauseAllSoundEffects();
+        handleSoundOnPauseHelp();
         pauseControls(key, action, mod);
         break;
     case GAME_STATE::GAMEOVER:
         gameOverControls(key, action, mod);
         break;
     case GAME_STATE::HELP:
-        sound->isMovingSoundPlaying = false;
-        sound->isBirdFlockSoundPlaying = false;
-        sound->pauseAllSoundEffects();
+        handleSoundOnPauseHelp();
         helpControls(key, action, mod);
         break;
     }
+    if (gameStateController.getGameState() != GAME_STATE::TITLE) {
+        movementControls(key, action, mod);
+    }
     allStateControls(key, action, mod);
-    
 }
 
 void WorldSystem::helpControls(int key, int action, int mod)
@@ -383,8 +380,8 @@ void WorldSystem::helpControls(int key, int action, int mod)
         case GLFW_KEY_ENTER:
             restart_game();
         case GLFW_KEY_H:
-            gameStateController.setGameState(GAME_STATE::PLAYING);
             sound->resumeAllSoundEffects();
+            gameStateController.setGameState(GAME_STATE::PLAYING);
             break;
         case GLFW_KEY_P:
         case GLFW_KEY_ESCAPE:
@@ -419,8 +416,8 @@ void WorldSystem::pauseControls(int key, int action, int mod)
             restart_game();
         case GLFW_KEY_P:
         case GLFW_KEY_ESCAPE:
+            sound->resumeAllSoundEffects();
             gameStateController.setGameState(GAME_STATE::PLAYING);
-			sound->resumeAllSoundEffects();
             clearSaveText();
             break;
         }
@@ -478,7 +475,7 @@ void WorldSystem::gameOverControls(int key, int action, int mod)
     if (action == GLFW_PRESS) {
         switch (key) {
         case GLFW_KEY_ENTER:
-			createTitleScreen();
+			restart_game();
             break;
         case GLFW_KEY_Q:
             gameStateController.setGameState(GAME_STATE::TITLE);
@@ -617,6 +614,14 @@ void WorldSystem::movementControls(int key, int action, int mod)
         break;
     }
     update_player_facing(player_comp, player_motion);
+}
+
+void WorldSystem::handleSoundOnPauseHelp() {
+    sound->isMovingSoundPlaying = false;
+    sound->isBirdFlockSoundPlaying = false;
+    sound->stopSoundEffect(Sound::BIRD_FLOCK);
+    sound->stopSoundEffect(Sound::WALKING);
+    sound->pauseAllSoundEffects();
 }
 
 void WorldSystem::update_player_facing(Player& player, Motion& motion) 

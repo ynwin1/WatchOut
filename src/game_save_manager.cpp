@@ -269,6 +269,7 @@ nlohmann::json GameSaveManager::serialize_component<DeathTimer>(const DeathTimer
 template<>
 nlohmann::json GameSaveManager::serialize_component<Knockable>(const Knockable& knockable) {
 	nlohmann::json j;
+	j["knocked"] = knockable.knocked;
 	return j;
 }
 
@@ -673,6 +674,8 @@ void GameSaveManager::createPlayerDeserialization(std::map<std::string, nlohmann
 	Trappable& trappable = registry.trappables.get(jeff);
 	trappable.isTrapped = componentsMap[TRAPPABLES]["isTrapped"];
 
+	handleKnockable(jeff, componentsMap);
+
 	createPlayerHealthBar(jeff, camera->getSize());
 	createPlayerStaminaBar(jeff, camera->getSize());
 }
@@ -694,6 +697,7 @@ void GameSaveManager::createBoarDeserialization(std::map<std::string, nlohmann::
 
 	handleMotion(boar, componentsMap);
 	handleTrappable(boar, componentsMap);
+	handleKnockable(boar, componentsMap);
 }
 
 void GameSaveManager::createBarbarianDeserialization(std::map<std::string, nlohmann::json> componentsMap) {
@@ -711,6 +715,7 @@ void GameSaveManager::createBarbarianDeserialization(std::map<std::string, nlohm
 
 	handleMotion(barbarian, componentsMap);
 	handleTrappable(barbarian, componentsMap);
+	handleKnockable(barbarian, componentsMap);
 }
 
 void GameSaveManager::createArcherDeserialization(std::map<std::string, nlohmann::json> componentsMap) {
@@ -730,6 +735,7 @@ void GameSaveManager::createArcherDeserialization(std::map<std::string, nlohmann
 
 	handleMotion(archer, componentsMap);
 	handleTrappable(archer, componentsMap);
+	handleKnockable(archer, componentsMap);
 }
 
 void GameSaveManager::createBirdDeserialization(std::map<std::string, nlohmann::json> componentsMap) {
@@ -749,6 +755,7 @@ void GameSaveManager::createBirdDeserialization(std::map<std::string, nlohmann::
 
 	handleMotion(bird, componentsMap);
 	handleTrappable(bird, componentsMap);
+	handleKnockable(bird, componentsMap);
 }
 
 void GameSaveManager::createWizardDeserialization(std::map<std::string, nlohmann::json> componentsMap) {
@@ -767,6 +774,7 @@ void GameSaveManager::createWizardDeserialization(std::map<std::string, nlohmann
 
 	handleMotion(wizard, componentsMap);
 	handleTrappable(wizard, componentsMap);
+	handleKnockable(wizard, componentsMap);
 }
 
 void GameSaveManager::createTrollDeserialization(std::map<std::string, nlohmann::json> componentsMap) {
@@ -931,7 +939,12 @@ void GameSaveManager::handleDasher(Entity& entity, std::map<std::string, nlohman
 void GameSaveManager::handleKnocker(Entity& entity, std::map<std::string, nlohmann::json> componentsMap) {
 	Knocker& knocker = registry.knockers.get(entity);
 	knocker.strength = componentsMap[KNOCKERS]["strength"];
+}
 
+void GameSaveManager::handleKnockable(Entity& entity, std::map<std::string, nlohmann::json> componentsMap)
+{
+	Knockable& knockable = registry.knockables.get(entity);
+	knockable.knocked = componentsMap[KNOCKABLES]["knocked"];
 }
 
 void GameSaveManager::handleCooldown(Entity& entity, std::map<std::string, nlohmann::json> componentsMap) {

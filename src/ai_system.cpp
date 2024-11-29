@@ -41,8 +41,11 @@ bool AISystem::decideToPathfind(Entity enemy, float baseThinkingTime, float elap
     return true;
 }
 
-void AISystem::moveTowardsTarget(Entity enemy, vec3 playerPosition, float elapsed_ms)
+void AISystem::moveTowardsTarget(Entity enemy, vec3 targetPosition, float elapsed_ms)
 {
+    const float DISENGAGE_DISTANCE = 1000;
+    const float MARGIN = 500;
+
     Motion& enemyMotion = registry.motions.get(enemy);
 
     // Skip if in the air
@@ -54,7 +57,17 @@ void AISystem::moveTowardsTarget(Entity enemy, vec3 playerPosition, float elapse
         return;
     }
 
-    vec2 direction = chooseDirection(enemyMotion, playerPosition);
+    // Choose a random direction if far away from the player
+    vec3 position = registry.motions.get(enemy).position;
+    if (distance(targetPosition, position) > DISENGAGE_DISTANCE) {
+        float angle = uniform_dist(rng) * 2 * M_PI;
+        targetPosition = enemyMotion.position + vec3(cos(angle) * DISENGAGE_DISTANCE, sin(angle) * DISENGAGE_DISTANCE, 0);
+        targetPosition.x = min(max(targetPosition.x, float(leftBound) + MARGIN), float(rightBound) - MARGIN);
+        targetPosition.y = min(max(targetPosition.y, float(topBound) + MARGIN), float(bottomBound) - MARGIN);
+        registry.enemies.get(enemy).pathfindTime = 1000;
+    }
+
+    vec2 direction = chooseDirection(enemyMotion, targetPosition);
     enemyMotion.facing = direction;
     enemyMotion.velocity = vec3(direction * enemyMotion.speed, enemyMotion.velocity.z);
 }

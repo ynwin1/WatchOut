@@ -166,6 +166,7 @@ private:
 	void handleEnemyCollision(Entity attacker, Entity target, std::vector<Entity>& was_damaged);
 	void checkAndHandleEnemyDeath(Entity entity);
 	void knock(Entity knocked, Entity knocker);
+	void setCollisionCooldown(Entity damager, Entity victim);
 
 	// Controls
 	void allStateControls(int key, int action, int mod);

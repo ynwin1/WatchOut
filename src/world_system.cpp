@@ -258,13 +258,9 @@ void WorldSystem::handle_collisions()
             entity_trap_collision(entity, entity_other, was_damaged);
         }
 
-        float COOLDOWN_TIME = 1000;
         std::pair<int, int> pair = { entity, entity_other };
         if (collisionCooldowns.find(pair) != collisionCooldowns.end()) {
             continue;
-        }
-        else {
-            collisionCooldowns[pair] = COOLDOWN_TIME;
         }
 
         // If the entity is a player
@@ -273,16 +269,13 @@ void WorldSystem::handle_collisions()
             if (registry.collectibles.has(entity_other)) {
 				entity_collectible_collision(entity, entity_other);
             }
-            else if (registry.enemies.has(entity_other)) {
-				// Collision between player and enemy
-                processPlayerEnemyCollision(entity, entity_other, was_damaged);
-            }
-            else if (registry.damagings.has(entity_other)) {
-                entity_damaging_collision(entity, entity_other, was_damaged);
-            }
         }
         else if (registry.enemies.has(entity)) {
-            if (registry.enemies.has(entity_other)) {
+            if (registry.players.has(entity_other)) {
+                // Collision between player and enemy
+                processPlayerEnemyCollision(entity_other, entity, was_damaged);
+            }
+            else if (registry.enemies.has(entity_other)) {
 				// Collision between two enemies
 				handleEnemyCollision(entity, entity_other, was_damaged);
             }
@@ -295,7 +288,10 @@ void WorldSystem::handle_collisions()
         }
         else if (registry.damagings.has(entity)) {
 			Damaging& damaging = registry.damagings.get(entity);
-            if (damaging.type == "fireball" && registry.obstacles.has(entity_other)) {
+            if (registry.players.has(entity_other) || registry.enemies.has(entity_other)) {
+                entity_damaging_collision(entity_other, entity, was_damaged);
+            }
+            else if (damaging.type == "fireball" && registry.obstacles.has(entity_other)) {
 				// Collision between damaging and obstacle
                 damaging_obstacle_collision(entity);
             }
@@ -772,6 +768,7 @@ void WorldSystem::entity_damaging_collision(Entity entity, Entity entity_other, 
         int new_health = player.health - damaging.damage;
         player.health = new_health < 0 ? 0 : new_health;
         was_damaged.push_back(entity);
+        setCollisionCooldown(entity_other, entity);
         printf("Player health reduced from %d to %d\n", player.health + damaging.damage, player.health);
     }
     else if (registry.enemies.has(entity)) {
@@ -779,6 +776,7 @@ void WorldSystem::entity_damaging_collision(Entity entity, Entity entity_other, 
         Enemy& enemy = registry.enemies.get(entity);
         enemy.health -= damaging.damage;
         was_damaged.push_back(entity);
+        setCollisionCooldown(entity_other, entity);
         printf("Enemy health reduced from %d to %d by damaging object\n", enemy.health + damaging.damage, enemy.health);
     }
     else {
@@ -811,8 +809,8 @@ void WorldSystem::entity_obstacle_collision(Entity entity, Entity obstacle, std:
 }
 
 void WorldSystem::processPlayerEnemyCollision(Entity player, Entity enemy, std::vector<Entity>& was_damaged) {
-    // Archers do not do melee damage
-    if (registry.archers.has(enemy)) {
+    // Archers and wizards do not do melee damage
+    if (registry.archers.has(enemy) || registry.wizards.has(enemy)) {
         return;
     }
 
@@ -823,6 +821,7 @@ void WorldSystem::processPlayerEnemyCollision(Entity player, Entity enemy, std::
         int newHealth = playerData.health - enemyData.damage;
         playerData.health = std::max(newHealth, 0);
         was_damaged.push_back(player);
+        setCollisionCooldown(enemy, player);
         printf("Player health reduced by enemy from %d to %d\n", playerData.health + enemyData.damage, playerData.health);
 
         // Check if enemy can have an attack cooldown
@@ -863,6 +862,7 @@ void WorldSystem::handleEnemyCollision(Entity attacker, Entity target, std::vect
 
         targetData.health -= attackerData.damage;
         was_damaged.push_back(target);
+        setCollisionCooldown(attacker, target);
         printf("Enemy %d's health reduced from %d to %d by enemy\n", (unsigned int)target, targetData.health + attackerData.damage, targetData.health);
 
         if (attackerData.cooldown > 0) {
@@ -916,6 +916,12 @@ void WorldSystem::knock(Entity knocked, Entity knocker)
     knockedMotion.velocity = d * strength;
     knockedMotion.position.z += 1; // move a little over ground to prevent being considered "on the ground" for this frame
     registry.knockables.get(knocked).knocked = true;
+}
+
+void WorldSystem::setCollisionCooldown(Entity damager, Entity victim)
+{
+    float COOLDOWN_TIME = 1000;
+    collisionCooldowns[std::pair<Entity, Entity> {damager, victim}] = COOLDOWN_TIME;
 }
 
 void WorldSystem::despawn_collectibles(float elapsed_ms) {

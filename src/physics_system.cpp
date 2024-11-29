@@ -283,13 +283,36 @@ void PhysicsSystem::updatePositions(float elapsed_ms)
 		motion.position.y += motion.velocity.y * elapsed_ms;
 		motion.position.z += motion.velocity.z * elapsed_ms;
 
-		// Apply gravity
+		// Apply gravity if above the ground
 		if (motion.position.z > groundZ) {
 			// Don't apply gravity to fireballs
 			if (registry.damagings.has(entity) && registry.damagings.get(entity).type == "fireball") {
 				continue;
 			}
 			motion.velocity.z -= GRAVITATIONAL_CONSTANT * elapsed_ms;
+		}
+
+		// Can jump if on the ground
+		if (motion.position.z <= groundZ) {
+			if (registry.jumpers.has(entity)) {
+				Jumper& jumper = registry.jumpers.get(entity);
+				if (registry.players.has(entity)) {
+					Player& player = registry.players.get(entity);
+					Stamina& stamina = registry.staminas.get(entity);
+					if (player.tryingToJump && stamina.stamina > JUMP_STAMINA && !registry.trappables.get(entity).isTrapped) {
+						stamina.stamina -= JUMP_STAMINA;
+						motion.velocity.z = jumper.speed;
+						jumper.isJumping = true;
+						sound->playSoundEffect(Sound::JUMPING, 0);
+					}
+					else {
+						jumper.isJumping = false;
+					}
+				}
+				else {
+					motion.velocity.z = jumper.speed;
+				}
+			}
 		}
 
 		// Hit the ground
@@ -305,24 +328,7 @@ void PhysicsSystem::updatePositions(float elapsed_ms)
 				}
 			}
 
-			if (registry.jumpers.has(entity)) {
-				Jumper& jumper = registry.jumpers.get(entity);
-				if (registry.players.has(entity)) {
-					Player& player = registry.players.get(entity);
-					Stamina& stamina = registry.staminas.get(entity);
-					if (player.tryingToJump && stamina.stamina > JUMP_STAMINA) {
-						stamina.stamina -= JUMP_STAMINA;
-						motion.velocity.z = jumper.speed;
-					}
-					else {
-						jumper.isJumping = false;
-					}
-				}
-				else {
-					motion.velocity.z = jumper.speed;
-				}
-			}
-			else if (registry.projectiles.has(entity)) {
+			if (registry.projectiles.has(entity)) {
 				motion.velocity.x = 0;
 				motion.velocity.y = 0;
 				if (registry.damagings.has(entity)) {
@@ -489,6 +495,11 @@ void PhysicsSystem::recoil_entities(Entity entity1, Entity entity2) {
 		motion1.position.x += x_direction * x_overlap * RECOIL_STRENGTH;
 		motion2.position.x -= x_direction * x_overlap * RECOIL_STRENGTH;
 	}
+}
+
+void PhysicsSystem::init(SoundSystem* sound)
+{
+	this->sound = sound;
 }
 
 void PhysicsSystem::step(float elapsed_ms)

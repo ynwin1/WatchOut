@@ -417,9 +417,25 @@ void WorldSystem::playingControls(int key, int action, int mod)
 {
     Player& player_comp = registry.players.get(playerEntity);
     Motion& player_motion = registry.motions.get(playerEntity);
+    Dash& player_dash = registry.dashers.get(playerEntity);
+    Stamina& player_stamina = registry.staminas.get(playerEntity);
   
     if (action == GLFW_PRESS) {
         switch (key) {
+        case GLFW_KEY_D:
+            if (player_stamina.stamina > DASH_STAMINA) {
+                const float dashDistance = 300;
+                // Start dashing if player is moving
+                player_dash.isDashing = true;
+                player_dash.dashStartPosition = vec2(player_motion.position);
+                player_dash.dashTargetPosition = player_dash.dashStartPosition + player_motion.facing * dashDistance;
+                player_dash.dashTimer = 0.0f; // Reset timer
+                player_stamina.stamina -= DASH_STAMINA;
+
+                // play dash sound
+                sound->playSoundEffect(Sound::DASHING, 0);
+            }
+            break;
         case GLFW_KEY_W:
             place_trap(player_comp, player_motion, true, DAMAGE_TRAP);
             break;
@@ -499,9 +515,7 @@ void WorldSystem::movementControls(int key, int action, int mod)
 {
     Player& player_comp = registry.players.get(playerEntity);
     Motion& player_motion = registry.motions.get(playerEntity);
-    Dash& player_dash = registry.dashers.get(playerEntity);
     Stamina& player_stamina = registry.staminas.get(playerEntity);
-    Trappable& player_trappable = registry.trappables.get(playerEntity);
 
     if (action != GLFW_PRESS && action != GLFW_RELEASE) {
         return;
@@ -542,46 +556,9 @@ void WorldSystem::movementControls(int key, int action, int mod)
             player_comp.isRolling = false;
         }
         break;
-    case GLFW_KEY_D:
-        if (pressed) {
-            if (player_stamina.stamina > DASH_STAMINA) {
-                const float dashDistance = 300;
-                // Start dashing if player is moving
-                player_dash.isDashing = true;
-                player_dash.dashStartPosition = vec2(player_motion.position);
-                player_dash.dashTargetPosition = player_dash.dashStartPosition + player_motion.facing * dashDistance;
-                player_dash.dashTimer = 0.0f; // Reset timer
-                player_stamina.stamina -= DASH_STAMINA;
-
-                // play dash sound
-                sound->playSoundEffect(Sound::DASHING, 0);
-            }
-        }
-        break;
     case GLFW_KEY_SPACE:
         // Jump
-        if (pressed && !player_trappable.isTrapped) {
-            if (player_stamina.stamina >= JUMP_STAMINA && !player_comp.tryingToJump) {
-                player_comp.tryingToJump = true;
-                if (registry.jumpers.has(playerEntity)) {
-                    Jumper& jumper = registry.jumpers.get(playerEntity);
-                    if (!jumper.isJumping) {
-                        jumper.isJumping = true;
-                        player_comp.tryingToJump = true;
-                        player_motion.velocity.z = jumper.speed;
-                        player_stamina.stamina -= JUMP_STAMINA;
-                        if (player_stamina.stamina < 0) {
-                            player_stamina.stamina = 0;
-                        }
-                        // play jump sound
-                        sound->playSoundEffect(Sound::JUMPING, 0);
-                    }
-                }
-            }
-        }
-        else {
-            player_comp.tryingToJump = false;
-        }
+        player_comp.tryingToJump = pressed;
         break;
     default:
         break;

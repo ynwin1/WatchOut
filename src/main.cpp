@@ -44,6 +44,7 @@ int main()
 	
 	camera.init(window);
 	renderer.init(&camera);
+	physics.init(&sound);
 	sound.init();
 	saveManager.init(&renderer, window, &camera);
 	world.init(&renderer, window, &camera, &physics, &ai, &sound, &saveManager);

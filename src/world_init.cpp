@@ -753,41 +753,53 @@ Entity createGameTimerText(vec2 windowSize) {
 	return entity;
 }
 
-Entity createTrapsCounterText(vec2 windowSize) {
-	auto textE = Entity();
+Entity createItemCountText(vec2 position, TEXTURE_ASSET_ID assetID, vec2 size, int keybind) {
+	auto textKeybindE = Entity();
+	auto textCountE = Entity();
+	auto iconE = Entity();
 
-	vec2 position = {(windowSize.x / 2) - 210.0f, windowSize.y - 80.0f};
+	vec2 keybindPos = position;
+	vec2 iconPos = keybindPos + vec2(0.0f, -40.0f);
+	vec2 textPos = iconPos + vec2(0.0f, -65.0f);
 
-	registry.texts.emplace(textE);
-	Foreground& fg = registry.foregrounds.emplace(textE);
-	fg.position = position;
-	fg.scale = {1.5f, 1.5f};
-
-	registry.colours.insert(textE, {0.8f, 0.8f, 0.0f, 1.0f});
-
+	Text& textKeybind = registry.texts.emplace(textKeybindE);
+	textKeybind.value = std::to_string(keybind);
+	Foreground& fgKeybind = registry.foregrounds.emplace(textKeybindE);
+	fgKeybind.position = keybindPos;
+	fgKeybind.scale = {0.85f, 0.85f};
 	registry.renderRequests.insert(
-		textE, 
+		textKeybindE, 
 		{
 			TEXTURE_ASSET_ID::NONE,
 			EFFECT_ASSET_ID::FONT,
 			GEOMETRY_BUFFER_ID::TEXT
 		});
 
-	auto iconE = Entity();
+	registry.texts.emplace(textCountE);
+	Foreground& fg = registry.foregrounds.emplace(textCountE);
+	fg.position = textPos;
+	fg.scale = {1.3f, 1.3f};
+	registry.colours.insert(textCountE, {0.8f, 0.8f, 0.0f, 1.0f});
+	registry.renderRequests.insert(
+		textCountE, 
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::FONT,
+			GEOMETRY_BUFFER_ID::TEXT
+		});
 
 	Foreground& icon = registry.foregrounds.emplace(iconE);
-	icon.scale = { TRAP_COLLECTABLE_BB_WIDTH * 1.25, TRAP_COLLECTABLE_BB_WIDTH * 1.25 };
-	icon.position = {position.x - 20.0f, position.y + 16.0f};
-
+	icon.scale = { size.x, size.y };
+	icon.position = iconPos;
 	registry.renderRequests.insert(
 		iconE, 
 		{
-			TEXTURE_ASSET_ID::TRAPCOLLECTABLE,
+			assetID,
 			EFFECT_ASSET_ID::TEXTURED_FLAT,
 			GEOMETRY_BUFFER_ID::SPRITE
 		});
 	
-	return textE;
+	return textCountE;
 }
 
 Entity createMapTile(vec2 position, vec2 size) {

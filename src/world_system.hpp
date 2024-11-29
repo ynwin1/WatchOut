@@ -133,7 +133,7 @@ private:
 	void checkAndHandlePlayerDeath(Entity& entity);
 	void trackFPS(float elapsed_ms);
 	void updateGameTimer(float elapsed_ms);
-	void updateTrapsCounterText();
+	void updateInventoryItemText();
 	void toggleMesh();
 	void adjustSpawnSystem(float elapsed_ms);
 	void resetSpawnSystem();

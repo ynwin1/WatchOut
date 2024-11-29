@@ -131,7 +131,7 @@ Entity createLightning(vec2 pos);
 Entity createPauseHelpText(vec2 windowSize);
 Entity createFPSText(vec2 windowSize);
 Entity createGameTimerText(vec2 windowSize);
-Entity createTrapsCounterText(vec2 windowSize);
+Entity createItemCountText(vec2 position, TEXTURE_ASSET_ID assetID, vec2 size, int keybind);
 
 // Game over UI
 void createGameOverText(vec2 windowSize);

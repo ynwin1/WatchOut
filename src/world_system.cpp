@@ -62,13 +62,13 @@ void WorldSystem::restart_game()
     createPlayerHealthBar(playerEntity, camera->getSize());
     createPlayerStaminaBar(playerEntity, camera->getSize());
 
-    gameStateController.inventory.itemCounts[EQUIPMENT::BOW] = 1;
-
     gameStateController.setGameState(GAME_STATE::PLAYING);
     show_mesh = false;
     resetSpawnSystem();
     initText();
     soundSetUp();
+
+    gameStateController.inventory.itemCounts[INVENTORY_ITEM::BOW] = 1;
 
     // Set spawn delays to 1 second, so the first of each type will spawn right away
     for (auto& name : entity_types) {
@@ -95,8 +95,12 @@ void WorldSystem::initText() {
     registry.fpsTracker.textEntity = createFPSText(camera->getSize());
     registry.gameTimer.reset();
     registry.gameTimer.textEntity = createGameTimerText(camera->getSize());
-    trapsCounter.reset();
-    trapsCounter.textEntity = createTrapsCounterText(camera->getSize());
+    
+    gameStateController.inventory.reset();
+    std::unordered_map<INVENTORY_ITEM, Entity>& invItemEntities = gameStateController.inventory.itemEntities;
+    vec2 inventoryItemAnchorPos = {420.0f, camera->getSize().y - 30.0f};
+    invItemEntities[INVENTORY_ITEM::TRAP] = createItemCountText(inventoryItemAnchorPos, TEXTURE_ASSET_ID::TRAPCOLLECTABLE, { TRAP_COLLECTABLE_BB_WIDTH * 1.25, TRAP_COLLECTABLE_BB_HEIGHT * 1.25 }, 1);
+    invItemEntities[INVENTORY_ITEM::BOW] = createItemCountText(inventoryItemAnchorPos + vec2(80.0f, 0.0f), TEXTURE_ASSET_ID::BOW, { BOW_BB_WIDTH * 0.7, BOW_BB_HEIGHT * 0.7}, 2);
 }
 
 void WorldSystem::trackFPS(float elapsed_ms) {
@@ -109,16 +113,21 @@ void WorldSystem::trackFPS(float elapsed_ms) {
     }
 }
 
-void WorldSystem::updateTrapsCounterText() {
-    Text& text = registry.texts.get(trapsCounter.textEntity);
-    std::stringstream ss;
-    ss << std::setw(2) << std::setfill('0') << trapsCounter.count;
-    text.value = "*" + ss.str();
+void WorldSystem::updateInventoryItemText() {
+    Inventory& inventory = gameStateController.inventory;
+    for (auto& item : inventory.itemEntities) {
+        if(registry.texts.has(item.second)) {
+            Text& text = registry.texts.get(item.second);
+            std::stringstream ss;
+            ss << std::setw(2) << std::setfill('0') << inventory.itemCounts[item.first];
+            text.value = "*" + ss.str();
 
-    if(trapsCounter.count == 0) {
-        registry.colours.get(trapsCounter.textEntity) = {0.8f, 0.8f, 0.0f, 1.0f};
-    } else {
-        registry.colours.get(trapsCounter.textEntity) = {1.0f, 1.0f, 1.0f, 1.0f};
+            if(inventory.itemCounts[item.first] == 0) {
+                registry.colours.get(item.second) = {0.8f, 0.8f, 0.0f, 1.0f};
+            } else {
+                registry.colours.get(item.second) = {1.0f, 1.0f, 1.0f, 1.0f};
+            }
+        }
     }
 }
 
@@ -151,7 +160,7 @@ void WorldSystem::updateEquippedPosition() {
 
         equippedM.position = playerM.position + normalizedDirection * fixedDistance;
 
-        if(gameStateController.inventory.equipped == EQUIPMENT::BOW) {
+        if(gameStateController.inventory.equipped == INVENTORY_ITEM::BOW) {
             float angle = atan2(direction.y, direction.x);
             equippedM.angle = angle;
         }
@@ -169,7 +178,7 @@ bool WorldSystem::step(float elapsed_ms)
     handle_stamina(elapsed_ms);
     trackFPS(elapsed_ms);
     updateGameTimer(elapsed_ms);
-    updateTrapsCounterText();
+    updateInventoryItemText();
     toggleMesh();
     accelerateFireballs(elapsed_ms);
     despawnTraps(elapsed_ms);
@@ -436,7 +445,7 @@ void WorldSystem::shootArrow(vec3 mouseWorldPos) {
 
 void WorldSystem::shootProjectile(vec3 mouseWorldPos) {
     switch(gameStateController.inventory.equipped) {
-        case EQUIPMENT::BOW:
+        case INVENTORY_ITEM::BOW:
             shootArrow(mouseWorldPos);
             break;
     }
@@ -542,7 +551,7 @@ void WorldSystem::playingControls(int key, int action, int mod)
             place_trap(player_comp, player_motion, false);
             break;
         case GLFW_KEY_1:
-            gameStateController.inventory.equipItem(EQUIPMENT::BOW);
+            gameStateController.inventory.equipItem(INVENTORY_ITEM::BOW);
             break;
         case GLFW_KEY_H:
             gameStateController.setGameState(GAME_STATE::HELP);
@@ -845,9 +854,9 @@ void WorldSystem::entity_collectible_collision(Entity entity, Entity entity_othe
 	Collectible& collectible = registry.collectibles.get(entity_other);
 
     if (registry.collectibleTraps.has(entity_other)) {
-        trapsCounter.count++;
+        gameStateController.inventory.itemCounts[INVENTORY_ITEM::TRAP]++;
         createCollected(playerM, collectibleM.scale, TEXTURE_ASSET_ID::TRAPCOLLECTABLE);
-        printf("Player collected a trap. Trap count is now %d\n", trapsCounter.count);
+        printf("Player collected a trap. Trap count is now %d\n", gameStateController.inventory.itemCounts[INVENTORY_ITEM::TRAP]);
     }
     else if (registry.hearts.has(entity_other)) {
         unsigned int health = registry.hearts.get(entity_other).health;
@@ -1091,8 +1100,9 @@ void WorldSystem::checkAndHandlePlayerDeath(Entity& entity) {
 void WorldSystem::place_trap(Player& player, Motion& motion, bool forward) {
     // Player position
     vec2 playerPos = motion.position;
+    int& trapsCount = gameStateController.inventory.itemCounts[INVENTORY_ITEM::TRAP];
 	// Do not place trap if player has no traps
-    if (trapsCounter.count == 0) {
+    if (trapsCount == 0) {
         printf("Player has no traps to place\n");
         return;
     }
@@ -1113,8 +1123,8 @@ void WorldSystem::place_trap(Player& player, Motion& motion, bool forward) {
 
     vec2 trapPos = playerPos + gap;
 	createDamageTrap(trapPos);
-	trapsCounter.count--;
-	printf("Trap count is now %d\n", trapsCounter.count);
+	trapsCount--;
+	printf("Trap count is now %d\n", trapsCount);
 }
 
 //Update player stamina on dashing, sprinting, rolling and jumping

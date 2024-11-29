@@ -4,7 +4,7 @@
 #include "tiny_ecs_registry.hpp"
 #include "world_init.hpp"
 
-enum class EQUIPMENT
+enum class INVENTORY_ITEM
 {
     NONE,
     BOW,
@@ -13,10 +13,11 @@ enum class EQUIPMENT
 
 struct Inventory
 {
-    std::unordered_map<EQUIPMENT, int> itemCounts;
+    std::unordered_map<INVENTORY_ITEM, int> itemCounts;
+    std::unordered_map<INVENTORY_ITEM, Entity> itemEntities;
     Entity equippedEntity;
-    EQUIPMENT equipped = EQUIPMENT::NONE;
-    void equipItem(EQUIPMENT item)
+    INVENTORY_ITEM equipped = INVENTORY_ITEM::NONE;
+    void equipItem(INVENTORY_ITEM item)
     {
         if(item == equipped)
         {
@@ -28,7 +29,7 @@ struct Inventory
             equipped = item;
             switch (equipped)
             {
-            case EQUIPMENT::BOW:
+            case INVENTORY_ITEM::BOW:
                 equippedEntity = createEquipped(TEXTURE_ASSET_ID::BOW, {BOW_BB_WIDTH, BOW_BB_HEIGHT});
                 break;
             default:
@@ -38,7 +39,7 @@ struct Inventory
     }
     void unequip()
     {
-        equipped = EQUIPMENT::NONE;
+        equipped = INVENTORY_ITEM::NONE;
         registry.remove_all_components_of(equippedEntity);
     }
     void reset()

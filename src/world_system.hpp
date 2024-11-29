@@ -88,7 +88,7 @@ private:
 		{"boar", 1},
 		{"barbarian", 1},
 		{"archer", -2},
-		{"bird", 1},
+		{"bird", 10},
 		{"wizard", -2},
 		{"troll", -3},
 		{"heart", 2},

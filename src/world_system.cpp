@@ -865,6 +865,7 @@ void WorldSystem::knock(Entity knocked, Entity knocker)
     vec3 d = normalize(vec3(horizontal_direction * cos(KNOCK_ANGLE), sin(KNOCK_ANGLE)));
     knockedMotion.velocity = d * strength;
     knockedMotion.position.z += 1; // move a little over ground to prevent being considered "on the ground" for this frame
+    registry.knockables.get(knocked).knocked = true;
 }
 
 void WorldSystem::despawn_collectibles(float elapsed_ms) {

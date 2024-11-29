@@ -296,6 +296,15 @@ void PhysicsSystem::updatePositions(float elapsed_ms)
 		if (motion.position.z < groundZ) {
 			motion.position.z = groundZ;
 			motion.velocity.z = 0;
+			if (registry.knockables.has(entity)) {
+				Knockable& knockable = registry.knockables.get(entity);
+				if (knockable.knocked) {
+					knockable.knocked = false;
+					motion.velocity.x = 0;
+					motion.velocity.y = 0;
+				}
+			}
+
 			if (registry.jumpers.has(entity)) {
 				Jumper& jumper = registry.jumpers.get(entity);
 				if (registry.players.has(entity)) {

@@ -603,7 +603,7 @@ void AISystem::birdBehaviour(Entity bird, vec3 targetPosition, float elapsed_ms)
         birdComponent.swoopCooldown -= elapsed_ms;
     }
 
-    float speed = length(movementForce);
+    float speed = max(length(movementForce), birdComponent.swarmSpeed);
     vec2 movementDirection = alignToDirection(birdMotion, atan2(movementForce.y, movementForce.x), BIRD_TURNING_SPEED, elapsed_ms);
     birdMotion.velocity = vec3(speed * movementDirection, 0.0f);
     birdMotion.facing = normalize(movementDirection);

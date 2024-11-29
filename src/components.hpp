@@ -308,7 +308,7 @@ struct Archer {
 	bool aiming = false;
 };
 struct Bird {
-	float swarmSpeed = 0.3f;
+	float swarmSpeed = 0.6f;
 	float swoopSpeed = 0.5f;
 	bool isSwooping = false;
 	float swoopTimer = 500;

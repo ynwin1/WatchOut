@@ -421,8 +421,8 @@ Entity createJeff(vec2 position)
 	pointLight.diffuse = vec4(1.0, .75, 0.25, 1.0);
 	pointLight.max_distance = 3250;
 	pointLight.constant = 1.0;
-	pointLight.linear = .00014;
-	pointLight.quadratic = 0.00001;
+	pointLight.linear = .0001;
+	pointLight.quadratic = 0.0;
 	
 	return entity;
 }

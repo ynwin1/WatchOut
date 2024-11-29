@@ -29,8 +29,8 @@ public:
 
 	// Steps the game ahead by ms milliseconds
 	bool step(float elapsed_ms);
-	
-	bool show_mesh;
+
+    bool show_mesh;
 
 	// Check for collisions
 	void handle_collisions();
@@ -153,7 +153,7 @@ private:
 	void despawnTraps(float elapsed_ms);
 	void updateCollectedTimer(float elapsed_ms);
 	void resetTrappedEntities();
-	void updateLightPosition();
+	void updateJeffLight(float elapsed_ms);
 
 
 	// Collision functions

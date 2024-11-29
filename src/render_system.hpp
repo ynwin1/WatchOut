@@ -191,7 +191,7 @@ public:
 
 private:
 	Camera* camera;
-	const float AMBIENT_LIGHT = 0.4;
+	const float AMBIENT_LIGHT = 0.2;
 
 	// Internal drawing functions for each entity type
 	void drawMesh(Entity entity, const mat3& projection, const mat4& projection_screen);

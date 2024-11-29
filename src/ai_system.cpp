@@ -363,6 +363,7 @@ void AISystem::trollBehaviour(Entity troll, vec3 targetPosition, float elapsed_m
 
     // Continue to align towards desired direction
     vec2 direction = alignToDirection(motion, trollComponent.desiredAngle, TROLL_TURNING_SPEED, elapsed_ms);
+    motion.facing = direction;
     motion.velocity = vec3(motion.facing * motion.speed, motion.velocity.z);
 }
 

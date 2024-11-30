@@ -461,10 +461,12 @@ void WorldSystem::allStateControls(int key, int action, int mod)
 {
     if (action == GLFW_PRESS) {
         switch (key) {
+#ifndef NDEBUG
         case GLFW_KEY_C:
             // toggle camera on/off for debugging/testing
             camera->toggle();
             break;
+#endif
         case GLFW_KEY_F:
             // toggle fps
             registry.fpsTracker.toggled = !registry.fpsTracker.toggled;

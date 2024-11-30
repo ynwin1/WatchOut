@@ -132,6 +132,11 @@ struct RenderRequest
 	PRIMITIVE_TYPE primitive_type = PRIMITIVE_TYPE::TRIANGLES;
 };
 
+struct Particle
+{
+	TEXTURE_ASSET_ID texture = TEXTURE_ASSET_ID::TEXTURE_COUNT;
+};
+
 struct Background {};
 struct Midground {};
 struct Foreground {

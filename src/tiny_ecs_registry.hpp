@@ -42,6 +42,7 @@ public:
 	ComponentContainer<Mesh*> meshPtrs;
 	ComponentContainer<TargetArea> targetAreas;
 	ComponentContainer<Collected> collected;
+	ComponentContainer<Particle> particles;
 	
 	ComponentContainer<PauseMenuComponent> pauseMenuComponents;
 	ComponentContainer<HelpMenuComponent> helpMenuComponents;

@@ -17,7 +17,15 @@ WorldSystem::WorldSystem(std::default_random_engine& rng)
     this->rng = rng;
 }
 
-void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics, AISystem* ai, SoundSystem* sound, GameSaveManager* saveManager)
+void WorldSystem::init(
+    RenderSystem* renderer, 
+    GLFWwindow* window, 
+    Camera* camera, 
+    PhysicsSystem* physics, 
+    AISystem* ai, 
+    SoundSystem* sound, 
+    GameSaveManager* saveManager, 
+    ParticleSystem* particles)
 {
     
     this->renderer = renderer;
@@ -27,6 +35,7 @@ void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camer
     this->ai = ai;
 	this->sound = sound;
 	this->saveManager = saveManager;
+    this->particles = particles;
 
     // Setting callbacks to member functions (that's why the redirect is needed)
     // Input is handled using GLFW, for more info see
@@ -175,6 +184,7 @@ bool WorldSystem::step(float elapsed_ms)
 {
     adjustSpawnSystem(elapsed_ms);
     spawn(elapsed_ms);
+    spawn_particles(elapsed_ms);
     update_cooldown(elapsed_ms);
     handle_deaths(elapsed_ms);
     despawn_collectibles(elapsed_ms);
@@ -689,6 +699,15 @@ void WorldSystem::spawn(float elapsed_ms)
             (*f)(spawnLocation);
             next_spawns[entity_type] = spawn_delays.at(entity_type);
         }
+    }
+}
+
+void WorldSystem::spawn_particles(float elapsed_ms)
+{
+    if (uniform_dist(rng) < 0.05) {
+        vec3 position = registry.motions.get(playerEntity).position;
+        position.z += 30;
+        particles->createSmokeParticle(position);
     }
 }
 

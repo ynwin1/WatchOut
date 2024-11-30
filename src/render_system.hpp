@@ -23,7 +23,6 @@ class RenderSystem {
 	 * Whenever possible, add to these lists instead of creating dynamic state
 	 * it is easier to debug and faster to execute for the computer.
 	 */
-	std::array<GLuint, texture_count> texture_gl_handles;
 	std::array<ivec2, texture_count> texture_dimensions = {
 		ivec2(20, 28),
 		ivec2(20, 34)
@@ -145,14 +144,16 @@ class RenderSystem {
 	std::array<GLuint, effect_count> to_screen_locations;
 	std::array<std::array<GLuint, MAX_POINT_LIGHTS * 7>, effect_count> point_light_uniform_locations;
 
-	std::array<GLuint, geometry_count> vertex_buffers;
-	std::array<GLuint, geometry_count> index_buffers;
 	std::array<Mesh, geometry_count> meshes;
 
 	void update_animations();
 	void update_jeff_animation();
 
 public:
+	std::array<GLuint, texture_count> texture_gl_handles;
+	std::array<GLuint, geometry_count> vertex_buffers;
+	std::array<GLuint, geometry_count> index_buffers;
+
 	GLFWwindow* create_window();
 
 	// Initialize the window
@@ -194,7 +195,6 @@ public:
 private:
 	Camera* camera;
 	ParticleSystem* particles;
-	const float AMBIENT_LIGHT = .4;
 	const float AMBIENT_LIGHT = 0.4;
 
 	// Internal drawing functions for each entity type

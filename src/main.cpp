@@ -47,7 +47,7 @@ int main()
 	renderer.init(&camera, &particles);
 	sound.init();
 	saveManager.init(&renderer, window, &camera);
-	world.init(&renderer, window, &camera, &physics, &ai, &sound, &saveManager);
+	world.init(&renderer, window, &camera, &physics, &ai, &sound, &saveManager, &particles);
 
 	auto t = Clock::now();
 	while (!world.is_over()) {

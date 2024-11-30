@@ -1,16 +1,24 @@
 #pragma once
 
-#include "common.hpp"
-#include "tiny_ecs.hpp"
+#include "tiny_ecs_registry.hpp"
+
+class RenderSystem;
+
+enum class PARTICLE {
+	smoke
+};
 
 class ParticleSystem {
 public:
 	~ParticleSystem();
-	void init();
+	void init(RenderSystem* renderer);
 	void draw(const GLuint program);
 
+	// Create particles
+	Entity createSmokeParticle(vec3 position);
+
 private:
-	GLuint vbo;
-	GLuint instance_vbo;
-	glm::vec2 translations[100];
+	RenderSystem* renderer;
+	GLuint transforms_vbo;
+	std::vector<mat3> transforms;
 };

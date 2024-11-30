@@ -82,7 +82,7 @@ bool RenderSystem::init(Camera* camera, ParticleSystem* particles)
 	glBindVertexArray(vao);
 	gl_has_errors();
 	
-	particles->init();
+	particles->init(this);
 	initializeGlTextures();
 	initializeGlNormals();
 	initializeGlEffects();

@@ -3,10 +3,46 @@
         "components": [
             {
                 "currentState": 0
+            },
+            {
+                "currentState": 0
+            },
+            {
+                "currentState": 3
+            },
+            {
+                "currentState": 6
+            },
+            {
+                "currentState": 6
+            },
+            {
+                "currentState": 6
+            },
+            {
+                "currentState": 6
+            },
+            {
+                "currentState": 6
+            },
+            {
+                "currentState": 0
+            },
+            {
+                "currentState": 0
             }
         ],
         "entities": [
-            169
+            175,
+            197,
+            203,
+            210,
+            216,
+            222,
+            228,
+            234,
+            244,
+            245
         ]
     },
     "archers": {
@@ -15,52 +51,6 @@
     },
     "backgrounds": {
         "components": [
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
             null,
             null,
             null,
@@ -222,78 +212,149 @@
             80,
             81,
             82,
-            83,
-            84,
-            85,
-            86,
-            87,
-            88,
-            89,
-            90,
-            91,
-            92,
-            93,
-            94,
-            95,
-            96,
-            97,
-            98,
-            99,
-            100,
-            101,
-            102,
-            103,
-            104,
-            105,
-            106,
-            107,
-            108,
-            109,
-            110,
-            111,
-            112,
-            113,
-            114,
-            115,
-            116,
-            117,
-            118,
-            119,
-            120,
-            121,
-            122,
-            123,
-            124,
-            125,
-            126,
-            127,
-            128,
-            129
+            83
         ]
     },
     "barbarians": {
-        "components": [],
-        "entities": []
+        "components": [
+            null
+        ],
+        "entities": [
+            203
+        ]
     },
     "birds": {
-        "components": [],
-        "entities": []
+        "components": [
+            {
+                "isSwooping": false,
+                "originalZ": 480.0,
+                "swarmSpeed": 0.30000001192092896,
+                "swoopCooldown": 2941.919677734375,
+                "swoopDirection": [
+                    -0.8349697589874268,
+                    0.5502957105636597
+                ],
+                "swoopSpeed": 0.20000000298023224,
+                "swoopTimer": -473.9090881347656
+            },
+            {
+                "isSwooping": false,
+                "originalZ": 480.0,
+                "swarmSpeed": 0.30000001192092896,
+                "swoopCooldown": 2326.120361328125,
+                "swoopDirection": [
+                    -0.0712353065609932,
+                    0.9974595308303833
+                ],
+                "swoopSpeed": 0.20000000298023224,
+                "swoopTimer": -489.5289611816406
+            },
+            {
+                "isSwooping": false,
+                "originalZ": 480.0,
+                "swarmSpeed": 0.30000001192092896,
+                "swoopCooldown": 3399.93359375,
+                "swoopDirection": [
+                    -0.5874111652374268,
+                    0.809288740158081
+                ],
+                "swoopSpeed": 0.20000000298023224,
+                "swoopTimer": -490.4869384765625
+            },
+            {
+                "isSwooping": false,
+                "originalZ": 480.0,
+                "swarmSpeed": 0.30000001192092896,
+                "swoopCooldown": 3502.021728515625,
+                "swoopDirection": [
+                    -0.04801627993583679,
+                    -0.9988465309143066
+                ],
+                "swoopSpeed": 0.20000000298023224,
+                "swoopTimer": -493.07086181640625
+            },
+            {
+                "isSwooping": false,
+                "originalZ": 480.0,
+                "swarmSpeed": 0.30000001192092896,
+                "swoopCooldown": -13.412283897399902,
+                "swoopDirection": [
+                    0.0,
+                    0.0
+                ],
+                "swoopSpeed": 0.20000000298023224,
+                "swoopTimer": 500.0
+            }
+        ],
+        "entities": [
+            210,
+            216,
+            222,
+            228,
+            234
+        ]
     },
     "boars": {
-        "components": [],
-        "entities": []
+        "components": [
+            {
+                "chargeDirection": [
+                    -0.5750861763954163,
+                    0.8180928826332092
+                ],
+                "chargeTimer": 324.69110107421875,
+                "charging": false,
+                "cooldownTimer": 484.2871398925781,
+                "prepareTimer": -16.39097023010254,
+                "preparing": false
+            }
+        ],
+        "entities": [
+            197
+        ]
     },
     "collected": {
         "components": [],
         "entities": []
     },
     "collectibleTraps": {
-        "components": [],
-        "entities": []
+        "components": [
+            null
+        ],
+        "entities": [
+            245
+        ]
     },
     "collectibles": {
-        "components": [],
-        "entities": []
+        "components": [
+            {
+                "duration": 5000.0,
+                "position": [
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    3.0,
+                    3.0
+                ],
+                "timer": 3842.43212890625
+            },
+            {
+                "duration": 5000.0,
+                "position": [
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    3.0,
+                    3.0
+                ],
+                "timer": 3842.43212890625
+            }
+        ],
+        "entities": [
+            244,
+            245
+        ]
     },
     "collisions": {
         "components": [],
@@ -342,21 +403,115 @@
                 "b": 1.0,
                 "g": 1.0,
                 "r": 1.0
+            },
+            {
+                "a": 1.0,
+                "b": 0.0,
+                "g": 0.0,
+                "r": 1.0
+            },
+            {
+                "a": 1.0,
+                "b": 0.0,
+                "g": 0.0,
+                "r": 1.0
+            },
+            {
+                "a": 1.0,
+                "b": 0.0,
+                "g": 0.0,
+                "r": 1.0
+            },
+            {
+                "a": 1.0,
+                "b": 0.0,
+                "g": 0.0,
+                "r": 1.0
+            },
+            {
+                "a": 1.0,
+                "b": 0.0,
+                "g": 0.0,
+                "r": 1.0
+            },
+            {
+                "a": 1.0,
+                "b": 0.0,
+                "g": 0.0,
+                "r": 1.0
+            },
+            {
+                "a": 1.0,
+                "b": 0.0,
+                "g": 0.0,
+                "r": 1.0
+            },
+            {
+                "a": 1.0,
+                "b": 0.0,
+                "g": 0.0,
+                "r": 1.0
+            },
+            {
+                "a": 1.0,
+                "b": 0.0,
+                "g": 0.0,
+                "r": 1.0
+            },
+            {
+                "a": 1.0,
+                "b": 0.0,
+                "g": 0.0,
+                "r": 1.0
+            },
+            {
+                "a": 1.0,
+                "b": 0.0,
+                "g": 0.0,
+                "r": 1.0
+            },
+            {
+                "a": 1.0,
+                "b": 0.0,
+                "g": 0.0,
+                "r": 1.0
             }
         ],
         "entities": [
-            170,
-            171,
             176,
             177,
-            185,
-            188,
-            189
+            182,
+            183,
+            191,
+            194,
+            195,
+            198,
+            199,
+            235,
+            236,
+            211,
+            212,
+            217,
+            218,
+            223,
+            224,
+            229,
+            230
         ]
     },
     "cooldowns": {
-        "components": [],
-        "entities": []
+        "components": [
+            {
+                "remaining": 359.4217224121094
+            },
+            {
+                "remaining": 958.7018432617188
+            }
+        ],
+        "entities": [
+            210,
+            228
+        ]
     },
     "damageds": {
         "components": [],
@@ -380,19 +535,95 @@
                 ],
                 "dashTimer": 0.0,
                 "isDashing": false
+            },
+            {
+                "dashDuration": 0.20000000298023224,
+                "dashStartPosition": [
+                    0.0,
+                    0.0
+                ],
+                "dashTargetPosition": [
+                    0.0,
+                    0.0
+                ],
+                "dashTimer": 0.0,
+                "isDashing": false
             }
         ],
         "entities": [
-            169
+            175,
+            197
         ]
     },
     "deathTimers": {
-        "components": [],
-        "entities": []
+        "components": [
+            {
+                "timer": 2225.520751953125
+            }
+        ],
+        "entities": [
+            203
+        ]
     },
     "enemies": {
-        "components": [],
-        "entities": []
+        "components": [
+            {
+                "cooldown": 0,
+                "damage": 30,
+                "health": 35,
+                "maxHealth": 50,
+                "pathfindTime": 83.5545425415039,
+                "type": ""
+            },
+            {
+                "cooldown": 2000,
+                "damage": 10,
+                "health": 10,
+                "maxHealth": 10,
+                "pathfindTime": 0.0,
+                "type": ""
+            },
+            {
+                "cooldown": 2000,
+                "damage": 10,
+                "health": 10,
+                "maxHealth": 10,
+                "pathfindTime": 0.0,
+                "type": ""
+            },
+            {
+                "cooldown": 2000,
+                "damage": 10,
+                "health": 10,
+                "maxHealth": 10,
+                "pathfindTime": 0.0,
+                "type": ""
+            },
+            {
+                "cooldown": 2000,
+                "damage": 10,
+                "health": 10,
+                "maxHealth": 10,
+                "pathfindTime": 0.0,
+                "type": ""
+            },
+            {
+                "cooldown": 2000,
+                "damage": 10,
+                "health": 10,
+                "maxHealth": 10,
+                "pathfindTime": 0.0,
+                "type": ""
+            }
+        ],
+        "entities": [
+            197,
+            234,
+            210,
+            216,
+            222,
+            228
+        ]
     },
     "foregrounds": {
         "components": [
@@ -538,52 +769,106 @@
             }
         ],
         "entities": [
-            170,
-            171,
-            172,
             176,
             177,
             178,
             182,
             183,
             184,
-            185,
-            186,
             188,
             189,
-            191
+            190,
+            191,
+            192,
+            194,
+            195,
+            246
         ]
     },
     "gameScore": {
         "highScoreHours": 0,
-        "highScoreMinutes": 0,
-        "highScoreSeconds": 0
+        "highScoreMinutes": 4,
+        "highScoreSeconds": 12
     },
     "gameTimer": {
-        "elapsed": 815.5909423828125,
+        "elapsed": 12179.1533203125,
         "hour": 0,
         "minute": 0,
-        "ms": 815.5909423828125,
-        "second": 0,
-        "textEntity": 184
+        "ms": 179.15805053710938,
+        "second": 12,
+        "textEntity": 190
     },
     "healthBars": {
         "components": [
             {
-                "frameEntity": 171,
+                "frameEntity": 177,
                 "height": 20.0,
-                "meshEntity": 170,
-                "textEntity": 172,
+                "meshEntity": 176,
+                "textEntity": 178,
                 "width": 150.0
+            },
+            {
+                "frameEntity": 199,
+                "height": 10.0,
+                "meshEntity": 198,
+                "textEntity": 202,
+                "width": 60.0
+            },
+            {
+                "frameEntity": 236,
+                "height": 10.0,
+                "meshEntity": 235,
+                "textEntity": 239,
+                "width": 60.0
+            },
+            {
+                "frameEntity": 212,
+                "height": 10.0,
+                "meshEntity": 211,
+                "textEntity": 215,
+                "width": 60.0
+            },
+            {
+                "frameEntity": 218,
+                "height": 10.0,
+                "meshEntity": 217,
+                "textEntity": 221,
+                "width": 60.0
+            },
+            {
+                "frameEntity": 224,
+                "height": 10.0,
+                "meshEntity": 223,
+                "textEntity": 227,
+                "width": 60.0
+            },
+            {
+                "frameEntity": 230,
+                "height": 10.0,
+                "meshEntity": 229,
+                "textEntity": 233,
+                "width": 60.0
             }
         ],
         "entities": [
-            169
+            175,
+            197,
+            234,
+            210,
+            216,
+            222,
+            228
         ]
     },
     "hearts": {
-        "components": [],
-        "entities": []
+        "components": [
+            {
+                "health": 20
+            }
+        ],
+        "entities": [
+            244
+        ]
     },
     "jumpers": {
         "components": [
@@ -593,53 +878,47 @@
             }
         ],
         "entities": [
-            169
+            175
         ]
     },
     "knockables": {
         "components": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
             null
         ],
         "entities": [
-            169
+            175,
+            197,
+            203,
+            210,
+            216,
+            222,
+            228,
+            234
         ]
     },
     "knockers": {
-        "components": [],
-        "entities": []
+        "components": [
+            {
+                "strength": 1.0
+            },
+            {
+                "strength": 1.0
+            }
+        ],
+        "entities": [
+            197,
+            203
+        ]
     },
     "mapTiles": {
         "components": [
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
             null,
             null,
             null,
@@ -818,6 +1097,155 @@
             81,
             82,
             83,
+            102,
+            103,
+            104,
+            105,
+            106,
+            107,
+            108,
+            109,
+            110,
+            111,
+            112,
+            113,
+            114,
+            115,
+            116,
+            117
+        ]
+    },
+    "meshPtrs": {
+        "components": [
+            null,
+            null,
+            null,
+            null
+        ],
+        "entities": [
+            136,
+            137,
+            138,
+            139
+        ]
+    },
+    "midgrounds": {
+        "components": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+        ],
+        "entities": [
             84,
             85,
             86,
@@ -863,67 +1291,7 @@
             126,
             127,
             128,
-            129
-        ]
-    },
-    "meshPtrs": {
-        "components": [
-            null,
-            null,
-            null,
-            null
-        ],
-        "entities": [
-            130,
-            131,
-            132,
-            133
-        ]
-    },
-    "midgrounds": {
-        "components": [
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null
-        ],
-        "entities": [
+            129,
             130,
             131,
             132,
@@ -963,7 +1331,34 @@
             166,
             167,
             168,
-            169
+            169,
+            170,
+            171,
+            172,
+            173,
+            174,
+            175,
+            197,
+            198,
+            199,
+            203,
+            245,
+            244,
+            210,
+            211,
+            212,
+            216,
+            217,
+            218,
+            222,
+            223,
+            224,
+            228,
+            229,
+            230,
+            234,
+            235,
+            236
         ]
     },
     "motions": {
@@ -3215,20 +3610,48 @@
                     0.0
                 ],
                 "hitbox": [
+                    250.0,
+                    31.25,
+                    500.0
+                ],
+                "position": [
+                    375.0,
+                    500.0,
+                    250.0
+                ],
+                "scale": [
+                    250.0,
+                    353.5533752441406
+                ],
+                "solid": true,
+                "speed": 0.0,
+                "velocity": [
                     0.0,
                     0.0,
                     0.0
+                ]
+            },
+            {
+                "angle": 0.0,
+                "facing": [
+                    0.0,
+                    0.0
+                ],
+                "hitbox": [
+                    250.0,
+                    31.25,
+                    500.0
                 ],
                 "position": [
                     625.0,
-                    250.0,
-                    0.0
+                    500.0,
+                    250.0
                 ],
                 "scale": [
                     250.0,
                     353.5533752441406
                 ],
-                "solid": false,
+                "solid": true,
                 "speed": 0.0,
                 "velocity": [
                     0.0,
@@ -3243,20 +3666,20 @@
                     0.0
                 ],
                 "hitbox": [
-                    0.0,
-                    0.0,
-                    0.0
+                    250.0,
+                    31.25,
+                    500.0
                 ],
                 "position": [
                     875.0,
-                    250.0,
-                    0.0
+                    500.0,
+                    250.0
                 ],
                 "scale": [
                     250.0,
                     353.5533752441406
                 ],
-                "solid": false,
+                "solid": true,
                 "speed": 0.0,
                 "velocity": [
                     0.0,
@@ -3271,20 +3694,20 @@
                     0.0
                 ],
                 "hitbox": [
-                    0.0,
-                    0.0,
-                    0.0
+                    250.0,
+                    31.25,
+                    500.0
                 ],
                 "position": [
                     1125.0,
-                    250.0,
-                    0.0
+                    500.0,
+                    250.0
                 ],
                 "scale": [
                     250.0,
                     353.5533752441406
                 ],
-                "solid": false,
+                "solid": true,
                 "speed": 0.0,
                 "velocity": [
                     0.0,
@@ -3299,20 +3722,20 @@
                     0.0
                 ],
                 "hitbox": [
-                    0.0,
-                    0.0,
-                    0.0
+                    250.0,
+                    31.25,
+                    500.0
                 ],
                 "position": [
                     1375.0,
-                    250.0,
-                    0.0
+                    500.0,
+                    250.0
                 ],
                 "scale": [
                     250.0,
                     353.5533752441406
                 ],
-                "solid": false,
+                "solid": true,
                 "speed": 0.0,
                 "velocity": [
                     0.0,
@@ -3327,20 +3750,20 @@
                     0.0
                 ],
                 "hitbox": [
-                    0.0,
-                    0.0,
-                    0.0
+                    250.0,
+                    31.25,
+                    500.0
                 ],
                 "position": [
                     1625.0,
-                    250.0,
-                    0.0
+                    500.0,
+                    250.0
                 ],
                 "scale": [
                     250.0,
                     353.5533752441406
                 ],
-                "solid": false,
+                "solid": true,
                 "speed": 0.0,
                 "velocity": [
                     0.0,
@@ -3355,20 +3778,20 @@
                     0.0
                 ],
                 "hitbox": [
-                    0.0,
-                    0.0,
-                    0.0
+                    250.0,
+                    31.25,
+                    500.0
                 ],
                 "position": [
                     1875.0,
-                    250.0,
-                    0.0
+                    500.0,
+                    250.0
                 ],
                 "scale": [
                     250.0,
                     353.5533752441406
                 ],
-                "solid": false,
+                "solid": true,
                 "speed": 0.0,
                 "velocity": [
                     0.0,
@@ -3383,20 +3806,20 @@
                     0.0
                 ],
                 "hitbox": [
-                    0.0,
-                    0.0,
-                    0.0
+                    250.0,
+                    31.25,
+                    500.0
                 ],
                 "position": [
                     2125.0,
-                    250.0,
-                    0.0
+                    500.0,
+                    250.0
                 ],
                 "scale": [
                     250.0,
                     353.5533752441406
                 ],
-                "solid": false,
+                "solid": true,
                 "speed": 0.0,
                 "velocity": [
                     0.0,
@@ -3411,20 +3834,20 @@
                     0.0
                 ],
                 "hitbox": [
-                    0.0,
-                    0.0,
-                    0.0
+                    250.0,
+                    31.25,
+                    500.0
                 ],
                 "position": [
                     2375.0,
-                    250.0,
-                    0.0
+                    500.0,
+                    250.0
                 ],
                 "scale": [
                     250.0,
                     353.5533752441406
                 ],
-                "solid": false,
+                "solid": true,
                 "speed": 0.0,
                 "velocity": [
                     0.0,
@@ -3439,20 +3862,20 @@
                     0.0
                 ],
                 "hitbox": [
-                    0.0,
-                    0.0,
-                    0.0
+                    250.0,
+                    31.25,
+                    500.0
                 ],
                 "position": [
                     2625.0,
-                    250.0,
-                    0.0
+                    500.0,
+                    250.0
                 ],
                 "scale": [
                     250.0,
                     353.5533752441406
                 ],
-                "solid": false,
+                "solid": true,
                 "speed": 0.0,
                 "velocity": [
                     0.0,
@@ -3467,20 +3890,20 @@
                     0.0
                 ],
                 "hitbox": [
-                    0.0,
-                    0.0,
-                    0.0
+                    250.0,
+                    31.25,
+                    500.0
                 ],
                 "position": [
                     2875.0,
-                    250.0,
-                    0.0
+                    500.0,
+                    250.0
                 ],
                 "scale": [
                     250.0,
                     353.5533752441406
                 ],
-                "solid": false,
+                "solid": true,
                 "speed": 0.0,
                 "velocity": [
                     0.0,
@@ -3495,20 +3918,20 @@
                     0.0
                 ],
                 "hitbox": [
-                    0.0,
-                    0.0,
-                    0.0
+                    250.0,
+                    31.25,
+                    500.0
                 ],
                 "position": [
                     3125.0,
-                    250.0,
-                    0.0
+                    500.0,
+                    250.0
                 ],
                 "scale": [
                     250.0,
                     353.5533752441406
                 ],
-                "solid": false,
+                "solid": true,
                 "speed": 0.0,
                 "velocity": [
                     0.0,
@@ -3523,20 +3946,20 @@
                     0.0
                 ],
                 "hitbox": [
-                    0.0,
-                    0.0,
-                    0.0
+                    250.0,
+                    31.25,
+                    500.0
                 ],
                 "position": [
                     3375.0,
-                    250.0,
-                    0.0
+                    500.0,
+                    250.0
                 ],
                 "scale": [
                     250.0,
                     353.5533752441406
                 ],
-                "solid": false,
+                "solid": true,
                 "speed": 0.0,
                 "velocity": [
                     0.0,
@@ -3551,20 +3974,20 @@
                     0.0
                 ],
                 "hitbox": [
-                    0.0,
-                    0.0,
-                    0.0
+                    250.0,
+                    31.25,
+                    500.0
                 ],
                 "position": [
                     3625.0,
-                    250.0,
-                    0.0
+                    500.0,
+                    250.0
                 ],
                 "scale": [
                     250.0,
                     353.5533752441406
                 ],
-                "solid": false,
+                "solid": true,
                 "speed": 0.0,
                 "velocity": [
                     0.0,
@@ -3579,20 +4002,20 @@
                     0.0
                 ],
                 "hitbox": [
-                    0.0,
-                    0.0,
-                    0.0
+                    250.0,
+                    31.25,
+                    500.0
                 ],
                 "position": [
                     3875.0,
-                    250.0,
-                    0.0
+                    500.0,
+                    250.0
                 ],
                 "scale": [
                     250.0,
                     353.5533752441406
                 ],
-                "solid": false,
+                "solid": true,
                 "speed": 0.0,
                 "velocity": [
                     0.0,
@@ -3607,20 +4030,20 @@
                     0.0
                 ],
                 "hitbox": [
-                    0.0,
-                    0.0,
-                    0.0
+                    250.0,
+                    31.25,
+                    500.0
                 ],
                 "position": [
                     4125.0,
-                    250.0,
-                    0.0
+                    500.0,
+                    250.0
                 ],
                 "scale": [
                     250.0,
                     353.5533752441406
                 ],
-                "solid": false,
+                "solid": true,
                 "speed": 0.0,
                 "velocity": [
                     0.0,
@@ -3635,20 +4058,20 @@
                     0.0
                 ],
                 "hitbox": [
-                    0.0,
-                    0.0,
-                    0.0
+                    250.0,
+                    31.25,
+                    500.0
                 ],
                 "position": [
                     4375.0,
-                    250.0,
-                    0.0
+                    500.0,
+                    250.0
                 ],
                 "scale": [
                     250.0,
                     353.5533752441406
                 ],
-                "solid": false,
+                "solid": true,
                 "speed": 0.0,
                 "velocity": [
                     0.0,
@@ -3663,20 +4086,524 @@
                     0.0
                 ],
                 "hitbox": [
+                    250.0,
+                    31.25,
+                    500.0
+                ],
+                "position": [
+                    4625.0,
+                    500.0,
+                    250.0
+                ],
+                "scale": [
+                    250.0,
+                    353.5533752441406
+                ],
+                "solid": true,
+                "speed": 0.0,
+                "velocity": [
                     0.0,
                     0.0,
                     0.0
+                ]
+            },
+            {
+                "angle": 0.0,
+                "facing": [
+                    0.0,
+                    0.0
+                ],
+                "hitbox": [
+                    475.0,
+                    500.0,
+                    500.0
+                ],
+                "position": [
+                    150.0,
+                    500.0,
+                    250.0
+                ],
+                "scale": [
+                    500.0,
+                    353.5533752441406
+                ],
+                "solid": true,
+                "speed": 0.0,
+                "velocity": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            {
+                "angle": 0.0,
+                "facing": [
+                    0.0,
+                    0.0
+                ],
+                "hitbox": [
+                    475.0,
+                    500.0,
+                    500.0
+                ],
+                "position": [
+                    150.0,
+                    1000.0,
+                    250.0
+                ],
+                "scale": [
+                    500.0,
+                    353.5533752441406
+                ],
+                "solid": true,
+                "speed": 0.0,
+                "velocity": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            {
+                "angle": 0.0,
+                "facing": [
+                    0.0,
+                    0.0
+                ],
+                "hitbox": [
+                    475.0,
+                    500.0,
+                    500.0
+                ],
+                "position": [
+                    150.0,
+                    1500.0,
+                    250.0
+                ],
+                "scale": [
+                    500.0,
+                    353.5533752441406
+                ],
+                "solid": true,
+                "speed": 0.0,
+                "velocity": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            {
+                "angle": 0.0,
+                "facing": [
+                    0.0,
+                    0.0
+                ],
+                "hitbox": [
+                    475.0,
+                    500.0,
+                    500.0
+                ],
+                "position": [
+                    150.0,
+                    2000.0,
+                    250.0
+                ],
+                "scale": [
+                    500.0,
+                    353.5533752441406
+                ],
+                "solid": true,
+                "speed": 0.0,
+                "velocity": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            {
+                "angle": 0.0,
+                "facing": [
+                    0.0,
+                    0.0
+                ],
+                "hitbox": [
+                    475.0,
+                    500.0,
+                    500.0
+                ],
+                "position": [
+                    150.0,
+                    2500.0,
+                    250.0
+                ],
+                "scale": [
+                    500.0,
+                    353.5533752441406
+                ],
+                "solid": true,
+                "speed": 0.0,
+                "velocity": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            {
+                "angle": 0.0,
+                "facing": [
+                    0.0,
+                    0.0
+                ],
+                "hitbox": [
+                    475.0,
+                    500.0,
+                    500.0
+                ],
+                "position": [
+                    150.0,
+                    3000.0,
+                    250.0
+                ],
+                "scale": [
+                    500.0,
+                    353.5533752441406
+                ],
+                "solid": true,
+                "speed": 0.0,
+                "velocity": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            {
+                "angle": 0.0,
+                "facing": [
+                    0.0,
+                    0.0
+                ],
+                "hitbox": [
+                    475.0,
+                    500.0,
+                    500.0
+                ],
+                "position": [
+                    150.0,
+                    3500.0,
+                    250.0
+                ],
+                "scale": [
+                    500.0,
+                    353.5533752441406
+                ],
+                "solid": true,
+                "speed": 0.0,
+                "velocity": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            {
+                "angle": 0.0,
+                "facing": [
+                    0.0,
+                    0.0
+                ],
+                "hitbox": [
+                    475.0,
+                    500.0,
+                    500.0
+                ],
+                "position": [
+                    150.0,
+                    4000.0,
+                    250.0
+                ],
+                "scale": [
+                    500.0,
+                    353.5533752441406
+                ],
+                "solid": true,
+                "speed": 0.0,
+                "velocity": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            {
+                "angle": 0.0,
+                "facing": [
+                    0.0,
+                    0.0
+                ],
+                "hitbox": [
+                    475.0,
+                    500.0,
+                    500.0
+                ],
+                "position": [
+                    4850.0,
+                    500.0,
+                    250.0
+                ],
+                "scale": [
+                    -500.0,
+                    353.5533752441406
+                ],
+                "solid": true,
+                "speed": 0.0,
+                "velocity": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            {
+                "angle": 0.0,
+                "facing": [
+                    0.0,
+                    0.0
+                ],
+                "hitbox": [
+                    475.0,
+                    500.0,
+                    500.0
+                ],
+                "position": [
+                    4850.0,
+                    1000.0,
+                    250.0
+                ],
+                "scale": [
+                    -500.0,
+                    353.5533752441406
+                ],
+                "solid": true,
+                "speed": 0.0,
+                "velocity": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            {
+                "angle": 0.0,
+                "facing": [
+                    0.0,
+                    0.0
+                ],
+                "hitbox": [
+                    475.0,
+                    500.0,
+                    500.0
+                ],
+                "position": [
+                    4850.0,
+                    1500.0,
+                    250.0
+                ],
+                "scale": [
+                    -500.0,
+                    353.5533752441406
+                ],
+                "solid": true,
+                "speed": 0.0,
+                "velocity": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            {
+                "angle": 0.0,
+                "facing": [
+                    0.0,
+                    0.0
+                ],
+                "hitbox": [
+                    475.0,
+                    500.0,
+                    500.0
+                ],
+                "position": [
+                    4850.0,
+                    2000.0,
+                    250.0
+                ],
+                "scale": [
+                    -500.0,
+                    353.5533752441406
+                ],
+                "solid": true,
+                "speed": 0.0,
+                "velocity": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            {
+                "angle": 0.0,
+                "facing": [
+                    0.0,
+                    0.0
+                ],
+                "hitbox": [
+                    475.0,
+                    500.0,
+                    500.0
+                ],
+                "position": [
+                    4850.0,
+                    2500.0,
+                    250.0
+                ],
+                "scale": [
+                    -500.0,
+                    353.5533752441406
+                ],
+                "solid": true,
+                "speed": 0.0,
+                "velocity": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            {
+                "angle": 0.0,
+                "facing": [
+                    0.0,
+                    0.0
+                ],
+                "hitbox": [
+                    475.0,
+                    500.0,
+                    500.0
+                ],
+                "position": [
+                    4850.0,
+                    3000.0,
+                    250.0
+                ],
+                "scale": [
+                    -500.0,
+                    353.5533752441406
+                ],
+                "solid": true,
+                "speed": 0.0,
+                "velocity": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            {
+                "angle": 0.0,
+                "facing": [
+                    0.0,
+                    0.0
+                ],
+                "hitbox": [
+                    475.0,
+                    500.0,
+                    500.0
+                ],
+                "position": [
+                    4850.0,
+                    3500.0,
+                    250.0
+                ],
+                "scale": [
+                    -500.0,
+                    353.5533752441406
+                ],
+                "solid": true,
+                "speed": 0.0,
+                "velocity": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            {
+                "angle": 0.0,
+                "facing": [
+                    0.0,
+                    0.0
+                ],
+                "hitbox": [
+                    475.0,
+                    500.0,
+                    500.0
+                ],
+                "position": [
+                    4850.0,
+                    4000.0,
+                    250.0
+                ],
+                "scale": [
+                    -500.0,
+                    353.5533752441406
+                ],
+                "solid": true,
+                "speed": 0.0,
+                "velocity": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            {
+                "angle": 0.0,
+                "facing": [
+                    0.0,
+                    0.0
+                ],
+                "hitbox": [
+                    250.0,
+                    950.0,
+                    500.0
+                ],
+                "position": [
+                    375.0,
+                    4000.0,
+                    250.0
+                ],
+                "scale": [
+                    250.0,
+                    353.5533752441406
+                ],
+                "solid": true,
+                "speed": 0.0,
+                "velocity": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            {
+                "angle": 0.0,
+                "facing": [
+                    0.0,
+                    0.0
+                ],
+                "hitbox": [
+                    250.0,
+                    950.0,
+                    500.0
                 ],
                 "position": [
                     625.0,
-                    3750.0,
-                    0.0
+                    4000.0,
+                    250.0
                 ],
                 "scale": [
                     250.0,
                     353.5533752441406
                 ],
-                "solid": false,
+                "solid": true,
                 "speed": 0.0,
                 "velocity": [
                     0.0,
@@ -3691,20 +4618,20 @@
                     0.0
                 ],
                 "hitbox": [
-                    0.0,
-                    0.0,
-                    0.0
+                    250.0,
+                    950.0,
+                    500.0
                 ],
                 "position": [
                     875.0,
-                    3750.0,
-                    0.0
+                    4000.0,
+                    250.0
                 ],
                 "scale": [
                     250.0,
                     353.5533752441406
                 ],
-                "solid": false,
+                "solid": true,
                 "speed": 0.0,
                 "velocity": [
                     0.0,
@@ -3719,20 +4646,20 @@
                     0.0
                 ],
                 "hitbox": [
-                    0.0,
-                    0.0,
-                    0.0
+                    250.0,
+                    950.0,
+                    500.0
                 ],
                 "position": [
                     1125.0,
-                    3750.0,
-                    0.0
+                    4000.0,
+                    250.0
                 ],
                 "scale": [
                     250.0,
                     353.5533752441406
                 ],
-                "solid": false,
+                "solid": true,
                 "speed": 0.0,
                 "velocity": [
                     0.0,
@@ -3747,20 +4674,20 @@
                     0.0
                 ],
                 "hitbox": [
-                    0.0,
-                    0.0,
-                    0.0
+                    250.0,
+                    950.0,
+                    500.0
                 ],
                 "position": [
                     1375.0,
-                    3750.0,
-                    0.0
+                    4000.0,
+                    250.0
                 ],
                 "scale": [
                     250.0,
                     353.5533752441406
                 ],
-                "solid": false,
+                "solid": true,
                 "speed": 0.0,
                 "velocity": [
                     0.0,
@@ -3775,20 +4702,20 @@
                     0.0
                 ],
                 "hitbox": [
-                    0.0,
-                    0.0,
-                    0.0
+                    250.0,
+                    950.0,
+                    500.0
                 ],
                 "position": [
                     1625.0,
-                    3750.0,
-                    0.0
+                    4000.0,
+                    250.0
                 ],
                 "scale": [
                     250.0,
                     353.5533752441406
                 ],
-                "solid": false,
+                "solid": true,
                 "speed": 0.0,
                 "velocity": [
                     0.0,
@@ -3803,20 +4730,20 @@
                     0.0
                 ],
                 "hitbox": [
-                    0.0,
-                    0.0,
-                    0.0
+                    250.0,
+                    950.0,
+                    500.0
                 ],
                 "position": [
                     1875.0,
-                    3750.0,
-                    0.0
+                    4000.0,
+                    250.0
                 ],
                 "scale": [
                     250.0,
                     353.5533752441406
                 ],
-                "solid": false,
+                "solid": true,
                 "speed": 0.0,
                 "velocity": [
                     0.0,
@@ -3831,20 +4758,20 @@
                     0.0
                 ],
                 "hitbox": [
-                    0.0,
-                    0.0,
-                    0.0
+                    250.0,
+                    950.0,
+                    500.0
                 ],
                 "position": [
                     2125.0,
-                    3750.0,
-                    0.0
+                    4000.0,
+                    250.0
                 ],
                 "scale": [
                     250.0,
                     353.5533752441406
                 ],
-                "solid": false,
+                "solid": true,
                 "speed": 0.0,
                 "velocity": [
                     0.0,
@@ -3859,20 +4786,20 @@
                     0.0
                 ],
                 "hitbox": [
-                    0.0,
-                    0.0,
-                    0.0
+                    250.0,
+                    950.0,
+                    500.0
                 ],
                 "position": [
                     2375.0,
-                    3750.0,
-                    0.0
+                    4000.0,
+                    250.0
                 ],
                 "scale": [
                     250.0,
                     353.5533752441406
                 ],
-                "solid": false,
+                "solid": true,
                 "speed": 0.0,
                 "velocity": [
                     0.0,
@@ -3887,20 +4814,20 @@
                     0.0
                 ],
                 "hitbox": [
-                    0.0,
-                    0.0,
-                    0.0
+                    250.0,
+                    950.0,
+                    500.0
                 ],
                 "position": [
                     2625.0,
-                    3750.0,
-                    0.0
+                    4000.0,
+                    250.0
                 ],
                 "scale": [
                     250.0,
                     353.5533752441406
                 ],
-                "solid": false,
+                "solid": true,
                 "speed": 0.0,
                 "velocity": [
                     0.0,
@@ -3915,20 +4842,20 @@
                     0.0
                 ],
                 "hitbox": [
-                    0.0,
-                    0.0,
-                    0.0
+                    250.0,
+                    950.0,
+                    500.0
                 ],
                 "position": [
                     2875.0,
-                    3750.0,
-                    0.0
+                    4000.0,
+                    250.0
                 ],
                 "scale": [
                     250.0,
                     353.5533752441406
                 ],
-                "solid": false,
+                "solid": true,
                 "speed": 0.0,
                 "velocity": [
                     0.0,
@@ -3943,20 +4870,20 @@
                     0.0
                 ],
                 "hitbox": [
-                    0.0,
-                    0.0,
-                    0.0
+                    250.0,
+                    950.0,
+                    500.0
                 ],
                 "position": [
                     3125.0,
-                    3750.0,
-                    0.0
+                    4000.0,
+                    250.0
                 ],
                 "scale": [
                     250.0,
                     353.5533752441406
                 ],
-                "solid": false,
+                "solid": true,
                 "speed": 0.0,
                 "velocity": [
                     0.0,
@@ -3971,20 +4898,20 @@
                     0.0
                 ],
                 "hitbox": [
-                    0.0,
-                    0.0,
-                    0.0
+                    250.0,
+                    950.0,
+                    500.0
                 ],
                 "position": [
                     3375.0,
-                    3750.0,
-                    0.0
+                    4000.0,
+                    250.0
                 ],
                 "scale": [
                     250.0,
                     353.5533752441406
                 ],
-                "solid": false,
+                "solid": true,
                 "speed": 0.0,
                 "velocity": [
                     0.0,
@@ -3999,20 +4926,20 @@
                     0.0
                 ],
                 "hitbox": [
-                    0.0,
-                    0.0,
-                    0.0
+                    250.0,
+                    950.0,
+                    500.0
                 ],
                 "position": [
                     3625.0,
-                    3750.0,
-                    0.0
+                    4000.0,
+                    250.0
                 ],
                 "scale": [
                     250.0,
                     353.5533752441406
                 ],
-                "solid": false,
+                "solid": true,
                 "speed": 0.0,
                 "velocity": [
                     0.0,
@@ -4027,20 +4954,20 @@
                     0.0
                 ],
                 "hitbox": [
-                    0.0,
-                    0.0,
-                    0.0
+                    250.0,
+                    950.0,
+                    500.0
                 ],
                 "position": [
                     3875.0,
-                    3750.0,
-                    0.0
+                    4000.0,
+                    250.0
                 ],
                 "scale": [
                     250.0,
                     353.5533752441406
                 ],
-                "solid": false,
+                "solid": true,
                 "speed": 0.0,
                 "velocity": [
                     0.0,
@@ -4055,20 +4982,20 @@
                     0.0
                 ],
                 "hitbox": [
-                    0.0,
-                    0.0,
-                    0.0
+                    250.0,
+                    950.0,
+                    500.0
                 ],
                 "position": [
                     4125.0,
-                    3750.0,
-                    0.0
+                    4000.0,
+                    250.0
                 ],
                 "scale": [
                     250.0,
                     353.5533752441406
                 ],
-                "solid": false,
+                "solid": true,
                 "speed": 0.0,
                 "velocity": [
                     0.0,
@@ -4083,20 +5010,20 @@
                     0.0
                 ],
                 "hitbox": [
-                    0.0,
-                    0.0,
-                    0.0
+                    250.0,
+                    950.0,
+                    500.0
                 ],
                 "position": [
                     4375.0,
-                    3750.0,
-                    0.0
+                    4000.0,
+                    250.0
                 ],
                 "scale": [
                     250.0,
                     353.5533752441406
                 ],
-                "solid": false,
+                "solid": true,
                 "speed": 0.0,
                 "velocity": [
                     0.0,
@@ -4111,384 +5038,20 @@
                     0.0
                 ],
                 "hitbox": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
                     250.0,
-                    350.0,
-                    0.0
-                ],
-                "scale": [
-                    500.0,
-                    353.5533752441406
-                ],
-                "solid": false,
-                "speed": 0.0,
-                "velocity": [
-                    0.0,
-                    0.0,
-                    0.0
-                ]
-            },
-            {
-                "angle": 0.0,
-                "facing": [
-                    0.0,
-                    0.0
-                ],
-                "hitbox": [
-                    0.0,
-                    0.0,
-                    0.0
+                    950.0,
+                    500.0
                 ],
                 "position": [
+                    4625.0,
+                    4000.0,
+                    250.0
+                ],
+                "scale": [
                     250.0,
-                    850.0,
-                    0.0
-                ],
-                "scale": [
-                    500.0,
                     353.5533752441406
                 ],
-                "solid": false,
-                "speed": 0.0,
-                "velocity": [
-                    0.0,
-                    0.0,
-                    0.0
-                ]
-            },
-            {
-                "angle": 0.0,
-                "facing": [
-                    0.0,
-                    0.0
-                ],
-                "hitbox": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    250.0,
-                    1350.0,
-                    0.0
-                ],
-                "scale": [
-                    500.0,
-                    353.5533752441406
-                ],
-                "solid": false,
-                "speed": 0.0,
-                "velocity": [
-                    0.0,
-                    0.0,
-                    0.0
-                ]
-            },
-            {
-                "angle": 0.0,
-                "facing": [
-                    0.0,
-                    0.0
-                ],
-                "hitbox": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    250.0,
-                    1850.0,
-                    0.0
-                ],
-                "scale": [
-                    500.0,
-                    353.5533752441406
-                ],
-                "solid": false,
-                "speed": 0.0,
-                "velocity": [
-                    0.0,
-                    0.0,
-                    0.0
-                ]
-            },
-            {
-                "angle": 0.0,
-                "facing": [
-                    0.0,
-                    0.0
-                ],
-                "hitbox": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    250.0,
-                    2350.0,
-                    0.0
-                ],
-                "scale": [
-                    500.0,
-                    353.5533752441406
-                ],
-                "solid": false,
-                "speed": 0.0,
-                "velocity": [
-                    0.0,
-                    0.0,
-                    0.0
-                ]
-            },
-            {
-                "angle": 0.0,
-                "facing": [
-                    0.0,
-                    0.0
-                ],
-                "hitbox": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    250.0,
-                    2850.0,
-                    0.0
-                ],
-                "scale": [
-                    500.0,
-                    353.5533752441406
-                ],
-                "solid": false,
-                "speed": 0.0,
-                "velocity": [
-                    0.0,
-                    0.0,
-                    0.0
-                ]
-            },
-            {
-                "angle": 0.0,
-                "facing": [
-                    0.0,
-                    0.0
-                ],
-                "hitbox": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    250.0,
-                    3350.0,
-                    0.0
-                ],
-                "scale": [
-                    500.0,
-                    353.5533752441406
-                ],
-                "solid": false,
-                "speed": 0.0,
-                "velocity": [
-                    0.0,
-                    0.0,
-                    0.0
-                ]
-            },
-            {
-                "angle": 0.0,
-                "facing": [
-                    0.0,
-                    0.0
-                ],
-                "hitbox": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    4750.0,
-                    350.0,
-                    0.0
-                ],
-                "scale": [
-                    -500.0,
-                    353.5533752441406
-                ],
-                "solid": false,
-                "speed": 0.0,
-                "velocity": [
-                    0.0,
-                    0.0,
-                    0.0
-                ]
-            },
-            {
-                "angle": 0.0,
-                "facing": [
-                    0.0,
-                    0.0
-                ],
-                "hitbox": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    4750.0,
-                    850.0,
-                    0.0
-                ],
-                "scale": [
-                    -500.0,
-                    353.5533752441406
-                ],
-                "solid": false,
-                "speed": 0.0,
-                "velocity": [
-                    0.0,
-                    0.0,
-                    0.0
-                ]
-            },
-            {
-                "angle": 0.0,
-                "facing": [
-                    0.0,
-                    0.0
-                ],
-                "hitbox": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    4750.0,
-                    1350.0,
-                    0.0
-                ],
-                "scale": [
-                    -500.0,
-                    353.5533752441406
-                ],
-                "solid": false,
-                "speed": 0.0,
-                "velocity": [
-                    0.0,
-                    0.0,
-                    0.0
-                ]
-            },
-            {
-                "angle": 0.0,
-                "facing": [
-                    0.0,
-                    0.0
-                ],
-                "hitbox": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    4750.0,
-                    1850.0,
-                    0.0
-                ],
-                "scale": [
-                    -500.0,
-                    353.5533752441406
-                ],
-                "solid": false,
-                "speed": 0.0,
-                "velocity": [
-                    0.0,
-                    0.0,
-                    0.0
-                ]
-            },
-            {
-                "angle": 0.0,
-                "facing": [
-                    0.0,
-                    0.0
-                ],
-                "hitbox": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    4750.0,
-                    2350.0,
-                    0.0
-                ],
-                "scale": [
-                    -500.0,
-                    353.5533752441406
-                ],
-                "solid": false,
-                "speed": 0.0,
-                "velocity": [
-                    0.0,
-                    0.0,
-                    0.0
-                ]
-            },
-            {
-                "angle": 0.0,
-                "facing": [
-                    0.0,
-                    0.0
-                ],
-                "hitbox": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    4750.0,
-                    2850.0,
-                    0.0
-                ],
-                "scale": [
-                    -500.0,
-                    353.5533752441406
-                ],
-                "solid": false,
-                "speed": 0.0,
-                "velocity": [
-                    0.0,
-                    0.0,
-                    0.0
-                ]
-            },
-            {
-                "angle": 0.0,
-                "facing": [
-                    0.0,
-                    0.0
-                ],
-                "hitbox": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    4750.0,
-                    3350.0,
-                    0.0
-                ],
-                "scale": [
-                    -500.0,
-                    353.5533752441406
-                ],
-                "solid": false,
+                "solid": true,
                 "speed": 0.0,
                 "velocity": [
                     0.0,
@@ -4508,8 +5071,8 @@
                     797.616455078125
                 ],
                 "position": [
-                    1580.984619140625,
-                    2364.10986328125,
+                    4013.4765625,
+                    3099.895263671875,
                     398.8082275390625
                 ],
                 "scale": [
@@ -4536,8 +5099,8 @@
                     797.616455078125
                 ],
                 "position": [
-                    2536.670166015625,
-                    3218.0,
+                    2179.0224609375,
+                    2636.182861328125,
                     398.8082275390625
                 ],
                 "scale": [
@@ -4564,8 +5127,8 @@
                     797.616455078125
                 ],
                 "position": [
-                    1122.876953125,
-                    2843.54248046875,
+                    3179.385986328125,
+                    3304.74169921875,
                     398.8082275390625
                 ],
                 "scale": [
@@ -4592,8 +5155,8 @@
                     797.616455078125
                 ],
                 "position": [
-                    2304.255859375,
-                    1500.390380859375,
+                    3557.571044921875,
+                    2308.69287109375,
                     398.8082275390625
                 ],
                 "scale": [
@@ -4620,8 +5183,8 @@
                     140.00714111328125
                 ],
                 "position": [
-                    3834.586181640625,
-                    814.0577392578125,
+                    1432.1883544921875,
+                    3271.864990234375,
                     70.00357055664063
                 ],
                 "scale": [
@@ -4648,8 +5211,8 @@
                     140.00714111328125
                 ],
                 "position": [
-                    2491.93408203125,
-                    2093.55712890625,
+                    1403.6597900390625,
+                    2089.133544921875,
                     70.00357055664063
                 ],
                 "scale": [
@@ -4676,8 +5239,8 @@
                     140.00714111328125
                 ],
                 "position": [
-                    2626.098388671875,
-                    1966.2679443359375,
+                    909.863525390625,
+                    553.4989013671875,
                     70.00357055664063
                 ],
                 "scale": [
@@ -4704,8 +5267,8 @@
                     140.00714111328125
                 ],
                 "position": [
-                    2724.20556640625,
-                    711.6024169921875,
+                    2255.724609375,
+                    1682.09716796875,
                     70.00357055664063
                 ],
                 "scale": [
@@ -4732,8 +5295,8 @@
                     140.00714111328125
                 ],
                 "position": [
-                    3997.607421875,
-                    2152.246337890625,
+                    4007.841796875,
+                    2186.20751953125,
                     70.00357055664063
                 ],
                 "scale": [
@@ -4760,8 +5323,8 @@
                     140.00714111328125
                 ],
                 "position": [
-                    910.2348022460938,
-                    2178.18017578125,
+                    4100.08251953125,
+                    3150.880126953125,
                     70.00357055664063
                 ],
                 "scale": [
@@ -4788,8 +5351,8 @@
                     140.00714111328125
                 ],
                 "position": [
-                    4291.771484375,
-                    1548.4490966796875,
+                    3643.02197265625,
+                    1134.860595703125,
                     70.00357055664063
                 ],
                 "scale": [
@@ -4816,8 +5379,8 @@
                     140.00714111328125
                 ],
                 "position": [
-                    4170.81640625,
-                    1387.675537109375,
+                    3624.561279296875,
+                    716.9909057617188,
                     70.00357055664063
                 ],
                 "scale": [
@@ -4844,8 +5407,8 @@
                     140.00714111328125
                 ],
                 "position": [
-                    3902.446533203125,
-                    582.5093994140625,
+                    901.9454956054688,
+                    2539.99951171875,
                     70.00357055664063
                 ],
                 "scale": [
@@ -4872,8 +5435,8 @@
                     140.00714111328125
                 ],
                 "position": [
-                    3695.04638671875,
-                    807.258544921875,
+                    2316.98095703125,
+                    1246.315673828125,
                     70.00357055664063
                 ],
                 "scale": [
@@ -4900,8 +5463,8 @@
                     140.00714111328125
                 ],
                 "position": [
-                    4154.3388671875,
-                    2203.330078125,
+                    1377.537353515625,
+                    3286.416748046875,
                     70.00357055664063
                 ],
                 "scale": [
@@ -4928,8 +5491,8 @@
                     140.00714111328125
                 ],
                 "position": [
-                    2444.62353515625,
-                    2381.1123046875,
+                    3809.06640625,
+                    1918.5570068359375,
                     70.00357055664063
                 ],
                 "scale": [
@@ -4956,8 +5519,8 @@
                     140.00714111328125
                 ],
                 "position": [
-                    1891.0966796875,
-                    3115.112060546875,
+                    635.4824829101563,
+                    1219.150390625,
                     70.00357055664063
                 ],
                 "scale": [
@@ -4984,8 +5547,8 @@
                     140.00714111328125
                 ],
                 "position": [
-                    1420.77392578125,
-                    2374.2099609375,
+                    629.2562866210938,
+                    2090.70361328125,
                     70.00357055664063
                 ],
                 "scale": [
@@ -5012,8 +5575,8 @@
                     140.00714111328125
                 ],
                 "position": [
-                    2383.834228515625,
-                    1877.1268310546875,
+                    4337.822265625,
+                    3153.482666015625,
                     70.00357055664063
                 ],
                 "scale": [
@@ -5040,8 +5603,8 @@
                     140.00714111328125
                 ],
                 "position": [
-                    3149.836181640625,
-                    1632.604248046875,
+                    1506.4283447265625,
+                    1647.5494384765625,
                     70.00357055664063
                 ],
                 "scale": [
@@ -5068,8 +5631,8 @@
                     140.00714111328125
                 ],
                 "position": [
-                    3120.196044921875,
-                    1069.93408203125,
+                    2016.4715576171875,
+                    1256.47119140625,
                     70.00357055664063
                 ],
                 "scale": [
@@ -5096,8 +5659,8 @@
                     140.00714111328125
                 ],
                 "position": [
-                    3985.659423828125,
-                    2409.0341796875,
+                    512.0609741210938,
+                    2042.1142578125,
                     70.00357055664063
                 ],
                 "scale": [
@@ -5124,8 +5687,8 @@
                     140.00714111328125
                 ],
                 "position": [
-                    1287.69140625,
-                    1734.34619140625,
+                    3507.818359375,
+                    2278.00634765625,
                     70.00357055664063
                 ],
                 "scale": [
@@ -5152,8 +5715,8 @@
                     140.00714111328125
                 ],
                 "position": [
-                    4264.828125,
-                    767.0032958984375,
+                    858.2284545898438,
+                    2823.78759765625,
                     70.00357055664063
                 ],
                 "scale": [
@@ -5180,8 +5743,8 @@
                     148.492431640625
                 ],
                 "position": [
-                    1860.571533203125,
-                    2726.1220703125,
+                    3747.87646484375,
+                    1182.069091796875,
                     74.2462158203125
                 ],
                 "scale": [
@@ -5208,8 +5771,8 @@
                     148.492431640625
                 ],
                 "position": [
-                    3156.607666015625,
-                    2564.05224609375,
+                    2379.9716796875,
+                    2652.363525390625,
                     74.2462158203125
                 ],
                 "scale": [
@@ -5236,8 +5799,8 @@
                     148.492431640625
                 ],
                 "position": [
-                    1404.880615234375,
-                    2144.88720703125,
+                    702.03662109375,
+                    1957.70458984375,
                     74.2462158203125
                 ],
                 "scale": [
@@ -5264,8 +5827,8 @@
                     148.492431640625
                 ],
                 "position": [
-                    3239.888671875,
-                    3031.32080078125,
+                    3663.97412109375,
+                    844.0263061523438,
                     74.2462158203125
                 ],
                 "scale": [
@@ -5292,8 +5855,8 @@
                     148.492431640625
                 ],
                 "position": [
-                    3235.232177734375,
-                    1620.3597412109375,
+                    668.7152709960938,
+                    2975.041748046875,
                     74.2462158203125
                 ],
                 "scale": [
@@ -5320,8 +5883,8 @@
                     148.492431640625
                 ],
                 "position": [
-                    1279.710205078125,
-                    2102.52587890625,
+                    3305.072021484375,
+                    3424.43212890625,
                     74.2462158203125
                 ],
                 "scale": [
@@ -5348,8 +5911,8 @@
                     148.492431640625
                 ],
                 "position": [
-                    814.5424194335938,
-                    1291.718017578125,
+                    4428.50146484375,
+                    2686.3359375,
                     74.2462158203125
                 ],
                 "scale": [
@@ -5376,8 +5939,8 @@
                     148.492431640625
                 ],
                 "position": [
-                    1052.960693359375,
-                    556.3641967773438,
+                    3755.34326171875,
+                    755.6842041015625,
                     74.2462158203125
                 ],
                 "scale": [
@@ -5404,8 +5967,8 @@
                     148.492431640625
                 ],
                 "position": [
-                    3151.77685546875,
-                    2113.30908203125,
+                    3456.875,
+                    2130.580078125,
                     74.2462158203125
                 ],
                 "scale": [
@@ -5432,8 +5995,8 @@
                     148.492431640625
                 ],
                 "position": [
-                    3044.829833984375,
-                    1398.6650390625,
+                    1867.2779541015625,
+                    1913.1396484375,
                     74.2462158203125
                 ],
                 "scale": [
@@ -5460,8 +6023,8 @@
                     148.492431640625
                 ],
                 "position": [
-                    2285.129150390625,
-                    1167.302490234375,
+                    2729.10205078125,
+                    982.2767944335938,
                     74.2462158203125
                 ],
                 "scale": [
@@ -5488,8 +6051,8 @@
                     148.492431640625
                 ],
                 "position": [
-                    2255.826171875,
-                    3223.075439453125,
+                    3043.040771484375,
+                    2104.608154296875,
                     74.2462158203125
                 ],
                 "scale": [
@@ -5516,8 +6079,8 @@
                     148.492431640625
                 ],
                 "position": [
-                    2880.355712890625,
-                    756.2706909179688,
+                    1099.0628662109375,
+                    2530.97216796875,
                     74.2462158203125
                 ],
                 "scale": [
@@ -5544,8 +6107,8 @@
                     148.492431640625
                 ],
                 "position": [
-                    721.8548583984375,
-                    2194.645263671875,
+                    897.3762817382813,
+                    971.10107421875,
                     74.2462158203125
                 ],
                 "scale": [
@@ -5572,8 +6135,8 @@
                     148.492431640625
                 ],
                 "position": [
-                    2036.8624267578125,
-                    2744.700439453125,
+                    3792.47802734375,
+                    1012.4774780273438,
                     74.2462158203125
                 ],
                 "scale": [
@@ -5600,8 +6163,8 @@
                     118.79393768310547
                 ],
                 "position": [
-                    2500.0,
-                    2000.0,
+                    2873.9267578125,
+                    2613.42822265625,
                     59.396968841552734
                 ],
                 "scale": [
@@ -5614,6 +6177,594 @@
                     0.0,
                     0.0,
                     0.0
+                ]
+            },
+            {
+                "angle": 0.0,
+                "facing": [
+                    -0.5750861763954163,
+                    0.8180928826332092
+                ],
+                "hitbox": [
+                    84.0,
+                    57.0,
+                    80.61017608642578
+                ],
+                "position": [
+                    2444.114013671875,
+                    2578.86376953125,
+                    40.30508804321289
+                ],
+                "scale": [
+                    -84.0,
+                    57.0
+                ],
+                "solid": true,
+                "speed": 0.20000000298023224,
+                "velocity": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            {
+                "angle": 0.0,
+                "facing": [
+                    0.0,
+                    0.0
+                ],
+                "hitbox": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    2423.114013671875,
+                    2578.86376953125,
+                    105.61017608642578
+                ],
+                "scale": [
+                    42.0,
+                    10.0
+                ],
+                "solid": false,
+                "speed": 0.0,
+                "velocity": [
+                    0.0,
+                    0.0,
+                    -0.1607399880886078
+                ]
+            },
+            {
+                "angle": 0.0,
+                "facing": [
+                    0.0,
+                    0.0
+                ],
+                "hitbox": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    2423.114013671875,
+                    2578.86376953125,
+                    105.61017608642578
+                ],
+                "scale": [
+                    60.0,
+                    10.0
+                ],
+                "solid": false,
+                "speed": 0.0,
+                "velocity": [
+                    0.0,
+                    0.0,
+                    -0.1607399880886078
+                ]
+            },
+            {
+                "angle": 1.5707963705062866,
+                "facing": [
+                    0.8028676509857178,
+                    0.5941587686538696
+                ],
+                "hitbox": [
+                    144.24978637695313,
+                    57.0,
+                    57.0
+                ],
+                "position": [
+                    2406.731689453125,
+                    2256.57177734375,
+                    28.5
+                ],
+                "scale": [
+                    96.0,
+                    108.0
+                ],
+                "solid": true,
+                "speed": 0.30000001192092896,
+                "velocity": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            {
+                "angle": 0.0,
+                "facing": [
+                    0.0,
+                    0.0
+                ],
+                "hitbox": [
+                    39.0,
+                    39.0,
+                    72.12489318847656
+                ],
+                "position": [
+                    1785.0140380859375,
+                    2176.556640625,
+                    36.06244659423828
+                ],
+                "scale": [
+                    39.0,
+                    51.0
+                ],
+                "solid": false,
+                "speed": 0.0,
+                "velocity": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            {
+                "angle": 0.0,
+                "facing": [
+                    0.0,
+                    0.0
+                ],
+                "hitbox": [
+                    51.0,
+                    51.0,
+                    63.639610290527344
+                ],
+                "position": [
+                    1373.887939453125,
+                    1885.6201171875,
+                    31.819805145263672
+                ],
+                "scale": [
+                    51.0,
+                    51.0
+                ],
+                "solid": false,
+                "speed": 0.0,
+                "velocity": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            {
+                "angle": 0.0,
+                "facing": [
+                    0.8999630212783813,
+                    0.4359660744667053
+                ],
+                "hitbox": [
+                    48.0,
+                    24.0,
+                    33.94112777709961
+                ],
+                "position": [
+                    2605.54931640625,
+                    2555.5341796875,
+                    480.0
+                ],
+                "scale": [
+                    48.0,
+                    48.0
+                ],
+                "solid": true,
+                "speed": 0.30000001192092896,
+                "velocity": [
+                    0.24534544348716736,
+                    0.11885187774896622,
+                    0.0
+                ]
+            },
+            {
+                "angle": 0.0,
+                "facing": [
+                    0.0,
+                    0.0
+                ],
+                "hitbox": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    2575.54931640625,
+                    2555.5341796875,
+                    538.9411010742188
+                ],
+                "scale": [
+                    60.0,
+                    10.0
+                ],
+                "solid": false,
+                "speed": 0.0,
+                "velocity": [
+                    0.0,
+                    0.0,
+                    -15.407102584838867
+                ]
+            },
+            {
+                "angle": 0.0,
+                "facing": [
+                    0.0,
+                    0.0
+                ],
+                "hitbox": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    2575.54931640625,
+                    2555.5341796875,
+                    538.9411010742188
+                ],
+                "scale": [
+                    60.0,
+                    10.0
+                ],
+                "solid": false,
+                "speed": 0.0,
+                "velocity": [
+                    0.0,
+                    0.0,
+                    -15.407102584838867
+                ]
+            },
+            {
+                "angle": 0.0,
+                "facing": [
+                    -0.9444087743759155,
+                    -0.3287736773490906
+                ],
+                "hitbox": [
+                    48.0,
+                    24.0,
+                    33.94112777709961
+                ],
+                "position": [
+                    2877.83935546875,
+                    2615.39404296875,
+                    480.0
+                ],
+                "scale": [
+                    -48.0,
+                    48.0
+                ],
+                "solid": true,
+                "speed": 0.30000001192092896,
+                "velocity": [
+                    -0.2016494870185852,
+                    -0.07019951939582825,
+                    0.0
+                ]
+            },
+            {
+                "angle": 0.0,
+                "facing": [
+                    0.0,
+                    0.0
+                ],
+                "hitbox": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    2847.83935546875,
+                    2615.39404296875,
+                    538.9411010742188
+                ],
+                "scale": [
+                    60.0,
+                    10.0
+                ],
+                "solid": false,
+                "speed": 0.0,
+                "velocity": [
+                    0.0,
+                    0.0,
+                    -25.299823760986328
+                ]
+            },
+            {
+                "angle": 0.0,
+                "facing": [
+                    0.0,
+                    0.0
+                ],
+                "hitbox": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    2847.83935546875,
+                    2615.39404296875,
+                    538.9411010742188
+                ],
+                "scale": [
+                    60.0,
+                    10.0
+                ],
+                "solid": false,
+                "speed": 0.0,
+                "velocity": [
+                    0.0,
+                    0.0,
+                    -25.299823760986328
+                ]
+            },
+            {
+                "angle": 0.0,
+                "facing": [
+                    0.81147700548172,
+                    0.5843844413757324
+                ],
+                "hitbox": [
+                    48.0,
+                    24.0,
+                    33.94112777709961
+                ],
+                "position": [
+                    2509.813720703125,
+                    2407.80810546875,
+                    480.0
+                ],
+                "scale": [
+                    48.0,
+                    48.0
+                ],
+                "solid": true,
+                "speed": 0.30000001192092896,
+                "velocity": [
+                    0.20015381276607513,
+                    0.1441405862569809,
+                    0.0
+                ]
+            },
+            {
+                "angle": 0.0,
+                "facing": [
+                    0.0,
+                    0.0
+                ],
+                "hitbox": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    2479.813720703125,
+                    2407.80810546875,
+                    538.9411010742188
+                ],
+                "scale": [
+                    60.0,
+                    10.0
+                ],
+                "solid": false,
+                "speed": 0.0,
+                "velocity": [
+                    0.0,
+                    0.0,
+                    -13.908870697021484
+                ]
+            },
+            {
+                "angle": 0.0,
+                "facing": [
+                    0.0,
+                    0.0
+                ],
+                "hitbox": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    2479.813720703125,
+                    2407.80810546875,
+                    538.9411010742188
+                ],
+                "scale": [
+                    60.0,
+                    10.0
+                ],
+                "solid": false,
+                "speed": 0.0,
+                "velocity": [
+                    0.0,
+                    0.0,
+                    -13.908870697021484
+                ]
+            },
+            {
+                "angle": 0.0,
+                "facing": [
+                    0.7180308103561401,
+                    0.6960113048553467
+                ],
+                "hitbox": [
+                    48.0,
+                    24.0,
+                    33.94112777709961
+                ],
+                "position": [
+                    2614.86328125,
+                    2253.61474609375,
+                    480.0
+                ],
+                "scale": [
+                    48.0,
+                    48.0
+                ],
+                "solid": true,
+                "speed": 0.30000001192092896,
+                "velocity": [
+                    0.20546755194664001,
+                    0.19916656613349915,
+                    0.0
+                ]
+            },
+            {
+                "angle": 0.0,
+                "facing": [
+                    0.0,
+                    0.0
+                ],
+                "hitbox": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    2584.86328125,
+                    2253.61474609375,
+                    538.9411010742188
+                ],
+                "scale": [
+                    60.0,
+                    10.0
+                ],
+                "solid": false,
+                "speed": 0.0,
+                "velocity": [
+                    0.0,
+                    0.0,
+                    -10.741620063781738
+                ]
+            },
+            {
+                "angle": 0.0,
+                "facing": [
+                    0.0,
+                    0.0
+                ],
+                "hitbox": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    2584.86328125,
+                    2253.61474609375,
+                    538.9411010742188
+                ],
+                "scale": [
+                    60.0,
+                    10.0
+                ],
+                "solid": false,
+                "speed": 0.0,
+                "velocity": [
+                    0.0,
+                    0.0,
+                    -10.741620063781738
+                ]
+            },
+            {
+                "angle": 0.0,
+                "facing": [
+                    0.6221731901168823,
+                    0.782879650592804
+                ],
+                "hitbox": [
+                    48.0,
+                    24.0,
+                    33.94112777709961
+                ],
+                "position": [
+                    2805.3447265625,
+                    2484.22900390625,
+                    516.0
+                ],
+                "scale": [
+                    48.0,
+                    48.0
+                ],
+                "solid": true,
+                "speed": 0.30000001192092896,
+                "velocity": [
+                    0.15304431319236755,
+                    0.19257545471191406,
+                    0.0
+                ]
+            },
+            {
+                "angle": 0.0,
+                "facing": [
+                    0.0,
+                    0.0
+                ],
+                "hitbox": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    2775.3447265625,
+                    2484.22900390625,
+                    574.9411010742188
+                ],
+                "scale": [
+                    60.0,
+                    10.0
+                ],
+                "solid": false,
+                "speed": 0.0,
+                "velocity": [
+                    0.0,
+                    0.0,
+                    -24.127185821533203
+                ]
+            },
+            {
+                "angle": 0.0,
+                "facing": [
+                    0.0,
+                    0.0
+                ],
+                "hitbox": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    2775.3447265625,
+                    2484.22900390625,
+                    574.9411010742188
+                ],
+                "scale": [
+                    60.0,
+                    10.0
+                ],
+                "solid": false,
+                "speed": 0.0,
+                "velocity": [
+                    0.0,
+                    0.0,
+                    -24.127185821533203
                 ]
             }
         ],
@@ -5783,7 +6934,34 @@
             166,
             167,
             168,
-            169
+            169,
+            170,
+            171,
+            172,
+            173,
+            174,
+            175,
+            197,
+            198,
+            199,
+            203,
+            245,
+            244,
+            210,
+            211,
+            212,
+            216,
+            217,
+            218,
+            222,
+            223,
+            224,
+            228,
+            229,
+            230,
+            234,
+            235,
+            236
         ]
     },
     "obstacles": {
@@ -5826,9 +7004,107 @@
             null,
             null,
             null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
             null
         ],
         "entities": [
+            84,
+            85,
+            86,
+            87,
+            88,
+            89,
+            90,
+            91,
+            92,
+            93,
+            94,
+            95,
+            96,
+            97,
+            98,
+            99,
+            100,
+            101,
+            102,
+            103,
+            104,
+            105,
+            106,
+            107,
+            108,
+            109,
+            110,
+            111,
+            112,
+            113,
+            114,
+            115,
+            116,
+            117,
+            118,
+            119,
+            120,
+            121,
+            122,
+            123,
+            124,
+            125,
+            126,
+            127,
+            128,
+            129,
             130,
             131,
             132,
@@ -5867,7 +7143,13 @@
             165,
             166,
             167,
-            168
+            168,
+            169,
+            170,
+            171,
+            172,
+            173,
+            174
         ]
     },
     "players": {
@@ -5885,7 +7167,7 @@
             }
         ],
         "entities": [
-            169
+            175
         ]
     },
     "projectiles": {
@@ -6474,97 +7756,13 @@
                 "primitive_type": 0,
                 "used_effect": 0,
                 "used_geometry": 0,
-                "used_texture": 32
+                "used_texture": 34
             },
             {
                 "primitive_type": 0,
                 "used_effect": 0,
                 "used_geometry": 0,
-                "used_texture": 32
-            },
-            {
-                "primitive_type": 0,
-                "used_effect": 0,
-                "used_geometry": 0,
-                "used_texture": 32
-            },
-            {
-                "primitive_type": 0,
-                "used_effect": 0,
-                "used_geometry": 0,
-                "used_texture": 32
-            },
-            {
-                "primitive_type": 0,
-                "used_effect": 0,
-                "used_geometry": 0,
-                "used_texture": 32
-            },
-            {
-                "primitive_type": 0,
-                "used_effect": 0,
-                "used_geometry": 0,
-                "used_texture": 32
-            },
-            {
-                "primitive_type": 0,
-                "used_effect": 0,
-                "used_geometry": 0,
-                "used_texture": 32
-            },
-            {
-                "primitive_type": 0,
-                "used_effect": 0,
-                "used_geometry": 0,
-                "used_texture": 32
-            },
-            {
-                "primitive_type": 0,
-                "used_effect": 0,
-                "used_geometry": 0,
-                "used_texture": 32
-            },
-            {
-                "primitive_type": 0,
-                "used_effect": 0,
-                "used_geometry": 0,
-                "used_texture": 32
-            },
-            {
-                "primitive_type": 0,
-                "used_effect": 0,
-                "used_geometry": 0,
-                "used_texture": 32
-            },
-            {
-                "primitive_type": 0,
-                "used_effect": 0,
-                "used_geometry": 0,
-                "used_texture": 32
-            },
-            {
-                "primitive_type": 0,
-                "used_effect": 0,
-                "used_geometry": 0,
-                "used_texture": 32
-            },
-            {
-                "primitive_type": 0,
-                "used_effect": 0,
-                "used_geometry": 0,
-                "used_texture": 32
-            },
-            {
-                "primitive_type": 0,
-                "used_effect": 0,
-                "used_geometry": 0,
-                "used_texture": 32
-            },
-            {
-                "primitive_type": 0,
-                "used_effect": 0,
-                "used_geometry": 0,
-                "used_texture": 32
+                "used_texture": 34
             },
             {
                 "primitive_type": 0,
@@ -6649,6 +7847,126 @@
                 "used_effect": 0,
                 "used_geometry": 0,
                 "used_texture": 33
+            },
+            {
+                "primitive_type": 0,
+                "used_effect": 0,
+                "used_geometry": 0,
+                "used_texture": 33
+            },
+            {
+                "primitive_type": 0,
+                "used_effect": 0,
+                "used_geometry": 0,
+                "used_texture": 33
+            },
+            {
+                "primitive_type": 0,
+                "used_effect": 0,
+                "used_geometry": 0,
+                "used_texture": 32
+            },
+            {
+                "primitive_type": 0,
+                "used_effect": 0,
+                "used_geometry": 0,
+                "used_texture": 32
+            },
+            {
+                "primitive_type": 0,
+                "used_effect": 0,
+                "used_geometry": 0,
+                "used_texture": 32
+            },
+            {
+                "primitive_type": 0,
+                "used_effect": 0,
+                "used_geometry": 0,
+                "used_texture": 32
+            },
+            {
+                "primitive_type": 0,
+                "used_effect": 0,
+                "used_geometry": 0,
+                "used_texture": 32
+            },
+            {
+                "primitive_type": 0,
+                "used_effect": 0,
+                "used_geometry": 0,
+                "used_texture": 32
+            },
+            {
+                "primitive_type": 0,
+                "used_effect": 0,
+                "used_geometry": 0,
+                "used_texture": 32
+            },
+            {
+                "primitive_type": 0,
+                "used_effect": 0,
+                "used_geometry": 0,
+                "used_texture": 32
+            },
+            {
+                "primitive_type": 0,
+                "used_effect": 0,
+                "used_geometry": 0,
+                "used_texture": 32
+            },
+            {
+                "primitive_type": 0,
+                "used_effect": 0,
+                "used_geometry": 0,
+                "used_texture": 32
+            },
+            {
+                "primitive_type": 0,
+                "used_effect": 0,
+                "used_geometry": 0,
+                "used_texture": 32
+            },
+            {
+                "primitive_type": 0,
+                "used_effect": 0,
+                "used_geometry": 0,
+                "used_texture": 32
+            },
+            {
+                "primitive_type": 0,
+                "used_effect": 0,
+                "used_geometry": 0,
+                "used_texture": 32
+            },
+            {
+                "primitive_type": 0,
+                "used_effect": 0,
+                "used_geometry": 0,
+                "used_texture": 32
+            },
+            {
+                "primitive_type": 0,
+                "used_effect": 0,
+                "used_geometry": 0,
+                "used_texture": 32
+            },
+            {
+                "primitive_type": 0,
+                "used_effect": 0,
+                "used_geometry": 0,
+                "used_texture": 32
+            },
+            {
+                "primitive_type": 0,
+                "used_effect": 0,
+                "used_geometry": 0,
+                "used_texture": 32
+            },
+            {
+                "primitive_type": 0,
+                "used_effect": 0,
+                "used_geometry": 0,
+                "used_texture": 32
             },
             {
                 "primitive_type": 0,
@@ -6658,9 +7976,9 @@
             },
             {
                 "primitive_type": 0,
-                "used_effect": 2,
+                "used_effect": 4,
                 "used_geometry": 0,
-                "used_texture": 29
+                "used_texture": 22
             },
             {
                 "primitive_type": 0,
@@ -6963,6 +8281,132 @@
                 "used_texture": -1
             },
             {
+                "primitive_type": 1,
+                "used_effect": 3,
+                "used_geometry": 2,
+                "used_texture": -1
+            },
+            {
+                "primitive_type": 0,
+                "used_effect": 5,
+                "used_geometry": 0,
+                "used_texture": 3
+            },
+            {
+                "primitive_type": 0,
+                "used_effect": 3,
+                "used_geometry": 2,
+                "used_texture": -1
+            },
+            {
+                "primitive_type": 1,
+                "used_effect": 3,
+                "used_geometry": 2,
+                "used_texture": -1
+            },
+            {
+                "primitive_type": 0,
+                "used_effect": 5,
+                "used_geometry": 0,
+                "used_texture": 2
+            },
+            {
+                "primitive_type": 0,
+                "used_effect": 2,
+                "used_geometry": 0,
+                "used_texture": 29
+            },
+            {
+                "primitive_type": 0,
+                "used_effect": 4,
+                "used_geometry": 0,
+                "used_texture": 20
+            },
+            {
+                "primitive_type": 0,
+                "used_effect": 5,
+                "used_geometry": 0,
+                "used_texture": 37
+            },
+            {
+                "primitive_type": 0,
+                "used_effect": 3,
+                "used_geometry": 2,
+                "used_texture": -1
+            },
+            {
+                "primitive_type": 1,
+                "used_effect": 3,
+                "used_geometry": 2,
+                "used_texture": -1
+            },
+            {
+                "primitive_type": 0,
+                "used_effect": 5,
+                "used_geometry": 0,
+                "used_texture": 37
+            },
+            {
+                "primitive_type": 0,
+                "used_effect": 3,
+                "used_geometry": 2,
+                "used_texture": -1
+            },
+            {
+                "primitive_type": 1,
+                "used_effect": 3,
+                "used_geometry": 2,
+                "used_texture": -1
+            },
+            {
+                "primitive_type": 0,
+                "used_effect": 5,
+                "used_geometry": 0,
+                "used_texture": 37
+            },
+            {
+                "primitive_type": 0,
+                "used_effect": 3,
+                "used_geometry": 2,
+                "used_texture": -1
+            },
+            {
+                "primitive_type": 1,
+                "used_effect": 3,
+                "used_geometry": 2,
+                "used_texture": -1
+            },
+            {
+                "primitive_type": 0,
+                "used_effect": 5,
+                "used_geometry": 0,
+                "used_texture": 37
+            },
+            {
+                "primitive_type": 0,
+                "used_effect": 3,
+                "used_geometry": 2,
+                "used_texture": -1
+            },
+            {
+                "primitive_type": 1,
+                "used_effect": 3,
+                "used_geometry": 2,
+                "used_texture": -1
+            },
+            {
+                "primitive_type": 0,
+                "used_effect": 5,
+                "used_geometry": 0,
+                "used_texture": 37
+            },
+            {
+                "primitive_type": 0,
+                "used_effect": 3,
+                "used_geometry": 2,
+                "used_texture": -1
+            },
+            {
                 "primitive_type": 0,
                 "used_effect": 2,
                 "used_geometry": 0,
@@ -7102,16 +8546,16 @@
             127,
             128,
             129,
-            189,
-            132,
             130,
             131,
+            132,
+            133,
             134,
             135,
-            136,
+            195,
+            245,
             137,
             138,
-            139,
             140,
             141,
             142,
@@ -7145,31 +8589,58 @@
             170,
             171,
             172,
+            173,
+            174,
+            175,
             176,
             177,
             178,
             182,
             183,
             184,
-            185,
-            186,
             188,
-            133,
-            191
+            189,
+            190,
+            191,
+            192,
+            194,
+            236,
+            197,
+            198,
+            199,
+            203,
+            136,
+            244,
+            210,
+            211,
+            212,
+            216,
+            217,
+            218,
+            222,
+            223,
+            224,
+            228,
+            229,
+            230,
+            234,
+            235,
+            139,
+            246
         ]
     },
     "staminaBars": {
         "components": [
             {
-                "frameEntity": 177,
+                "frameEntity": 183,
                 "height": 20.0,
-                "meshEntity": 176,
-                "textEntity": 178,
+                "meshEntity": 182,
+                "textEntity": 184,
                 "width": 150.0
             }
         ],
         "entities": [
-            169
+            175
         ]
     },
     "staminas": {
@@ -7183,7 +8654,7 @@
             }
         ],
         "entities": [
-            169
+            175
         ]
     },
     "targetAreas": {
@@ -7202,10 +8673,10 @@
                 "value": "PAUSE/PLAY(P)    HELP (H)"
             },
             {
-                "value": "00 fps"
+                "value": "59 fps"
             },
             {
-                "value": "00:00:00"
+                "value": "00:00:12"
             },
             {
                 "value": "*00"
@@ -7215,13 +8686,13 @@
             }
         ],
         "entities": [
-            172,
             178,
-            182,
-            183,
             184,
-            185,
-            188
+            188,
+            189,
+            190,
+            191,
+            194
         ]
     },
     "trappables": {
@@ -7229,10 +8700,45 @@
             {
                 "isTrapped": false,
                 "originalSpeed": 0.5
+            },
+            {
+                "isTrapped": false,
+                "originalSpeed": 0.20000000298023224
+            },
+            {
+                "isTrapped": false,
+                "originalSpeed": 0.30000001192092896
+            },
+            {
+                "isTrapped": false,
+                "originalSpeed": 0.30000001192092896
+            },
+            {
+                "isTrapped": false,
+                "originalSpeed": 0.30000001192092896
+            },
+            {
+                "isTrapped": false,
+                "originalSpeed": 0.30000001192092896
+            },
+            {
+                "isTrapped": false,
+                "originalSpeed": 0.30000001192092896
+            },
+            {
+                "isTrapped": false,
+                "originalSpeed": 0.30000001192092896
             }
         ],
         "entities": [
-            169
+            175,
+            197,
+            203,
+            210,
+            216,
+            222,
+            228,
+            234
         ]
     },
     "traps": {
@@ -7242,11 +8748,11 @@
     "trapsCounter": {
         "phantom_trap": {
             "count": 0,
-            "textEntity": 188
+            "textEntity": 194
         },
         "trap": {
             "count": 0,
-            "textEntity": 185
+            "textEntity": 191
         }
     },
     "trolls": {

@@ -687,6 +687,7 @@ void GameSaveManager::createBoarDeserialization(std::map<std::string, nlohmann::
 
 	if (componentsMap.find(DEATHTIMERS) != componentsMap.end()) {
 		handleDeathTimer(boar, componentsMap);
+		registry.enemies.remove(boar);
 	}
 	else {
 		handleEnemy(boar, componentsMap);
@@ -704,6 +705,7 @@ void GameSaveManager::createBarbarianDeserialization(std::map<std::string, nlohm
 	// essential values to update
 	if (componentsMap.find(DEATHTIMERS) != componentsMap.end()) {
 		handleDeathTimer(barbarian, componentsMap);
+		registry.enemies.remove(barbarian);
 	}
 	else {
 		handleEnemy(barbarian, componentsMap);
@@ -723,6 +725,7 @@ void GameSaveManager::createArcherDeserialization(std::map<std::string, nlohmann
 
 	if (componentsMap.find(DEATHTIMERS) != componentsMap.end()) {
 		handleDeathTimer(archer, componentsMap);
+		registry.enemies.remove(archer);
 	}
 	else {
 		handleEnemy(archer, componentsMap);
@@ -742,6 +745,7 @@ void GameSaveManager::createBirdDeserialization(std::map<std::string, nlohmann::
 
 	if (componentsMap.find(DEATHTIMERS) != componentsMap.end()) {
 		handleDeathTimer(bird, componentsMap);
+		registry.enemies.remove(bird);
 	}
 	else {
 		handleEnemy(bird, componentsMap);
@@ -760,6 +764,7 @@ void GameSaveManager::createWizardDeserialization(std::map<std::string, nlohmann
 
 	if (componentsMap.find(DEATHTIMERS) != componentsMap.end()) {
 		handleDeathTimer(wizard, componentsMap);
+		registry.enemies.remove(wizard);
 	}
 	else {
 		handleEnemy(wizard, componentsMap);
@@ -778,6 +783,7 @@ void GameSaveManager::createTrollDeserialization(std::map<std::string, nlohmann:
 
 	if (componentsMap.find(DEATHTIMERS) != componentsMap.end()) {
 		handleDeathTimer(troll, componentsMap);
+		registry.enemies.remove(troll);
 	}
 	else {
 		handleEnemy(troll, componentsMap);

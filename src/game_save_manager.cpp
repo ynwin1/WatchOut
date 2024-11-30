@@ -882,6 +882,9 @@ void GameSaveManager::deserialize_traps_counter(const json& j) {
 
 // DESERIALIZATION HELPERS (COMPONENTS)
 void GameSaveManager::handleDeathTimer(Entity& entity, std::map<std::string, nlohmann::json> componentsMap) {
+	// remove from enemies container first (because creating entity puts the enemy automatically into enemey container)
+	registry.enemies.remove(entity);
+
 	DeathTimer& deathTimer = registry.deathTimers.emplace(entity);
 	AnimationController& animationController = registry.animationControllers.get(entity);
 	animationController.changeState(entity, AnimationState::Dead);

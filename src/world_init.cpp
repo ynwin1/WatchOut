@@ -5,7 +5,6 @@
 #include "ai_system.hpp"
 #include <random>
 #include <sstream>
-#include "render_system.hpp"
 
 // Boar creation
 Entity createBoar(vec2 pos)
@@ -812,7 +811,7 @@ Entity createTrapsCounterText(vec2 windowSize) {
 
 	Foreground& icon = registry.foregrounds.emplace(iconE);
 	icon.scale = { TRAP_COLLECTABLE_BB_WIDTH * 1.25, TRAP_COLLECTABLE_BB_WIDTH * 1.25 };
-	icon.position = {position.x - 20.0f, position.y + 16.0f};
+	icon.position = {position.x - 25.0f, position.y + 16.0f};
 
 	registry.renderRequests.insert(
 		iconE, 
@@ -828,7 +827,7 @@ Entity createTrapsCounterText(vec2 windowSize) {
 Entity createPhantomTrapsCounterText(vec2 windowSize) {
 	auto textE = Entity();
 
-	vec2 position = { (windowSize.x / 2) - 380.0f, windowSize.y - 80.0f };
+	vec2 position = { (windowSize.x / 2) - 360.0f, windowSize.y - 80.0f };
 
 	registry.texts.emplace(textE);
 	Foreground& fg = registry.foregrounds.emplace(textE);
@@ -849,7 +848,7 @@ Entity createPhantomTrapsCounterText(vec2 windowSize) {
 
 	Foreground& icon = registry.foregrounds.emplace(iconE);
 	icon.scale = { PHANTOM_TRAP_COLLECTABLE_BB_WIDTH * 0.85, PHANTOM_TRAP_COLLECTABLE_BB_HEIGHT * 0.85 };
-	icon.position = { position.x - 40.0f, position.y + 16.0f };
+	icon.position = { position.x - 25.0f, position.y + 16.0f };
 
 	registry.renderRequests.insert(
 		iconE,
@@ -1069,7 +1068,7 @@ void createMapTiles() {
     }
 }
 
-void createGameOverText(vec2 windowSize, GameStateController& gameStateController) {
+void createGameOverText(vec2 windowSize) {
 	auto backdrop = Entity();
 	Foreground& backdropFg = registry.foregrounds.emplace(backdrop);
 	backdropFg.position = {0.0f, 0.0f};
@@ -1085,8 +1084,8 @@ void createGameOverText(vec2 windowSize, GameStateController& gameStateControlle
 		});
 
 	std::vector<Entity> entities;
-	GameTimer& gameTimer = gameStateController.gameTimer;
-	GameScore& gameScore = gameStateController.gameScore;
+	GameTimer& gameTimer = registry.gameTimer;
+	GameScore& gameScore = registry.gameScore;
 
 	auto entity1 = Entity();
 	Text& text1 = registry.texts.emplace(entity1);
@@ -1202,7 +1201,7 @@ Entity createPointsEarnedText(std::string textValue, Entity anchoredWorldEntity,
 	slideUp.fadeIn = true;
 
 	registry.renderRequests.insert(
-		entity, 
+		entity,
 		{
 			TEXTURE_ASSET_ID::NONE,
 			EFFECT_ASSET_ID::FONT,
@@ -1231,7 +1230,7 @@ Entity createComboText(int comboValue, vec2 windowSize) {
 	slideUp.animationLength = 2000.f;
 
 	registry.renderRequests.insert(
-		entity, 
+		entity,
 		{
 			TEXTURE_ASSET_ID::NONE,
 			EFFECT_ASSET_ID::FONT,
@@ -1246,11 +1245,11 @@ Entity createScoreText(vec2 windowSize) {
 
 	registry.texts.emplace(entity);
 	Foreground& fg = registry.foregrounds.emplace(entity);
-	fg.position = {(windowSize.x / 2) - 300.0f, windowSize.y - 70.0f};
+	fg.position = {(windowSize.x / 2) - 200.0f, windowSize.y - 70.0f};
 	fg.scale = {1.5f, 1.5f};
 
 	registry.renderRequests.insert(
-		entity, 
+		entity,
 		{
 			TEXTURE_ASSET_ID::NONE,
 			EFFECT_ASSET_ID::FONT,

@@ -29,7 +29,7 @@ void RenderSystem::drawText(Entity entity, const mat4& projection_screen) {
 	glActiveTexture(GL_TEXTURE0);
 
 	std::vector<vec2> renderPositions = getTextRenderPositions(text.value, fg.scale.x, text.lineSpacing, text.alignment, fg.position);
-	
+
 	float lineIndex = 0;
 	float startX = renderPositions[lineIndex].x;
 	float startY = renderPositions[lineIndex].y;
@@ -42,7 +42,7 @@ void RenderSystem::drawText(Entity entity, const mat4& projection_screen) {
 
 		if (*c == '\n') {
 			lineIndex++;
-			startX = renderPositions[lineIndex].x; 
+			startX = renderPositions[lineIndex].x;
         	startY = renderPositions[lineIndex].y;
         	continue;
     	}
@@ -444,7 +444,7 @@ void RenderSystem::draw()
 
 	// Draw all foreground textures
 	for (Entity entity : registry.foregrounds.entities) {
-		if(entity == fpsTracker.textEntity && !fpsTracker.toggled) {
+		if(entity == registry.fpsTracker.textEntity && !registry.fpsTracker.toggled) {
 			continue; //skip rendering fps if not toggled
 		} else if(registry.texts.has(entity)) {
 			drawText(entity, projection_screen);
@@ -497,7 +497,6 @@ void RenderSystem::step(float elapsed_ms)
 	updateEntityFacing();
 	updateCollectedPosition();
 	updateSlideUps(elapsed_ms);
-	updateFPSText(elapsed_ms);
 }
 
 void RenderSystem::update_animations() {
@@ -721,15 +720,6 @@ void RenderSystem::updateEntityFacing() {
       motion.scale.x = -1.0f * abs(motion.scale.x);
     }
 	}
-}
-
-void RenderSystem::updateFPSText(float elapsed_ms) {
-    fpsTracker.update(elapsed_ms);
-
-    if(fpsTracker.elapsedTime == 0) {
-        Text& text = registry.texts.get(fpsTracker.textEntity);
-        text.value = std::to_string(fpsTracker.fps) + " fps";
-    }
 }
 
 mat4 RenderSystem::createProjectionToScreenSpace()  {

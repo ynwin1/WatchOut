@@ -153,8 +153,6 @@ class RenderSystem {
 public:
 	GLFWwindow* create_window();
 
-	FPSTracker fpsTracker;
-
 	// Initialize the window
 	bool init(Camera* camera);
 
@@ -225,10 +223,6 @@ private:
 	void updateCollectedPosition();
 
 	void updateSlideUps(float elapsed_ms);
-
-	Entity createFPSText();
-	void updateFPSText(float elapsed_ms);
-
 	// Window handle
 	GLFWwindow* window;
 };

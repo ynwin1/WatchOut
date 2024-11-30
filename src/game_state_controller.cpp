@@ -36,7 +36,7 @@ void GameStateController::beforeEnterState(GAME_STATE newState) {
         return;
     }
     if (newState == GAME_STATE::GAMEOVER) {
-        createGameOverText(world->camera->getSize(), *this);
+        createGameOverText(world->camera->getSize());
         registry.slideUps.clear();
         return;
     }
@@ -48,10 +48,7 @@ void GameStateController::beforeEnterState(GAME_STATE newState) {
 }
 
 void GameStateController::restart() {
-    currentGameState = GAME_STATE::PLAYING;
-    gameTimer.reset();
-    trapsCounter.reset();
-    gameScore.reset();
+    setGameState(GAME_STATE::PLAYING);
     enemiesKilled.resetKillSpan();
     survivalBonusTimer = 0;
 }

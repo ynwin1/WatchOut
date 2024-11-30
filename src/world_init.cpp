@@ -125,7 +125,7 @@ Entity createBirdFlock(vec2 pos)
     for (int i = 0; i < flockSize; ++i)
     {
 		// Spawn birds with spacing
-		vec2 birdPosition = pos + vec2(i * spacing, 0);
+		vec2 birdPosition = pos + vec2(i % 2, (i % 2 + 1)) * spacing;
 		Entity bird = createBird(birdPosition);
 		if (i == 0) {
 			repBird = bird;

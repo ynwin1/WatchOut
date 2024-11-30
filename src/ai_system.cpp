@@ -885,8 +885,8 @@ void AISystem::step(float elapsed_ms)
     }
     vec3 playerPosition = registry.motions.get(registry.players.entities.at(0)).position;
     for (Entity enemy : registry.enemies.entities) {
-        std::pair<bool, vec3> isPhantomCloser = is_phantom_closer(enemy).first ? is_phantom_closer(enemy) : std::make_pair(false, playerPosition);
-        vec3 targetPosition = isPhantomCloser.second;
+        std::pair<bool, vec3> isPhantomCloser = is_phantom_closer(enemy);
+        vec3 targetPosition = isPhantomCloser.first ? isPhantomCloser.second : playerPosition;
         if (registry.boars.has(enemy)) {
             boarBehaviour(enemy, targetPosition, elapsed_ms);
         }

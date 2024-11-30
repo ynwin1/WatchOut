@@ -11,7 +11,7 @@ Entity createBoar(vec2 pos)
 {
 	auto entity = Entity();
 
-	// Setting intial motion values
+	// Setting intial	 motion values
 	Motion& motion = registry.motions.emplace(entity);
 	motion.position = vec3(pos, getElevation(pos) + BOAR_BB_HEIGHT / 2);
 	motion.angle = 0.f;
@@ -421,8 +421,8 @@ Entity createJeff(vec2 position)
 	pointLight.diffuse = vec4(1.0, .75, 0.25, 1.0);
 	pointLight.max_distance = 3250;
 	pointLight.constant = 1.0;
-	pointLight.linear = .0001;
-	pointLight.quadratic = 0.0;
+	pointLight.linear = .0005;
+	pointLight.quadratic = 0.00003;
 	
 	return entity;
 }

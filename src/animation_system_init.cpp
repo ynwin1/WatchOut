@@ -58,6 +58,11 @@ const int COLLECTIBLE_IDLE_NUM_FRAMES = 1;
 const int COLLECTIBLE_FADE_FRAME_TIME = 100;
 const int COLLECTIBLE_FADE_NUM_FRAMES = 2;
 
+const int PHANTOM_TRAP_FRAME_TIME = 100;
+const int PHANTOM_TRAP_NUM_FRAMES = 8;
+const int PHANTOM_TRAP_FADE_FRAME_TIME = 100;
+const int PHANTOM_TRAP_FADE_NUM_FRAMES = 8;
+
 AnimationController& initJeffAnimationController(Entity& jeff) {
     AnimationController& animationcontroller = registry.animationControllers.emplace(jeff);
 	animationcontroller.addAnimation(AnimationState::Idle, JEFF_IDLE_FRAME_TIME, JEFF_IDLE_NUM_FRAMES, TEXTURE_ASSET_ID::JEFF_IDLE);
@@ -68,7 +73,7 @@ AnimationController& initJeffAnimationController(Entity& jeff) {
 		jeff,
 		{
 			TEXTURE_ASSET_ID::JEFF_IDLE,
-			EFFECT_ASSET_ID::ANIMATED,
+			EFFECT_ASSET_ID::ANIMATED_NORMAL,
 			GEOMETRY_BUFFER_ID::SPRITE
 		});
 
@@ -86,7 +91,7 @@ AnimationController& initBarbarianAnimationController(Entity& entity) {
 		entity,
 		{
 			TEXTURE_ASSET_ID::BARBARIAN_RUN,
-			EFFECT_ASSET_ID::ANIMATED,
+			EFFECT_ASSET_ID::ANIMATED_NORMAL,
 			GEOMETRY_BUFFER_ID::SPRITE
 		});
 
@@ -105,7 +110,7 @@ AnimationController& initBoarAnimationController(Entity& entity) {
 		entity,
 		{
 			TEXTURE_ASSET_ID::BOAR_RUN,
-			EFFECT_ASSET_ID::ANIMATED,
+			EFFECT_ASSET_ID::ANIMATED_NORMAL,
 			GEOMETRY_BUFFER_ID::SPRITE
 		});
 
@@ -125,7 +130,7 @@ AnimationController& initArcherAnimationController(Entity& entity) {
 		entity,
 		{
 			TEXTURE_ASSET_ID::ARCHER_RUN,
-			EFFECT_ASSET_ID::ANIMATED,
+			EFFECT_ASSET_ID::ANIMATED_NORMAL,
 			GEOMETRY_BUFFER_ID::SPRITE
 		});
 
@@ -144,7 +149,7 @@ AnimationController& initBirdAnimationController(Entity& entity) {
 		entity,
 		{
 			TEXTURE_ASSET_ID::BIRD_FLY,
-			EFFECT_ASSET_ID::ANIMATED,
+			EFFECT_ASSET_ID::ANIMATED_NORMAL,
 			GEOMETRY_BUFFER_ID::SPRITE
 		});
 	animationcontroller.changeState(entity, AnimationState::Flying);
@@ -162,7 +167,7 @@ AnimationController& initWizardAnimationController(Entity& entity) {
 		entity,
 		{
 			TEXTURE_ASSET_ID::WIZARD_RUN,
-			EFFECT_ASSET_ID::ANIMATED,
+			EFFECT_ASSET_ID::ANIMATED_NORMAL,
 			GEOMETRY_BUFFER_ID::SPRITE
 		});
 
@@ -214,7 +219,7 @@ AnimationController& initTrollAnimationController(Entity& entity) {
 		entity,
 		{
 			TEXTURE_ASSET_ID::TROLL_RUN,
-			EFFECT_ASSET_ID::ANIMATED,
+			EFFECT_ASSET_ID::ANIMATED_NORMAL,
 			GEOMETRY_BUFFER_ID::SPRITE
 		});
 
@@ -257,4 +262,22 @@ AnimationController& initTrapBottleAnimationController(Entity& entity) {
 	animationcontroller.changeState(entity, AnimationState::Idle);
 
     return animationcontroller;
+}
+
+AnimationController& initPhantomTrapAnimationController(Entity& entity) {
+	AnimationController& animationcontroller = registry.animationControllers.emplace(entity);
+	animationcontroller.addAnimation(AnimationState::Idle, PHANTOM_TRAP_FRAME_TIME, PHANTOM_TRAP_NUM_FRAMES, TEXTURE_ASSET_ID::PHANTOM_TRAP_BOTTLE);
+	animationcontroller.addAnimation(AnimationState::Fading, PHANTOM_TRAP_FADE_FRAME_TIME, PHANTOM_TRAP_FADE_NUM_FRAMES, TEXTURE_ASSET_ID::PHANTOM_TRAP_BOTTLE_FADE);
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::PHANTOM_TRAP_BOTTLE,
+			EFFECT_ASSET_ID::ANIMATED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	animationcontroller.changeState(entity, AnimationState::Idle);
+
+	return animationcontroller;
 }

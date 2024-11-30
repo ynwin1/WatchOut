@@ -11,6 +11,7 @@
 #include <sound_system.hpp>
 #include <world_init.hpp>
 #include <game_state_controller.hpp>
+#include <game_save_manager.hpp>
 
 // Container for all our entities and game logic
 class WorldSystem
@@ -19,7 +20,7 @@ public:
 	WorldSystem(std::default_random_engine& rng);
 
 	// starts the game
-	void init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics, AISystem* ai, SoundSystem* sound);
+	void init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics, AISystem* ai, SoundSystem* sound, GameSaveManager* saveManager);
 
 	// Releases all associated resources
 	~WorldSystem();
@@ -39,10 +40,22 @@ public:
 
 	friend class GameStateController;
 
+	// restart level
+	void restart_game();
+	void initText();
+	void soundSetUp();
+
+	// load game
+	void load_game();
+	void reloadText();
+
 private:
 	const float DIFFICULTY_INTERVAL = 45000.0f;
 	const unsigned int MAX_TOTAL_ENEMIES = 100;
 	const float SURVIVAL_BONUS_INTERVAL = 120000.0f;
+
+	std::string DAMAGE_TRAP = "trap";
+	std::string PHANTOM_TRAP = "phantom_trap";
 
 	// GLFW Window handle
 	GLFWwindow* window;
@@ -51,11 +64,10 @@ private:
 	AISystem* ai;
 	Camera* camera;
 	SoundSystem* sound;
+	TrapsCounter trapsCounter;
+	GameSaveManager* saveManager;
 
 	bool isWindowed = false;
-
-	// Lighting variables
-	float ambientLight = .5;
 
 	Entity playerEntity;
 	std::unordered_map<std::string, float> spawn_delays;
@@ -76,7 +88,7 @@ private:
 	const std::unordered_map<std::string, int> initial_max_entities = {
 		{"boar", 1},
 		{"barbarian", 1},
-		{"archer", -1},
+		{"archer", -2},
 		{"bird", 1},
 		{"wizard", -2},
 		{"troll", -3},
@@ -111,18 +123,13 @@ private:
 	// Key uses entities cast to ints for comparisons.
 	std::map<std::pair<int, int>, float> collisionCooldowns;
 
-	// Sound variables
-	bool isMovingSoundPlaying = false;
-	bool isBirdFlockSoundPlaying = false;
-
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);
 	void on_mouse_move(vec2 mouse_position);
 
-	// restart level
-	void restart_game();
-	void initText();
-	void soundSetUp();
+	// Save game
+	void save_game();
+
 
 	// Actions performed for each step
 	void spawn(float elapsed_ms);
@@ -132,14 +139,14 @@ private:
 	void despawn_collectibles(float elapsed_ms);
 	void handle_stamina(float elapsed_ms);
 	vec2 get_spawn_location(const std::string& entity_type);
-	void place_trap(Player& player, Motion& motion, bool forward);
+	void place_trap(Player& player, Motion& motion, bool forward, std::string type);
 	void checkAndHandlePlayerDeath(Entity& entity);
-	void updateGameTimerText(float elapsed_ms);
+	void trackFPS(float elapsed_ms);
+	void updateGameTimer(float elapsed_ms);
 	void updateTrapsCounterText();
 	void toggleMesh();
 	void adjustSpawnSystem(float elapsed_ms);
 	void resetSpawnSystem();
-	void inGameSounds();
 	void loadAndSaveHighScore(bool save);
 	void on_window_focus(int focused);
 	void destroyDamagings();
@@ -151,6 +158,7 @@ private:
 	void updateComboText();
 	void updateScoreText();
 	void handleSurvivalBonusPoints(float elapsed_ms);
+	void updateLightPosition();
 
 
 	// Collision functions
@@ -171,6 +179,8 @@ private:
 	void pauseControls(int key, int action, int mod);
 	void gameOverControls(int key, int action, int mod);
 	void helpControls(int key, int action, int mod);
+
+	void clearSaveText();
 
 	// Help/Pause Menu functions
 	Entity createHelpMenu(vec2 cameraPosition);

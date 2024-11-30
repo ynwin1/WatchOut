@@ -1,6 +1,14 @@
 #pragma once
 #include "common.hpp"
 #include <vector>
+#include <unordered_map>
+
+/*
+
+Making changes to the structure of the components will require changes to the following files:
+game_save_manager.cpp (serialize and deserialize the attributes you are adding or removing)
+
+*/
 
 
 // PlayerComponents 
@@ -23,7 +31,6 @@ struct Stamina {
     float stamina_loss_rate = 50;
 	float stamina_recovery_rate = 10;
 	float timer = 3000;
-
 };
 
 //Dashing
@@ -98,14 +105,23 @@ struct Collected {
 };
 
 // Trap Component
-struct Trap
-{
-	// fixed position and scale once set
+struct BaseTrap {
 	vec2 position = { 0, 0 };
 	vec2 scale = { 3, 3 };
-	unsigned int damage = 15.0;
 	float duration = 10000;
+};
+
+// Inheritance
+struct Trap : public BaseTrap
+{
+	// fixed position and scale once set
+	unsigned int damage = 15.0;
 	float slowFactor = 0.1f;
+};
+
+struct PhantomTrap : public BaseTrap
+{
+	using BaseTrap::BaseTrap;
 };
 
 // All data relevant to the shape and motion of entities
@@ -119,8 +135,7 @@ struct Motion {
 
 	// Hitbox
 	vec3 hitbox = { 0, 0, 0 };
-	float solid = false;
-
+	bool solid = false;
 };
 
 // Stucture to store collision information
@@ -160,9 +175,20 @@ struct Knocker
 	float strength = 1.f;
 };
 
+struct TrapsCounter {
+	// <trap type, <number of traps, trap text entity>>
+	std::unordered_map<std::string, std::pair<int, Entity>> trapsMap;
+
+	void reset() {
+		// reset trap counts to 0
+		//for (auto& trap : trapsMap) {
+		//	trap.second.first = 0;
+		//}
+		trapsMap.clear();
+	}
+};
+
 struct MapTile {
-	vec2 position;
-	vec2 scale;
 };
 
 struct Obstacle {
@@ -170,6 +196,47 @@ struct Obstacle {
 };
 
 struct TargetArea {
+};
+
+struct GameScore {
+	int score = 0;
+	int highScore = 0;
+	int highScoreHours = 0;
+	int highScoreMinutes = 0;
+	int highScoreSeconds = 0;
+	Entity textEntity;
+};
+
+struct GameTimer {
+	int hours = 0;
+	int minutes = 0;
+	int seconds = 0;
+	float ms = 0;
+	float elapsed = 0;
+	Entity textEntity;
+	void update(float elapsedTime) {
+		ms += elapsedTime;
+		elapsed += elapsedTime;
+		if(ms >= 1000.f) {
+			ms -= 1000;
+        	seconds += 1;
+    	}
+    	if(seconds >= 60) {
+        	seconds -= 60;
+        	minutes += 1;
+    	}
+    	if(minutes >= 60) {
+        	minutes -= 60;
+        	hours += 1;
+    	}
+	}
+	void reset() {
+		ms = 0;
+		elapsed = 0;
+		hours = 0;
+		minutes = 0;
+		seconds = 0;
+	}
 };
 
 enum class TEXT_ALIGNMENT {
@@ -200,6 +267,24 @@ struct TextChar {
     glm::ivec2   size;       // Size of glyph
     glm::ivec2   bearing;    // Offset from baseline to left/top of glyph
     unsigned int advance;    // Offset to advance to next glyph
+};
+
+struct FPSTracker {
+	int fps = 0;
+	int counter = 0;
+	float elapsedTime = 0;
+	Entity textEntity;
+	bool toggled = false;
+	void update(float elapsed_ms) {
+		elapsedTime += elapsed_ms;
+		counter += 1;
+
+    	if(elapsedTime >= 1000) {
+        	fps = counter;
+        	counter = 0;
+        	elapsedTime = 0;
+    	}
+	}
 };
 
 struct ColoredVertex
@@ -266,11 +351,15 @@ struct Wizard {
 
 struct Troll {
 	float desiredAngle = 0;
+	float laughCooldown = 20000.f;
 };
 
 // Collectible types
 struct Heart { unsigned int health = 20; };
-struct CollectibleTrap {};
+struct CollectibleTrap 
+{ 
+	std::string type = "trap"; 
+};
 
 struct PauseMenuComponent {};
 struct HelpMenuComponent {};

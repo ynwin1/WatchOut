@@ -29,10 +29,5 @@ void AnimationController::changeState(Entity entity, AnimationState newState)
 		
 		RenderRequest& renderRequest = registry.renderRequests.get(entity);
 		renderRequest.used_texture = newAnimation.spritesheet;
-		if (newAnimation.numFrames == 1) {
-			renderRequest.used_effect = EFFECT_ASSET_ID::TEXTURED;
-		} else {
-			renderRequest.used_effect = EFFECT_ASSET_ID::ANIMATED;
-		}
 	}
 }

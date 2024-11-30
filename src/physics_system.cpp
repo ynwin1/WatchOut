@@ -2,6 +2,7 @@
 #include "world_init.hpp"
 #include "render_system.hpp"
 #include <iostream>
+#include <glm/gtx/string_cast.hpp>
 
 static std::vector<vec2> getPolygonOfBoundingBox(const Motion& motion)
 {
@@ -50,6 +51,7 @@ void PhysicsSystem::handleBoundsCheck() {
 
 	for (uint i = 0; i < motion_container.components.size(); i++) {
 		if (registry.birds.has(motion_container.entities[i]) || 
+			registry.mapTiles.has(motion_container.entities[i]) ||
 			registry.explosions.has(motion_container.entities[i])) {
 			continue;
 		}
@@ -506,6 +508,7 @@ void PhysicsSystem::step(float elapsed_ms)
 std::vector<vec3> boundingBoxVertices(Motion& motion)
 {
 	std::vector<vec3> vertices;
+	vertices.reserve(8);
 	for (auto i : { -0.5f, 0.5f }) {
 		for (auto j : { -0.5f, 0.5f }) {
 			for (auto k : { -0.5f, 0.5f }) {

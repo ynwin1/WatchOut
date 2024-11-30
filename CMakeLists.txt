@@ -40,7 +40,7 @@ if (IS_OS_MAC)
   link_directories(/opt/homebrew/lib)
 endif()
 
-add_executable(${PROJECT_NAME} ${SOURCE_FILES} "src/sound_system.cpp")
+add_executable(${PROJECT_NAME} ${SOURCE_FILES} "src/sound_system.cpp" "src/game_save_manager.cpp")
 target_include_directories(${PROJECT_NAME} PUBLIC src/)
 
 # Added this so policy CMP0065 doesn't scream
@@ -168,6 +168,7 @@ if(NOT TARGET Freetype::Freetype)
 endif()
  
  include_directories("${CMAKE_CURRENT_SOURCE_DIR}/ext/freetype/include")
+ include_directories("${CMAKE_CURRENT_SOURCE_DIR}/ext/json/include")
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${GLFW_INCLUDE_DIRS})
 target_include_directories(${PROJECT_NAME} PUBLIC ${SDL2_INCLUDE_DIRS})

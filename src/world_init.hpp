@@ -34,8 +34,12 @@ const float TREE_BB_WIDTH = 48 * 2 * SPRITE_SCALE;
 
 const float TRAP_BB_WIDTH = 45.f * SPRITE_SCALE;
 const float TRAP_BB_HEIGHT = 13.f * SPRITE_SCALE;
+const float PHANTOM_TRAP_BB_WIDTH = 20.f * SPRITE_SCALE;
+const float PHANTOM_TRAP_BB_HEIGHT = 28.f * SPRITE_SCALE;
 const float TRAP_COLLECTABLE_BB_WIDTH = 13.f * SPRITE_SCALE;
 const float TRAP_COLLECTABLE_BB_HEIGHT = 17.f * SPRITE_SCALE;
+const float PHANTOM_TRAP_COLLECTABLE_BB_WIDTH = 18.f * SPRITE_SCALE;
+const float PHANTOM_TRAP_COLLECTABLE_BB_HEIGHT = 18.f * SPRITE_SCALE;
 const float HEART_BB_WIDTH = 17. * SPRITE_SCALE;
 const float HEART_BB_HEIGHT = 15. * SPRITE_SCALE;
 
@@ -101,6 +105,7 @@ Entity createArcher(vec2 pos);
 
 // The birds
 Entity createBirdFlock(vec2 pos);
+Entity createBird(vec2 pos);
 
 // The wizard
 Entity createWizard(vec2 pos);
@@ -121,6 +126,8 @@ Entity createCollected(Motion& playerM, vec2 size, TEXTURE_ASSET_ID assetID);
 // The damage trap
 Entity createDamageTrap(vec2 pos);
 
+Entity createPhantomTrap(vec2 pos);
+
 // Arrows fired by the archer
 Entity createArrow(vec3 pos, vec3 velocity, int damage);
 
@@ -139,15 +146,13 @@ Entity createPauseHelpText(vec2 windowSize);
 Entity createFPSText(vec2 windowSize);
 Entity createGameTimerText(vec2 windowSize);
 Entity createTrapsCounterText(vec2 windowSize);
+Entity createPhantomTrapsCounterText(vec2 windowSize);
 
 // Game over UI
 void createGameOverText(vec2 windowSize);
 
-// GameOver
-Entity createGameOver(vec2 pos);
-
-// GameOver
-Entity createGameOver(vec2 pos);
+// Game save text
+void createGameSaveText(vec2 windowSize);
 
 // Display bars
 void createHealthBar(Entity characterEntity, vec4 color);
@@ -158,8 +163,9 @@ void createPlayerStaminaBar(Entity characterEntity, vec2 windowSize);
 void createMapTiles();
 Entity createMapTile(vec2 position, vec2 scale);
 Entity createObstacle(vec2 position, vec2 scale, TEXTURE_ASSET_ID assetID);
+Entity createNormalObstacle(vec2 position, vec2 size, TEXTURE_ASSET_ID assetId);
 void createObstacles();
-Entity createTargetArea(vec3 position, float radius);
+Entity createTargetArea(vec3 position);
 
 // Cliffs
 void createCliffs(GLFWwindow* window);

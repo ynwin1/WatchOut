@@ -17,3 +17,4 @@ AnimationController& initHeartAnimationController(Entity& entity);
 AnimationController& initTrapBottleAnimationController(Entity& entity);
 
 AnimationController& initExplosionAnimationController(Entity& entity);
+AnimationController& initPhantomTrapAnimationController(Entity& entity);

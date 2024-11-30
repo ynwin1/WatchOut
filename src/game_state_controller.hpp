@@ -13,7 +13,7 @@ enum class INVENTORY_ITEM
 struct Inventory
 {
     std::unordered_map<INVENTORY_ITEM, int> itemCounts;
-    std::unordered_map<INVENTORY_ITEM, Entity> itemEntities;
+    std::unordered_map<INVENTORY_ITEM, Entity> itemCountTextEntities;
     Entity equippedEntity;
     INVENTORY_ITEM equipped = INVENTORY_ITEM::NONE;
     void equipItem(INVENTORY_ITEM item)
@@ -31,7 +31,7 @@ struct Inventory
             switch (equipped)
             {
             case INVENTORY_ITEM::BOW:
-                equippedEntity = createEquipped(TEXTURE_ASSET_ID::BOW, {BOW_BB_WIDTH, BOW_BB_HEIGHT});
+                equippedEntity = createEquipped(TEXTURE_ASSET_ID::BOW);
                 break;
             default:
                 break;

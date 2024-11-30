@@ -110,10 +110,10 @@ void WorldSystem::initText() {
     registry.fpsTracker.textEntity = createFPSText(camera->getSize());
     registry.gameTimer.reset();
     registry.gameTimer.textEntity = createGameTimerText(camera->getSize());
-    
+
     gameStateController.inventory.reset();
-    std::unordered_map<INVENTORY_ITEM, Entity>& invItemEntities = gameStateController.inventory.itemEntities;
-    invItemEntities[INVENTORY_ITEM::BOW] = createItemCountText(camera->getSize(), TEXTURE_ASSET_ID::BOW);
+    std::unordered_map<INVENTORY_ITEM, Entity>& itemCountTextEntities = gameStateController.inventory.itemCountTextEntities;
+    itemCountTextEntities[INVENTORY_ITEM::BOW] = createItemCountText(camera->getSize(), TEXTURE_ASSET_ID::BOW);
     trapsCounter.reset();
 
     // init trapsCounter with text
@@ -139,7 +139,7 @@ void WorldSystem::trackFPS(float elapsed_ms) {
 
 void WorldSystem::updateInventoryItemText() {
     Inventory& inventory = gameStateController.inventory;
-    for (auto& item : inventory.itemEntities) {
+    for (auto& item : inventory.itemCountTextEntities) {
         if(registry.texts.has(item.second)) {
             Text& text = registry.texts.get(item.second);
             std::stringstream ss;
@@ -204,7 +204,7 @@ void WorldSystem::updateEquippedPosition() {
     if(registry.equipped.has(gameStateController.inventory.equippedEntity)) {
         Motion& equippedM = registry.motions.get(gameStateController.inventory.equippedEntity);
         equippedM.position = playerM.position;
-        
+
         double mousePosX, mousePosY;
         glfwGetCursorPos(window, &mousePosX, &mousePosY);
         vec3 mouseWorldPos = renderer->mouseToWorld({mousePosX, mousePosY});
@@ -389,15 +389,15 @@ void WorldSystem::on_mouse_move(vec2 mouse_position) {
 
 }
 
-void WorldSystem::shootHomingArrow(Entity targetEntity, float angle) {
+Entity WorldSystem::shootHomingArrow(Entity targetEntity, float angle) {
     Motion& targetM = registry.motions.get(targetEntity);
     Motion& motion = registry.motions.get(registry.players.entities.at(0));
 
     vec2 direction = normalize(vec2(targetM.position) - vec2(motion.position));
     vec3 pos = motion.position;
 
-    float x_offset = FIREBALL_HITBOX_WIDTH + motion.hitbox.x / 2;
-    float y_offset = FIREBALL_HITBOX_WIDTH + motion.hitbox.y / 2;
+    float x_offset = ARROW_BB_WIDTH + motion.hitbox.x / 2;
+    float y_offset = ARROW_BB_HEIGHT + motion.hitbox.y / 2;
 	// travelling more horizontally so no y offset
     if (abs(direction.x) > abs(direction.y)) {
         y_offset = 0;
@@ -417,10 +417,11 @@ void WorldSystem::shootHomingArrow(Entity targetEntity, float angle) {
     Entity arrowE = createArrow(pos, vec3(0), PLAYER_ARROW_DAMAGE);
     registry.motions.get(arrowE).angle = angle;
     registry.homingProjectiles.emplace(arrowE, targetEntity).speed = HOMING_ARROW_SPEED;
-    registry.playerDamagings.emplace(arrowE);
+
+    return arrowE;
 }
 
-void WorldSystem::shotArchingArrow(vec3 targetPos) {
+Entity WorldSystem::shootArchingArrow(vec3 targetPos) {
     // Always shoot arrow at 45 degree angle (makes calculations simpler)
     const float ARROW_ANGLE = M_PI / 4;
     const float MAX_ARROW_VELOCITY = 10;
@@ -456,24 +457,24 @@ void WorldSystem::shotArchingArrow(vec3 targetPos) {
 
     // Prevent trying to shoot above what is possible
     if (vertical_distance >= horizontal_distance)
-        return;
+        vertical_distance = horizontal_distance - 1;
 
     float velocity = horizontal_distance * sqrt(-GRAVITATIONAL_CONSTANT / (vertical_distance - horizontal_distance));
 
     // Prevent shooting at crazy speeds
     if (velocity > MAX_ARROW_VELOCITY)
-        return;
+        velocity = MAX_ARROW_VELOCITY;
 
     // Determine velocities for each dimension
     vec2 horizontal_velocity = velocity * cos(ARROW_ANGLE) * horizontal_direction;
     float vertical_velocity = velocity * sin(ARROW_ANGLE);
-    Entity arrowE = createArrow(pos, vec3(horizontal_velocity, vertical_velocity), PLAYER_ARROW_DAMAGE);
-    registry.playerDamagings.emplace(arrowE);
+    return createArrow(pos, vec3(horizontal_velocity, vertical_velocity), PLAYER_ARROW_DAMAGE);
+    
 }
 
 void WorldSystem::shootArrow(vec3 mouseWorldPos) {
     vec3 playerPos = registry.motions.get(playerEntity).position;
-
+    Entity arrow;
     float birdClicked = false;
 
     for(Entity birdE : registry.birds.entities) {
@@ -495,14 +496,16 @@ void WorldSystem::shootArrow(vec3 mouseWorldPos) {
         if(birdClicked) {
             vec2 direction = mouseWorldPos - playerPos;
             float angle = atan2(direction.y, direction.x);
-            shootHomingArrow(birdE, angle);
+            arrow = shootHomingArrow(birdE, angle);
             break;
         }
     }
 
     if(!birdClicked) {
-        shotArchingArrow(mouseWorldPos);
+        arrow = shootArchingArrow(mouseWorldPos);
     }
+
+    registry.damagings.emplace(arrow).excludedEntity = playerEntity;
     
     sound->playSoundEffect(Sound::ARROW, 0);
 
@@ -631,7 +634,7 @@ void WorldSystem::playingControls(int key, int action, int mod)
         case GLFW_KEY_Q:
             place_trap(player_comp, player_motion, false, DAMAGE_TRAP);
             break;
-        case GLFW_KEY_1:
+        case GLFW_KEY_3:
             gameStateController.inventory.equipItem(INVENTORY_ITEM::BOW);
             break;
 		case GLFW_KEY_L:
@@ -1010,7 +1013,7 @@ void WorldSystem::entity_damaging_collision(Entity entity, Entity entity_other, 
 
     if (registry.players.has(entity)) {
         // prevent player taking damage from own damaging object
-        if(registry.playerDamagings.has(entity_other)) {
+        if(registry.players.has(damaging.excludedEntity)) {
             return;
         }
         // reduce player health

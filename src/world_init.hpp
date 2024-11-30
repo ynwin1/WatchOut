@@ -84,7 +84,7 @@ const int BIRD_DAMAGE = 10;
 const int WIZARD_DAMAGE = 50;
 const int TROLL_DAMAGE = 5;
 
-const int PLAYER_ARROW_DAMAGE = 25;
+const int PLAYER_ARROW_DAMAGE = 30;
 
 // Jeff the Player
 Entity createJeff(vec2 position);
@@ -120,7 +120,7 @@ Entity createHeart(vec2 pos);
 // indicator showing the collected item
 Entity createCollected(Motion& playerM, vec2 size, TEXTURE_ASSET_ID assetID);
 
-Entity createEquipped(TEXTURE_ASSET_ID assetId, vec2 size);
+Entity createEquipped(TEXTURE_ASSET_ID assetId);
 
 // The damage trap
 Entity createDamageTrap(vec2 pos);
@@ -141,8 +141,6 @@ Entity createPauseHelpText(vec2 windowSize);
 Entity createFPSText(vec2 windowSize);
 Entity createGameTimerText(vec2 windowSize);
 Entity createItemCountText(vec2 windowSize, TEXTURE_ASSET_ID assetID);
-
-Entity createTrapsCounterText(vec2 windowSize);
 
 // Game over UI
 void createGameOverText(vec2 windowSize);

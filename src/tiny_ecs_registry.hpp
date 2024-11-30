@@ -43,7 +43,6 @@ public:
 	ComponentContainer<TargetArea> targetAreas;
 	ComponentContainer<Collected> collected;
 	ComponentContainer<HomingProjectile> homingProjectiles;
-	ComponentContainer<PlayerDamaging> playerDamagings;
 	ComponentContainer<Equipped> equipped;
 	ComponentContainer<Bow> bows;
 	
@@ -51,7 +50,6 @@ public:
 	ComponentContainer<HelpMenuComponent> helpMenuComponents;
 
 	std::map<char, TextChar> textChars; //for initializing text glyphs from freetype
-	std::vector<Entity> textCharVec; //for initializing text glyphs from freetype
 
 	// Render component containers
 	ComponentContainer<RenderRequest> renderRequests;
@@ -102,7 +100,6 @@ public:
 		registry_list.push_back(&meshPtrs);
 		registry_list.push_back(&collected);
 		registry_list.push_back(&homingProjectiles);
-		registry_list.push_back(&playerDamagings);
 		registry_list.push_back(&equipped);
 		registry_list.push_back(&bows);
 		

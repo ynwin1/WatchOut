@@ -60,6 +60,7 @@ struct Trappable {
 struct Damaging {
 	std::string type = "arrow"; // default type
 	unsigned int damage = 10;
+	Entity excludedEntity;
 };
 
 struct Projectile {
@@ -72,10 +73,6 @@ struct HomingProjectile{
 		this->targetEntity = targetEntity; 
 	}
 	float speed;
-};
-
-struct PlayerDamaging {
-
 };
 
 struct Equipped {

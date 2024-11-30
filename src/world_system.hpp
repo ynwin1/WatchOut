@@ -189,8 +189,8 @@ private:
 
 	void shootProjectile(vec3 mouseWorldPos);
 	void shootArrow(vec3 mouseWorldPos);
-	void shotArchingArrow(vec3 targetPos);
-	void shootHomingArrow(Entity targetEntity, float angle);
+	Entity shootArchingArrow(vec3 targetPos);
+	Entity shootHomingArrow(Entity targetEntity, float angle);
 
 	// C++ random number generator
 	std::default_random_engine rng;

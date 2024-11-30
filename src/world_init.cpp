@@ -550,13 +550,20 @@ Entity createFireball(vec3 pos, vec2 direction) {
 }
 
 
-Entity createEquipped(TEXTURE_ASSET_ID assetId, vec2 size) {
+Entity createEquipped(TEXTURE_ASSET_ID assetId) {
 	auto entity = Entity();
+	vec2 scale;
+
+	switch (assetId) {
+	case TEXTURE_ASSET_ID::BOW:
+		scale = { BOW_BB_WIDTH, BOW_BB_HEIGHT };
+		break;
+	}
 
 	registry.equipped.emplace(entity);
 
 	Motion& motion = registry.motions.emplace(entity);
-	motion.scale = size;
+	motion.scale = scale;
 
 	registry.renderRequests.insert(
 		entity,
@@ -843,7 +850,7 @@ Entity createItemCountText(vec2 windowSize, TEXTURE_ASSET_ID assetID) {
 	auto textKeybindE = Entity();
 	auto textCountE = Entity();
 	auto iconE = Entity();
-	vec2 anchorPos = {420.0f, windowSize.y - 30.0f};
+	vec2 startPos = {420.0f, windowSize.y - 30.0f};
 	vec2 iconScale;
 	vec2 position;
 	std::string keybind;
@@ -851,17 +858,17 @@ Entity createItemCountText(vec2 windowSize, TEXTURE_ASSET_ID assetID) {
 	switch(assetID) {
 		case TEXTURE_ASSET_ID::TRAPCOLLECTABLE:
 			iconScale = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT};
-			position = anchorPos;
+			position = startPos;
 			keybind = "";
 			break;
 		case TEXTURE_ASSET_ID::PHANTOM_TRAP_BOTTLE_ONE:
 			iconScale = { PHANTOM_TRAP_COLLECTABLE_BB_WIDTH * 0.75, PHANTOM_TRAP_COLLECTABLE_BB_HEIGHT * 0.75};
-			position = anchorPos + vec2(80.0f, 0.0f);
+			position = startPos + vec2(80.0f, 0.0f);
 			keybind = "";
 			break;
 		case TEXTURE_ASSET_ID::BOW:
 			iconScale = { BOW_BB_WIDTH * 0.70, BOW_BB_HEIGHT * 0.70};
-			position = anchorPos + vec2(150.0f, 0.0f);
+			position = startPos + vec2(150.0f, 0.0f);
 			keybind = "3";
 			break;
 		default:

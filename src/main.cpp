@@ -9,7 +9,7 @@
 #include <random>
 
 // internal
-#include "world_system.hpp"
+#include <world_system.hpp>
 #include <render_system.hpp>
 #include <physics_system.hpp>
 #include <ai_system.hpp>

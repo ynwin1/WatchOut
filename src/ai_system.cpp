@@ -493,15 +493,15 @@ void AISystem::archerBehaviour(Entity entity, vec3 targetPosition, float elapsed
     }
 }
 
-vec3 AISystem::predictPlayerPosition(Entity playerEntity, float timeToTarget_ms)
+vec3 AISystem::predictTargetPosition(Entity targetEntity, float timeToTarget_ms)
 {
-    Motion& playerMotion = registry.motions.get(playerEntity);
-    vec3 predictedPosition = playerMotion.position + vec3(playerMotion.velocity * playerMotion.speed * timeToTarget_ms);
+    Motion& targetMotion = registry.motions.get(targetEntity);
+    vec3 predictedPosition = targetMotion.position + vec3(targetMotion.velocity * targetMotion.speed * timeToTarget_ms);
 
     return predictedPosition;
 }
 
-void AISystem::bomberBehaviour(Entity entity, Entity playerEntity, float elapsed_ms)
+void AISystem::bomberBehaviour(Entity entity, vec3 targetPosition, float elapsed_ms)
 {
     if (registry.deathTimers.has(entity)) {
         return;
@@ -513,10 +513,10 @@ void AISystem::bomberBehaviour(Entity entity, Entity playerEntity, float elapsed
 
     Motion& motion = registry.motions.get(entity);
     Bomber& bomber = registry.bombers.get(entity);
-    vec3 playerPosition = registry.motions.get(playerEntity).position;
-    float dist = distance(motion.position, playerPosition);
 
-	vec2 direction = normalize(vec2(playerPosition) - vec2(motion.position));
+    float dist = distance(motion.position, targetPosition);
+
+	vec2 direction = normalize(vec2(targetPosition) - vec2(motion.position));
 	std::vector<Entity> obstacles = registry.obstacles.entities;
     float clearDistance;
 
@@ -532,10 +532,9 @@ void AISystem::bomberBehaviour(Entity entity, Entity playerEntity, float elapsed
     }
 
     if (bomber.aiming) {
-        motion.facing = normalize(vec2(playerPosition) - vec2(motion.position));
+        motion.facing = normalize(vec2(targetPosition) - vec2(motion.position));
         if (bomber.throwBombDelayTimer > bomber.throwBombDelay) {
-            vec3 predictedPlayerPosition = predictPlayerPosition(playerEntity, 1000);
-            throwBomb(entity, predictedPlayerPosition);
+            throwBomb(entity, targetPosition);
 
             bomber.throwBombDelayTimer = 0;
             bomber.aiming = false;
@@ -550,7 +549,7 @@ void AISystem::bomberBehaviour(Entity entity, Entity playerEntity, float elapsed
         if(animationController.currentState != AnimationState::Running) {
             animationController.changeState(entity, AnimationState::Running);
         }
-        moveTowardsTarget(entity, playerPosition, elapsed_ms);
+        moveTowardsTarget(entity, targetPosition, elapsed_ms);
     }
 }
 
@@ -886,7 +885,8 @@ void AISystem::step(float elapsed_ms)
     }
     vec3 playerPosition = registry.motions.get(registry.players.entities.at(0)).position;
     for (Entity enemy : registry.enemies.entities) {
-        vec3 targetPosition = is_phantom_closer(enemy).first ? is_phantom_closer(enemy).second : playerPosition;
+        std::pair<bool, vec3> isPhantomCloser = is_phantom_closer(enemy).first ? is_phantom_closer(enemy) : std::make_pair(false, playerPosition);
+        vec3 targetPosition = isPhantomCloser.second;
         if (registry.boars.has(enemy)) {
             boarBehaviour(enemy, targetPosition, elapsed_ms);
         }
@@ -906,7 +906,10 @@ void AISystem::step(float elapsed_ms)
             trollBehaviour(enemy, targetPosition, elapsed_ms);
         }
         else if (registry.bombers.has(enemy)) {
-            bomberBehaviour(enemy, registry.players.entities.at(0), elapsed_ms);
+            if(!isPhantomCloser.first) {
+                targetPosition = predictTargetPosition(registry.players.entities.at(0), 1000);
+            }
+            bomberBehaviour(enemy, targetPosition, elapsed_ms);
         }
     }
 }

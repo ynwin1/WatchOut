@@ -26,7 +26,7 @@ private:
 	void barbarianBehaviour(Entity barbarian, vec3 playerPosition, float elapsed_ms);
 	void trollBehaviour(Entity troll, vec3 playerPosition, float elapsed_ms);
 
-	void bomberBehaviour(Entity entity, Entity playerEntity, float elapsed_ms);
+	void bomberBehaviour(Entity entity, vec3 targetPos, float elapsed_ms);
 	void throwBomb(Entity thrower, vec3 targetPos);
 
 	// Archer functions
@@ -50,7 +50,7 @@ private:
 
 	vec2 randomDirection();
 
-	vec3 predictPlayerPosition(Entity playerEntity, float timeToTarget_ms);
+	vec3 predictTargetPosition(Entity targetEntity, float timeToTarget_ms);
 
 	// C++ random number generator
 	std::default_random_engine rng;

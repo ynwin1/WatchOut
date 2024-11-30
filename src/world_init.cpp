@@ -1268,7 +1268,7 @@ void createExplosion(vec3 pos)
 	Motion& motion = registry.motions.emplace(entity);
 	motion.position = pos;
 	motion.scale = { EXPLOSION_BB_WIDTH + 30.0f, EXPLOSION_BB_HEIGHT + 30.0f };
-	motion.hitbox = { EXPLOSION_BB_WIDTH, EXPLOSION_BB_HEIGHT, 0.0f};
+	motion.hitbox = { EXPLOSION_BB_WIDTH, EXPLOSION_BB_WIDTH, EXPLOSION_BB_HEIGHT / zConversionFactor };
 
 	Knocker& knocker = registry.knockers.emplace(entity);
 	knocker.strength = 1.5f;

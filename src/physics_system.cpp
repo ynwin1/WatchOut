@@ -263,6 +263,11 @@ bool PhysicsSystem::meshCollides(Entity& mesh_entity, Entity& other_entity) {
 void PhysicsSystem::updatePositions(float elapsed_ms)
 {
 	for (Entity entity : registry.motions.entities) {
+		if(registry.explosions.has(entity)) {
+			// don't need to update explosion position
+			continue;
+		}
+
 		Motion& motion = registry.motions.get(entity);
 
 		// Z-position of entity when it is on the ground
@@ -287,9 +292,8 @@ void PhysicsSystem::updatePositions(float elapsed_ms)
 
 		// Apply gravity
 		if (motion.position.z > groundZ) {
-			// Don't apply gravity to fireballs or explosions
-			if ((registry.damagings.has(entity) && registry.damagings.get(entity).type == "fireball") ||
-				registry.explosions.has(entity))
+			// Don't apply gravity to fireballs
+			if (registry.damagings.has(entity) && registry.damagings.get(entity).type == "fireball")
 			{ 
 				continue;
 			}

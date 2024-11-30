@@ -134,6 +134,7 @@ struct Motion {
 
 	// Hitbox
 	vec3 hitbox = { 0, 0, 0 };
+	float gravity = 1.0;			// 1 means affected by gravity normally, 0 is no gravity
 	bool solid = false;
 };
 

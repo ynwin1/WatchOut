@@ -4,6 +4,7 @@
 #include "physics_system.hpp"
 #include "sound_system.hpp"
 #include "game_state_controller.hpp"
+#include "game_save_manager.hpp"
 #include <iostream>
 #include <iomanip> 
 #include <sstream>
@@ -16,7 +17,7 @@ WorldSystem::WorldSystem(std::default_random_engine& rng)
     this->rng = rng;
 }
 
-void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics, AISystem* ai, SoundSystem* sound)
+void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics, AISystem* ai, SoundSystem* sound, GameSaveManager* saveManager)
 {
     
     this->renderer = renderer;
@@ -25,6 +26,7 @@ void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camer
     this->physics = physics;
     this->ai = ai;
 	this->sound = sound;
+	this->saveManager = saveManager;
 
     // Setting callbacks to member functions (that's why the redirect is needed)
     // Input is handled using GLFW, for more info see
@@ -73,6 +75,19 @@ void WorldSystem::restart_game()
     loadAndSaveHighScore(false);
 }
 
+void WorldSystem::load_game() {
+    saveManager->load_game();
+    saveManager->loadTrapsCounter(trapsCounter.trapsMap);
+    // set up texts in foreground
+    reloadText();
+    playerEntity = registry.players.entities[0];
+    gameStateController.setGameState(GAME_STATE::PLAYING);
+}
+
+void WorldSystem::save_game() {
+    std::string filename = "game.txt";
+}
+
 void WorldSystem::updateGameTimer(float elapsed_ms) {
     GameTimer& gameTimer = registry.gameTimer;
 
@@ -92,7 +107,16 @@ void WorldSystem::initText() {
     registry.gameTimer.reset();
     registry.gameTimer.textEntity = createGameTimerText(camera->getSize());
     trapsCounter.reset();
-    trapsCounter.textEntity = createTrapsCounterText(camera->getSize());
+
+    // init trapsCounter with text
+	trapsCounter.trapsMap[DAMAGE_TRAP] = { 0, createTrapsCounterText(camera->getSize()) };
+	trapsCounter.trapsMap[PHANTOM_TRAP] = { 0, createPhantomTrapsCounterText(camera->getSize()) };
+}
+
+void WorldSystem::reloadText() {
+    createPauseHelpText(camera->getSize());
+    registry.fpsTracker.textEntity = createFPSText(camera->getSize());
+    registry.gameTimer.textEntity = createGameTimerText(camera->getSize());
 }
 
 void WorldSystem::trackFPS(float elapsed_ms) {
@@ -106,16 +130,35 @@ void WorldSystem::trackFPS(float elapsed_ms) {
 }
 
 void WorldSystem::updateTrapsCounterText() {
-    Text& text = registry.texts.get(trapsCounter.textEntity);
-    std::stringstream ss;
-    ss << std::setw(2) << std::setfill('0') << trapsCounter.count;
-    text.value = "*" + ss.str();
+    int damageTrapCount = trapsCounter.trapsMap["trap"].first;
+    Entity& damageTrapTextEntity = trapsCounter.trapsMap["trap"].second;
+    int phantomTrapCount = trapsCounter.trapsMap["phantom_trap"].first;
+    Entity& phantomTrapTextEntity = trapsCounter.trapsMap["phantom_trap"].second;
 
-    if(trapsCounter.count == 0) {
-        registry.colours.get(trapsCounter.textEntity) = {0.8f, 0.8f, 0.0f, 1.0f};
+    Text& damageTrapText = registry.texts.get(damageTrapTextEntity);
+    std::stringstream ss;
+    ss << std::setw(2) << std::setfill('0') << damageTrapCount;
+    damageTrapText.value = "*" + ss.str();
+
+	Text& phantomTrapText = registry.texts.get(phantomTrapTextEntity);
+	std::stringstream ss2;
+	ss2 << std::setw(2) << std::setfill('0') << phantomTrapCount;
+	phantomTrapText.value = "*" + ss2.str();
+
+    // Damage Trap
+    if(damageTrapCount == 0) {
+        registry.colours.get(damageTrapTextEntity) = {0.8f, 0.8f, 0.0f, 1.0f};
     } else {
-        registry.colours.get(trapsCounter.textEntity) = {1.0f, 1.0f, 1.0f, 1.0f};
+        registry.colours.get(damageTrapTextEntity) = {1.0f, 1.0f, 1.0f, 1.0f};
     }
+
+	// Phantom Trap
+	if (phantomTrapCount == 0) {
+		registry.colours.get(phantomTrapTextEntity) = { 0.8f, 0.8f, 0.0f, 1.0f };
+	}
+	else {
+		registry.colours.get(phantomTrapTextEntity) = { 1.0f, 1.0f, 1.0f, 1.0f };
+	}
 }
 
 void WorldSystem::updateCollectedTimer(float elapsed_ms) {
@@ -145,6 +188,7 @@ bool WorldSystem::step(float elapsed_ms)
     despawnTraps(elapsed_ms);
     updateCollectedTimer(elapsed_ms);
     resetTrappedEntities();
+    updateLightPosition();
 
     if (camera->isToggled()) {
         Motion& playerMotion = registry.motions.get(playerEntity);
@@ -159,6 +203,12 @@ bool WorldSystem::step(float elapsed_ms)
     }
 
     return !is_over();
+}
+
+void WorldSystem::updateLightPosition() {
+    PointLight& pointLight = registry.pointLights.get(playerEntity);
+    Motion& motion = registry.motions.get(playerEntity);
+    pointLight.position = motion.position;
 }
 
 void WorldSystem::loadAndSaveHighScore(bool save) {
@@ -341,13 +391,23 @@ void WorldSystem::pauseControls(int key, int action, int mod)
             break;
         case GLFW_KEY_H:
             gameStateController.setGameState(GAME_STATE::HELP);
+            clearSaveText();
             break;
-        case GLFW_KEY_R:
+        case GLFW_KEY_S:
+            saveManager->save_game(trapsCounter.trapsMap);
+			createGameSaveText(camera->getSize());
+            printf("Saved game\n");
+            break;
+        case GLFW_KEY_L:
+            load_game();
+			  break;
+        case GLFW_KEY_ENTER:
             restart_game();
         case GLFW_KEY_P:
         case GLFW_KEY_ESCAPE:
             gameStateController.setGameState(GAME_STATE::PLAYING);
 			sound->resumeAllSoundEffects();
+            clearSaveText();
             break;
         }
     }
@@ -361,11 +421,17 @@ void WorldSystem::playingControls(int key, int action, int mod)
     if (action == GLFW_PRESS) {
         switch (key) {
         case GLFW_KEY_E:
-            place_trap(player_comp, player_motion, true);
+            place_trap(player_comp, player_motion, true, DAMAGE_TRAP);
             break;
         case GLFW_KEY_Q:
-            place_trap(player_comp, player_motion, false);
+            place_trap(player_comp, player_motion, false, DAMAGE_TRAP);
             break;
+		case GLFW_KEY_L:
+			place_trap(player_comp, player_motion, true, PHANTOM_TRAP);
+			break;
+		case GLFW_KEY_K:
+			place_trap(player_comp, player_motion, false, PHANTOM_TRAP);
+			break;
         case GLFW_KEY_H:
             gameStateController.setGameState(GAME_STATE::HELP);
             break;
@@ -548,6 +614,14 @@ void WorldSystem::despawnTraps(float elapsed_ms) {
             registry.remove_all_components_of(trapE);
         }
     }
+
+	for (Entity& trapE : registry.phantomTraps.entities) {
+		PhantomTrap& trap = registry.phantomTraps.get(trapE);
+		trap.duration -= elapsed_ms;
+		if (trap.duration <= 0) {
+			registry.remove_all_components_of(trapE);
+		}
+	}
 }
 
 void WorldSystem::update_cooldown(float elapsed_ms) {
@@ -667,9 +741,15 @@ void WorldSystem::entity_collectible_collision(Entity entity, Entity entity_othe
 	Collectible& collectible = registry.collectibles.get(entity_other);
 
     if (registry.collectibleTraps.has(entity_other)) {
-        trapsCounter.count++;
-        createCollected(playerM, collectibleM.scale, TEXTURE_ASSET_ID::TRAPCOLLECTABLE);
-        printf("Player collected a trap. Trap count is now %d\n", trapsCounter.count);
+		CollectibleTrap& collectibleTrap = registry.collectibleTraps.get(entity_other);
+        if (collectibleTrap.type == DAMAGE_TRAP) {
+			trapsCounter.trapsMap[DAMAGE_TRAP].first++;
+			createCollected(playerM, collectibleM.scale, TEXTURE_ASSET_ID::TRAPCOLLECTABLE);
+		}
+        else if (collectibleTrap.type == PHANTOM_TRAP) {
+            trapsCounter.trapsMap[PHANTOM_TRAP].first++;
+            createCollected(playerM, collectibleM.scale, TEXTURE_ASSET_ID::PHANTOM_TRAP_BOTTLE_ONE);
+        }
     }
     else if (registry.hearts.has(entity_other)) {
         unsigned int health = registry.hearts.get(entity_other).health;
@@ -906,33 +986,46 @@ void WorldSystem::checkAndHandlePlayerDeath(Entity& entity) {
 	}
 }
 
-void WorldSystem::place_trap(Player& player, Motion& motion, bool forward) {
+void WorldSystem::place_trap(Player& player, Motion& motion, bool forward, std::string type) {
     // Player position
     vec2 playerPos = motion.position;
-	// Do not place trap if player has no traps
-    if (trapsCounter.count == 0) {
-        printf("Player has no traps to place\n");
-        return;
-    }
-	// Place trap based on player direction
+    // Place trap based on player direction
     vec2 gap = { 0.0f, 0.0f };
     if (forward) {
         gap.x = (abs(motion.scale.x) / 2 + 70.f);
     }
     else {
-		gap.x = -(abs(motion.scale.x) / 2 + 70.f);
+        gap.x = -(abs(motion.scale.x) / 2 + 70.f);
     }
 
     // Cannot place trap beyond the map
-	if (playerPos.x + gap.x < 0 || playerPos.x + gap.x > world_size_x) {
-		printf("Cannot place trap beyond the map\n");
-		return;
-	}
+    if (playerPos.x + gap.x < 0 || playerPos.x + gap.x > world_size_x) {
+        printf("Cannot place trap beyond the map\n");
+        return;
+    }
 
     vec2 trapPos = playerPos + gap;
-	createDamageTrap(trapPos);
-	trapsCounter.count--;
-	printf("Trap count is now %d\n", trapsCounter.count);
+
+	if (type == DAMAGE_TRAP) {
+		int trapCount = trapsCounter.trapsMap[DAMAGE_TRAP].first;
+		if (trapCount == 0) {
+			printf("Player has no damage traps to place\n");
+			return;
+		}
+        createDamageTrap(trapPos);
+		trapsCounter.trapsMap[DAMAGE_TRAP].first--;
+        printf("Damage trap count is now %d\n", trapsCounter.trapsMap[DAMAGE_TRAP].first);
+	}
+	else if (type == PHANTOM_TRAP) {
+		int trapCount = trapsCounter.trapsMap[PHANTOM_TRAP].first;
+		if (trapCount == 0) {
+			printf("Player has no phantom traps to place\n");
+			return;
+		}
+		createPhantomTrap(trapPos);
+		trapsCounter.trapsMap[PHANTOM_TRAP].first--;
+		printf("Phantom trap count is now %d\n", trapsCounter.trapsMap[PHANTOM_TRAP].first);
+	}
 }
 
 //Update player stamina on dashing, sprinting, rolling and jumping
@@ -985,7 +1078,7 @@ void WorldSystem::toggleMesh() {
             registry.renderRequests.insert(
                 meshEntity, {
                     TEXTURE_ASSET_ID::TREE,
-                    EFFECT_ASSET_ID::TEXTURED,
+                    EFFECT_ASSET_ID::TEXTURED_NORMAL,
                     GEOMETRY_BUFFER_ID::SPRITE });
         }
     }
@@ -1059,4 +1152,12 @@ void WorldSystem::soundSetUp() {
     sound->init();
     // play background music
     sound->playMusic(Music::BACKGROUND, -1);
+}
+
+void WorldSystem::clearSaveText() {
+    for (Entity textE : registry.texts.entities) {
+        if (registry.cooldowns.has(textE)) {
+            registry.remove_all_components_of(textE);
+        }
+    }
 }

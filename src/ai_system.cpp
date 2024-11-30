@@ -12,9 +12,10 @@ const float BOAR_COOLDOWN_TIME = 500;
 const float BOAR_CHARGE_SPEED = 1.0f;
 
 //Bird constants
-const float BIRD_AGGRO_RANGE = 100;   
+const float BIRD_AGGRO_RANGE = 300;   
 const float BIRD_SWOOP_DURATION = 500; 
-const float BIRD_COOLDOWN_TIME = 4000;
+const float BIRD_COOLDOWN_TIME = 1000;
+const float BIRD_TURNING_SPEED = 0.002;
 
 
 AISystem::AISystem(std::default_random_engine& rng, SoundSystem* sound)
@@ -41,8 +42,11 @@ bool AISystem::decideToPathfind(Entity enemy, float baseThinkingTime, float elap
     return true;
 }
 
-void AISystem::moveTowardsPlayer(Entity enemy, vec3 playerPosition, float elapsed_ms)
+void AISystem::moveTowardsTarget(Entity enemy, vec3 targetPosition, float elapsed_ms)
 {
+    const float DISENGAGE_DISTANCE = 1000;
+    const float MARGIN = 500;
+
     Motion& enemyMotion = registry.motions.get(enemy);
 
     // Skip if in the air
@@ -54,7 +58,17 @@ void AISystem::moveTowardsPlayer(Entity enemy, vec3 playerPosition, float elapse
         return;
     }
 
-    vec2 direction = chooseDirection(enemyMotion, playerPosition);
+    // Choose a random direction if far away from the player
+    vec3 position = registry.motions.get(enemy).position;
+    if (distance(targetPosition, position) > DISENGAGE_DISTANCE) {
+        float angle = uniform_dist(rng) * 2 * M_PI;
+        targetPosition = enemyMotion.position + vec3(cos(angle) * DISENGAGE_DISTANCE, sin(angle) * DISENGAGE_DISTANCE, 0);
+        targetPosition.x = min(max(targetPosition.x, float(leftBound) + MARGIN), float(rightBound) - MARGIN);
+        targetPosition.y = min(max(targetPosition.y, float(topBound) + MARGIN), float(bottomBound) - MARGIN);
+        registry.enemies.get(enemy).pathfindTime = 1000;
+    }
+
+    vec2 direction = chooseDirection(enemyMotion, targetPosition);
     enemyMotion.facing = direction;
     enemyMotion.velocity = vec3(direction * enemyMotion.speed, enemyMotion.velocity.z);
 }
@@ -209,13 +223,11 @@ bool AISystem::pathClear(Motion& motion, vec2 direction, float howFar, const std
     return false;
 }
 
-
-
-void AISystem::boarBehaviour(Entity boar, vec3 playerPosition, float elapsed_ms)
+void AISystem::boarBehaviour(Entity boar, vec3 targetPosition, float elapsed_ms)
 {
     // boar can't charge if trapped
     if(registry.enemies.has(boar) && registry.trappables.get(boar).isTrapped) {
-        moveTowardsPlayer(boar, playerPosition, elapsed_ms);
+        moveTowardsTarget(boar, targetPosition, elapsed_ms);
         return;
     }
 
@@ -226,8 +238,8 @@ void AISystem::boarBehaviour(Entity boar, vec3 playerPosition, float elapsed_ms)
     Motion& motion = registry.motions.get(boar);
     Boar& boars = registry.boars.get(boar);
     AnimationController& animationController = registry.animationControllers.get(boar);
-    float distanceToPlayer = distance(motion.position, playerPosition);
-    vec2 directionToPlayer = normalize(vec2(playerPosition) - vec2(motion.position));
+    float distanceToTarget = distance(motion.position, targetPosition);
+    vec2 directionToTarget = normalize(vec2(targetPosition) - vec2(motion.position));
 
     if (boars.cooldownTimer > 0) {
         boars.cooldownTimer -= elapsed_ms;
@@ -236,20 +248,20 @@ void AISystem::boarBehaviour(Entity boar, vec3 playerPosition, float elapsed_ms)
 
     // Set state based on distance
     float clearDistance;
-    if (distanceToPlayer < BOAR_AGGRO_RANGE && boars.cooldownTimer <= 0 && !boars.preparing && !boars.charging &&
-            pathClear(motion, directionToPlayer, distanceToPlayer, registry.obstacles.entities, clearDistance)) {
+    if (distanceToTarget < BOAR_AGGRO_RANGE && boars.cooldownTimer <= 0 && !boars.preparing && !boars.charging &&
+            pathClear(motion, directionToTarget, distanceToTarget, registry.obstacles.entities, clearDistance)) {
         boars.preparing = true;
         boars.prepareTimer = BOAR_PREPARE_TIME;
         boars.chargeTimer = BOAR_CHARGE_DURATION;
         animationController.changeState(boar, AnimationState::Idle);
-    } else if (distanceToPlayer > BOAR_DISENGAGE_RANGE) {
+    } else if (distanceToTarget > BOAR_DISENGAGE_RANGE) {
         boars.preparing = false;
         boars.charging = false;
     }
 
     if (boars.preparing) {
         // Preparation shake
-        motion.facing = directionToPlayer;
+        motion.facing = directionToTarget;
         if (boars.prepareTimer > 0) {
             boars.prepareTimer -= elapsed_ms;
 
@@ -263,10 +275,10 @@ void AISystem::boarBehaviour(Entity boar, vec3 playerPosition, float elapsed_ms)
 
         } else {
             boars.preparing = false;
-            if (pathClear(motion, directionToPlayer, distanceToPlayer, registry.obstacles.entities, clearDistance)) {
+            if (pathClear(motion, directionToTarget, distanceToTarget, registry.obstacles.entities, clearDistance)) {
                 animationController.changeState(boar, AnimationState::Running);
                 boars.charging = true;
-                boars.chargeDirection = directionToPlayer;
+                boars.chargeDirection = directionToTarget;
                 motion.velocity = vec3(boars.chargeDirection * BOAR_CHARGE_SPEED, 0);
                 sound->playSoundEffect(Sound::BOAR_CHARGE, 0);
             }
@@ -282,7 +294,7 @@ void AISystem::boarBehaviour(Entity boar, vec3 playerPosition, float elapsed_ms)
         }
     } 
     else if (!boars.preparing) {
-        moveTowardsPlayer(boar, playerPosition, elapsed_ms);
+		moveTowardsTarget(boar, targetPosition, elapsed_ms);
         animationController.changeState(boar, AnimationState::Running);
     }
 }
@@ -298,15 +310,38 @@ void AISystem::boarReset(Entity boar)
     motion.velocity = vec3(0, 0, 0);
 }
 
-void AISystem::barbarianBehaviour(Entity barbarian, vec3 playerPosition, float elapsed_ms)
+void AISystem::barbarianBehaviour(Entity barbarian, vec3 targetPosition, float elapsed_ms)
 {
     if (registry.deathTimers.has(barbarian)) {
         return;
     }
-    moveTowardsPlayer(barbarian, playerPosition, elapsed_ms);
+	moveTowardsTarget(barbarian, targetPosition, elapsed_ms);
 }
 
-void AISystem::trollBehaviour(Entity troll, vec3 playerPosition, float elapsed_ms)
+// Returns the new direction to go in as a unit vector
+vec2 AISystem::alignToDirection(Motion& motion, float desiredAngle, float turning_speed, float elapsed_ms) 
+{
+    float currentAngle = atan2(motion.facing.y, motion.facing.x);
+    float angleToGo = desiredAngle - currentAngle;
+    if (angleToGo < -M_PI) {
+        angleToGo += 2 * M_PI;
+    }
+    else if (angleToGo > M_PI) {
+        angleToGo -= 2 * M_PI;
+    }
+    float nextAngle = desiredAngle;
+    if (abs(angleToGo) > turning_speed * elapsed_ms) {
+        if (angleToGo > 0) {
+            nextAngle = currentAngle + turning_speed * elapsed_ms;
+        }
+        else if (angleToGo < 0) {
+            nextAngle = currentAngle - turning_speed * elapsed_ms;
+        }
+    }
+    return vec2(cos(nextAngle), sin(nextAngle));
+}
+
+void AISystem::trollBehaviour(Entity troll, vec3 targetPosition, float elapsed_ms)
 {
     if (registry.deathTimers.has(troll)) {
         return;
@@ -322,29 +357,13 @@ void AISystem::trollBehaviour(Entity troll, vec3 playerPosition, float elapsed_m
     }
 
     if (!decideToPathfind(troll, 100, elapsed_ms)) {
-        vec2 direction = chooseDirection(motion, playerPosition);
+        vec2 direction = chooseDirection(motion, targetPosition);
         trollComponent.desiredAngle = atan2(direction.y, direction.x);
     }
 
     // Continue to align towards desired direction
-    float currentAngle = atan2(motion.facing.y, motion.facing.x);
-    float angleToGo = trollComponent.desiredAngle - currentAngle;
-    if (angleToGo < -M_PI) {
-        angleToGo += 2 * M_PI;
-    }
-    else if (angleToGo > M_PI) {
-        angleToGo -= 2 * M_PI;
-    }
-    float nextAngle = trollComponent.desiredAngle;
-    if (abs(angleToGo) > TROLL_TURNING_SPEED * elapsed_ms) {
-        if (angleToGo > 0) {
-            nextAngle = currentAngle + TROLL_TURNING_SPEED * elapsed_ms;
-        }
-        else if (angleToGo < 0) {
-            nextAngle = currentAngle - TROLL_TURNING_SPEED * elapsed_ms;
-        }
-    }
-    motion.facing = vec2(cos(nextAngle), sin(nextAngle));
+    vec2 direction = alignToDirection(motion, trollComponent.desiredAngle, TROLL_TURNING_SPEED, elapsed_ms);
+    motion.facing = direction;
     motion.velocity = vec3(motion.facing * motion.speed, motion.velocity.z);
 }
 
@@ -404,8 +423,7 @@ void AISystem::shootArrow(Entity shooter, vec3 targetPos)
 	sound->playSoundEffect(Sound::ARROW, 0);
 }
 
-
-void AISystem::archerBehaviour(Entity entity, vec3 playerPosition, float elapsed_ms)
+void AISystem::archerBehaviour(Entity entity, vec3 targetPosition, float elapsed_ms)
 {
     const float ARCHER_RANGE = 600;
     const float DISENGAGE_RANGE = 800;
@@ -415,7 +433,8 @@ void AISystem::archerBehaviour(Entity entity, vec3 playerPosition, float elapsed
     }
     Motion& motion = registry.motions.get(entity);
     Archer& archer = registry.archers.get(entity);
-    float d = distance(motion.position, playerPosition);
+    float d = distance(motion.position, targetPosition);
+
     if (d < ARCHER_RANGE) {
         archer.aiming = true;
         motion.velocity.x = 0;
@@ -431,9 +450,9 @@ void AISystem::archerBehaviour(Entity entity, vec3 playerPosition, float elapsed
     }
 
     if (archer.aiming) {
-        motion.facing = normalize(vec2(playerPosition) - vec2(motion.position));
+        motion.facing = normalize(vec2(targetPosition) - vec2(motion.position));
         if (archer.drawArrowTime > DRAW_ARROW_TIME) {
-            shootArrow(entity, playerPosition);
+            shootArrow(entity, targetPosition);
             archer.drawArrowTime = 0;
             AnimationController& animationController = registry.animationControllers.get(entity);
             animationController.changeState(entity, AnimationState::Idle);
@@ -443,7 +462,7 @@ void AISystem::archerBehaviour(Entity entity, vec3 playerPosition, float elapsed
         }
     }
     else {
-        moveTowardsPlayer(entity, playerPosition, elapsed_ms);
+		moveTowardsTarget(entity, targetPosition, elapsed_ms);
     }
 }
 
@@ -451,7 +470,7 @@ void AISystem::archerBehaviour(Entity entity, vec3 playerPosition, float elapsed
 vec2 separation(const Motion& motion, const std::vector<Motion>& flockMates) {
     vec2 separationForce = vec2(0, 0);
     const float SEPARATION_RADIUS = 300.0f;  
-    const float SEPARATION_WEIGHT = 5.0f;   
+    const float SEPARATION_WEIGHT = 20.f;   
 
     for (const auto& mate : flockMates) {
         float distanceToMate = distance(motion.position, mate.position);
@@ -460,32 +479,35 @@ vec2 separation(const Motion& motion, const std::vector<Motion>& flockMates) {
             separationForce += directionAway / distanceToMate; 
         }
     }
-
+    
     return separationForce * SEPARATION_WEIGHT;
 }
 
 // steer towards the average heading of local flockmates
 vec2 alignment(const Motion& motion, const std::vector<Motion>& flockMates) {
     vec2 alignmentForce = vec2(0, 0);
-    const float ALIGNMENT_RADIUS = 10.0f;  
-    const float ALIGNMENT_WEIGHT = 1.0f;    
+    const float ALIGNMENT_RADIUS = 500.f;  
+    const float ALIGNMENT_WEIGHT = 0.6f;    
 
     for (const auto& mate : flockMates) {
         float distanceToMate = glm::length(motion.position - mate.position); 
 
         if (distanceToMate > 0 && distanceToMate < ALIGNMENT_RADIUS) {
-            alignmentForce += vec2(mate.velocity.x, motion.velocity.y);
+            alignmentForce += vec2(mate.velocity.x, mate.velocity.y);
         }
     }
 
-    return alignmentForce * ALIGNMENT_WEIGHT;
+    if (alignmentForce == vec2(0)) {
+        return alignmentForce;
+    }
+    return normalize(alignmentForce) * ALIGNMENT_WEIGHT;
 }
 
 // steer to move toward the average position of local flockmates
 vec2 cohesion(const Motion& motion, const std::vector<Motion>& flockMates) {
     vec2 cohesionForce = vec2(0, 0);
-    const float COHESION_RADIUS = 10.0f; 
-    const float COHESION_WEIGHT = 1.0f;    
+    const float COHESION_RADIUS = 1000.0f; 
+    const float COHESION_WEIGHT = 0.2f;    
 
     for (const auto& mate : flockMates) {
         float distanceToMate = glm::length(motion.position - mate.position);
@@ -495,17 +517,20 @@ vec2 cohesion(const Motion& motion, const std::vector<Motion>& flockMates) {
         }
     }
 
-    return cohesionForce * COHESION_WEIGHT;
+    if (cohesionForce == vec2(0)) {
+        return cohesionForce;
+    }
+    return normalize(cohesionForce) * COHESION_WEIGHT;
 }
 
-void AISystem::swoopAttack(Entity bird, vec3 playerPosition, float elapsed_ms, const std::vector<Motion>& flockMates) {
+void AISystem::swoopAttack(Entity bird, vec3 targetPosition, vec2 movementForce ,float elapsed_ms, const std::vector<Motion>& flockMates) {
     Motion& birdMotion = registry.motions.get(bird);
     Bird& birdComponent = registry.birds.get(bird);
     AnimationController& animationController = registry.animationControllers.get(bird);
 
     // Initiate swoop when within range
     vec2 birdPosition2D = vec2(birdMotion.position.x, birdMotion.position.y);
-    vec2 playerPosition2D = vec2(playerPosition.x, playerPosition.y);
+    vec2 playerPosition2D = vec2(targetPosition.x, targetPosition.y);
     float distanceToPlayer = distance(birdPosition2D, playerPosition2D);
 
     if (!birdComponent.isSwooping && birdComponent.swoopCooldown <= 0 && distanceToPlayer < BIRD_AGGRO_RANGE) {
@@ -522,20 +547,17 @@ void AISystem::swoopAttack(Entity bird, vec3 playerPosition, float elapsed_ms, c
 			sound->playSoundEffect(Sound::BIRD_ATTACK, 0);
 		}
 
-        // BOID while swooping
-        vec2 separationForce = separation(birdMotion, flockMates) * 0.5f;
-        vec2 alignmentForce = alignment(birdMotion, flockMates) * 0.3f;
-        vec2 cohesionForce = cohesion(birdMotion, flockMates) * 0.5f;
-        vec2 swoopForce = birdComponent.swoopDirection * birdComponent.swoopSpeed;
-        vec2 combinedForce = swoopForce + separationForce + alignmentForce + cohesionForce;
+        vec2 direction = alignToDirection(birdMotion, atan2(birdComponent.swoopDirection.y, birdComponent.swoopDirection.x), BIRD_TURNING_SPEED, elapsed_ms);
+        vec2 combinedForce = length(movementForce) * direction;
 
-        birdMotion.velocity = vec3(normalize(combinedForce) * birdComponent.swoopSpeed, -1.0f);
+        birdMotion.velocity = vec3(combinedForce, -1.0f);
+        birdMotion.facing = normalize(combinedForce);
 
         birdComponent.swoopTimer -= elapsed_ms;
         if (birdComponent.swoopTimer <= 0) {
             if (birdMotion.position.z < birdComponent.originalZ) {
                 animationController.changeState(bird, AnimationState::Flying);
-                birdMotion.velocity.z = 1.0f;
+                birdMotion.velocity.z = birdComponent.swoopSpeed;
             } else {
                 birdMotion.position.z = birdComponent.originalZ;
                 birdComponent.isSwooping = false;
@@ -546,7 +568,7 @@ void AISystem::swoopAttack(Entity bird, vec3 playerPosition, float elapsed_ms, c
     }
 }
 
-void AISystem::birdBehaviour(Entity bird, vec3 playerPosition, float elapsed_ms) {
+void AISystem::birdBehaviour(Entity bird, vec3 targetPosition, float elapsed_ms) {
     Motion& birdMotion = registry.motions.get(bird);
     Bird& birdComponent = registry.birds.get(bird);
     AnimationController& animationController = registry.animationControllers.get(bird);
@@ -556,8 +578,24 @@ void AISystem::birdBehaviour(Entity bird, vec3 playerPosition, float elapsed_ms)
             flockMates.push_back(registry.motions.get(entity));
         }
     }
+
+    // BOIDS: Separation, Alignment, Cohesion
+    vec2 separationForce = separation(birdMotion, flockMates);
+    vec2 alignmentForce = alignment(birdMotion, flockMates);
+    vec2 cohesionForce = cohesion(birdMotion, flockMates);
+    vec2 birdPosition2D = vec2(birdMotion.position.x, birdMotion.position.y);
+    vec2 targetPosition2D = vec2(targetPosition.x, targetPosition.y);
+    float distanceToPlayer = distance(birdPosition2D, targetPosition2D);
+
+    vec2 directionToTarget = normalize(targetPosition2D - birdPosition2D);
+    const float PLAYER_ATTRACTION_WEIGHT = 0.3f;
+    vec2 targetForce = directionToTarget * PLAYER_ATTRACTION_WEIGHT;
+    vec2 flockingForce = separationForce + alignmentForce + cohesionForce;
+    vec2 movementForce = flockingForce + targetForce;
+    animationController.changeState(bird, AnimationState::Flying);
+
     // Swoop Attack
-    swoopAttack(bird, playerPosition, elapsed_ms, flockMates);
+    swoopAttack(bird, targetPosition, movementForce, elapsed_ms, flockMates);
     if (birdComponent.isSwooping) {
         return;
     }
@@ -565,33 +603,13 @@ void AISystem::birdBehaviour(Entity bird, vec3 playerPosition, float elapsed_ms)
         birdComponent.swoopCooldown -= elapsed_ms;
     }
 
-    // BOIDS: Separation, Alignment, Cohesion
-    vec2 separationForce = separation(birdMotion, flockMates);
-    vec2 alignmentForce = alignment(birdMotion, flockMates);
-    vec2 cohesionForce = cohesion(birdMotion, flockMates);
-    vec2 birdPosition2D = vec2(birdMotion.position.x, birdMotion.position.y);
-    vec2 playerPosition2D = vec2(playerPosition.x, playerPosition.y);
-    float distanceToPlayer = distance(birdPosition2D, playerPosition2D);
-
-    vec2 directionToPlayer = normalize(playerPosition2D - birdPosition2D);
-    const float SEPARATION_WEIGHT = 2.f;
-    const float ALIGNMENT_WEIGHT = 0.1f;
-    const float COHESION_WEIGHT = 0.5f;
-    const float PLAYER_ATTRACTION_WEIGHT = 0.3f;
-    
-    vec2 flockingForce = 
-        separationForce * SEPARATION_WEIGHT + 
-        alignmentForce * ALIGNMENT_WEIGHT + 
-        cohesionForce * COHESION_WEIGHT;
-    
-    vec2 movementForce = flockingForce + directionToPlayer * PLAYER_ATTRACTION_WEIGHT;
-    float speed = registry.birds.get(bird).swarmSpeed;
-    animationController.changeState(bird, AnimationState::Flying);
-    birdMotion.velocity = vec3(movementForce, 0.0f);
-    birdMotion.facing = normalize(movementForce);
+    float speed = max(length(movementForce), birdComponent.swarmSpeed);
+    vec2 movementDirection = alignToDirection(birdMotion, atan2(movementForce.y, movementForce.x), BIRD_TURNING_SPEED, elapsed_ms);
+    birdMotion.velocity = vec3(speed * movementDirection, 0.0f);
+    birdMotion.facing = normalize(movementDirection);
 }
 
-void AISystem::wizardBehaviour(Entity entity, vec3 playerPosition, float elapsed_ms) {
+void AISystem::wizardBehaviour(Entity entity, vec3 targetPosition, float elapsed_ms) {
     
 	if (registry.deathTimers.has(entity)) {
 		return;
@@ -600,16 +618,16 @@ void AISystem::wizardBehaviour(Entity entity, vec3 playerPosition, float elapsed
 	Wizard& wizard = registry.wizards.get(entity);
     switch (wizard.state) {
     case WizardState::Moving:
-        processWizardMoving(entity, playerPosition, elapsed_ms);
+        processWizardMoving(entity, targetPosition, elapsed_ms);
         break;
     case WizardState::Aiming:
-		processWizardAiming(entity, playerPosition, elapsed_ms);
+		processWizardAiming(entity, targetPosition, elapsed_ms);
         break;
 	case WizardState::Preparing:
-        processWizardPreparing(entity, playerPosition, elapsed_ms);
+        processWizardPreparing(entity, targetPosition, elapsed_ms);
         break;
 	case WizardState::Shooting:
-		processWizardShooting(entity, playerPosition, elapsed_ms);
+		processWizardShooting(entity, targetPosition, elapsed_ms);
 		break;
     default:
         break;
@@ -631,7 +649,7 @@ void AISystem::processWizardMoving(Entity entity, vec3 playerPosition, float ela
         animationController.changeState(entity, AnimationState::Idle);
     }
     else {
-        moveTowardsPlayer(entity, playerPosition, elapsed_ms);
+		moveTowardsTarget(entity, playerPosition, elapsed_ms);
     }
 }
 
@@ -667,7 +685,7 @@ void AISystem::processWizardAiming(Entity entity, vec3 playerPosition, float ela
 	}
 	else if (farFromEdge) {
 		// start preparing for lightning
-		createTargetArea(playerPosition, LIGHTNING_RADIUS);
+		createTargetArea(playerPosition);
 		wizard.locked_target = playerPosition;
 		wizard.state = WizardState::Preparing;
     }
@@ -778,23 +796,36 @@ void AISystem::step(float elapsed_ms)
     }
     vec3 playerPosition = registry.motions.get(registry.players.entities.at(0)).position;
     for (Entity enemy : registry.enemies.entities) {
+        vec3 targetPosition = is_phantom_closer(enemy).first ? is_phantom_closer(enemy).second : playerPosition;
         if (registry.boars.has(enemy)) {
-            boarBehaviour(enemy, playerPosition, elapsed_ms);
+            boarBehaviour(enemy, targetPosition, elapsed_ms);
         }
         else if (registry.barbarians.has(enemy)) {
-            barbarianBehaviour(enemy, playerPosition, elapsed_ms);
+            barbarianBehaviour(enemy, targetPosition, elapsed_ms);
         }
         else if (registry.archers.has(enemy)) {
-            archerBehaviour(enemy, playerPosition, elapsed_ms);
+            archerBehaviour(enemy, targetPosition, elapsed_ms);
         } 
         else if (registry.birds.has(enemy)){
-            birdBehaviour(enemy, playerPosition, elapsed_ms);
+            birdBehaviour(enemy, targetPosition, elapsed_ms);
         }
 		else if (registry.wizards.has(enemy)) {
-			wizardBehaviour(enemy, playerPosition, elapsed_ms);
+			wizardBehaviour(enemy, targetPosition, elapsed_ms);
 		}
         else if (registry.trolls.has(enemy)) {
-            trollBehaviour(enemy, playerPosition, elapsed_ms);
+            trollBehaviour(enemy, targetPosition, elapsed_ms);
         }
     }
+}
+
+std::pair<bool, vec3> AISystem::is_phantom_closer(Entity enemy) {
+    for (Entity phantomTrap : registry.phantomTraps.entities) {
+        vec3 phantomTrapPos = registry.motions.get(phantomTrap).position;
+        Motion& motion = registry.motions.get(enemy);
+        vec3 enemyPos = motion.position;
+        if (distance(phantomTrapPos, enemyPos) < PHANTOM_TRAP_RADIUS) {
+			return std::make_pair(true, phantomTrapPos);
+        }
+    }
+	return std::make_pair(false, vec3(0, 0, 0));
 }

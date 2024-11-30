@@ -12,12 +12,16 @@ public:
 	void boarReset(Entity boar);
 
 private:
+
 	const float LIGHTNING_RADIUS = 200.f;
+	const float PHANTOM_TRAP_RADIUS = 600.f;
 
 	bool decideToPathfind(Entity enemy, float baseThinkingTime, float elapsed_ms);
-	void moveTowardsPlayer(Entity enemy, vec3 playerPosition, float elapsed_ms);
+	void moveTowardsTarget(Entity enemy, vec3 targetPosition, float elapsed_ms);
 	vec2 chooseDirection(Motion& motion, vec3 playerPosition);
 	bool pathClear(Motion& motion, vec2 direction, float howFar, const std::vector<Entity> &obstacles, float& clearDistance);
+	vec2 alignToDirection(Motion& motion, float desiredAngle, float turning_speed, float elapsed_ms);
+	std::pair<bool, vec3> is_phantom_closer(Entity enemy);
 	
 	void boarBehaviour(Entity boar, vec3 playerPosition, float elapsed_ms);
 	void barbarianBehaviour(Entity barbarian, vec3 playerPosition, float elapsed_ms);
@@ -29,7 +33,7 @@ private:
 
 	// Bird functions
 	void birdBehaviour(Entity bird, vec3 playerPosition, float elapsed_ms);
-	void swoopAttack(Entity bird, vec3 playerPosition, float elapsed_ms, const std::vector<Motion>& flockMates);
+	void swoopAttack(Entity bird, vec3 playerPosition, vec2 movementForce, float elapsed_ms, const std::vector<Motion>& flockMates);
 	
 	// Wizard functions
 	void wizardBehaviour(Entity entity, vec3 playerPosition, float elapsed_ms);

@@ -17,7 +17,15 @@ WorldSystem::WorldSystem(std::default_random_engine& rng)
     this->rng = rng;
 }
 
-void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics, AISystem* ai, SoundSystem* sound, GameSaveManager* saveManager)
+void WorldSystem::init(
+    RenderSystem* renderer, 
+    GLFWwindow* window, 
+    Camera* camera, 
+    PhysicsSystem* physics, 
+    AISystem* ai, 
+    SoundSystem* sound, 
+    GameSaveManager* saveManager, 
+    ParticleSystem* particles)
 {
     
     this->renderer = renderer;
@@ -27,6 +35,7 @@ void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camer
     this->ai = ai;
 	this->sound = sound;
 	this->saveManager = saveManager;
+    this->particles = particles;
 
     // Setting callbacks to member functions (that's why the redirect is needed)
     // Input is handled using GLFW, for more info see
@@ -42,7 +51,7 @@ void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camer
     auto focus_redirect = [](GLFWwindow* wnd, int focused) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_window_focus(focused); };
     glfwSetWindowFocusCallback(window, focus_redirect);
 
-    restart_game();
+	createTitleScreen();
 }
 
 WorldSystem::~WorldSystem() {
@@ -82,8 +91,16 @@ void WorldSystem::load_game() {
     saveManager->loadTrapsCounter(trapsCounter.trapsMap);
     // set up texts in foreground
     reloadText();
+  
+    // Pick up spawn data from last checkpoint
+    next_spawns = saveManager->getNextSpawns();
+	spawn_delays = saveManager->getSpawnDelays();
+	max_entities = saveManager->getMaxEntities();
+
+    show_mesh = false;
     playerEntity = registry.players.entities[0];
     gameStateController.setGameState(GAME_STATE::PLAYING);
+    loadAndSaveHighScore(false);
 }
 
 void WorldSystem::save_game() {
@@ -225,6 +242,7 @@ bool WorldSystem::step(float elapsed_ms)
 {
     adjustSpawnSystem(elapsed_ms);
     spawn(elapsed_ms);
+    spawn_particles(elapsed_ms);
     update_cooldown(elapsed_ms);
     handle_deaths(elapsed_ms);
     despawn_collectibles(elapsed_ms);
@@ -241,7 +259,7 @@ bool WorldSystem::step(float elapsed_ms)
     resetTrappedEntities();
     updateHomingProjectiles(elapsed_ms);
     updateEquippedPosition();
-    updateLightPosition();
+    updateJeffLight(elapsed_ms);
 
     if (camera->isToggled()) {
         Motion& playerMotion = registry.motions.get(playerEntity);
@@ -258,10 +276,14 @@ bool WorldSystem::step(float elapsed_ms)
     return !is_over();
 }
 
-void WorldSystem::updateLightPosition() {
+void WorldSystem::updateJeffLight(float elapsed_ms) {
     PointLight& pointLight = registry.pointLights.get(playerEntity);
+    
+    // Update Position
     Motion& motion = registry.motions.get(playerEntity);
     pointLight.position = motion.position;
+
+    // Make flicker
 }
 
 void WorldSystem::loadAndSaveHighScore(bool save) {
@@ -611,27 +633,28 @@ void WorldSystem::on_mouse_button(int button, int action, int mod) {
 void WorldSystem::on_key(int key, int, int action, int mod)
 {
     switch (gameStateController.getGameState()) {
+	case GAME_STATE::TITLE:
+		titleControls(key, action, mod);
+		break;
     case GAME_STATE::PLAYING:
         playingControls(key, action, mod);
         break;
     case GAME_STATE::PAUSED:
-		sound->isBirdFlockSoundPlaying = false;
-		sound->isMovingSoundPlaying = false;
-        sound->pauseAllSoundEffects();
+        handleSoundOnPauseHelp();
         pauseControls(key, action, mod);
         break;
     case GAME_STATE::GAMEOVER:
         gameOverControls(key, action, mod);
         break;
     case GAME_STATE::HELP:
-        sound->isMovingSoundPlaying = false;
-        sound->isBirdFlockSoundPlaying = false;
-        sound->pauseAllSoundEffects();
+        handleSoundOnPauseHelp();
         helpControls(key, action, mod);
         break;
     }
+    if (gameStateController.getGameState() != GAME_STATE::TITLE) {
+        movementControls(key, action, mod);
+    }
     allStateControls(key, action, mod);
-    movementControls(key, action, mod);
 }
 
 void WorldSystem::helpControls(int key, int action, int mod)
@@ -639,13 +662,14 @@ void WorldSystem::helpControls(int key, int action, int mod)
     if (action == GLFW_PRESS) {
         switch (key) {
         case GLFW_KEY_Q:
-            glfwSetWindowShouldClose(window, true);
+            gameStateController.setGameState(GAME_STATE::TITLE);
+            createTitleScreen();
             break;
-        case GLFW_KEY_ENTER:
+        case GLFW_KEY_R:
             restart_game();
         case GLFW_KEY_H:
-            gameStateController.setGameState(GAME_STATE::PLAYING);
             sound->resumeAllSoundEffects();
+            gameStateController.setGameState(GAME_STATE::PLAYING);
             break;
         case GLFW_KEY_P:
         case GLFW_KEY_ESCAPE:
@@ -661,30 +685,47 @@ void WorldSystem::pauseControls(int key, int action, int mod)
     if (action == GLFW_PRESS) {
         switch (key) {
         case GLFW_KEY_Q:
-            glfwSetWindowShouldClose(window, true);
+            gameStateController.setGameState(GAME_STATE::TITLE);
+            createTitleScreen();
             break;
         case GLFW_KEY_H:
             gameStateController.setGameState(GAME_STATE::HELP);
             clearSaveText();
             break;
         case GLFW_KEY_S:
-            saveManager->save_game(trapsCounter.trapsMap);
+            saveManager->save_game(trapsCounter.trapsMap, spawn_delays, max_entities, next_spawns);
 			createGameSaveText(camera->getSize());
             printf("Saved game\n");
             break;
         case GLFW_KEY_L:
             load_game();
-			break;
+			  break;
         case GLFW_KEY_ENTER:
             restart_game();
         case GLFW_KEY_P:
         case GLFW_KEY_ESCAPE:
+            sound->resumeAllSoundEffects();
             gameStateController.setGameState(GAME_STATE::PLAYING);
-			sound->resumeAllSoundEffects();
             clearSaveText();
             break;
         }
     }
+}
+
+void WorldSystem::titleControls(int key, int action, int mod) {
+	if (action == GLFW_PRESS) {
+		switch (key) {
+		case GLFW_KEY_ENTER:
+			restart_game();
+			break;
+		case GLFW_KEY_L:
+			load_game();
+			break;
+		case GLFW_KEY_Q:
+			glfwSetWindowShouldClose(window, true);
+			break;
+		}
+	}
 }
 
 void WorldSystem::playingControls(int key, int action, int mod)
@@ -718,15 +759,15 @@ void WorldSystem::gameOverControls(int key, int action, int mod)
 {
     if (action == GLFW_PRESS) {
         switch (key) {
-        case GLFW_KEY_ENTER:
+        case GLFW_KEY_R:
             restart_game();
             break;
         case GLFW_KEY_Q:
-            glfwSetWindowShouldClose(window, true);
+            gameStateController.setGameState(GAME_STATE::TITLE);
+            createTitleScreen();
         }
     }
 }
-
 
 void WorldSystem::allStateControls(int key, int action, int mod)
 {
@@ -785,16 +826,16 @@ void WorldSystem::movementControls(int key, int action, int mod)
     // Set movement states based on key input
     switch (key)
     {
-    case GLFW_KEY_UP:
+    case GLFW_KEY_W:
         player_comp.goingUp = pressed;
         break;
-    case GLFW_KEY_DOWN:
+    case GLFW_KEY_S:
         player_comp.goingDown = pressed;
         break;
-    case GLFW_KEY_LEFT:
+    case GLFW_KEY_A:
         player_comp.goingLeft = pressed;
         break;
-    case GLFW_KEY_RIGHT:
+    case GLFW_KEY_D:
         player_comp.goingRight = pressed;
         break;
     case GLFW_KEY_LEFT_SHIFT:
@@ -815,7 +856,7 @@ void WorldSystem::movementControls(int key, int action, int mod)
             player_comp.isRolling = false;
         }
         break;
-    case GLFW_KEY_D:
+    case GLFW_KEY_X:
         if (pressed) {
             if (player_stamina.stamina > DASH_STAMINA) {
                 const float dashDistance = 300;
@@ -860,6 +901,14 @@ void WorldSystem::movementControls(int key, int action, int mod)
         break;
     }
     update_player_facing(player_comp, player_motion);
+}
+
+void WorldSystem::handleSoundOnPauseHelp() {
+    sound->isMovingSoundPlaying = false;
+    sound->isBirdFlockSoundPlaying = false;
+    sound->stopSoundEffect(Sound::BIRD_FLOCK);
+    sound->stopSoundEffect(Sound::WALKING);
+    sound->pauseAllSoundEffects();
 }
 
 void WorldSystem::update_player_facing(Player& player, Motion& motion) 
@@ -964,6 +1013,39 @@ void WorldSystem::spawn(float elapsed_ms)
             (*f)(spawnLocation);
             next_spawns[entity_type] = spawn_delays.at(entity_type);
         }
+    }
+}
+
+void WorldSystem::spawn_particles(float elapsed_ms)
+{
+    Motion& playerMotion = registry.motions.get(playerEntity);
+
+    // SPAWN SMOKE ------------------------------------------------
+    // TODO: adjust position to match torch
+    vec3 position = playerMotion.position;
+    position.z += 60;
+    vec2 size = { 20, 20 };
+    particles->createSmokeParticle(position, size);
+    particles->createSmokeParticle(position, size);
+    particles->createSmokeParticle(position, size);
+
+    for (Entity fireball : registry.damagings.entities) {
+        Damaging& damaging = registry.damagings.get(fireball);
+        if (damaging.type != "fireball") {
+            continue;
+        }
+        vec3 position = registry.motions.get(fireball).position;
+        vec2 size = { 50, 50 };
+        particles->createSmokeParticle(position, size);
+        particles->createSmokeParticle(position, size);
+        particles->createSmokeParticle(position, size);
+        particles->createSmokeParticle(position, size);
+    }
+
+    // SPAWN DASH SPRITES ------------------------------------------------
+    if (registry.dashers.get(playerEntity).isDashing) {
+        float facing = playerMotion.scale.x > 0 ? 1 : -1;
+        particles->createDashParticle(playerMotion.position, vec2(JEFF_BB_WIDTH * facing, JEFF_BB_HEIGHT));
     }
 }
 

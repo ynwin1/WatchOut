@@ -45,6 +45,7 @@ public:
 	ComponentContainer<Collected> collected;
 	ComponentContainer<HomingProjectile> homingProjectiles;
 	ComponentContainer<Bow> bows;
+	ComponentContainer<Particle> particles;
 	
 	ComponentContainer<PauseMenuComponent> pauseMenuComponents;
 	ComponentContainer<HelpMenuComponent> helpMenuComponents;
@@ -102,6 +103,7 @@ public:
 		registry_list.push_back(&collected);
 		registry_list.push_back(&homingProjectiles);
 		registry_list.push_back(&bows);
+		registry_list.push_back(&particles);
 		
 		registry_list.push_back(&healthBars);
 		registry_list.push_back(&staminaBars);

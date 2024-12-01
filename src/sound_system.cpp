@@ -293,11 +293,13 @@ void SoundSystem::controlPlayerSound() {
 			// walking sound
 			playSoundEffect(Sound::WALKING, -1);
 			isMovingSoundPlaying = true;
+			printf("isMovingSoundPlaying = true\n");
 		}
 	}
 	else {
 		if (isMovingSoundPlaying) {
 			// stop walking sound
+			printf("isMovingSoundPlaying = false\n");
 			stopSoundEffect(Sound::WALKING);
 			isMovingSoundPlaying = false;
 		}

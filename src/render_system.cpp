@@ -432,6 +432,9 @@ void RenderSystem::draw()
 		drawMesh(entity, projection_2D, projection_screen);
 	}
 
+	// Draw all particles
+	particles->draw((GLuint)effects[(GLuint)EFFECT_ASSET_ID::PARTICLE]);
+
 	// Draw all foreground textures
 	for (Entity entity : registry.foregrounds.entities) {
 		if(entity == registry.fpsTracker.textEntity && !registry.fpsTracker.toggled) {
@@ -637,7 +640,6 @@ void updateHpBarPosition() {
 void RenderSystem::update_hpbars() {
 	updateHpBarMeter();
 	updateHpBarPosition();
-	handleHpBarBoundsCheck();
 }
 
 void RenderSystem::update_staminabars() {

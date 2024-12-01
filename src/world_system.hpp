@@ -21,17 +21,21 @@ public:
 	WorldSystem(std::default_random_engine& rng);
 
 	// starts the game
-	void init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics, AISystem* ai, SoundSystem* sound, GameSaveManager* saveManager);
+	void init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics, AISystem* ai, SoundSystem* sound, GameSaveManager* saveManager, ParticleSystem* particles);
 
 	// Releases all associated resources
 	~WorldSystem();
 
 	GameStateController gameStateController;
 
+	std::unordered_map<std::string, float> spawn_delays;
+	std::unordered_map<std::string, int> max_entities;
+	std::unordered_map<std::string, float> next_spawns;
+
 	// Steps the game ahead by ms milliseconds
 	bool step(float elapsed_ms);
-	
 	bool show_mesh;
+	float countdown = 0.0f;
 
 	// Check for collisions
 	void handle_collisions();
@@ -60,6 +64,7 @@ private:
 	// GLFW Window handle
 	GLFWwindow* window;
 	RenderSystem* renderer;
+	ParticleSystem* particles;
 	PhysicsSystem* physics;
 	AISystem* ai;
 	Camera* camera;
@@ -77,9 +82,6 @@ private:
 	std::unordered_set<std::string> encounteredCollectibles;
 
 	Entity playerEntity;
-	std::unordered_map<std::string, float> spawn_delays;
-	std::unordered_map<std::string, int> max_entities;
-	std::unordered_map<std::string, float> next_spawns;
 
 	std::vector<std::string> entity_types = {
 		"boar",
@@ -96,7 +98,7 @@ private:
 		{"boar", 1},
 		{"barbarian", 1},
 		{"archer", -2},
-		{"bird", 1},
+		{"bird", 8},
 		{"wizard", -2},
 		{"troll", -3},
 		{"heart", 2},
@@ -119,7 +121,7 @@ private:
         {"boar", createBoar},
         {"barbarian", createBarbarian},
         {"archer", createArcher},
-        {"bird", createBirdFlock},
+        {"bird", createBird},
 	    {"wizard", createWizard},
         {"troll", createTroll},
         {"heart", createHeart},
@@ -134,12 +136,16 @@ private:
 	void on_key(int key, int, int action, int mod);
 	void on_mouse_move(vec2 mouse_position);
 
+	// Title screen
+	void createTitleScreen();
+
 	// Save game
 	void save_game();
 
 
 	// Actions performed for each step
 	void spawn(float elapsed_ms);
+	void spawn_particles(float elapsed_ms);
 	void update_cooldown(float elapsed_ms);
 	void handle_deaths(float elapsed_ms);
 	void update_player_facing(Player& player, Motion& motion);
@@ -166,6 +172,7 @@ private:
 	void updateCollectibleTutorial();
 	void updateLightPosition();
 
+	void updateJeffLight(float elapsed_ms);
 
 	// Collision functions
 	void entity_collectible_collision(Entity entity, Entity collectible);
@@ -181,6 +188,7 @@ private:
 	// Controls
 	void allStateControls(int key, int action, int mod);
 	void movementControls(int key, int action, int mod);
+	void titleControls(int key, int action, int mod);
 	void playingControls(int key, int action, int mod);
 	void pauseControls(int key, int action, int mod);
 	void gameOverControls(int key, int action, int mod);
@@ -189,6 +197,8 @@ private:
 	void enemyTutorialControls(int key, int action, int mod);
 	void collectibleTutorialControls(int key, int action, int mod);
 	void onTutorialClick();
+
+	void handleSoundOnPauseHelp();
 
 	void clearSaveText();
 

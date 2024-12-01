@@ -5,6 +5,7 @@
 
 enum class GAME_STATE
 {
+    TITLE,
     PLAYING,
     PAUSED,
     GAMEOVER,

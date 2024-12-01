@@ -3,8 +3,11 @@ out vec4 FragColor;
   
 in vec2 texcoord;
 uniform sampler2D sampler0;
+uniform float opacity;
 
 void main()
 {
-    FragColor = texture(sampler0, texcoord);
+    vec4 colour = texture(sampler0, texcoord);
+    colour.a *= opacity;
+    FragColor = colour;
 }

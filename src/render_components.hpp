@@ -133,16 +133,6 @@ struct RenderRequest
 	PRIMITIVE_TYPE primitive_type = PRIMITIVE_TYPE::TRIANGLES;
 };
 
-struct Particle
-{
-	vec3 position = { 0, 0, 0 };
-	float angle = 0;
-	vec3 velocity = { 0, 0, 0 };
-	vec2 scale = { 10, 10 };
-	float gravity = 1.0;			// 1 means affected by gravity normally, 0 is no gravity
-	float life = 10000.f;
-};
-
 struct Background {};
 struct Midground {};
 struct Foreground {
@@ -161,4 +151,20 @@ struct PointLight {
 	float constant;
 	float linear;
 	float quadratic;
+};
+
+enum class PARTICLE {
+	SMOKE,
+	DASH
+};
+
+struct Particle
+{
+	PARTICLE type = PARTICLE::SMOKE;
+	vec3 position = { 0, 0, 0 };
+	float angle = 0;
+	vec3 velocity = { 0, 0, 0 };
+	vec2 scale = { 10, 10 };
+	float gravity = 1.0;			// 1 means affected by gravity normally, 0 is no gravity
+	float life = 10000.f;
 };

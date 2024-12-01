@@ -64,7 +64,7 @@ const float PLAYER_SPEED = 0.5;
 const float TROLL_SPEED = 0.1;
 
 const float JUMP_STAMINA = 20.f;
-const float DASH_STAMINA = 30.f;
+const float DASH_STAMINA = 20.f;
 
 const int BOAR_HEALTH = 50;
 const int BARBARIAN_HEALTH = 30;

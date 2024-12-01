@@ -704,10 +704,34 @@ void WorldSystem::spawn(float elapsed_ms)
 
 void WorldSystem::spawn_particles(float elapsed_ms)
 {
-    if (uniform_dist(rng) < 0.2) {
-        vec3 position = registry.motions.get(playerEntity).position;
-        position.z += 30;
-        particles->createSmokeParticle(position);
+    Motion& playerMotion = registry.motions.get(playerEntity);
+
+    // SPAWN SMOKE ------------------------------------------------
+    // TODO: adjust position to match torch
+    vec3 position = playerMotion.position;
+    position.z += 60;
+    vec2 size = { 20, 20 };
+    particles->createSmokeParticle(position, size);
+    particles->createSmokeParticle(position, size);
+    particles->createSmokeParticle(position, size);
+
+    for (Entity fireball : registry.damagings.entities) {
+        Damaging& damaging = registry.damagings.get(fireball);
+        if (damaging.type != "fireball") {
+            continue;
+        }
+        vec3 position = registry.motions.get(fireball).position;
+        vec2 size = { 50, 50 };
+        particles->createSmokeParticle(position, size);
+        particles->createSmokeParticle(position, size);
+        particles->createSmokeParticle(position, size);
+        particles->createSmokeParticle(position, size);
+    }
+
+    // SPAWN DASH SPRITES ------------------------------------------------
+    if (registry.dashers.get(playerEntity).isDashing) {
+        float facing = playerMotion.scale.x > 0 ? 1 : -1;
+        particles->createDashParticle(playerMotion.position, vec2(JEFF_BB_WIDTH * facing, JEFF_BB_HEIGHT));
     }
 }
 

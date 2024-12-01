@@ -5,10 +5,6 @@
 
 class RenderSystem;
 
-enum class PARTICLE {
-	smoke
-};
-
 class ParticleSystem {
 public:
 	~ParticleSystem();
@@ -17,13 +13,19 @@ public:
 	void step(float elapsed_ms);
 
 	// Create particles
-	Entity createSmokeParticle(vec3 position);
+	Entity createSmokeParticle(vec3 position, vec2 size);
+	Entity createDashParticle(vec3 position, vec2 size);
 
 private:
 	RenderSystem* renderer;
-	GLuint transforms_vbo;
-	std::vector<mat3> transforms;
+	std::unordered_map<PARTICLE, GLuint> vbos;
+	std::unordered_map<PARTICLE, std::vector<mat3>> transforms;
 
 	std::default_random_engine rng;
 	std::uniform_real_distribution<float> uniform_dist;
+
+	// Draw functions
+	void applyBindings(const GLuint program, mat3& projection, PARTICLE particle_type);
+	void drawSmoke(const GLuint program, mat3& projection);
+	void drawDash(const GLuint program, mat3& projection);
 };

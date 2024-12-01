@@ -557,11 +557,24 @@ Entity createEquipped(TEXTURE_ASSET_ID assetId) {
 	vec2 scale;
 
 	switch (assetId) {
+		case TEXTURE_ASSET_ID::TRAPCOLLECTABLE:
+		scale = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT};
+		break;
 	case TEXTURE_ASSET_ID::BOW:
 		scale = { BOW_BB_WIDTH * 1.25, BOW_BB_HEIGHT * 1.25};
 		AnimationController& ac = initBowAnimationController(entity);
 		ac.changeState(entity, AnimationState::Default);
 		break;
+	}
+
+	if(assetId != TEXTURE_ASSET_ID::BOW) {
+		registry.renderRequests.insert(
+			entity,
+			{
+				assetId,
+				EFFECT_ASSET_ID::TEXTURED,
+				GEOMETRY_BUFFER_ID::SPRITE
+			});
 	}
 
 	Motion& motion = registry.motions.emplace(entity);
@@ -1191,6 +1204,30 @@ void createGameOverText(vec2 windowSize) {
 
 }
 
+Entity createProjectile(vec3 pos, vec3 velocity, PROJECTILE_TYPE type)
+{
+	auto entity = Entity();
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.velocity = velocity;
+	motion.scale = getProjectileSize(type);
+	motion.hitbox = { motion.scale.x, motion.scale.x, motion.scale.y / zConversionFactor };
+	
+	registry.projectiles.emplace(entity).type = type;
+	registry.midgrounds.emplace(entity);
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			getProjectileAssetId(type),
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	return entity;
+}
+
 Entity createCrosshair(vec2 mousePos) {
 	auto entity = Entity();
 
@@ -1243,6 +1280,32 @@ void createTrees(RenderSystem* renderer) {
 		float posY = uniform_dist(rng) * (bottomBound - topBound) + topBound;
 		createTree(renderer, { posX, posY });
 		numTrees--;
+	}
+}
+
+vec2 getProjectileSize(PROJECTILE_TYPE type) {
+	switch (type) {
+		case PROJECTILE_TYPE::TRAP:
+			return { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT };
+		case PROJECTILE_TYPE::PHANTOM_TRAP:
+			return { PHANTOM_TRAP_COLLECTABLE_BB_WIDTH, PHANTOM_TRAP_COLLECTABLE_BB_HEIGHT };
+		case PROJECTILE_TYPE::ARROW:
+			return { ARROW_BB_WIDTH, ARROW_BB_HEIGHT };
+		default:
+			return { 0, 0 };
+	}
+}
+
+TEXTURE_ASSET_ID getProjectileAssetId(PROJECTILE_TYPE type) {
+	switch (type) {
+		case PROJECTILE_TYPE::TRAP:
+			return TEXTURE_ASSET_ID::TRAPCOLLECTABLE;
+		case PROJECTILE_TYPE::PHANTOM_TRAP:
+			return TEXTURE_ASSET_ID::PHANTOM_TRAP_BOTTLE;
+		case PROJECTILE_TYPE::ARROW:
+			return TEXTURE_ASSET_ID::ARROW;
+		default:
+			return TEXTURE_ASSET_ID::NONE;
 	}
 }
 

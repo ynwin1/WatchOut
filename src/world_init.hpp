@@ -143,6 +143,7 @@ Entity createGameTimerText(vec2 windowSize);
 Entity createItemCountText(vec2 windowSize, TEXTURE_ASSET_ID assetID);
 
 Entity createCrosshair(vec2 mousePos);
+Entity createProjectile(vec3 pos, vec3 velocity, PROJECTILE_TYPE type);
 
 // Game over UI
 void createGameOverText(vec2 windowSize);
@@ -169,5 +170,8 @@ Entity createBottomCliff(vec2 position, vec2 scale);
 Entity createSideCliff(vec2 position, vec2 scale);
 Entity createTopCliff(vec2 position, vec2 scale);
 void createTrees(RenderSystem* renderer);
+
+vec2 getProjectileSize(PROJECTILE_TYPE type);
+TEXTURE_ASSET_ID getProjectileAssetId(PROJECTILE_TYPE item);
 
 float getElevation(vec2 xy);

@@ -71,6 +71,7 @@ void WorldSystem::restart_game()
     soundSetUp();
 
     registry.inventory.itemCounts[INVENTORY_ITEM::BOW] = 99;
+    registry.inventory.itemCounts[INVENTORY_ITEM::TRAP] = 99;
 
     // Set spawn delays to 1 second, so the first of each type will spawn right away
     for (auto& name : entity_types) {
@@ -398,16 +399,26 @@ void WorldSystem::equipItem(INVENTORY_ITEM item, bool wasCollected) {
     }
 
     if(inventory.itemCounts[item] > 0) {
+        unEquipItem(); // unequip current item
+
         inventory.equipped = item;
+
+        // disable mouse cursor
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+
+        double mousePosX, mousePosY;
+        glfwGetCursorPos(window, &mousePosX, &mousePosY);
+        vec2 mousePos = renderer->mouseToScreen({mousePosX, mousePosY});
+
+        gameStateController.crosshairEntity = createCrosshair(mousePos);
+
         switch (inventory.equipped)
         {
+        case INVENTORY_ITEM::TRAP:
+            inventory.equippedEntity = createEquipped(TEXTURE_ASSET_ID::TRAPCOLLECTABLE);
+            break;
         case INVENTORY_ITEM::BOW:
-            double mousePosX, mousePosY;
-            glfwGetCursorPos(window, &mousePosX, &mousePosY);
-            vec2 mousePos = renderer->mouseToScreen({mousePosX, mousePosY});
             inventory.equippedEntity = createEquipped(TEXTURE_ASSET_ID::BOW);
-            gameStateController.crosshairEntity = createCrosshair(mousePos);
-            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
             break;
         default:
             break;
@@ -463,57 +474,6 @@ Entity WorldSystem::shootHomingArrow(Entity targetEntity, float angle) {
     return arrowE;
 }
 
-Entity WorldSystem::shootArchingArrow(vec3 targetPos) {
-    // Always shoot arrow at 45 degree angle (makes calculations simpler)
-    const float ARROW_ANGLE = M_PI / 4;
-    const float MAX_ARROW_VELOCITY = 10;
-
-    Motion& motion = registry.motions.get(playerEntity);
-
-    // Get start position of the arrow
-    vec2 horizontal_direction = normalize(vec2(targetPos) - vec2(motion.position));
-    const float maxArrowDimension = max(ARROW_BB_HEIGHT, ARROW_BB_WIDTH);
-    vec3 pos = motion.position;
-    if (abs(horizontal_direction.x) > abs(horizontal_direction.y)) {
-        if (horizontal_direction.x > 0) {
-            pos.x += motion.hitbox.x / 2 + maxArrowDimension;
-        }
-        else if (horizontal_direction.x < 0) {
-            pos.x -= motion.hitbox.x / 2 + maxArrowDimension;
-        }
-    }
-    else {
-        if (horizontal_direction.y > 0) {
-            pos.y += motion.hitbox.y / 2 + maxArrowDimension;
-        }
-        else if (horizontal_direction.x < 0) {
-            pos.y -= motion.hitbox.y / 2 + maxArrowDimension;
-        }
-    }
-    pos.z += motion.hitbox.z / 2 + maxArrowDimension;
-    horizontal_direction = normalize(vec2(targetPos) - vec2(pos));
-
-    // Get distances from start to target
-    float horizontal_distance = distance(vec2(pos), vec2(targetPos));
-    float vertical_distance = targetPos.z - pos.z;
-
-    // Prevent trying to shoot above what is possible
-    if (vertical_distance >= horizontal_distance)
-        vertical_distance = horizontal_distance - 1;
-
-    float velocity = horizontal_distance * sqrt(-GRAVITATIONAL_CONSTANT / (vertical_distance - horizontal_distance));
-
-    // Prevent shooting at crazy speeds
-    if (velocity > MAX_ARROW_VELOCITY)
-        velocity = MAX_ARROW_VELOCITY;
-
-    // Determine velocities for each dimension
-    vec2 horizontal_velocity = velocity * cos(ARROW_ANGLE) * horizontal_direction;
-    float vertical_velocity = velocity * sin(ARROW_ANGLE);
-    return createArrow(pos, vec3(horizontal_velocity, vertical_velocity), PLAYER_ARROW_DAMAGE);
-    
-}
-
 void WorldSystem::shootArrow(vec3 mouseWorldPos) {
     vec3 playerPos = registry.motions.get(playerEntity).position;
     Entity arrow;
@@ -544,10 +504,13 @@ void WorldSystem::shootArrow(vec3 mouseWorldPos) {
     }
 
     if(!birdClicked) {
-        arrow = shootArchingArrow(mouseWorldPos);
+        arrow = shootProjectile(mouseWorldPos, PROJECTILE_TYPE::ARROW);
     }
 
-    registry.damagings.get(arrow).excludedEntity = playerEntity;
+    // add damaging component to projectile
+    Damaging& damaging = registry.damagings.emplace(arrow);
+    damaging.excludedEntity = playerEntity;
+    damaging.damage = PLAYER_ARROW_DAMAGE;
     
     sound->playSoundEffect(Sound::ARROW, 0);
 
@@ -562,10 +525,59 @@ void WorldSystem::shootArrow(vec3 mouseWorldPos) {
 
 }
 
-void WorldSystem::shootProjectile(vec3 mouseWorldPos) {
+Entity WorldSystem::shootProjectile(vec3 mouseWorldPos, PROJECTILE_TYPE type) {
+    const float PROJECTILE_ANGLE = M_PI / 4;
+    const float MAX_VELOCITY = 10;
+    vec2 projectileSize = getProjectileSize(type);
+
+    Motion& motion = registry.motions.get(registry.players.entities.at(0));
+    vec3 targetPos = mouseWorldPos;
+
+    // Get start position of projectile
+    vec2 horizontal_direction = normalize(vec2(targetPos) - vec2(motion.position));
+    const float maxBombDimension = max(projectileSize.x, projectileSize.y);
+    vec3 pos = motion.position;
+    if (abs(horizontal_direction.x) > abs(horizontal_direction.y)) {
+        pos.x += (horizontal_direction.x > 0 ? 1 : -1) * (motion.hitbox.x / 2 + maxBombDimension);
+    } else {
+        pos.y += (horizontal_direction.y > 0 ? 1 : -1) * (motion.hitbox.y / 2 + maxBombDimension);
+    }
+    pos.z += motion.hitbox.z / 2 + maxBombDimension;
+    horizontal_direction = normalize(vec2(targetPos) - vec2(pos));
+
+    // Get distances from start to target
+    float horizontal_distance = distance(vec2(pos), vec2(targetPos));
+    float vertical_distance = targetPos.z - pos.z;
+
+    // Prevent trying to throw above what's possible
+    if (vertical_distance >= horizontal_distance)
+        vertical_distance = horizontal_distance - 1;;
+
+    float velocity = horizontal_distance * sqrt(-GRAVITATIONAL_CONSTANT / (vertical_distance - horizontal_distance));
+
+    // Prevent shooting at crazy speeds
+    if (velocity > MAX_VELOCITY)
+        velocity = MAX_VELOCITY;
+
+    vec2 horizontal_velocity = velocity * cos(PROJECTILE_ANGLE) * horizontal_direction;
+    float vertical_velocity = velocity * sin(PROJECTILE_ANGLE);
+
+    Entity projectile = createProjectile(pos, vec3(horizontal_velocity, vertical_velocity), type);
+
+    if(type != PROJECTILE_TYPE::ARROW) {
+        registry.projectiles.get(projectile).sticksInGround = 0;
+    }
+    
+    return projectile;
+}
+
+void WorldSystem::leftMouseClickAction(vec3 mouseWorldPos) {
     switch(registry.inventory.equipped) {
         case INVENTORY_ITEM::BOW:
             shootArrow(mouseWorldPos);
+            break;
+        case INVENTORY_ITEM::TRAP:
+            shootProjectile(mouseWorldPos, PROJECTILE_TYPE::TRAP);
             break;
     }
 }
@@ -577,7 +589,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mod) {
             double xpos, ypos;
             glfwGetCursorPos(window, &xpos, &ypos); // get the current cursor position
             vec3 mouseWorldPos = renderer->mouseToWorld({xpos, ypos});
-            shootProjectile(mouseWorldPos);
+            leftMouseClickAction(mouseWorldPos);
         }
         break;
         case GLFW_MOUSE_BUTTON_RIGHT: {
@@ -674,20 +686,17 @@ void WorldSystem::playingControls(int key, int action, int mod)
   
     if (action == GLFW_PRESS) {
         switch (key) {
-        case GLFW_KEY_W:
-            place_trap(player_comp, player_motion, true, DAMAGE_TRAP);
-            break;
-        case GLFW_KEY_Q:
-            place_trap(player_comp, player_motion, false, DAMAGE_TRAP);
+        case GLFW_KEY_1:
+            equipItem(INVENTORY_ITEM::TRAP);
             break;
         case GLFW_KEY_3:
             equipItem(INVENTORY_ITEM::BOW);
             break;
 		case GLFW_KEY_L:
-			place_trap(player_comp, player_motion, true, PHANTOM_TRAP);
+			// place_trap(player_comp, player_motion, true, PHANTOM_TRAP);
 			break;
 		case GLFW_KEY_K:
-			place_trap(player_comp, player_motion, false, PHANTOM_TRAP);
+			// place_trap(player_comp, player_motion, false, PHANTOM_TRAP);
 			break;
         case GLFW_KEY_H:
             gameStateController.setGameState(GAME_STATE::HELP);
@@ -1260,26 +1269,7 @@ void WorldSystem::checkAndHandlePlayerDeath(Entity& entity) {
 	}
 }
 
-void WorldSystem::place_trap(Player& player, Motion& motion, bool forward, std::string type) {
-    // Player position
-    vec2 playerPos = motion.position;
-    // Place trap based on player direction
-    vec2 gap = { 0.0f, 0.0f };
-    if (forward) {
-        gap.x = (abs(motion.scale.x) / 2 + 70.f);
-    }
-    else {
-        gap.x = -(abs(motion.scale.x) / 2 + 70.f);
-    }
-
-    // Cannot place trap beyond the map
-    if (playerPos.x + gap.x < 0 || playerPos.x + gap.x > world_size_x) {
-        printf("Cannot place trap beyond the map\n");
-        return;
-    }
-
-    vec2 trapPos = playerPos + gap;
-
+void WorldSystem::place_trap(vec3 trapPos, std::string type) {
 	if (type == DAMAGE_TRAP) {
 		int trapCount = trapsCounter.trapsMap[DAMAGE_TRAP].first;
 		if (trapCount == 0) {

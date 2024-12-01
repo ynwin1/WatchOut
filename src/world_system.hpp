@@ -141,7 +141,7 @@ private:
 	void despawn_collectibles(float elapsed_ms);
 	void handle_stamina(float elapsed_ms);
 	vec2 get_spawn_location(const std::string& entity_type);
-	void place_trap(Player& player, Motion& motion, bool forward, std::string type);
+	void place_trap(vec3 trapPos, std::string type);
 	void checkAndHandlePlayerDeath(Entity& entity);
 	void trackFPS(float elapsed_ms);
 	void updateGameTimer(float elapsed_ms);
@@ -192,9 +192,9 @@ private:
     Entity createPauseMenu(vec2 cameraPosition);
     void exitPauseMenu();
 
-	void shootProjectile(vec3 mouseWorldPos);
+	void leftMouseClickAction(vec3 mouseWorldPos);
 	void shootArrow(vec3 mouseWorldPos);
-	Entity shootArchingArrow(vec3 targetPos);
+	Entity shootProjectile(vec3 mouseWorldPos, PROJECTILE_TYPE type);
 	Entity shootHomingArrow(Entity targetEntity, float angle);
 
 	// C++ random number generator

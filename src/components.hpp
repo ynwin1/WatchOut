@@ -63,8 +63,15 @@ struct Damaging {
 	Entity excludedEntity;
 };
 
+enum class PROJECTILE_TYPE {
+	TRAP,
+	PHANTOM_TRAP,
+	ARROW
+};
+
 struct Projectile {
 	float sticksInGround = 3000; // ms it lasts on the ground
+	PROJECTILE_TYPE type;
 };
 
 struct HomingProjectile{

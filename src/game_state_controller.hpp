@@ -6,7 +6,8 @@ enum class INVENTORY_ITEM
 {
     NONE,
     BOW,
-    TRAP
+    TRAP,
+    PHANTOM_TRAP
 };
 
 struct Inventory
@@ -45,7 +46,7 @@ public:
 
     const GAME_STATE getGameState() const;
 
-    Entity crosshairEntity;
+    Entity mouseTextureEntity;
 private:
     GAME_STATE currentGameState;
     WorldSystem* world;

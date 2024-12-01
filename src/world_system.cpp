@@ -70,9 +70,6 @@ void WorldSystem::restart_game()
     initText();
     soundSetUp();
 
-    registry.inventory.itemCounts[INVENTORY_ITEM::BOW] = 99;
-    registry.inventory.itemCounts[INVENTORY_ITEM::TRAP] = 99;
-
     // Set spawn delays to 1 second, so the first of each type will spawn right away
     for (auto& name : entity_types) {
         next_spawns[name] = 1000;
@@ -381,10 +378,10 @@ void WorldSystem::resetTrappedEntities() {
     }
 }
 
-void WorldSystem::updateCrosshairPosition(vec2 mouse_position) {
-    if(registry.foregrounds.has(gameStateController.crosshairEntity)) {
+void WorldSystem::updateMouseTexturePosition(vec2 mouse_position) {
+    if(registry.foregrounds.has(gameStateController.mouseTextureEntity)) {
         vec2 screenPos = renderer->mouseToScreen(mouse_position);
-        Foreground& fg = registry.foregrounds.get(gameStateController.crosshairEntity);
+        Foreground& fg = registry.foregrounds.get(gameStateController.mouseTextureEntity);
         fg.position = screenPos;
     }
 }
@@ -410,7 +407,7 @@ void WorldSystem::equipItem(INVENTORY_ITEM item, bool wasCollected) {
         glfwGetCursorPos(window, &mousePosX, &mousePosY);
         vec2 mousePos = renderer->mouseToScreen({mousePosX, mousePosY});
 
-        gameStateController.crosshairEntity = createCrosshair(mousePos);
+        gameStateController.mouseTextureEntity = createMousePointer(mousePos);
 
         switch (inventory.equipped)
         {
@@ -419,6 +416,9 @@ void WorldSystem::equipItem(INVENTORY_ITEM item, bool wasCollected) {
             break;
         case INVENTORY_ITEM::BOW:
             inventory.equippedEntity = createEquipped(TEXTURE_ASSET_ID::BOW);
+            break;
+        case INVENTORY_ITEM::PHANTOM_TRAP:
+            inventory.equippedEntity = createEquipped(TEXTURE_ASSET_ID::PHANTOM_TRAP_BOTTLE_ONE);
             break;
         default:
             break;
@@ -429,7 +429,7 @@ void WorldSystem::equipItem(INVENTORY_ITEM item, bool wasCollected) {
 void WorldSystem::unEquipItem() {
     registry.inventory.equipped = INVENTORY_ITEM::NONE;
     registry.remove_all_components_of(registry.inventory.equippedEntity);
-    registry.remove_all_components_of(gameStateController.crosshairEntity);
+    registry.remove_all_components_of(gameStateController.mouseTextureEntity);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 }
 
@@ -439,7 +439,7 @@ bool WorldSystem::is_over() const {
 }
 
 void WorldSystem::on_mouse_move(vec2 mouse_position) {
-    updateCrosshairPosition(mouse_position);
+    updateMouseTexturePosition(mouse_position);
 }
 
 Entity WorldSystem::shootHomingArrow(Entity targetEntity, float angle) {
@@ -513,22 +513,12 @@ void WorldSystem::shootArrow(vec3 mouseWorldPos) {
     damaging.damage = PLAYER_ARROW_DAMAGE;
     
     sound->playSoundEffect(Sound::ARROW, 0);
-
-    registry.inventory.itemCounts[INVENTORY_ITEM::BOW]--;
-    if(registry.inventory.itemCounts[INVENTORY_ITEM::BOW] == 0) {
-        unEquipItem();
-    } else if(registry.animationControllers.has(registry.inventory.equippedEntity)) {
-        Entity entity = registry.inventory.equippedEntity;
-        AnimationController& ac = registry.animationControllers.get(entity);
-        ac.changeState(entity, AnimationState::Attack);
-    }
-
 }
 
 Entity WorldSystem::shootProjectile(vec3 mouseWorldPos, PROJECTILE_TYPE type) {
     const float PROJECTILE_ANGLE = M_PI / 4;
     const float MAX_VELOCITY = 10;
-    vec2 projectileSize = getProjectileSize(type);
+    vec2 projectileSize = getProjectileInfo(type).size;
 
     Motion& motion = registry.motions.get(registry.players.entities.at(0));
     vec3 targetPos = mouseWorldPos;
@@ -572,13 +562,31 @@ Entity WorldSystem::shootProjectile(vec3 mouseWorldPos, PROJECTILE_TYPE type) {
 }
 
 void WorldSystem::leftMouseClickAction(vec3 mouseWorldPos) {
-    switch(registry.inventory.equipped) {
+    Inventory& inventory = registry.inventory;
+    switch(inventory.equipped) {
         case INVENTORY_ITEM::BOW:
             shootArrow(mouseWorldPos);
+            inventory.itemCounts[INVENTORY_ITEM::BOW]--;
             break;
         case INVENTORY_ITEM::TRAP:
             shootProjectile(mouseWorldPos, PROJECTILE_TYPE::TRAP);
+            inventory.itemCounts[INVENTORY_ITEM::TRAP]--;
+            trapsCounter.trapsMap[DAMAGE_TRAP].first = inventory.itemCounts[INVENTORY_ITEM::TRAP];
             break;
+        case INVENTORY_ITEM::PHANTOM_TRAP:
+            shootProjectile(mouseWorldPos, PROJECTILE_TYPE::PHANTOM_TRAP);
+            inventory.itemCounts[INVENTORY_ITEM::PHANTOM_TRAP]--;
+            trapsCounter.trapsMap[PHANTOM_TRAP].first = inventory.itemCounts[INVENTORY_ITEM::PHANTOM_TRAP];
+    }
+
+    if(inventory.itemCounts[inventory.equipped] == 0) {
+        unEquipItem();
+    } else if(registry.animationControllers.has(inventory.equippedEntity)) {
+        if(inventory.equipped == INVENTORY_ITEM::BOW) {
+            Entity entity = registry.inventory.equippedEntity;
+            AnimationController& ac = registry.animationControllers.get(entity);
+            ac.changeState(entity, AnimationState::Attack);
+        }
     }
 }
 
@@ -689,15 +697,12 @@ void WorldSystem::playingControls(int key, int action, int mod)
         case GLFW_KEY_1:
             equipItem(INVENTORY_ITEM::TRAP);
             break;
+        case GLFW_KEY_2:
+            equipItem(INVENTORY_ITEM::PHANTOM_TRAP);
+            break;
         case GLFW_KEY_3:
             equipItem(INVENTORY_ITEM::BOW);
             break;
-		case GLFW_KEY_L:
-			// place_trap(player_comp, player_motion, true, PHANTOM_TRAP);
-			break;
-		case GLFW_KEY_K:
-			// place_trap(player_comp, player_motion, false, PHANTOM_TRAP);
-			break;
         case GLFW_KEY_H:
             gameStateController.setGameState(GAME_STATE::HELP);
             break;
@@ -1013,12 +1018,16 @@ void WorldSystem::entity_collectible_collision(Entity entity, Entity entity_othe
     if (registry.collectibleTraps.has(entity_other)) {
 		CollectibleTrap& collectibleTrap = registry.collectibleTraps.get(entity_other);
         if (collectibleTrap.type == DAMAGE_TRAP) {
-			trapsCounter.trapsMap[DAMAGE_TRAP].first++;
+            registry.inventory.itemCounts[INVENTORY_ITEM::TRAP]++;
+			trapsCounter.trapsMap[DAMAGE_TRAP].first = registry.inventory.itemCounts[INVENTORY_ITEM::TRAP];
 			createCollected(playerM, collectibleM.scale, TEXTURE_ASSET_ID::TRAPCOLLECTABLE);
+            equipItem(INVENTORY_ITEM::TRAP, true);
 		}
         else if (collectibleTrap.type == PHANTOM_TRAP) {
-            trapsCounter.trapsMap[PHANTOM_TRAP].first++;
+            registry.inventory.itemCounts[INVENTORY_ITEM::PHANTOM_TRAP]++;
+            trapsCounter.trapsMap[PHANTOM_TRAP].first = registry.inventory.itemCounts[INVENTORY_ITEM::PHANTOM_TRAP];
             createCollected(playerM, collectibleM.scale, TEXTURE_ASSET_ID::PHANTOM_TRAP_BOTTLE_ONE);
+            equipItem(INVENTORY_ITEM::PHANTOM_TRAP, true);
         }
     }
     else if (registry.hearts.has(entity_other)) {

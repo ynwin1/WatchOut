@@ -14,8 +14,8 @@ const float BARBARIAN_BB_WIDTH = 19.f * SPRITE_SCALE;
 const float BARBARIAN_BB_HEIGHT = 34.f * SPRITE_SCALE;
 const float ARCHER_BB_WIDTH = 32.f * SPRITE_SCALE;
 const float ARCHER_BB_HEIGHT = 32.f * SPRITE_SCALE;
-const float BIRD_BB_WIDTH = (16.f + 20.f) * SPRITE_SCALE;
-const float BIRD_BB_HEIGHT = (8.f + 20.f) * SPRITE_SCALE;
+const float BIRD_BB_WIDTH = 16.f * SPRITE_SCALE;
+const float BIRD_BB_HEIGHT = 8.f * SPRITE_SCALE;
 const float WIZARD_BB_WIDTH = 32.f * SPRITE_SCALE;
 const float WIZARD_BB_HEIGHT = 32.f * SPRITE_SCALE;
 const float TROLL_SIZE_FACTOR = 2.f;
@@ -142,7 +142,7 @@ Entity createFPSText(vec2 windowSize);
 Entity createGameTimerText(vec2 windowSize);
 Entity createItemCountText(vec2 windowSize, TEXTURE_ASSET_ID assetID);
 
-Entity createCrosshair(vec2 mousePos);
+Entity createMousePointer(vec2 mousePos);
 Entity createProjectile(vec3 pos, vec3 velocity, PROJECTILE_TYPE type);
 
 // Game over UI
@@ -171,7 +171,10 @@ Entity createSideCliff(vec2 position, vec2 scale);
 Entity createTopCliff(vec2 position, vec2 scale);
 void createTrees(RenderSystem* renderer);
 
-vec2 getProjectileSize(PROJECTILE_TYPE type);
-TEXTURE_ASSET_ID getProjectileAssetId(PROJECTILE_TYPE item);
+struct ProjectileInfo {
+    vec2 size;
+    TEXTURE_ASSET_ID assetId;
+};
+ProjectileInfo getProjectileInfo(PROJECTILE_TYPE type);
 
 float getElevation(vec2 xy);

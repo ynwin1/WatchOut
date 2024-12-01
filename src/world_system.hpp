@@ -159,7 +159,7 @@ private:
 	void resetTrappedEntities();
 	void updateHomingProjectiles(float elapsed_ms);
 	void updateEquippedPosition();
-	void updateCrosshairPosition(vec2 mousePos);
+	void updateMouseTexturePosition(vec2 mousePos);
 	void updateLightPosition();
 	void equipItem(INVENTORY_ITEM item, bool wasCollected = false);
 	void unEquipItem();

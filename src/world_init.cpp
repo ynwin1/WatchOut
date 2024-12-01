@@ -558,12 +558,15 @@ Entity createEquipped(TEXTURE_ASSET_ID assetId) {
 
 	switch (assetId) {
 		case TEXTURE_ASSET_ID::TRAPCOLLECTABLE:
-		scale = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT};
+			scale = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT};
 		break;
-	case TEXTURE_ASSET_ID::BOW:
-		scale = { BOW_BB_WIDTH * 1.25, BOW_BB_HEIGHT * 1.25};
-		AnimationController& ac = initBowAnimationController(entity);
-		ac.changeState(entity, AnimationState::Default);
+		case TEXTURE_ASSET_ID::PHANTOM_TRAP_BOTTLE_ONE:
+			scale = { PHANTOM_TRAP_COLLECTABLE_BB_WIDTH * 0.8, PHANTOM_TRAP_COLLECTABLE_BB_HEIGHT * 0.8};
+		break;
+		case TEXTURE_ASSET_ID::BOW:
+			scale = { BOW_BB_WIDTH * 1.25, BOW_BB_HEIGHT * 1.25};
+			AnimationController& ac = initBowAnimationController(entity);
+			ac.changeState(entity, AnimationState::Default);
 		break;
 	}
 
@@ -860,31 +863,39 @@ Entity createItemCountText(vec2 windowSize, TEXTURE_ASSET_ID assetID) {
 	vec2 startPos = {420.0f, windowSize.y - 30.0f};
 	vec2 iconScale;
 	vec2 position;
+	vec2 keybindPos;
+	vec2 iconPos;
+	vec2 textPos;
 	std::string keybind;
 
 	switch(assetID) {
 		case TEXTURE_ASSET_ID::TRAPCOLLECTABLE:
 			iconScale = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT};
 			position = startPos;
-			keybind = "";
+			keybindPos = position + vec2(-5.0f, 0.0f);
+			iconPos = keybindPos + vec2(0.0f, -40.0f);
+			textPos = iconPos + vec2(-30.0f, -55.0f);
+			keybind = "1";
 			break;
 		case TEXTURE_ASSET_ID::PHANTOM_TRAP_BOTTLE_ONE:
 			iconScale = { PHANTOM_TRAP_COLLECTABLE_BB_WIDTH * 0.75, PHANTOM_TRAP_COLLECTABLE_BB_HEIGHT * 0.75};
 			position = startPos + vec2(80.0f, 0.0f);
-			keybind = "";
+			keybindPos = position + vec2(-10.0f, 0.0f);
+			iconPos = keybindPos + vec2(5.0f, -40.0f);
+			textPos = iconPos + vec2(-30.0f, -55.0f);
+			keybind = "2";
 			break;
 		case TEXTURE_ASSET_ID::BOW:
-			iconScale = { BOW_BB_WIDTH * 0.70, BOW_BB_HEIGHT * 0.70};
-			position = startPos + vec2(150.0f, 0.0f);
+			iconScale = { BOW_BB_WIDTH * 0.60, BOW_BB_HEIGHT * 0.60};
+			position = startPos + vec2(145.0f, 0.0f);
+			keybindPos = position + vec2(-5.0f, 0.0f);
+			iconPos = keybindPos + vec2(10.0f, -40.0f);
+			textPos = iconPos + vec2(-30.0f, -55.0f);
 			keybind = "3";
 			break;
 		default:
 			break;
 	}
-
-	vec2 keybindPos = position;
-	vec2 iconPos = keybindPos + vec2(0.0f, -40.0f);
-	vec2 textPos = iconPos + vec2(0.0f, -55.0f);
 
 	Text& textKeybind = registry.texts.emplace(textKeybindE);
 	textKeybind.value = keybind;
@@ -1211,7 +1222,7 @@ Entity createProjectile(vec3 pos, vec3 velocity, PROJECTILE_TYPE type)
 	Motion& motion = registry.motions.emplace(entity);
 	motion.position = pos;
 	motion.velocity = velocity;
-	motion.scale = getProjectileSize(type);
+	motion.scale = getProjectileInfo(type).size;
 	motion.hitbox = { motion.scale.x, motion.scale.x, motion.scale.y / zConversionFactor };
 	
 	registry.projectiles.emplace(entity).type = type;
@@ -1220,7 +1231,7 @@ Entity createProjectile(vec3 pos, vec3 velocity, PROJECTILE_TYPE type)
 	registry.renderRequests.insert(
 		entity,
 		{
-			getProjectileAssetId(type),
+			getProjectileInfo(type).assetId,
 			EFFECT_ASSET_ID::TEXTURED,
 			GEOMETRY_BUFFER_ID::SPRITE
 		});
@@ -1228,7 +1239,7 @@ Entity createProjectile(vec3 pos, vec3 velocity, PROJECTILE_TYPE type)
 	return entity;
 }
 
-Entity createCrosshair(vec2 mousePos) {
+Entity createMousePointer(vec2 mousePos) {
 	auto entity = Entity();
 
 	Foreground& fg = registry.foregrounds.emplace(entity);
@@ -1283,32 +1294,21 @@ void createTrees(RenderSystem* renderer) {
 	}
 }
 
-vec2 getProjectileSize(PROJECTILE_TYPE type) {
-	switch (type) {
-		case PROJECTILE_TYPE::TRAP:
-			return { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT };
-		case PROJECTILE_TYPE::PHANTOM_TRAP:
-			return { PHANTOM_TRAP_COLLECTABLE_BB_WIDTH, PHANTOM_TRAP_COLLECTABLE_BB_HEIGHT };
-		case PROJECTILE_TYPE::ARROW:
-			return { ARROW_BB_WIDTH, ARROW_BB_HEIGHT };
-		default:
-			return { 0, 0 };
-	}
+ProjectileInfo getProjectileInfo(PROJECTILE_TYPE type) {
+    switch (type) {
+        case PROJECTILE_TYPE::TRAP:
+            return { {TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT}, 
+                     TEXTURE_ASSET_ID::TRAPCOLLECTABLE };
+        case PROJECTILE_TYPE::PHANTOM_TRAP:
+            return { {PHANTOM_TRAP_COLLECTABLE_BB_WIDTH, PHANTOM_TRAP_COLLECTABLE_BB_HEIGHT}, 
+                     TEXTURE_ASSET_ID::PHANTOM_TRAP_BOTTLE_ONE };
+        case PROJECTILE_TYPE::ARROW:
+            return { {ARROW_BB_WIDTH, ARROW_BB_HEIGHT}, 
+                     TEXTURE_ASSET_ID::ARROW };
+        default:
+            return { {0, 0}, TEXTURE_ASSET_ID::NONE };
+    }
 }
-
-TEXTURE_ASSET_ID getProjectileAssetId(PROJECTILE_TYPE type) {
-	switch (type) {
-		case PROJECTILE_TYPE::TRAP:
-			return TEXTURE_ASSET_ID::TRAPCOLLECTABLE;
-		case PROJECTILE_TYPE::PHANTOM_TRAP:
-			return TEXTURE_ASSET_ID::PHANTOM_TRAP_BOTTLE;
-		case PROJECTILE_TYPE::ARROW:
-			return TEXTURE_ASSET_ID::ARROW;
-		default:
-			return TEXTURE_ASSET_ID::NONE;
-	}
-}
-
 float getElevation(vec2 xy)
 {
 	return 0.0f;

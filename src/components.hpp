@@ -71,7 +71,7 @@ enum class PROJECTILE_TYPE {
 
 struct Projectile {
 	float sticksInGround = 3000; // ms it lasts on the ground
-	PROJECTILE_TYPE type;
+	PROJECTILE_TYPE type = PROJECTILE_TYPE::ARROW;
 };
 
 struct HomingProjectile{

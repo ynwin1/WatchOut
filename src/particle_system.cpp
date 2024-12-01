@@ -10,6 +10,7 @@ ParticleSystem::~ParticleSystem()
 void ParticleSystem::init(RenderSystem* renderer)
 {
     this->renderer = renderer;
+    this->rng = std::default_random_engine(std::random_device()());
 
     glGenBuffers(1, &transforms_vbo);
 }
@@ -85,7 +86,7 @@ Entity ParticleSystem::createSmokeParticle(vec3 position)
     Particle& particle = registry.particles.emplace(entity);
     particle.position = position;
     particle.position.z += 40;
-    particle.velocity = vec3(0, 0, 0.1);
+    particle.velocity = vec3((uniform_dist(rng) - 0.5) / 10, (uniform_dist(rng) - 0.5) / 10, 0.1);
     particle.scale = vec2(20, 20);
     particle.gravity = 0;
     particle.life = 1000;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "tiny_ecs_registry.hpp"
+#include <random>
 
 class RenderSystem;
 
@@ -22,4 +23,7 @@ private:
 	RenderSystem* renderer;
 	GLuint transforms_vbo;
 	std::vector<mat3> transforms;
+
+	std::default_random_engine rng;
+	std::uniform_real_distribution<float> uniform_dist;
 };

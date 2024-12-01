@@ -506,7 +506,6 @@ void PhysicsSystem::step(float elapsed_ms)
 {
 	updatePositions(elapsed_ms);
 	checkCollisions();
-	handleBoundsCheck();
 };
 
 std::vector<vec3> boundingBoxVertices(Motion& motion)

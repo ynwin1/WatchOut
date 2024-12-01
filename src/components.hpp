@@ -316,8 +316,8 @@ struct Archer {
 	bool aiming = false;
 };
 struct Bird {
-	float swarmSpeed = 0.3f;
-	float swoopSpeed = 0.2f;
+	float swarmSpeed = 0.6f;
+	float swoopSpeed = 0.5f;
 	bool isSwooping = false;
 	float swoopTimer = 500;
 	vec2 swoopDirection = {0,0};

@@ -189,15 +189,13 @@ void WorldSystem::updateTutorial(float elapsed_ms) {
 void WorldSystem::updateEnemyTutorial() {
     for(Entity enemy: registry.enemies.entities){
         Motion& motion = registry.motions.get(enemy);
-        //same logic as spawning but using visual coordinates (for z)
-        vec2 visualPosition = worldToVisual(vec3(motion.position.x, motion.position.y, motion.position.z));
-        float exclusionTop = (camera->getPosition().y - camera->getSize().y / 2) / yConversionFactor + 50;
-        float exclusionBottom = (camera->getPosition().y + camera->getSize().y / 2) / yConversionFactor - 200;
-        float exclusionLeft = camera->getPosition().x - camera->getSize().x / 2 + 50;
-        float exclusionRight = camera->getPosition().x + camera->getSize().x / 2 - 50;
+        Motion& playerMotion = registry.motions.get(playerEntity);
+        vec2 playerPosition = { playerMotion.position.x, playerMotion.position.y };
 
-        if (visualPosition.x < exclusionRight && visualPosition.x > exclusionLeft &&
-            visualPosition.y < exclusionBottom && visualPosition.y > exclusionTop) {
+        vec2 enemyPosition = { motion.position.x, motion.position.y };
+        float distance = glm::distance(playerPosition, enemyPosition);
+
+         if (distance <= 300.0f) {
             std::string enemyType = registry.enemies.get(enemy).type; 
             if (encounteredEnemies.find(enemyType) == encounteredEnemies.end()) {
                 createTutorialTarget(motion.position);
@@ -229,13 +227,12 @@ void WorldSystem::updateEnemyTutorial() {
 void WorldSystem::updateCollectibleTutorial() {
     for(Entity collectible: registry.collectibles.entities){
         Motion& motion = registry.motions.get(collectible);
-        //same logic as spawning
-        float exclusionTop = (camera->getPosition().y - camera->getSize().y / 2) / yConversionFactor + 200;
-        float exclusionBottom = (camera->getPosition().y + camera->getSize().y / 2) / yConversionFactor - 400;
-        float exclusionLeft = camera->getPosition().x - camera->getSize().x / 2 + 200;
-        float exclusionRight = camera->getPosition().x + camera->getSize().x / 2 - 200;
-        if (motion.position.x < exclusionRight && motion.position.x > exclusionLeft &&
-            motion.position.y < exclusionBottom && motion.position.y > exclusionTop) {
+        Motion& playerMotion = registry.motions.get(playerEntity);
+        vec2 playerPosition = { playerMotion.position.x, playerMotion.position.y };
+       
+        vec2 collectiblePosition = { motion.position.x, motion.position.y };
+        float distance = glm::distance(playerPosition, collectiblePosition);
+        if (distance <= 200.0f) {
             std::string collectibleType = registry.collectibles.get(collectible).type; 
             if (encounteredCollectibles.find(collectibleType) == encounteredCollectibles.end()) {
                 createTutorialTarget(motion.position);

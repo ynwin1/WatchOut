@@ -66,18 +66,18 @@ const float TROLL_SPEED = 0.1;
 const float JUMP_STAMINA = 20.f;
 const float DASH_STAMINA = 20.f;
 
-const int BOAR_HEALTH = 50;
-const int BARBARIAN_HEALTH = 30;
-const int ARCHER_HEALTH = 25;
+const int BOAR_HEALTH = 30;
+const int BARBARIAN_HEALTH = 20;
+const int ARCHER_HEALTH = 20;
 const int BIRD_HEALTH = 10;
 const int WIZARD_HEALTH = 20;
 const int TROLL_HEALTH = 200;
 
-const int BOAR_DAMAGE = 30;
+const int BOAR_DAMAGE = 20;
 const int BARBARIAN_DAMAGE = 20;
 const int ARCHER_DAMAGE = 25;
 const int BIRD_DAMAGE = 10;
-const int WIZARD_DAMAGE = 50;
+const int WIZARD_DAMAGE = 30;
 const int TROLL_DAMAGE = 5;
 
 // Jeff the Player

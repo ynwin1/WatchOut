@@ -459,7 +459,7 @@ void WorldSystem::playingControls(int key, int action, int mod)
   
     if (action == GLFW_PRESS) {
         switch (key) {
-        case GLFW_KEY_D:
+        case GLFW_KEY_X:
             if (player_stamina.stamina > DASH_STAMINA) {
                 const float dashDistance = 300;
                 // Start dashing if player is moving
@@ -593,22 +593,6 @@ void WorldSystem::movementControls(int key, int action, int mod)
         }
         else {
             player_comp.isRolling = false;
-        }
-        break;
-    case GLFW_KEY_X:
-        if (pressed) {
-            if (player_stamina.stamina > DASH_STAMINA) {
-                const float dashDistance = 300;
-                // Start dashing if player is moving
-                player_dash.isDashing = true;
-                player_dash.dashStartPosition = vec2(player_motion.position);
-                player_dash.dashTargetPosition = player_dash.dashStartPosition + player_motion.facing * dashDistance;
-                player_dash.dashTimer = 0.0f; // Reset timer
-                player_stamina.stamina -= DASH_STAMINA;
-
-                // play dash sound
-                sound->playSoundEffect(Sound::DASHING, 0);
-            }
         }
         break;
     case GLFW_KEY_SPACE:

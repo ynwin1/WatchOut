@@ -723,9 +723,10 @@ void WorldSystem::spawn_particles(float elapsed_ms)
     Motion& playerMotion = registry.motions.get(playerEntity);
 
     // SPAWN SMOKE ------------------------------------------------
-    // TODO: adjust position to match torch
     vec3 position = playerMotion.position;
-    position.z += 60;
+    float direction = (playerMotion.scale.x > 0) ? 1.f : -1.f;
+    position.x += direction * playerMotion.hitbox.x / 2;
+    position.z += playerMotion.hitbox.z / 3;
     vec2 size = { 20, 20 };
     particles->createSmokeParticle(position, size);
     particles->createSmokeParticle(position, size);

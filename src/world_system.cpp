@@ -377,7 +377,7 @@ void WorldSystem::helpControls(int key, int action, int mod)
             gameStateController.setGameState(GAME_STATE::TITLE);
             createTitleScreen();
             break;
-        case GLFW_KEY_ENTER:
+        case GLFW_KEY_R:
             restart_game();
         case GLFW_KEY_H:
             sound->resumeAllSoundEffects();
@@ -411,7 +411,7 @@ void WorldSystem::pauseControls(int key, int action, int mod)
             break;
         case GLFW_KEY_L:
             load_game();
-			break;
+			  break;
         case GLFW_KEY_ENTER:
             restart_game();
         case GLFW_KEY_P:
@@ -447,7 +447,7 @@ void WorldSystem::playingControls(int key, int action, int mod)
   
     if (action == GLFW_PRESS) {
         switch (key) {
-        case GLFW_KEY_W:
+        case GLFW_KEY_E:
             place_trap(player_comp, player_motion, true, DAMAGE_TRAP);
             break;
         case GLFW_KEY_Q:
@@ -474,8 +474,8 @@ void WorldSystem::gameOverControls(int key, int action, int mod)
 {
     if (action == GLFW_PRESS) {
         switch (key) {
-        case GLFW_KEY_ENTER:
-			restart_game();
+        case GLFW_KEY_R:
+            restart_game();
             break;
         case GLFW_KEY_Q:
             gameStateController.setGameState(GAME_STATE::TITLE);
@@ -541,16 +541,16 @@ void WorldSystem::movementControls(int key, int action, int mod)
     // Set movement states based on key input
     switch (key)
     {
-    case GLFW_KEY_UP:
+    case GLFW_KEY_W:
         player_comp.goingUp = pressed;
         break;
-    case GLFW_KEY_DOWN:
+    case GLFW_KEY_S:
         player_comp.goingDown = pressed;
         break;
-    case GLFW_KEY_LEFT:
+    case GLFW_KEY_A:
         player_comp.goingLeft = pressed;
         break;
-    case GLFW_KEY_RIGHT:
+    case GLFW_KEY_D:
         player_comp.goingRight = pressed;
         break;
     case GLFW_KEY_LEFT_SHIFT:
@@ -571,7 +571,7 @@ void WorldSystem::movementControls(int key, int action, int mod)
             player_comp.isRolling = false;
         }
         break;
-    case GLFW_KEY_D:
+    case GLFW_KEY_X:
         if (pressed) {
             if (player_stamina.stamina > DASH_STAMINA) {
                 const float dashDistance = 300;

@@ -118,23 +118,33 @@ void RenderSystem::initializeGlTextures()
 	gl_has_errors();
 }
 
+// Appends suffix to end of filename
+std::string addSuffixToFilename(const std::string& filename, const std::string& suffix) {
+    size_t dotPosition = filename.find_last_of('.');
+    if (dotPosition == std::string::npos) {
+        throw std::invalid_argument("Filename does not contain an extension.");
+    }
+    return filename.substr(0, dotPosition) + suffix + filename.substr(dotPosition);
+}
+
 void RenderSystem::initializeGlNormals()
 {
 	glGenTextures((GLsizei)normal_gl_handles.size(), normal_gl_handles.data());
 
-	for (uint i = 0; i < normal_paths.size(); i++)
+	for (uint i = 0; i < texture_paths.size(); i++)
 	{
-		const std::string& path = normal_paths[i];
+		const std::string& normalPath = addSuffixToFilename(texture_paths[i], "_n");
 		ivec2& dimensions = texture_dimensions[i];
 
 		stbi_uc* data;
-		data = stbi_load(path.c_str(), &dimensions.x, &dimensions.y, NULL, 4);
+		data = stbi_load(normalPath.c_str(), &dimensions.x, &dimensions.y, NULL, 4);
 		
-		// if (data == NULL)
-		// {
-		// 	const std::string message = "Could not load the file " + path + ".\n";
-		// 	fprintf(stderr, "%s", message.c_str());
-		// }
+		if (data == NULL)
+		{
+			// const std::string message = "Could not load the file " + path + ".\n";
+			// fprintf(stderr, "%s", message.c_str());
+			continue;
+		}
 
 		glBindTexture(GL_TEXTURE_2D, normal_gl_handles[i]);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, dimensions.x, dimensions.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);

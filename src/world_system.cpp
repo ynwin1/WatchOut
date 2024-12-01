@@ -547,7 +547,7 @@ void WorldSystem::shootArrow(vec3 mouseWorldPos) {
         arrow = shootArchingArrow(mouseWorldPos);
     }
 
-    registry.damagings.emplace(arrow).excludedEntity = playerEntity;
+    registry.damagings.get(arrow).excludedEntity = playerEntity;
     
     sound->playSoundEffect(Sound::ARROW, 0);
 
@@ -714,10 +714,12 @@ void WorldSystem::allStateControls(int key, int action, int mod)
 {
     if (action == GLFW_PRESS) {
         switch (key) {
+#ifndef NDEBUG
         case GLFW_KEY_C:
             // toggle camera on/off for debugging/testing
             camera->toggle();
             break;
+#endif
         case GLFW_KEY_F:
             // toggle fps
             registry.fpsTracker.toggled = !registry.fpsTracker.toggled;
@@ -1419,6 +1421,13 @@ void WorldSystem::updateHomingProjectiles(float elapsed_ms) {
     for (Entity entity : registry.homingProjectiles.entities) {
         HomingProjectile& projectile = registry.homingProjectiles.get(entity);
         Motion& projectileM = registry.motions.get(entity);
+
+        // check if target entity still exists
+        if(!registry.motions.has(projectile.targetEntity)) {
+            registry.remove_all_components_of(entity);
+            continue;
+        }
+
         Motion& targetM = registry.motions.get(projectile.targetEntity);
 
         // calculate direction towards target

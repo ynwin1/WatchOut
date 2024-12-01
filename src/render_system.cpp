@@ -637,7 +637,6 @@ void updateHpBarPosition() {
 void RenderSystem::update_hpbars() {
 	updateHpBarMeter();
 	updateHpBarPosition();
-	handleHpBarBoundsCheck();
 }
 
 void RenderSystem::update_staminabars() {

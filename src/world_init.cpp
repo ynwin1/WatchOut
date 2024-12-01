@@ -1215,6 +1215,24 @@ void createGameOverText(vec2 windowSize) {
 
 }
 
+Entity createCrosshair(vec2 mousePos) {
+	auto entity = Entity();
+
+	Foreground& fg = registry.foregrounds.emplace(entity);
+	fg.scale = { 40.0f, 40.0f};
+	fg.position = mousePos;
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::CROSSHAIR,
+			EFFECT_ASSET_ID::TEXTURED_FLAT,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	return entity;
+}
+
 void createGameSaveText(vec2 windowSize) {
 	auto entity = Entity();
 

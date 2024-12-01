@@ -1,7 +1,6 @@
 #pragma once
+
 #include "common.hpp"
-#include "tiny_ecs_registry.hpp"
-#include "world_init.hpp"
 
 enum class INVENTORY_ITEM
 {
@@ -16,44 +15,10 @@ struct Inventory
     std::unordered_map<INVENTORY_ITEM, Entity> itemCountTextEntities;
     Entity equippedEntity;
     INVENTORY_ITEM equipped = INVENTORY_ITEM::NONE;
-    void equipItem(INVENTORY_ITEM item)
-    {
-        if(item == equipped)
-        {
-            return;
-        }
-
-        unequip();
-        
-        if(itemCounts[item] > 0)
-        {
-            equipped = item;
-            switch (equipped)
-            {
-            case INVENTORY_ITEM::BOW:
-                equippedEntity = createEquipped(TEXTURE_ASSET_ID::BOW);
-                break;
-            default:
-                break;
-            }
-        }
-    }
-    void equipCollected(INVENTORY_ITEM item)
-    {
-        if(equipped == INVENTORY_ITEM::NONE)
-        {
-            equipItem(item);
-        }
-    }
-    void unequip()
-    {
-        equipped = INVENTORY_ITEM::NONE;
-        registry.remove_all_components_of(equippedEntity);
-    }
     void reset()
     {
         itemCounts.clear();
-        unequip();
+        equipped = INVENTORY_ITEM::NONE;
     }
 };
 
@@ -81,7 +46,7 @@ public:
     const GAME_STATE getGameState() const;
 
     Inventory inventory;
-
+    Entity crosshairEntity;
 private:
     GAME_STATE currentGameState;
     WorldSystem* world;

@@ -70,7 +70,7 @@ void WorldSystem::restart_game()
     initText();
     soundSetUp();
 
-    gameStateController.inventory.itemCounts[INVENTORY_ITEM::BOW] = 1;
+    gameStateController.inventory.itemCounts[INVENTORY_ITEM::BOW] = 99;
 
     // Set spawn delays to 1 second, so the first of each type will spawn right away
     for (auto& name : entity_types) {
@@ -380,13 +380,55 @@ void WorldSystem::resetTrappedEntities() {
     }
 }
 
+void WorldSystem::updateCrosshairPosition(vec2 mouse_position) {
+    if(registry.foregrounds.has(gameStateController.crosshairEntity)) {
+        vec2 screenPos = renderer->mouseToScreen(mouse_position);
+        Foreground& fg = registry.foregrounds.get(gameStateController.crosshairEntity);
+        fg.position = screenPos;
+    }
+}
+
+void WorldSystem::equipItem(INVENTORY_ITEM item, bool wasCollected) {
+    Inventory& inventory = gameStateController.inventory;
+
+    if(item == inventory.equipped || 
+    (wasCollected && inventory.equipped != INVENTORY_ITEM::NONE))
+    {
+        return;
+    }
+
+    if(inventory.itemCounts[item] > 0) {
+        inventory.equipped = item;
+        switch (inventory.equipped)
+        {
+        case INVENTORY_ITEM::BOW:
+            double mousePosX, mousePosY;
+            glfwGetCursorPos(window, &mousePosX, &mousePosY);
+            vec2 mousePos = renderer->mouseToScreen({mousePosX, mousePosY});
+            inventory.equippedEntity = createEquipped(TEXTURE_ASSET_ID::BOW);
+            gameStateController.crosshairEntity = createCrosshair(mousePos);
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+            break;
+        default:
+            break;
+        }
+    }
+}
+
+void WorldSystem::unEquipItem() {
+    gameStateController.inventory.equipped = INVENTORY_ITEM::NONE;
+    registry.remove_all_components_of(gameStateController.inventory.equippedEntity);
+    registry.remove_all_components_of(gameStateController.crosshairEntity);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+}
+
 // Should the game be over ?
 bool WorldSystem::is_over() const {
     return bool(glfwWindowShouldClose(window));
 }
 
 void WorldSystem::on_mouse_move(vec2 mouse_position) {
-
+    updateCrosshairPosition(mouse_position);
 }
 
 Entity WorldSystem::shootHomingArrow(Entity targetEntity, float angle) {
@@ -511,7 +553,7 @@ void WorldSystem::shootArrow(vec3 mouseWorldPos) {
 
     gameStateController.inventory.itemCounts[INVENTORY_ITEM::BOW]--;
     if(gameStateController.inventory.itemCounts[INVENTORY_ITEM::BOW] == 0) {
-        gameStateController.inventory.unequip();
+        unEquipItem();
     }
 
 }
@@ -535,7 +577,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mod) {
         }
         break;
         case GLFW_MOUSE_BUTTON_RIGHT: {
-            gameStateController.inventory.unequip();
+            unEquipItem();
         }
         break;
         }
@@ -635,7 +677,7 @@ void WorldSystem::playingControls(int key, int action, int mod)
             place_trap(player_comp, player_motion, false, DAMAGE_TRAP);
             break;
         case GLFW_KEY_3:
-            gameStateController.inventory.equipItem(INVENTORY_ITEM::BOW);
+            equipItem(INVENTORY_ITEM::BOW);
             break;
 		case GLFW_KEY_L:
 			place_trap(player_comp, player_motion, true, PHANTOM_TRAP);
@@ -977,7 +1019,7 @@ void WorldSystem::entity_collectible_collision(Entity entity, Entity entity_othe
         gameStateController.inventory.itemCounts[INVENTORY_ITEM::BOW] += 5;
         std::cout << "Player collected a bow. Bow count is now " << gameStateController.inventory.itemCounts[INVENTORY_ITEM::BOW] << std::endl;
         createCollected(playerM, collectibleM.scale, TEXTURE_ASSET_ID::BOW);
-        gameStateController.inventory.equipCollected(INVENTORY_ITEM::BOW);
+        equipItem(INVENTORY_ITEM::BOW, true);
 		printf("Player collected a bow\n");
 	}
 	else {
@@ -1389,11 +1431,6 @@ void WorldSystem::updateHomingProjectiles(float elapsed_ms) {
         projectileM.velocity.x = direction.x * projectile.speed;
         projectileM.velocity.y = direction.y * projectile.speed;
         projectileM.velocity.z = direction.z * projectile.speed;
-
-        // update position based on velocity
-        projectileM.position.x += projectileM.velocity.x * elapsed_ms / 1000.0f; // Convert ms to seconds
-        projectileM.position.y += projectileM.velocity.y * elapsed_ms / 1000.0f;
-        projectileM.position.z += projectileM.velocity.z * elapsed_ms / 1000.0f;
     }
 }
 

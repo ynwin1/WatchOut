@@ -79,7 +79,8 @@ class RenderSystem {
 		textures_path("bird/bird_swoop.png"),			// BIRD SWOOP
 		textures_path("bird/bird_dead.png"),				 // BIRD DEAD
 		textures_path("troll/Troll-6f-48x64.png"),
-		textures_path("troll/Troll-1f-48x64.png")
+		textures_path("troll/Troll-1f-48x64.png"),
+		textures_path("misc/crosshair.png")
 	};
 
 	// This should be in the same order as texture_paths
@@ -191,8 +192,8 @@ public:
 	mat3 createProjectionMatrix();
 	mat4 createProjectionToScreenSpace();
 
+	vec2 mouseToScreen(vec2 mousePos);
 	vec3 mouseToWorld(vec2 mousePos);
-	vec2 worldToScreen(vec3 worldPos);
 
 private:
 	Camera* camera;
@@ -223,7 +224,7 @@ private:
 
 	void updateEntityFacing();
 
-	void updateCollectedPosition();
+    void updateCollectedPosition();
 
 	// Window handle
 	GLFWwindow* window;

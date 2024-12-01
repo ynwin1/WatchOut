@@ -142,6 +142,8 @@ Entity createFPSText(vec2 windowSize);
 Entity createGameTimerText(vec2 windowSize);
 Entity createItemCountText(vec2 windowSize, TEXTURE_ASSET_ID assetID);
 
+Entity createCrosshair(vec2 mousePos);
+
 // Game over UI
 void createGameOverText(vec2 windowSize);
 

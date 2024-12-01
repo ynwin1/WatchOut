@@ -665,6 +665,26 @@ void RenderSystem::updateEntityFacing() {
 	}
 }
 
+vec2 RenderSystem::mouseToScreen(vec2 pos) {
+	float screenPosX;
+	float screenPosY;
+
+	if (camera->isToggled()) {
+		// convert mouse position to screen position
+		screenPosX = pos.x;
+		screenPosY = camera->getSize().y - pos.y;
+	} else {
+		int window_width;
+		int window_height;
+		glfwGetWindowSize(window, &window_width, &window_height);
+ 
+		screenPosX = pos.x ;
+		screenPosY = window_height - pos.y;
+	}
+
+	return { screenPosX, screenPosY };
+}
+
 vec3 RenderSystem::mouseToWorld(vec2 mousePos) {
     float worldPosX;
     float worldPosY;

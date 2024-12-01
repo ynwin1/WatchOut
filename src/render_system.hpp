@@ -8,6 +8,7 @@
 #include "render_components.hpp"
 #include "tiny_ecs.hpp"
 #include "components.hpp"
+#include "sound_system.hpp"
 #include "particle_system.hpp"
 
 
@@ -83,6 +84,11 @@ class RenderSystem {
 		textures_path("troll/Troll-6f-48x64.png"),
 		textures_path("troll/Troll-1f-48x64.png"),
 		textures_path("misc/crosshair.png"),
+		textures_path("bomber/Idle.png"),
+		textures_path("bomber/Run.png"),
+		textures_path("bomber/Dead.png"),
+		textures_path("bomb/bomb.png"),
+		textures_path("explosion/explosion.png"),		// https://craftpix.net/freebies/free-animated-explosion-sprite-pack/
 		textures_path("title_screen/titleBackground.png"), // TITLE SCREEN BACKGROUND
 		textures_path("title_screen/titleText.png"), // TITLE SCREEN TEXT
 		textures_path("particles/smoke_01.png")
@@ -123,7 +129,7 @@ public:
 	GLFWwindow* create_window();
 
 	// Initialize the window
-	bool init(Camera* camera, ParticleSystem* particles);
+	bool init(Camera* camera, ParticleSystem* particles, SoundSystem* sound);
 
 	template <class T>
 	void bindVBOandIBO(GEOMETRY_BUFFER_ID gid, std::vector<T> vertices, std::vector<uint16_t> indices);
@@ -162,6 +168,7 @@ public:
 	vec3 mouseToWorld(vec2 mousePos);
 
 private:
+	SoundSystem* sound;
 	Camera* camera;
 	ParticleSystem* particles;
 	const float AMBIENT_LIGHT = 0.13;
@@ -192,6 +199,8 @@ private:
 	void updateEntityFacing();
 
     void updateCollectedPosition();
+
+	void updateExplosions(float elapsed_ms);
 
 	// Window handle
 	GLFWwindow* window;

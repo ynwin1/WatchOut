@@ -27,7 +27,9 @@ enum class Sound {
 	COLLECT,
 	BIRD_FLOCK,
 	BIRD_ATTACK,
-	TROLL_LAUGH
+	TROLL_LAUGH,
+	WOOSH,
+	EXPLOSION
 };
 
 class SoundSystem
@@ -61,7 +63,9 @@ public:
 		{ Sound::COLLECT,		std::pair<std::string, int>(audio_path("collect.wav"), 128) },
 		{ Sound::BIRD_FLOCK,	std::pair<std::string, int>(audio_path("birds_flock.wav"), 5) },
 		{ Sound::BIRD_ATTACK,	std::pair<std::string, int>(audio_path("bird_attack.wav"), 5) },
-		{ Sound::TROLL_LAUGH,	std::pair<std::string, int>(audio_path("troll_laugh.wav"), 128) }
+		{ Sound::TROLL_LAUGH,	std::pair<std::string, int>(audio_path("troll_laugh.wav"), 128) },
+		{ Sound::WOOSH,			std::pair<std::string, int>(audio_path("woosh.wav"), 100) },
+		{ Sound::EXPLOSION,		std::pair<std::string, int>(audio_path("explosion.wav"), 80) }
 	};
 
 	// Sound variables
@@ -154,4 +158,6 @@ Sound credits
 - Bird Flock: https://www.youtube.com/watch?v=22dZEAMmxpk
 - Bird Attack: https://freesound.org/people/dinodilopho/sounds/263530/
 - Troll Laugh: https://freesound.org/people/browerbeats/sounds/762796/
+- Woosh: https://freesound.org/people/florianreichelt/sounds/683101/
+- Explosion: https://uppbeat.io/sfx/explosion-nearby/51/701
 */

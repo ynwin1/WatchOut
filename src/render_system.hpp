@@ -8,6 +8,7 @@
 #include "render_components.hpp"
 #include "tiny_ecs.hpp"
 #include "components.hpp"
+#include "particle_system.hpp"
 
 
 const int MAX_POINT_LIGHTS = 3;
@@ -22,7 +23,6 @@ class RenderSystem {
 	 * Whenever possible, add to these lists instead of creating dynamic state
 	 * it is easier to debug and faster to execute for the computer.
 	 */
-	std::array<GLuint, texture_count> texture_gl_handles;
 	std::array<ivec2, texture_count> texture_dimensions = {
 		ivec2(20, 28),
 		ivec2(20, 34)
@@ -80,6 +80,7 @@ class RenderSystem {
 		textures_path("troll/Troll-1f-48x64.png"),
 		textures_path("title_screen/titleBackground.png"), // TITLE SCREEN BACKGROUND
 		textures_path("title_screen/titleText.png"), // TITLE SCREEN TEXT
+		textures_path("particles/smoke_01.png")
 	};
 
 	// This should be in the same order as texture_paths
@@ -95,25 +96,28 @@ class RenderSystem {
 		shader_path("animated"), 
 		shader_path("animated_normal"), 
 		shader_path("font"), 
-		shader_path("tree")
+		shader_path("tree"),
+		shader_path("particle")
 	};
 	std::array<GLuint, effect_count> in_position_locations;
 	std::array<GLuint, effect_count> in_texcoord_locations;
 	std::array<GLuint, effect_count> to_screen_locations;
 	std::array<std::array<GLuint, MAX_POINT_LIGHTS * 7>, effect_count> point_light_uniform_locations;
 
-	std::array<GLuint, geometry_count> vertex_buffers;
-	std::array<GLuint, geometry_count> index_buffers;
 	std::array<Mesh, geometry_count> meshes;
 
 	void update_animations();
 	void update_jeff_animation();
 
 public:
+	std::array<GLuint, texture_count> texture_gl_handles;
+	std::array<GLuint, geometry_count> vertex_buffers;
+	std::array<GLuint, geometry_count> index_buffers;
+
 	GLFWwindow* create_window();
 
 	// Initialize the window
-	bool init(Camera* camera);
+	bool init(Camera* camera, ParticleSystem* particles);
 
 	template <class T>
 	void bindVBOandIBO(GEOMETRY_BUFFER_ID gid, std::vector<T> vertices, std::vector<uint16_t> indices);
@@ -150,6 +154,7 @@ public:
 
 private:
 	Camera* camera;
+	ParticleSystem* particles;
 	const float AMBIENT_LIGHT = 0.13;
 
 	// Internal drawing functions for each entity type

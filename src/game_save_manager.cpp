@@ -230,6 +230,7 @@ nlohmann::json GameSaveManager::serialize_component<Motion>(const Motion& motion
 	j["scale"] = { motion.scale.x, motion.scale.y };
 	j["facing"] = { motion.facing.x, motion.facing.y };
 	j["hitbox"] = { motion.hitbox.x, motion.hitbox.y, motion.hitbox.z };
+	j["gravity"] = motion.gravity;
 	j["solid"] = motion.solid;
 	return j;
 }
@@ -954,6 +955,7 @@ void GameSaveManager::handleMotion(Entity& entity, std::map<std::string, nlohman
 	motion.scale = { (float)componentsMap[MOTIONS]["scale"][0], (float)componentsMap[MOTIONS]["scale"][1] };
 	motion.facing = { (float)componentsMap[MOTIONS]["facing"][0], (float)componentsMap[MOTIONS]["facing"][1] };
 	motion.hitbox = { (float)componentsMap[MOTIONS]["hitbox"][0], (float)componentsMap[MOTIONS]["hitbox"][1], (float)componentsMap[MOTIONS]["hitbox"][2] };
+	motion.gravity = componentsMap[MOTIONS]["gravity"];
 	motion.solid = componentsMap[MOTIONS]["solid"];
 }
 

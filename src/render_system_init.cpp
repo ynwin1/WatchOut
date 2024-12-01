@@ -63,12 +63,13 @@ GLFWwindow* RenderSystem::create_window() {
 
 
 // World initialization
-bool RenderSystem::init(Camera* camera)
+bool RenderSystem::init(Camera* camera, ParticleSystem* particles)
 {
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(1); // vsync
 
 	this->camera = camera;
+	this->particles = particles;
 
 	// Load OpenGL function pointers
 	const int is_fine = gl3w_init();
@@ -80,7 +81,8 @@ bool RenderSystem::init(Camera* camera)
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 	gl_has_errors();
-
+	
+	particles->init(this);
 	initializeGlTextures();
 	initializeGlNormals();
 	initializeGlEffects();

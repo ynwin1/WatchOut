@@ -17,7 +17,15 @@ WorldSystem::WorldSystem(std::default_random_engine& rng)
     this->rng = rng;
 }
 
-void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics, AISystem* ai, SoundSystem* sound, GameSaveManager* saveManager)
+void WorldSystem::init(
+    RenderSystem* renderer, 
+    GLFWwindow* window, 
+    Camera* camera, 
+    PhysicsSystem* physics, 
+    AISystem* ai, 
+    SoundSystem* sound, 
+    GameSaveManager* saveManager, 
+    ParticleSystem* particles)
 {
     
     this->renderer = renderer;
@@ -27,6 +35,7 @@ void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camer
     this->ai = ai;
 	this->sound = sound;
 	this->saveManager = saveManager;
+    this->particles = particles;
 
     // Setting callbacks to member functions (that's why the redirect is needed)
     // Input is handled using GLFW, for more info see
@@ -183,6 +192,7 @@ bool WorldSystem::step(float elapsed_ms)
 {
     adjustSpawnSystem(elapsed_ms);
     spawn(elapsed_ms);
+    spawn_particles(elapsed_ms);
     update_cooldown(elapsed_ms);
     handle_deaths(elapsed_ms);
     despawn_collectibles(elapsed_ms);
@@ -730,6 +740,39 @@ void WorldSystem::spawn(float elapsed_ms)
             (*f)(spawnLocation);
             next_spawns[entity_type] = spawn_delays.at(entity_type);
         }
+    }
+}
+
+void WorldSystem::spawn_particles(float elapsed_ms)
+{
+    Motion& playerMotion = registry.motions.get(playerEntity);
+
+    // SPAWN SMOKE ------------------------------------------------
+    // TODO: adjust position to match torch
+    vec3 position = playerMotion.position;
+    position.z += 60;
+    vec2 size = { 20, 20 };
+    particles->createSmokeParticle(position, size);
+    particles->createSmokeParticle(position, size);
+    particles->createSmokeParticle(position, size);
+
+    for (Entity fireball : registry.damagings.entities) {
+        Damaging& damaging = registry.damagings.get(fireball);
+        if (damaging.type != "fireball") {
+            continue;
+        }
+        vec3 position = registry.motions.get(fireball).position;
+        vec2 size = { 50, 50 };
+        particles->createSmokeParticle(position, size);
+        particles->createSmokeParticle(position, size);
+        particles->createSmokeParticle(position, size);
+        particles->createSmokeParticle(position, size);
+    }
+
+    // SPAWN DASH SPRITES ------------------------------------------------
+    if (registry.dashers.get(playerEntity).isDashing) {
+        float facing = playerMotion.scale.x > 0 ? 1 : -1;
+        particles->createDashParticle(playerMotion.position, vec2(JEFF_BB_WIDTH * facing, JEFF_BB_HEIGHT));
     }
 }
 

@@ -20,7 +20,7 @@ public:
 	WorldSystem(std::default_random_engine& rng);
 
 	// starts the game
-	void init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics, AISystem* ai, SoundSystem* sound, GameSaveManager* saveManager);
+	void init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics, AISystem* ai, SoundSystem* sound, GameSaveManager* saveManager, ParticleSystem* particles);
 
 	// Releases all associated resources
 	~WorldSystem();
@@ -63,6 +63,7 @@ private:
 	// GLFW Window handle
 	GLFWwindow* window;
 	RenderSystem* renderer;
+	ParticleSystem* particles;
 	PhysicsSystem* physics;
 	AISystem* ai;
 	Camera* camera;
@@ -136,6 +137,7 @@ private:
 
 	// Actions performed for each step
 	void spawn(float elapsed_ms);
+	void spawn_particles(float elapsed_ms);
 	void update_cooldown(float elapsed_ms);
 	void handle_deaths(float elapsed_ms);
 	void update_player_facing(Player& player, Motion& motion);

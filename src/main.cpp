@@ -69,6 +69,7 @@ int main()
 		GAME_STATE currentState = world.gameStateController.getGameState();
 		if (currentState == GAME_STATE::PLAYING) {
 			physics.step(elapsed_ms);
+			particles.step(elapsed_ms);
 			world.step(elapsed_ms);
             world.handle_collisions();
 			ai.step(elapsed_ms);

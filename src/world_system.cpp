@@ -704,7 +704,7 @@ void WorldSystem::spawn(float elapsed_ms)
 
 void WorldSystem::spawn_particles(float elapsed_ms)
 {
-    if (uniform_dist(rng) < 0.05) {
+    if (uniform_dist(rng) < 0.2) {
         vec3 position = registry.motions.get(playerEntity).position;
         position.z += 30;
         particles->createSmokeParticle(position);

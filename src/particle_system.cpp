@@ -1,5 +1,6 @@
 #include "particle_system.hpp"
 #include "render_system.hpp"
+#include "physics_system.hpp"
 #include "world_init.hpp"
 
 ParticleSystem::~ParticleSystem()
@@ -10,17 +11,6 @@ void ParticleSystem::init(RenderSystem* renderer)
 {
     this->renderer = renderer;
 
-    //int index = 0;
-    //for (int y = -10; y < 5; y += 2)
-    //{
-    //    for (int x = -10; x < 5; x += 2)
-    //    {
-    //        Transform transform;
-    //        transform.translate(vec2(x, y) * 200.f + vec2(500, 500));
-    //        transform.scale(vec2(100, 100));
-    //        transforms[index++] = transform.mat;
-    //    }
-    //}
     glGenBuffers(1, &transforms_vbo);
 }
 
@@ -33,14 +23,11 @@ void ParticleSystem::draw(const GLuint program)
     transforms.clear();
     transforms.reserve(amount);
 
-    for (Entity entity : registry.particles.entities) {
-        Motion& motion = registry.motions.get(entity);
-
+    for (Particle& particle : registry.particles.components) {
         Transform transform;
-        printf("%f, %f, %f\n", motion.position.x, motion.position.y, motion.position.z);
-        transform.translate(worldToVisual(motion.position));
-        transform.rotate(motion.angle);
-        transform.scale(motion.scale);
+        transform.translate(worldToVisual(particle.position));
+        transform.rotate(particle.angle);
+        transform.scale(particle.scale);
         transforms.push_back(transform.mat);
     }
 
@@ -67,7 +54,7 @@ void ParticleSystem::draw(const GLuint program)
     glVertexAttribDivisor(4, 1);
 
     glActiveTexture(GL_TEXTURE0);
-    GLuint texture_id = renderer->texture_gl_handles[(GLuint)TEXTURE_ASSET_ID::ROCK];
+    GLuint texture_id = renderer->texture_gl_handles[(GLuint)TEXTURE_ASSET_ID::SMOKE];
     glBindTexture(GL_TEXTURE_2D, texture_id);
 
     GLuint projection_loc = glGetUniformLocation(program, "projection");
@@ -77,18 +64,31 @@ void ParticleSystem::draw(const GLuint program)
     gl_has_errors();
 }
 
+void ParticleSystem::step(float elapsed_ms)
+{
+    for (size_t i = 0; i < registry.particles.size(); i++) {
+        Entity entity = registry.particles.entities[i];
+        Particle& particle = registry.particles.components[i];
+        particle.position += particle.velocity * elapsed_ms;
+        particle.velocity.z -= GRAVITATIONAL_CONSTANT * particle.gravity;
+        particle.life -= elapsed_ms;
+        if (particle.life < 0) {
+            registry.remove_all_components_of(entity);
+        }
+    }
+}
+
 Entity ParticleSystem::createSmokeParticle(vec3 position)
 {
     Entity entity = Entity();
 
     Particle& particle = registry.particles.emplace(entity);
-    particle.texture = TEXTURE_ASSET_ID::ROCK;
-
-    Motion& motion = registry.motions.emplace(entity);
-    motion.position = position;
-    motion.velocity = vec3(0, 0, 1);
-    motion.solid = false;
-    motion.scale = vec2(ROCK_BB_WIDTH, ROCK_BB_HEIGHT);
+    particle.position = position;
+    particle.position.z += 40;
+    particle.velocity = vec3(0, 0, 0.1);
+    particle.scale = vec2(20, 20);
+    particle.gravity = 0;
+    particle.life = 1000;
 
     return entity;
 }

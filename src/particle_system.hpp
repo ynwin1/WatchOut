@@ -13,6 +13,7 @@ public:
 	~ParticleSystem();
 	void init(RenderSystem* renderer);
 	void draw(const GLuint program);
+	void step(float elapsed_ms);
 
 	// Create particles
 	Entity createSmokeParticle(vec3 position);

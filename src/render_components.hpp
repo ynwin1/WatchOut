@@ -86,7 +86,8 @@ enum class TEXTURE_ASSET_ID
 	BIRD_DEAD = BIRD_SWOOP + 1,
 	TROLL_RUN = BIRD_DEAD + 1,
 	TROLL_DEAD = TROLL_RUN + 1,
-	TEXTURE_COUNT = TROLL_DEAD + 1
+	SMOKE = TROLL_DEAD + 1,
+	TEXTURE_COUNT = SMOKE + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
@@ -134,7 +135,12 @@ struct RenderRequest
 
 struct Particle
 {
-	TEXTURE_ASSET_ID texture = TEXTURE_ASSET_ID::TEXTURE_COUNT;
+	vec3 position = { 0, 0, 0 };
+	float angle = 0;
+	vec3 velocity = { 0, 0, 0 };
+	vec2 scale = { 10, 10 };
+	float gravity = 1.0;			// 1 means affected by gravity normally, 0 is no gravity
+	float life = 10000.f;
 };
 
 struct Background {};

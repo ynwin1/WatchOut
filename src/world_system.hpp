@@ -55,8 +55,6 @@ private:
 
 	std::string DAMAGE_TRAP = "trap";
 	std::string PHANTOM_TRAP = "phantom_trap";
-	bool isPlacingTrap = false;
-	std::string selectedTrapType = "";
 
 	// GLFW Window handle
 	GLFWwindow* window;
@@ -87,10 +85,10 @@ private:
 	};
 
 	const std::unordered_map<std::string, int> initial_max_entities = {
-		{"boar", 1},
-		{"barbarian", 1},
+		{"boar", -1},
+		{"barbarian", -1},
 		{"archer", -2},
-		{"bird", 1},
+		{"bird", -1},
 		{"wizard", -2},
 		{"troll", -3},
 		{"heart", 2},
@@ -141,7 +139,7 @@ private:
 	void despawn_collectibles(float elapsed_ms);
 	void handle_stamina(float elapsed_ms);
 	vec2 get_spawn_location(const std::string& entity_type);
-	void place_trap(Player& player, Motion& motion, bool forward, std::string type);
+	void place_trap(Player& player, vec2 trapPos, std::string type);
 	void checkAndHandlePlayerDeath(Entity& entity);
 	void trackFPS(float elapsed_ms);
 	void updateGameTimer(float elapsed_ms);

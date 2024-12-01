@@ -339,25 +339,29 @@ void WorldSystem::on_mouse_move(vec2 mouse_position) {
 }
 
 void WorldSystem::on_mouse_click(int button, int action, int mods) {
-    if (action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_LEFT && isPlacingTrap) {
+    if (action == GLFW_PRESS && (button == GLFW_MOUSE_BUTTON_LEFT || button == GLFW_MOUSE_BUTTON_RIGHT)) {
         if (registry.players.has(playerEntity)) {
             Player& player = registry.players.get(playerEntity);
-            Motion& motion = registry.motions.get(playerEntity);
 
             int windowWidth, windowHeight;
             glfwGetWindowSize(window, &windowWidth, &windowHeight);
+
             double mouseX, mouseY;
             glfwGetCursorPos(window, &mouseX, &mouseY);
-            double normalizedMouseX = mouseX / windowWidth * world_size_x;
-            //printf("Cursor X position: %f, Player X position: %f\n", normalizedMouseX, motion.position.x);
-            bool placeInFront = (normalizedMouseX > motion.position.x);
-            place_trap(player, motion, placeInFront, selectedTrapType);
 
-            isPlacingTrap = false;
-            selectedTrapType = "";
+            float worldX = camera->getPosition().x + (mouseX / windowWidth - 0.5f) * camera->getSize().x;
+            float worldY = camera->getPosition().y + (mouseY / windowHeight) * camera->getSize().y * yConversionFactor;
+
+            vec2 normalizedMousePos = { worldX, worldY };
+
+            std::string trapType = (button == GLFW_MOUSE_BUTTON_LEFT) ? DAMAGE_TRAP : PHANTOM_TRAP;
+            place_trap(player, normalizedMousePos, trapType);
         }
     }
 }
+
+
+
 
 
 
@@ -448,14 +452,6 @@ void WorldSystem::playingControls(int key, int action, int mod)
   
     if (action == GLFW_PRESS) {
         switch (key) {
-        case GLFW_KEY_Q:
-            isPlacingTrap = true;
-            selectedTrapType = DAMAGE_TRAP;
-            break;
-		case GLFW_KEY_K:
-			isPlacingTrap = true;
-            selectedTrapType = PHANTOM_TRAP;
-			break;
         case GLFW_KEY_H:
             gameStateController.setGameState(GAME_STATE::HELP);
             break;
@@ -1010,46 +1006,32 @@ void WorldSystem::checkAndHandlePlayerDeath(Entity& entity) {
 	}
 }
 
-void WorldSystem::place_trap(Player& player, Motion& motion, bool forward, std::string type) {
-    // Player position
-    vec2 playerPos = motion.position;
-    // Place trap based on player direction
-    vec2 gap = { 0.0f, 0.0f };
-    if (forward) {
-        gap.x = (abs(motion.scale.x) / 2 + 70.f);
-    }
-    else {
-        gap.x = -(abs(motion.scale.x) / 2 + 70.f);
-    }
-
+void WorldSystem::place_trap(Player& player, vec2 trapPos, std::string type) {
     // Cannot place trap beyond the map
-    if (playerPos.x + gap.x < 0 || playerPos.x + gap.x > world_size_x) {
+    if (trapPos.x < 0 || trapPos.x > world_size_x || trapPos.y < 0 || trapPos.y > world_size_y) {
         printf("Cannot place trap beyond the map\n");
         return;
     }
 
-    vec2 trapPos = playerPos + gap;
-
-	if (type == DAMAGE_TRAP) {
-		int trapCount = trapsCounter.trapsMap[DAMAGE_TRAP].first;
-		if (trapCount == 0) {
-			printf("Player has no damage traps to place\n");
-			return;
-		}
+    if (type == DAMAGE_TRAP) {
+        int trapCount = trapsCounter.trapsMap[DAMAGE_TRAP].first;
+        if (trapCount == 0) {
+            printf("Player has no damage traps to place\n");
+            return;
+        }
         createDamageTrap(trapPos);
-		trapsCounter.trapsMap[DAMAGE_TRAP].first--;
+        trapsCounter.trapsMap[DAMAGE_TRAP].first--;
         printf("Damage trap count is now %d\n", trapsCounter.trapsMap[DAMAGE_TRAP].first);
-	}
-	else if (type == PHANTOM_TRAP) {
-		int trapCount = trapsCounter.trapsMap[PHANTOM_TRAP].first;
-		if (trapCount == 0) {
-			printf("Player has no phantom traps to place\n");
-			return;
-		}
-		createPhantomTrap(trapPos);
-		trapsCounter.trapsMap[PHANTOM_TRAP].first--;
-		printf("Phantom trap count is now %d\n", trapsCounter.trapsMap[PHANTOM_TRAP].first);
-	}
+    } else if (type == PHANTOM_TRAP) {
+        int trapCount = trapsCounter.trapsMap[PHANTOM_TRAP].first;
+        if (trapCount == 0) {
+            printf("Player has no phantom traps to place\n");
+            return;
+        }
+        createPhantomTrap(trapPos);
+        trapsCounter.trapsMap[PHANTOM_TRAP].first--;
+        printf("Phantom trap count is now %d\n", trapsCounter.trapsMap[PHANTOM_TRAP].first);
+    }
 }
 
 //Update player stamina on dashing, sprinting, rolling and jumping

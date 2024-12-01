@@ -145,7 +145,7 @@ void createGameOverText(vec2 windowSize);
 void createGameSaveText(vec2 windowSize);
 
 // Display bars
-void createHealthBar(Entity characterEntity, vec4 color);
+void createHealthBar(Entity characterEntity);
 void createPlayerHealthBar(Entity characterEntity, vec2 windowSize);
 void createPlayerStaminaBar(Entity characterEntity, vec2 windowSize);
 

@@ -58,6 +58,13 @@ const int COLLECTIBLE_IDLE_NUM_FRAMES = 1;
 const int COLLECTIBLE_FADE_FRAME_TIME = 100;
 const int COLLECTIBLE_FADE_NUM_FRAMES = 2;
 
+const int BOMBER_IDLE_NUM_FRAMES = 4;
+const int BOMBER_IDLE_FRAME_TIME = 200;
+const int BOMBER_RUN_NUM_FRAMES = 4;
+const int BOMBER_RUN_FRAME_TIME = 150;
+const int BOMBER_DEAD_NUM_FRAMES = 1;
+const int BOMBER_DEAD_FRAME_TIME = 1000;
+
 const int PHANTOM_TRAP_FRAME_TIME = 100;
 const int PHANTOM_TRAP_NUM_FRAMES = 8;
 const int PHANTOM_TRAP_FADE_FRAME_TIME = 100;
@@ -280,4 +287,40 @@ AnimationController& initPhantomTrapAnimationController(Entity& entity) {
 	animationcontroller.changeState(entity, AnimationState::Idle);
 
 	return animationcontroller;
+}
+
+AnimationController& initBomberAnimationController(Entity& entity) {
+	AnimationController& animationcontroller = registry.animationControllers.emplace(entity);
+	animationcontroller.addAnimation(AnimationState::Idle, BOMBER_IDLE_FRAME_TIME, BOMBER_IDLE_NUM_FRAMES, TEXTURE_ASSET_ID::BOMBER_IDLE);
+	animationcontroller.addAnimation(AnimationState::Running, BOMBER_RUN_FRAME_TIME, BOMBER_RUN_NUM_FRAMES, TEXTURE_ASSET_ID::BOMBER_RUN);
+	animationcontroller.addAnimation(AnimationState::Dead, BOMBER_DEAD_FRAME_TIME, BOMBER_DEAD_NUM_FRAMES, TEXTURE_ASSET_ID::BOMBER_DEAD);
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::BOMBER_RUN,
+			EFFECT_ASSET_ID::ANIMATED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	animationcontroller.changeState(entity, AnimationState::Running);
+
+	return animationcontroller;
+}
+
+AnimationController& initExplosionAnimationController(Entity& entity) {
+    AnimationController& animationcontroller = registry.animationControllers.emplace(entity);
+	animationcontroller.addAnimation(AnimationState::Idle, 50, 10, TEXTURE_ASSET_ID::EXPLOSION);
+
+    registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::EXPLOSION,
+			EFFECT_ASSET_ID::ANIMATED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	animationcontroller.changeState(entity, AnimationState::Idle);
+
+    return animationcontroller;
 }

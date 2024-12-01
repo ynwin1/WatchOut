@@ -57,6 +57,10 @@ struct Trappable {
 	float originalSpeed = 0;
 };
 
+struct Explosion {
+	float duration = 500;
+};
+
 struct Damaging {
 	std::string type = "arrow"; // default type
 	unsigned int damage = 10;
@@ -64,6 +68,10 @@ struct Damaging {
 
 struct Projectile {
 	float sticksInGround = 3000; // ms it lasts on the ground
+};
+
+struct Bomb {
+	int numBounces = 0;
 };
 
 struct HealthBar {
@@ -332,6 +340,12 @@ struct Wizard {
 struct Troll {
 	float desiredAngle = 0;
 	float laughCooldown = 20000.f;
+};
+
+struct Bomber {
+	float throwBombDelay = 0;
+	float throwBombDelayTimer = 0;
+	bool aiming = false;
 };
 
 // Collectible types

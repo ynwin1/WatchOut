@@ -90,6 +90,7 @@ private:
 		"bird",
 		"wizard",
 		"troll",
+		"bomber",
 		"heart",
 		"collectible_trap"
 	};
@@ -101,10 +102,10 @@ private:
 		{"bird", 8},
 		{"wizard", -2},
 		{"troll", -3},
+		{"bomber", -2},
 		{"heart", 2},
 		{"collectible_trap", 2}
 	};
-
 	const std::unordered_map<std::string, float> initial_spawn_delays = {
 		{"boar", 10000.0f},
 		{"barbarian", 10000.0f},
@@ -112,6 +113,7 @@ private:
 		{"bird", 20000.0f},
 		{"wizard", 20000.0f},
 		{"troll", 30000.0f},
+		{"bomber", 20000.0f},
 		{"heart", 5000.0f},
 		{"collectible_trap", 5000.0f}
 	};
@@ -124,6 +126,7 @@ private:
         {"bird", createBird},
 	    {"wizard", createWizard},
         {"troll", createTroll},
+		{"bomber", createBomber},
         {"heart", createHeart},
 		{"collectible_trap", createCollectibleTrap}
     };

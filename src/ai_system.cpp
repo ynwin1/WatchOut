@@ -423,6 +423,54 @@ void AISystem::shootArrow(Entity shooter, vec3 targetPos)
 	sound->playSoundEffect(Sound::ARROW, 0);
 }
 
+void AISystem::throwBomb(Entity thrower, vec3 targetPos)
+{
+    const float BOMB_ANGLE = M_PI / 4;
+    const float MAX_BOMB_VELOCITY = 10;
+
+    Motion& motion = registry.motions.get(thrower);
+
+    // Get start position of the bomb
+    vec2 horizontal_direction = normalize(vec2(targetPos) - vec2(motion.position));
+    const float maxBombDimension = max(BOMB_BB_HEIGHT, BOMB_BB_WIDTH);
+    vec3 pos = motion.position;
+    if (abs(horizontal_direction.x) > abs(horizontal_direction.y)) {
+        pos.x += (horizontal_direction.x > 0 ? 1 : -1) * (motion.hitbox.x / 2 + maxBombDimension);
+    } else {
+        pos.y += (horizontal_direction.y > 0 ? 1 : -1) * (motion.hitbox.y / 2 + maxBombDimension);
+    }
+    pos.z += motion.hitbox.z / 2 + maxBombDimension;
+    horizontal_direction = normalize(vec2(targetPos) - vec2(pos));
+
+    // Get distances from start to target
+    float total_horizontal_distance = distance(vec2(pos), vec2(targetPos));
+    float vertical_distance = targetPos.z - pos.z;
+
+    // Prevent trying to throw above what's possible
+    if (vertical_distance >= total_horizontal_distance)
+        return;
+
+    // Split horizontal distance into pre-bounce and post-bounce parts
+    float post_bounce_distance = total_horizontal_distance / (1 + BOUNCE_FACTOR);
+    float pre_bounce_distance = total_horizontal_distance - post_bounce_distance;
+
+    // Compute initial horizontal velocity
+    float horizontal_velocity = sqrt(-GRAVITATIONAL_CONSTANT * pre_bounce_distance / 
+                                      (tan(BOMB_ANGLE) * (vertical_distance / pre_bounce_distance - tan(BOMB_ANGLE))));
+
+    // Prevent shooting at crazy speeds
+    if (horizontal_velocity > MAX_BOMB_VELOCITY)
+        return;
+
+    // Compute vertical velocity
+    float vertical_velocity = horizontal_velocity * tan(BOMB_ANGLE);
+
+    // Apply horizontal and vertical velocities
+    vec2 horizontal_velocity_vector = horizontal_velocity * horizontal_direction;
+
+    createBomb(pos, vec3(horizontal_velocity_vector, vertical_velocity));
+    sound->playSoundEffect(Sound::WOOSH, 0);
+}
 void AISystem::archerBehaviour(Entity entity, vec3 targetPosition, float elapsed_ms)
 {
     const float ARCHER_RANGE = 600;
@@ -463,6 +511,66 @@ void AISystem::archerBehaviour(Entity entity, vec3 targetPosition, float elapsed
     }
     else {
 		moveTowardsTarget(entity, targetPosition, elapsed_ms);
+    }
+}
+
+vec3 AISystem::predictTargetPosition(Entity targetEntity, float timeToTarget_ms)
+{
+    Motion& targetMotion = registry.motions.get(targetEntity);
+    vec3 predictedPosition = targetMotion.position + vec3(targetMotion.velocity * targetMotion.speed * timeToTarget_ms);
+
+    return predictedPosition;
+}
+
+void AISystem::bomberBehaviour(Entity entity, vec3 targetPosition, float elapsed_ms)
+{
+    if (registry.deathTimers.has(entity)) {
+        return;
+    }
+
+    const float BOMBER_RANGE = 600;
+    const float THROW_BOMB_MIN_DELAY = 2000;
+    const float THROW_BOMB_MAX_DELAY = 3000;
+
+    Motion& motion = registry.motions.get(entity);
+    Bomber& bomber = registry.bombers.get(entity);
+
+    float dist = distance(motion.position, targetPosition);
+
+	vec2 direction = normalize(vec2(targetPosition) - vec2(motion.position));
+	std::vector<Entity> obstacles = registry.obstacles.entities;
+    float clearDistance;
+
+    if (dist < BOMBER_RANGE) {
+        bomber.aiming = true;
+        motion.velocity.x = 0;
+        motion.velocity.y = 0;
+        AnimationController& animationController = registry.animationControllers.get(entity);
+        animationController.changeState(entity, AnimationState::Idle);
+    }
+    else {
+        bomber.aiming = false;
+    }
+
+    if (bomber.aiming) {
+        motion.facing = normalize(vec2(targetPosition) - vec2(motion.position));
+        if (bomber.throwBombDelayTimer > bomber.throwBombDelay) {
+            throwBomb(entity, targetPosition);
+
+            bomber.throwBombDelayTimer = 0;
+            bomber.aiming = false;
+            bomber.throwBombDelay = uniform_dist(rng) * THROW_BOMB_MAX_DELAY + THROW_BOMB_MIN_DELAY;
+        }
+        else {
+            bomber.throwBombDelayTimer += elapsed_ms;
+        }
+    }
+    else {
+        AnimationController& animationController = registry.animationControllers.get(entity);
+        if(animationController.currentState != AnimationState::Running) {
+            animationController.changeState(entity, AnimationState::Running);
+        }
+        moveTowardsTarget(entity, targetPosition, elapsed_ms);
     }
 }
 
@@ -796,7 +904,8 @@ void AISystem::step(float elapsed_ms)
     }
     vec3 playerPosition = registry.motions.get(registry.players.entities.at(0)).position;
     for (Entity enemy : registry.enemies.entities) {
-        vec3 targetPosition = is_phantom_closer(enemy).first ? is_phantom_closer(enemy).second : playerPosition;
+        std::pair<bool, vec3> isPhantomCloser = is_phantom_closer(enemy);
+        vec3 targetPosition = isPhantomCloser.first ? isPhantomCloser.second : playerPosition;
         if (registry.boars.has(enemy)) {
             boarBehaviour(enemy, targetPosition, elapsed_ms);
         }
@@ -814,6 +923,12 @@ void AISystem::step(float elapsed_ms)
 		}
         else if (registry.trolls.has(enemy)) {
             trollBehaviour(enemy, targetPosition, elapsed_ms);
+        }
+        else if (registry.bombers.has(enemy)) {
+            if(!isPhantomCloser.first) {
+                targetPosition = predictTargetPosition(registry.players.entities.at(0), 1000);
+            }
+            bomberBehaviour(enemy, targetPosition, elapsed_ms);
         }
     }
 }

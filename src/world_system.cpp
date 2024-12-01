@@ -504,6 +504,8 @@ void WorldSystem::gameOverControls(int key, int action, int mod)
             restart_game();
             break;
         case GLFW_KEY_Q:
+        case GLFW_KEY_ENTER:
+        case GLFW_KEY_ESCAPE:
             gameStateController.setGameState(GAME_STATE::TITLE);
             createTitleScreen();
         }

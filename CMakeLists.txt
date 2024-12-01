@@ -179,3 +179,8 @@ target_link_libraries(${PROJECT_NAME} PUBLIC ${GLFW_LIBRARIES} ${SDL2_LIBRARIES}
 if(IS_OS_LINUX)
   target_link_libraries(${PROJECT_NAME} PUBLIC glfw ${CMAKE_DL_LIBS})
 endif()
+
+option(DEBUG "DEBUG" OFF)
+if(DEBUG)
+    add_definitions(-DDEBUG)
+ENDIF(DEBUG)

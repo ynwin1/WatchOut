@@ -289,7 +289,7 @@ void PhysicsSystem::updatePositions(float elapsed_ms)
 			if (registry.damagings.has(entity) && registry.damagings.get(entity).type == "fireball") {
 				continue;
 			}
-			motion.velocity.z -= GRAVITATIONAL_CONSTANT * elapsed_ms;
+			motion.velocity.z -= motion.gravity * GRAVITATIONAL_CONSTANT * elapsed_ms;
 		}
 
 		// Can jump if on the ground
@@ -506,7 +506,6 @@ void PhysicsSystem::step(float elapsed_ms)
 {
 	updatePositions(elapsed_ms);
 	checkCollisions();
-	handleBoundsCheck();
 };
 
 std::vector<vec3> boundingBoxVertices(Motion& motion)

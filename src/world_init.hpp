@@ -64,7 +64,7 @@ const float PLAYER_SPEED = 0.5;
 const float TROLL_SPEED = 0.1;
 
 const float JUMP_STAMINA = 20.f;
-const float DASH_STAMINA = 30.f;
+const float DASH_STAMINA = 20.f;
 
 const int BOAR_HEALTH = 50;
 const int BARBARIAN_HEALTH = 30;
@@ -126,6 +126,11 @@ Entity createFireball(vec3 pos, vec2 direction);
 // Lightning bolt from the sky
 Entity createLightning(vec2 pos);
 
+// TitleScreen UI
+Entity createTitleScreenBackground(vec2 windowSize);
+Entity createTitleScreenTitle(vec2 windowSize);
+Entity createTitleScreenText(vec2 windowSize, std::string value, float fontSize, vec2 position);
+
 // Playing UI
 Entity createPauseHelpText(vec2 windowSize);
 Entity createFPSText(vec2 windowSize);
@@ -146,7 +151,7 @@ void createPlayerStaminaBar(Entity characterEntity, vec2 windowSize);
 
 // Map objects
 void createMapTiles();
-Entity createMapTile(vec2 position, vec2 scale);
+Entity createMapTile(vec2 position, vec2 scale, float height);
 Entity createObstacle(vec2 position, vec2 scale, TEXTURE_ASSET_ID assetID);
 Entity createNormalObstacle(vec2 position, vec2 size, TEXTURE_ASSET_ID assetId);
 void createObstacles();

@@ -11,7 +11,7 @@ Entity createBoar(vec2 pos)
 {
 	auto entity = Entity();
 
-	// Setting intial motion values
+	// Setting intial	 motion values
 	Motion& motion = registry.motions.emplace(entity);
 	motion.position = vec3(pos, getElevation(pos) + BOAR_BB_HEIGHT / 2);
 	motion.angle = 0.f;
@@ -244,7 +244,7 @@ Entity createCollectibleTrap(vec2 pos)
 	int random = rand() % 2;
 	Motion& motion = registry.motions.emplace(entity);
 
-	if (random >= 0.5) {
+	if (random >= 0.8) {
 		collectibleTrap.type = "phantom_trap";
 		initPhantomTrapAnimationController(entity);
 		
@@ -421,8 +421,8 @@ Entity createJeff(vec2 position)
 	pointLight.diffuse = vec4(1.0, .75, 0.25, 1.0);
 	pointLight.max_distance = 3250;
 	pointLight.constant = 1.0;
-	pointLight.linear = .00014;
-	pointLight.quadratic = 0.00001;
+	pointLight.linear = .0005;
+	pointLight.quadratic = 0.00003;
 	
 	return entity;
 }
@@ -763,6 +763,63 @@ Entity createFPSText(vec2 windowSize) {
 	return entity;
 }
 
+Entity createTitleScreenBackground(vec2 windowSize) {
+	auto entity = Entity();
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::TITLE_BACKGROUND,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	Foreground& bg = registry.foregrounds.emplace(entity);
+	bg.position = { windowSize.x / 2, windowSize.y / 2 };
+	bg.scale = windowSize;
+		
+	return entity;
+}
+
+Entity createTitleScreenTitle(vec2 windowSize) {
+	auto entity = Entity();
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::TITLE_TEXT,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	Foreground& fg = registry.foregrounds.emplace(entity);
+	fg.position = { windowSize.x / 2, windowSize.y - 300.f };
+	fg.scale = { 1000.0f, 200.f };
+
+	return entity;
+}
+
+
+Entity createTitleScreenText(vec2 windowSize, std::string value, float fontSize, vec2 position) {
+	auto entity = Entity();
+
+	Text& text = registry.texts.emplace(entity);
+	text.value = value;
+	Foreground& fg = registry.foregrounds.emplace(entity);
+	fg.position = position;
+	fg.scale = { fontSize, fontSize };
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::FONT,
+			GEOMETRY_BUFFER_ID::TEXT
+		});
+
+	return entity;
+}
+
 Entity createGameTimerText(vec2 windowSize) {
 	auto entity = Entity();
 
@@ -859,12 +916,11 @@ Entity createPhantomTrapsCounterText(vec2 windowSize) {
 	return textE;
 }
 
-Entity createMapTile(vec2 position, vec2 size) {
+Entity createMapTile(vec2 position, vec2 size, float height) {
     auto entity = Entity();
-
-    registry.mapTiles.emplace(entity);
+	registry.mapTiles.emplace(entity);
 	Motion& motion = registry.motions.emplace(entity);
-	motion.position = vec3(position, 0);
+	motion.position = vec3(position, height);
 	motion.scale = vec2(size.x, size.y * yConversionFactor);
 	
     registry.renderRequests.insert(
@@ -874,7 +930,7 @@ Entity createMapTile(vec2 position, vec2 size) {
             EFFECT_ASSET_ID::TEXTURED,
             GEOMETRY_BUFFER_ID::SPRITE
         });
-    registry.backgrounds.emplace(entity);
+		registry.backgrounds.emplace(entity);
 	
     return entity;
 }
@@ -951,10 +1007,13 @@ Entity createNormalObstacle(vec2 position, vec2 size, TEXTURE_ASSET_ID assetId) 
 
 Entity createBottomCliff(vec2 position, vec2 size) {
     auto entity = Entity();
-	registry.mapTiles.emplace(entity);
 	Motion& motion = registry.motions.emplace(entity);
-	motion.position = vec3(position, 0);
+	motion.position = vec3(position, size.y / 2);
 	motion.scale = vec2(size.x, size.y * yConversionFactor);
+	motion.hitbox = { size.x, 1.9 * size.y, size.y };
+	motion.solid = true;
+
+	registry.obstacles.emplace(entity);
 
     registry.renderRequests.insert(
         entity, 
@@ -963,7 +1022,7 @@ Entity createBottomCliff(vec2 position, vec2 size) {
             EFFECT_ASSET_ID::TEXTURED,
             GEOMETRY_BUFFER_ID::SPRITE
         });
-    registry.backgrounds.emplace(entity); 
+    registry.midgrounds.emplace(entity); 
     return entity;
 }
 
@@ -971,8 +1030,12 @@ Entity createSideCliff(vec2 position, vec2 size) {
     auto entity = Entity();
 	registry.mapTiles.emplace(entity);
 	Motion& motion = registry.motions.emplace(entity);
-	motion.position = vec3(position, 0);
+	motion.position = vec3(position, size.y / 2);
 	motion.scale = vec2(size.x, size.y * yConversionFactor);
+	motion.hitbox = { abs(size.x) * 0.95, size.y, size.y };
+	motion.solid = true;
+
+	registry.obstacles.emplace(entity);
 
     registry.renderRequests.insert(
         entity, 
@@ -981,15 +1044,18 @@ Entity createSideCliff(vec2 position, vec2 size) {
             EFFECT_ASSET_ID::TEXTURED,
             GEOMETRY_BUFFER_ID::SPRITE
         });
-    registry.backgrounds.emplace(entity); 
+    registry.midgrounds.emplace(entity); 
     return entity;
 }
 Entity createTopCliff(vec2 position, vec2 size) {
     auto entity = Entity();
-	registry.mapTiles.emplace(entity);
 	Motion& motion = registry.motions.emplace(entity);
-	motion.position = vec3(position, 0);
+	motion.position = vec3(position, size.y / 2);
 	motion.scale = vec2(size.x, size.y * yConversionFactor);
+	motion.hitbox = { size.x, size.y / 16, size.y };
+	motion.solid = true;
+
+	registry.obstacles.emplace(entity);
 
     registry.renderRequests.insert(
         entity, 
@@ -998,60 +1064,32 @@ Entity createTopCliff(vec2 position, vec2 size) {
             EFFECT_ASSET_ID::TEXTURED,
             GEOMETRY_BUFFER_ID::SPRITE
         });
-    registry.backgrounds.emplace(entity); 
+    registry.midgrounds.emplace(entity);
     return entity;
 }
 
 void createCliffs(GLFWwindow* window) {
 	float widthFactor = 0.5;
-	float cornerAdjustment = 0.2;
-	for (int col = 1 / widthFactor; col < (x_tiles - 1) / widthFactor; col++) {
-		vec2 position = { (col + 0.5) * tile_x * widthFactor, 0.5 * tile_y };
+	for (int col = 1 / widthFactor; col < x_tiles / widthFactor; col++) {
+		vec2 position = { (col - 0.5) * tile_x * widthFactor, tile_y };
 		vec2 size = { tile_x * widthFactor, tile_y };
 		createTopCliff(position, size);
 	}
-	for (int col = 1 / widthFactor; col < (x_tiles - 1) / widthFactor; col++) {
-		vec2 position = { (col + 0.5) * tile_x * widthFactor, (y_tiles - 0.5) * tile_y } ;
-		vec2 size = { tile_x * widthFactor, tile_y };
-		createBottomCliff(position, size);
-	}
-	for (int row = 0; row < y_tiles - 1; row++) {
-		vec2 position = { 0.5 * tile_x, (row + 0.5 + cornerAdjustment) * tile_y};
-		vec2 size = {tile_x, tile_y};
+	for (int row = 0; row < y_tiles; row++) {
+		vec2 position = { 0.3 * tile_x, (row + 1) * tile_y };
+		vec2 size = { tile_x, tile_y };
 		createSideCliff(position, size);
 	}
-	for (int row = 0; row < y_tiles - 1; row++) {
-		vec2 position = { (x_tiles - 0.5) * tile_x, (row + 0.5 + cornerAdjustment) * tile_y };
+	for (int row = 0; row < y_tiles; row++) {
+		vec2 position = { (x_tiles - 0.3) * tile_x, (row + 1) * tile_y };
 		vec2 size = { -tile_x, tile_y };
 		createSideCliff(position, size);
 	}
-
-
-	//// Top boundary cliffs
- //   for (int col = 0; col <= cliffsOnScreenX; col++) {
- //       vec2 position = {leftBound + col * cliffWidth, topBound - cliffThickness}; 
- //       vec2 size = {cliffWidth, cliffThickness};
- //       createTopCliff(position, size);
- //   }
-	//// Bottom boundary cliffs
- //   for (int col = 0; col <= cliffsOnScreenX; col++) {
- //       vec2 position = {leftBound + bottomCliffWidth / 2 + col * bottomCliffWidth - bottomCliffOffset, bottomBound - cliffThickness};  
- //       vec2 size = {cliffWidth, cliffThickness};
- //       createBottomCliff(position, size);
- //   }
- //   // Left boundary cliffs
- //   for (int row = 0; row < cliffsOnScreenY - 2; row++) {
- //       vec2 position = {leftBound - cliffThickness / 2, row * sideCliffHeight}; 
- //       vec2 size = {sideCliffHeight, sideCliffThickness};
- //       createSideCliff(position, size);
- //   }
-
-	//// Right boundary cliffs
- //   for (int row = 0; row < cliffsOnScreenY - 2; row++) {
- //       vec2 position = {rightBound + cliffThickness / 2,  row * sideCliffHeight};
- //       vec2 size = {-sideCliffHeight, sideCliffThickness};
- //       createSideCliff(position, size);
- //   }
+	for (int col = 1 / widthFactor; col < x_tiles / widthFactor; col++) {
+		vec2 position = { (col - 0.5) * tile_x * widthFactor, y_tiles * tile_y };
+		vec2 size = { tile_x * widthFactor, tile_y };
+		createBottomCliff(position, size);
+	}
 }
 
 void createMapTiles() {
@@ -1059,7 +1097,8 @@ void createMapTiles() {
         for (int col = 0; col < x_tiles; col++) { 
             vec2 position = {(col + 0.5) * tile_x, (row + 0.5) * tile_y};
             vec2 size = {tile_x, tile_y};
-            createMapTile(position, size);
+			float height = 0;
+            createMapTile(position, size, height);
         }
     }
 }

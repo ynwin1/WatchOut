@@ -297,8 +297,7 @@ void PhysicsSystem::updatePositions(float elapsed_ms)
 			{ 
 				continue;
 			}
-
-			motion.velocity.z -= GRAVITATIONAL_CONSTANT * elapsed_ms;
+			motion.velocity.z -= motion.gravity * GRAVITATIONAL_CONSTANT * elapsed_ms;
 		}
 
 		// Hit the ground

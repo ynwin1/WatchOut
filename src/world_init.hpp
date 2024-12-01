@@ -71,7 +71,7 @@ const float TROLL_SPEED = 0.1;
 const float BOMBER_SPEED = 0.2;
 
 const float JUMP_STAMINA = 20.f;
-const float DASH_STAMINA = 30.f;
+const float DASH_STAMINA = 20.f;
 
 const int BOAR_HEALTH = 50;
 const int BARBARIAN_HEALTH = 30;
@@ -140,6 +140,11 @@ Entity createFireball(vec3 pos, vec2 direction);
 
 // Lightning bolt from the sky
 Entity createLightning(vec2 pos);
+
+// TitleScreen UI
+Entity createTitleScreenBackground(vec2 windowSize);
+Entity createTitleScreenTitle(vec2 windowSize);
+Entity createTitleScreenText(vec2 windowSize, std::string value, float fontSize, vec2 position);
 
 // Playing UI
 Entity createPauseHelpText(vec2 windowSize);

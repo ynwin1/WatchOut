@@ -11,7 +11,7 @@ Entity createBoar(vec2 pos)
 {
 	auto entity = Entity();
 
-	// Setting intial motion values
+	// Setting intial	 motion values
 	Motion& motion = registry.motions.emplace(entity);
 	motion.position = vec3(pos, getElevation(pos) + BOAR_BB_HEIGHT / 2);
 	motion.angle = 0.f;
@@ -276,7 +276,7 @@ Entity createCollectibleTrap(vec2 pos)
 	int random = rand() % 2;
 	Motion& motion = registry.motions.emplace(entity);
 
-	if (random >= 0.5) {
+	if (random >= 0.8) {
 		collectibleTrap.type = "phantom_trap";
 		initPhantomTrapAnimationController(entity);
 		
@@ -453,8 +453,8 @@ Entity createJeff(vec2 position)
 	pointLight.diffuse = vec4(1.0, .75, 0.25, 1.0);
 	pointLight.max_distance = 3250;
 	pointLight.constant = 1.0;
-	pointLight.linear = .00014;
-	pointLight.quadratic = 0.00001;
+	pointLight.linear = .0005;
+	pointLight.quadratic = 0.00003;
 	
 	return entity;
 }
@@ -818,6 +818,63 @@ Entity createFPSText(vec2 windowSize) {
 
 	registry.renderRequests.insert(
 			entity, 
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::FONT,
+			GEOMETRY_BUFFER_ID::TEXT
+		});
+
+	return entity;
+}
+
+Entity createTitleScreenBackground(vec2 windowSize) {
+	auto entity = Entity();
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::TITLE_BACKGROUND,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	Foreground& bg = registry.foregrounds.emplace(entity);
+	bg.position = { windowSize.x / 2, windowSize.y / 2 };
+	bg.scale = windowSize;
+		
+	return entity;
+}
+
+Entity createTitleScreenTitle(vec2 windowSize) {
+	auto entity = Entity();
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::TITLE_TEXT,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	Foreground& fg = registry.foregrounds.emplace(entity);
+	fg.position = { windowSize.x / 2, windowSize.y - 300.f };
+	fg.scale = { 1000.0f, 200.f };
+
+	return entity;
+}
+
+
+Entity createTitleScreenText(vec2 windowSize, std::string value, float fontSize, vec2 position) {
+	auto entity = Entity();
+
+	Text& text = registry.texts.emplace(entity);
+	text.value = value;
+	Foreground& fg = registry.foregrounds.emplace(entity);
+	fg.position = position;
+	fg.scale = { fontSize, fontSize };
+
+	registry.renderRequests.insert(
+		entity,
 		{
 			TEXTURE_ASSET_ID::NONE,
 			EFFECT_ASSET_ID::FONT,

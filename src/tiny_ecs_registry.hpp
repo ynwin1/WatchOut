@@ -44,6 +44,7 @@ public:
 	ComponentContainer<Collected> collected;
 	ComponentContainer<Bomb> bombs;
 	ComponentContainer<Explosion> explosions;
+	ComponentContainer<Particle> particles;
 	
 	ComponentContainer<PauseMenuComponent> pauseMenuComponents;
 	ComponentContainer<HelpMenuComponent> helpMenuComponents;
@@ -101,6 +102,7 @@ public:
 		registry_list.push_back(&collected);
 		registry_list.push_back(&bombs);
 		registry_list.push_back(&explosions);
+		registry_list.push_back(&particles);
 		
 		registry_list.push_back(&healthBars);
 		registry_list.push_back(&staminaBars);

@@ -45,7 +45,6 @@ public:
 
     const GAME_STATE getGameState() const;
 
-    Inventory inventory;
     Entity crosshairEntity;
 private:
     GAME_STATE currentGameState;

@@ -14,5 +14,5 @@ AnimationController& initTrollAnimationController(Entity& entity);
 
 AnimationController& initHeartAnimationController(Entity& entity);
 AnimationController& initTrapBottleAnimationController(Entity& entity);
-AnimationController& initBowCollectableAnimationController(Entity& entity);
+AnimationController& initBowAnimationController(Entity& entity);
 AnimationController& initPhantomTrapAnimationController(Entity& entity);

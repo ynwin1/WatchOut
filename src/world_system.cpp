@@ -70,7 +70,7 @@ void WorldSystem::restart_game()
     initText();
     soundSetUp();
 
-    gameStateController.inventory.itemCounts[INVENTORY_ITEM::BOW] = 99;
+    registry.inventory.itemCounts[INVENTORY_ITEM::BOW] = 99;
 
     // Set spawn delays to 1 second, so the first of each type will spawn right away
     for (auto& name : entity_types) {
@@ -111,8 +111,8 @@ void WorldSystem::initText() {
     registry.gameTimer.reset();
     registry.gameTimer.textEntity = createGameTimerText(camera->getSize());
 
-    gameStateController.inventory.reset();
-    std::unordered_map<INVENTORY_ITEM, Entity>& itemCountTextEntities = gameStateController.inventory.itemCountTextEntities;
+    registry.inventory.reset();
+    std::unordered_map<INVENTORY_ITEM, Entity>& itemCountTextEntities = registry.inventory.itemCountTextEntities;
     itemCountTextEntities[INVENTORY_ITEM::BOW] = createItemCountText(camera->getSize(), TEXTURE_ASSET_ID::BOW);
     trapsCounter.reset();
 
@@ -138,7 +138,7 @@ void WorldSystem::trackFPS(float elapsed_ms) {
 }
 
 void WorldSystem::updateInventoryItemText() {
-    Inventory& inventory = gameStateController.inventory;
+    Inventory& inventory = registry.inventory;
     for (auto& item : inventory.itemCountTextEntities) {
         if(registry.texts.has(item.second)) {
             Text& text = registry.texts.get(item.second);
@@ -201,8 +201,8 @@ void WorldSystem::updateEquippedPosition() {
 	Entity& playerE = registry.players.entities[0];
 	Motion& playerM = registry.motions.get(playerE);
 
-    if(registry.equipped.has(gameStateController.inventory.equippedEntity)) {
-        Motion& equippedM = registry.motions.get(gameStateController.inventory.equippedEntity);
+    if(registry.motions.has(registry.inventory.equippedEntity)) {
+        Motion& equippedM = registry.motions.get(registry.inventory.equippedEntity);
         equippedM.position = playerM.position;
 
         double mousePosX, mousePosY;
@@ -216,7 +216,7 @@ void WorldSystem::updateEquippedPosition() {
 
         equippedM.position = playerM.position + normalizedDirection * fixedDistance;
 
-        if(gameStateController.inventory.equipped == INVENTORY_ITEM::BOW) {
+        if(registry.inventory.equipped == INVENTORY_ITEM::BOW) {
             float angle = atan2(direction.y, direction.x);
             equippedM.angle = angle;
         }
@@ -389,7 +389,7 @@ void WorldSystem::updateCrosshairPosition(vec2 mouse_position) {
 }
 
 void WorldSystem::equipItem(INVENTORY_ITEM item, bool wasCollected) {
-    Inventory& inventory = gameStateController.inventory;
+    Inventory& inventory = registry.inventory;
 
     if(item == inventory.equipped || 
     (wasCollected && inventory.equipped != INVENTORY_ITEM::NONE))
@@ -416,8 +416,8 @@ void WorldSystem::equipItem(INVENTORY_ITEM item, bool wasCollected) {
 }
 
 void WorldSystem::unEquipItem() {
-    gameStateController.inventory.equipped = INVENTORY_ITEM::NONE;
-    registry.remove_all_components_of(gameStateController.inventory.equippedEntity);
+    registry.inventory.equipped = INVENTORY_ITEM::NONE;
+    registry.remove_all_components_of(registry.inventory.equippedEntity);
     registry.remove_all_components_of(gameStateController.crosshairEntity);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 }
@@ -551,15 +551,19 @@ void WorldSystem::shootArrow(vec3 mouseWorldPos) {
     
     sound->playSoundEffect(Sound::ARROW, 0);
 
-    gameStateController.inventory.itemCounts[INVENTORY_ITEM::BOW]--;
-    if(gameStateController.inventory.itemCounts[INVENTORY_ITEM::BOW] == 0) {
+    registry.inventory.itemCounts[INVENTORY_ITEM::BOW]--;
+    if(registry.inventory.itemCounts[INVENTORY_ITEM::BOW] == 0) {
         unEquipItem();
+    } else if(registry.animationControllers.has(registry.inventory.equippedEntity)) {
+        Entity entity = registry.inventory.equippedEntity;
+        AnimationController& ac = registry.animationControllers.get(entity);
+        ac.changeState(entity, AnimationState::Attack);
     }
 
 }
 
 void WorldSystem::shootProjectile(vec3 mouseWorldPos) {
-    switch(gameStateController.inventory.equipped) {
+    switch(registry.inventory.equipped) {
         case INVENTORY_ITEM::BOW:
             shootArrow(mouseWorldPos);
             break;
@@ -919,9 +923,7 @@ void WorldSystem::handle_deaths(float elapsed_ms) {
         deathTimer.timer -= elapsed_ms;
         if (deathTimer.timer < 0) {
             if(registry.archers.has(deathEntity)) {
-                Entity bowE = createCollectible(registry.motions.get(deathEntity).position, TEXTURE_ASSET_ID::BOW);
-                registry.bows.emplace(bowE);
-                registry.collectibles.get(bowE).duration = 10000;
+                createCollectible(registry.motions.get(deathEntity).position, TEXTURE_ASSET_ID::BOW);
             }
             else if (registry.motions.has(deathEntity)) {
                 Motion& motion = registry.motions.get(deathEntity);
@@ -1018,8 +1020,8 @@ void WorldSystem::entity_collectible_collision(Entity entity, Entity entity_othe
 		printf("Player collected a heart\n");
 	}
     else if (registry.bows.has(entity_other)) {
-        gameStateController.inventory.itemCounts[INVENTORY_ITEM::BOW] += 5;
-        std::cout << "Player collected a bow. Bow count is now " << gameStateController.inventory.itemCounts[INVENTORY_ITEM::BOW] << std::endl;
+        registry.inventory.itemCounts[INVENTORY_ITEM::BOW] += 5;
+        std::cout << "Player collected a bow. Bow count is now " << registry.inventory.itemCounts[INVENTORY_ITEM::BOW] << std::endl;
         createCollected(playerM, collectibleM.scale, TEXTURE_ASSET_ID::BOW);
         equipItem(INVENTORY_ITEM::BOW, true);
 		printf("Player collected a bow\n");

@@ -75,10 +75,6 @@ struct HomingProjectile{
 	float speed;
 };
 
-struct Equipped {
-
-};
-
 struct HealthBar {
 	Entity meshEntity;
 	Entity frameEntity;

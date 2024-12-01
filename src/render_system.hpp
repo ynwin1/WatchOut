@@ -63,6 +63,8 @@ class RenderSystem {
 		textures_path("collectables/trap.png"),       // TRAP
 		textures_path("collectables/bow.png"),
 		textures_path("collectables/bow_fade.png"),
+		textures_path("collectables/bow_draw.png"),
+		textures_path("collectables/bow_drawn.png"),
 		textures_path("collectables/phantom_trap_bottle.png"), // PHANTOM_TRAP_BOTTLE
 		textures_path("collectables/phantom_trap_bottle_fade.png"),
 		textures_path("collectables/phantom_trap_bottle_one.png"), // PHANTOM_TRAP_BOTTLE OF 1 FRAME
@@ -152,6 +154,7 @@ class RenderSystem {
 
 	void update_animations();
 	void update_jeff_animation();
+	void update_bow_animations();
 
 public:
 	GLFWwindow* create_window();

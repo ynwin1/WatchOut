@@ -278,7 +278,7 @@ Entity createCollectible(vec2 pos, TEXTURE_ASSET_ID assetID)
 	Motion& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
 
-	registry.collectibles.emplace(entity);
+	Collectible& collecitble = registry.collectibles.emplace(entity);
 
 	switch(assetID) {
 		case TEXTURE_ASSET_ID::HEART:
@@ -291,7 +291,9 @@ Entity createCollectible(vec2 pos, TEXTURE_ASSET_ID assetID)
 			break;
 		case TEXTURE_ASSET_ID::BOW:
 			motion.scale = { BOW_BB_WIDTH, BOW_BB_HEIGHT };
-			initBowCollectableAnimationController(entity);
+			registry.bows.emplace(entity);
+			collecitble.duration = 10000;
+			initBowAnimationController(entity);
 			break;
 		default:
 			break;
@@ -556,22 +558,14 @@ Entity createEquipped(TEXTURE_ASSET_ID assetId) {
 
 	switch (assetId) {
 	case TEXTURE_ASSET_ID::BOW:
-		scale = { BOW_BB_WIDTH, BOW_BB_HEIGHT };
+		scale = { BOW_BB_WIDTH * 1.25, BOW_BB_HEIGHT * 1.25};
+		AnimationController& ac = initBowAnimationController(entity);
+		ac.changeState(entity, AnimationState::Default);
 		break;
 	}
 
-	registry.equipped.emplace(entity);
-
 	Motion& motion = registry.motions.emplace(entity);
 	motion.scale = scale;
-
-	registry.renderRequests.insert(
-		entity,
-		{
-			assetId,
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE
-		});
 
 	registry.midgrounds.emplace(entity);
 

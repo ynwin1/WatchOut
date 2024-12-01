@@ -57,6 +57,10 @@ const int COLLECTIBLE_IDLE_FRAME_TIME = 0;
 const int COLLECTIBLE_IDLE_NUM_FRAMES = 1;
 const int COLLECTIBLE_FADE_FRAME_TIME = 100;
 const int COLLECTIBLE_FADE_NUM_FRAMES = 2;
+const int BOW_DRAW_FRAME_TIME = 100;
+const int BOW_DRAW_NUM_FRAMES = 3;
+const int BOW_DRAWN_FRAME_TIME = 0;
+const int BOW_DRAWN_NUM_FRAMES = 1;
 
 const int PHANTOM_TRAP_FRAME_TIME = 100;
 const int PHANTOM_TRAP_NUM_FRAMES = 8;
@@ -282,10 +286,12 @@ AnimationController& initPhantomTrapAnimationController(Entity& entity) {
 	return animationcontroller;
 }
 
-AnimationController& initBowCollectableAnimationController(Entity& entity) {
+AnimationController& initBowAnimationController(Entity& entity) {
 	AnimationController& animationcontroller = registry.animationControllers.emplace(entity);
 	animationcontroller.addAnimation(AnimationState::Idle, COLLECTIBLE_IDLE_FRAME_TIME, COLLECTIBLE_IDLE_NUM_FRAMES, TEXTURE_ASSET_ID::BOW);
 	animationcontroller.addAnimation(AnimationState::Fading, COLLECTIBLE_FADE_FRAME_TIME, COLLECTIBLE_FADE_NUM_FRAMES, TEXTURE_ASSET_ID::BOW_FADE);
+	animationcontroller.addAnimation(AnimationState::Attack, BOW_DRAW_FRAME_TIME, BOW_DRAW_NUM_FRAMES, TEXTURE_ASSET_ID::BOW_DRAW);
+	animationcontroller.addAnimation(AnimationState::Default, BOW_DRAWN_FRAME_TIME, BOW_DRAWN_NUM_FRAMES, TEXTURE_ASSET_ID::BOW_DRAWN);
 
 	registry.renderRequests.insert(
 		entity,
@@ -294,8 +300,6 @@ AnimationController& initBowCollectableAnimationController(Entity& entity) {
 			EFFECT_ASSET_ID::ANIMATED,
 			GEOMETRY_BUFFER_ID::SPRITE
 		});
-
-	animationcontroller.changeState(entity, AnimationState::Idle);
 
 	return animationcontroller;
 }

@@ -490,6 +490,7 @@ void RenderSystem::step(float elapsed_ms)
 
 void RenderSystem::update_animations() {
 	update_jeff_animation();
+	update_bow_animations();
 }
 
 void RenderSystem::update_jeff_animation() {
@@ -519,6 +520,18 @@ void RenderSystem::update_jeff_animation() {
 			// Player is idle if no movement keys are pressed
 			animationController.changeState(entity, AnimationState::Idle);
 		}
+	}
+}
+
+void RenderSystem::update_bow_animations() {
+	if(registry.animationControllers.has(registry.inventory.equippedEntity)) {
+		Entity entity = registry.inventory.equippedEntity;
+		AnimationController& ac = registry.animationControllers.get(entity);
+		if(ac.currentState == AnimationState::Attack && 
+			ac.animations[ac.currentState].currentFrame == 0 &&
+			ac.animations[ac.currentState].elapsedTime == 0) {
+			ac.changeState(entity, AnimationState::Default);
+		}	
 	}
 }
 

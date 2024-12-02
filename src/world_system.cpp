@@ -1188,7 +1188,6 @@ void WorldSystem::update_cooldown(float elapsed_ms) {
         if (invulnerable.timer < 0) {
             registry.invulnerables.remove(entity);
             registry.colours.remove(entity);
-            registry.motions.get(entity).solid = true;
         }
     }
 }
@@ -1395,7 +1394,6 @@ void WorldSystem::entity_damaging_collision(Entity entity, Entity entity_other, 
         was_damaged.push_back(entity);
         setCollisionCooldown(entity_other, entity);
         registry.invulnerables.emplace(entity);
-        registry.motions.get(entity).solid = false;
         printf("Player health reduced from %d to %d\n", player.health + damaging.damage, player.health);
     }
     else if (registry.enemies.has(entity)) {
@@ -1454,7 +1452,6 @@ void WorldSystem::processPlayerEnemyCollision(Entity player, Entity enemy, std::
         was_damaged.push_back(player);
         setCollisionCooldown(enemy, player);
         registry.invulnerables.emplace(player);
-        registry.motions.get(player).solid = false;
         printf("Player health reduced by enemy from %d to %d\n", playerData.health + enemyData.damage, playerData.health);
 
         // Check if enemy can have an attack cooldown

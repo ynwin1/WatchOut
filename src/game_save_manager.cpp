@@ -37,6 +37,7 @@ void GameSaveManager::save_game(std::unordered_map<std::string, std::pair<int, E
 void GameSaveManager::serialize_containers(json& j, std::unordered_map<std::string, std::pair<int, Entity>> trapsCounter, std::unordered_map<std::string, float> spawn_delays, std::unordered_map<std::string, int> max_entities, std::unordered_map<std::string, float> next_spawns) {
 	j[GAMETIMER] = serialize_game_timer(registry.gameTimer);
 	j[GAMESCORE] = serialize_game_score(registry.gameScore);
+	j[INVENTORY] = serialize_game_inventory(registry.inventory);
 	j[TRAPCOUNTER] = serialize_traps_counter(trapsCounter);
 	j[SPAWNDELAYS] = serialize_spawn_delays(spawn_delays);
 	j[MAXENTITIES] = serialize_max_entities(max_entities);
@@ -145,6 +146,19 @@ nlohmann::json GameSaveManager::serialize_game_score(const GameScore& gameScore)
 	j["highScoreHours"] = gameScore.highScoreHours;
 	j["highScoreMinutes"] = gameScore.highScoreMinutes;
 	j["highScoreSeconds"] = gameScore.highScoreSeconds;
+	return j;
+}
+
+nlohmann::json GameSaveManager::serialize_game_inventory(const Inventory& inventory) {
+	nlohmann::json j;
+
+	nlohmann::json itemCounts;
+	for (auto& item : inventory.itemCounts) {
+		itemCounts[item.first] = item.second;
+	}
+	j["itemCounts"] = itemCounts;
+	j["equipped"] = inventory.equipped;
+
 	return j;
 }
 

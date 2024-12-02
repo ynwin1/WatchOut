@@ -79,6 +79,7 @@ private:
 
 	std::string GAMETIMER = "gameTimer";
 	std::string GAMESCORE = "gameScore";
+	std::string INVENTORY = "inventory";
 	std::string SPAWNDELAYS = "spawn_delays";
 	std::string MAXENTITIES = "max_entities";
 	std::string NEXTSPAWNS = "next_spawns";
@@ -92,6 +93,9 @@ private:
 	std::unordered_map<std::string, int> maxEntities;
 	std::unordered_map<std::string, float> nextSpawns;
 
+	std::unordered_map<std::string, int> inventoryOnLoad;
+
+
 	// Serialization
 	void serialize_containers(json& j, std::unordered_map<std::string, std::pair<int, Entity>> trapsCounter, std::unordered_map<std::string, float> spawn_delays, std::unordered_map<std::string, int> max_entities, std::unordered_map<std::string, float> next_spawns);
 
@@ -101,6 +105,7 @@ private:
 
 	nlohmann::json serialize_game_timer(const GameTimer& gameTimer);
 	nlohmann::json serialize_game_score(const GameScore& gameScore);
+	nlohmann::json serialize_game_inventory(const Inventory& inventory);
 
 	nlohmann::json serialize_spawn_delays(std::unordered_map<std::string, float> spawn_delays);
 	nlohmann::json serialize_max_entities(std::unordered_map<std::string, int> max_entities);

@@ -849,6 +849,10 @@ void WorldSystem::entity_damaging_collision(Entity entity, Entity entity_other, 
 {
     Damaging& damaging = registry.damagings.get(entity_other);
 
+    if(registry.knockers.has(entity_other)) {
+        knock(entity, entity_other);
+    }
+
     if (registry.players.has(entity)) {
         // reduce player health
         Player& player = registry.players.get(entity);
@@ -871,7 +875,11 @@ void WorldSystem::entity_damaging_collision(Entity entity, Entity entity_other, 
         return;
     }
 
-    registry.remove_all_components_of(entity_other);
+    if(!registry.explosions.has(entity_other) && 
+       !registry.bombs.has(entity_other)) 
+    {
+        registry.remove_all_components_of(entity_other);
+    }
 }
 
 void WorldSystem::damaging_obstacle_collision(Entity damaging) {
@@ -896,8 +904,8 @@ void WorldSystem::entity_obstacle_collision(Entity entity, Entity obstacle, std:
 }
 
 void WorldSystem::processPlayerEnemyCollision(Entity player, Entity enemy, std::vector<Entity>& was_damaged) {
-    // Archers and wizards do not do melee damage
-    if (registry.archers.has(enemy) || registry.wizards.has(enemy)) {
+    // Archers/Bombers/Wizards do not do melee damage
+    if (registry.archers.has(enemy) || registry.bombers.has(enemy) || registry.wizards.has(enemy)) {
         return;
     }
 
@@ -1027,6 +1035,10 @@ void WorldSystem::despawn_collectibles(float elapsed_ms) {
 
 void WorldSystem::destroyDamagings() {
     for (auto& damagingEntity : registry.damagings.entities) {
+        if(registry.bombs.has(damagingEntity) || registry.explosions.has(damagingEntity)) {
+            continue;
+        }
+
         Damaging& damaging = registry.damagings.get(damagingEntity);
         Motion& motion = registry.motions.get(damagingEntity);
 

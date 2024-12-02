@@ -44,8 +44,8 @@ int main()
 	// Initialize the main systems
 	
 	camera.init(window);
-	renderer.init(&camera, &particles);
 	physics.init(&sound);
+	renderer.init(&camera, &particles, &sound);
 	sound.init();
 	saveManager.init(&renderer, window, &camera);
 	world.init(&renderer, window, &camera, &physics, &ai, &sound, &saveManager, &particles);

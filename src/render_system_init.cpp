@@ -63,12 +63,13 @@ GLFWwindow* RenderSystem::create_window() {
 
 
 // World initialization
-bool RenderSystem::init(Camera* camera, ParticleSystem* particles)
+bool RenderSystem::init(Camera* camera, ParticleSystem* particles, SoundSystem* sound)
 {
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(1); // vsync
 
 	this->camera = camera;
+	this->sound = sound;
 	this->particles = particles;
 
 	// Load OpenGL function pointers

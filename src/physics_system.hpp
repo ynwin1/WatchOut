@@ -32,3 +32,5 @@ std::vector<vec3> boundingBoxVertices(Motion& motion);
 bool polygonsCollide(const std::vector<vec2>& polygon1, const std::vector<vec2>& polygon2);
 
 const float GRAVITATIONAL_CONSTANT = 0.01;
+const float BOUNCE_FACTOR = 0.5f;
+const float FRICTION_FACTOR = 0.95f;

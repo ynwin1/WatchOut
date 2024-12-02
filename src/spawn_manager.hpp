@@ -16,7 +16,6 @@ private:
 	Camera* camera;
 
 	int currentEnemyIdx = 0;
-	const int maxNoOfEnemies = 7;
 	float initialSpawnTime = 0.f;
 	const float initialSpawnInterval = 30000.f; // 30 seconds
 
@@ -46,13 +45,13 @@ private:
 	};
 
 	std::unordered_map<std::string, float> next_spawn = {
-		{"boar", 0.0f},
-		{"barbarian", 0.0f},
-		{"archer", 0.0f},
-		{"bird", 0.0f},
-		{"wizard", 0.0f},
-		{"troll", 0.0f},
-		{"bomber", 0.0f},
+		{"boar", 20000.0},
+		{"barbarian", 10000.0f},
+		{"archer", 20000.0f},
+		{"bird", 20000.0f},
+		{"wizard", 20000.0f},
+		{"troll", 30000.0f},
+		{"bomber", 20000.0f},
 		{"heart", 0.0f},
 		{"collectible_trap", 0.0f}
 	};
@@ -103,6 +102,7 @@ private:
 
 	void inGameSpawn(float elapsed_ms);
 
+	void spawnEnemies(float elapsed_ms);
 	void spawnCollectibles(float elapsed_ms);
 	void spawnCollectible(std::string collectible, float elapsed_ms);
 

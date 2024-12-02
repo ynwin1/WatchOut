@@ -53,7 +53,7 @@ vec2 SpawnManager::get_spawn_location(const std::string& entity_type)
 }
 
 bool SpawnManager::hasAllEnemiesSpawned() {
-	return currentEnemyIdx >= maxNoOfEnemies;
+	return currentEnemyIdx >= entity_types.size() - 2; // there are 2 collectibles
 }
 
 void SpawnManager::initialSpawn(float elapsed_ms) {
@@ -87,8 +87,33 @@ void SpawnManager::initialSpawn(float elapsed_ms) {
 }
 
 void SpawnManager::inGameSpawn(float elapsed_ms) {
-
+	spawnEnemies(elapsed_ms);
+	spawnCollectibles(elapsed_ms);
 }
+
+void SpawnManager::spawnEnemies(float elapsed_ms) {
+    for (int i = 0; i < entity_types.size(); i++) {
+        std::string entity_type = entity_types[i];
+
+		next_spawn.at(entity_type) -= elapsed_ms;
+
+		bool isWithinMaxSize = registry.spawnable_lists.at(entity_type)->size() < max_entities.at(entity_type);
+		bool hasReachedSpawnTime = next_spawn.at(entity_type) <= 0;
+        if (isWithinMaxSize && hasReachedSpawnTime) {
+            
+			int num_to_spawn = spawn_size.at(entity_type);
+            spawn_func f = spawn_functions.at(entity_type);
+
+            for (int j = 0; j < num_to_spawn; j++) {
+                vec2 spawn_location = get_spawn_location(entity_type);
+                (*f)(spawn_location);
+            }
+
+			next_spawn.at(entity_type) = spawn_delays.at(entity_type);
+        }
+    }
+}
+
 
 void SpawnManager::spawnCollectibles(float elapsed_ms) {
 	// collectible

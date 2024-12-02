@@ -40,7 +40,7 @@ if (IS_OS_MAC)
   link_directories(/opt/homebrew/lib)
 endif()
 
-add_executable(${PROJECT_NAME} ${SOURCE_FILES} "src/sound_system.cpp" "src/game_save_manager.cpp")
+add_executable(${PROJECT_NAME} ${SOURCE_FILES} "src/sound_system.cpp" "src/game_save_manager.cpp" "src/spawn_manager.cpp")
 target_include_directories(${PROJECT_NAME} PUBLIC src/)
 
 # Added this so policy CMP0065 doesn't scream

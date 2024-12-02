@@ -6,6 +6,7 @@
 #include "components.hpp"
 #include "render_components.hpp"
 #include "animation_system.hpp"
+#include "game_state_controller.hpp"
 
 class ECSRegistry
 {
@@ -43,6 +44,7 @@ public:
 	ComponentContainer<TargetArea> targetAreas;
 	ComponentContainer<Collected> collected;
 	ComponentContainer<SlideUp> slideUps;
+	ComponentContainer<HomingProjectile> homingProjectiles;
 	ComponentContainer<Bomb> bombs;
 	ComponentContainer<Explosion> explosions;
 	ComponentContainer<Particle> particles;
@@ -71,10 +73,13 @@ public:
 	ComponentContainer<Troll> trolls;
 	ComponentContainer<Bomber> bombers;
 	ComponentContainer<Heart> hearts;
+	ComponentContainer<Bow> bows;
 	ComponentContainer<CollectibleTrap> collectibleTraps;
+	ComponentContainer<CollectibleBomb> collectibleBombs;
 
 	GameTimer gameTimer;
 	GameScore gameScore;
+	Inventory inventory;
 
 	//debugging
 	FPSTracker fpsTracker;
@@ -102,9 +107,12 @@ public:
 		registry_list.push_back(&meshPtrs);
 		registry_list.push_back(&collected);
 		registry_list.push_back(&slideUps);
+		registry_list.push_back(&homingProjectiles);
+		registry_list.push_back(&bows);
 		registry_list.push_back(&bombs);
 		registry_list.push_back(&explosions);
 		registry_list.push_back(&particles);
+		registry_list.push_back(&collectibleBombs);
 		
 		registry_list.push_back(&healthBars);
 		registry_list.push_back(&staminaBars);

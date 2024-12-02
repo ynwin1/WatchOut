@@ -929,10 +929,10 @@ void GameSaveManager::deserialize_traps_counter(const json& j) {
 		int count = trap.value()["count"];
 		Entity textEntity;
 		if (trapName == "trap") {
-			textEntity = createTrapsCounterText(camera->getSize());
+			textEntity = createItemCountText(camera->getSize(), TEXTURE_ASSET_ID::TRAPCOLLECTABLE);
 		}
 		else {
-			textEntity = createPhantomTrapsCounterText(camera->getSize());
+			textEntity = createItemCountText(camera->getSize(), TEXTURE_ASSET_ID::PHANTOM_TRAP_BOTTLE_ONE);
 		}
 		this->trapsCounter[trapName] = std::make_pair(count, textEntity);
 	}

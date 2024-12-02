@@ -62,6 +62,10 @@ class RenderSystem {
 		textures_path("collectables/trapbottle.png"), // TRAPCOLLECTABLE
 		textures_path("collectables/trapbottle_fade.png"),
 		textures_path("collectables/trap.png"),       // TRAP
+		textures_path("collectables/bow.png"),
+		textures_path("collectables/bow_fade.png"),
+		textures_path("collectables/bow_draw.png"),
+		textures_path("collectables/bow_drawn.png"),
 		textures_path("collectables/phantom_trap_bottle.png"), // PHANTOM_TRAP_BOTTLE
 		textures_path("collectables/phantom_trap_bottle_fade.png"),
 		textures_path("collectables/phantom_trap_bottle_one.png"), // PHANTOM_TRAP_BOTTLE OF 1 FRAME
@@ -79,10 +83,13 @@ class RenderSystem {
 		textures_path("bird/bird_dead.png"),				 // BIRD DEAD
 		textures_path("troll/Troll-6f-48x64.png"),
 		textures_path("troll/Troll-1f-48x64.png"),
+		textures_path("misc/crosshair.png"),
 		textures_path("bomber/Idle.png"),
 		textures_path("bomber/Run.png"),
 		textures_path("bomber/Dead.png"),
 		textures_path("bomb/bomb.png"),
+		textures_path("bomb/bomb_fused.png"),
+		textures_path("bomb/bomb_fade.png"),
 		textures_path("explosion/explosion.png"),		// https://craftpix.net/freebies/free-animated-explosion-sprite-pack/
 		textures_path("title_screen/titleBackground.png"), // TITLE SCREEN BACKGROUND
 		textures_path("title_screen/titleText.png"), // TITLE SCREEN TEXT
@@ -114,6 +121,7 @@ class RenderSystem {
 
 	void update_animations();
 	void update_jeff_animation();
+	void update_bow_animations();
 
 public:
 	std::array<GLuint, texture_count> texture_gl_handles;
@@ -159,6 +167,8 @@ public:
 	mat4 createProjectionToScreenSpace();
 
 	vec2 worldToScreen(vec3 worldPos);
+	vec2 mouseToScreen(vec2 mousePos);
+	vec3 mouseToWorld(vec2 mousePos);
 
 private:
 	SoundSystem* sound;
@@ -191,7 +201,7 @@ private:
 
 	void updateEntityFacing();
 
-	void updateCollectedPosition();
+    void updateCollectedPosition();
 
 	void updateSlideUps(float elapsed_ms);
 	void updateExplosions(float elapsed_ms);

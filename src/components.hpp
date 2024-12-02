@@ -65,14 +65,31 @@ struct Explosion {
 struct Damaging {
 	std::string type = "arrow"; // default type
 	unsigned int damage = 10;
+	Entity excludedEntity;
+};
+
+enum class PROJECTILE_TYPE {
+	TRAP,
+	PHANTOM_TRAP,
+	ARROW,
+	BOMB_FUSED
 };
 
 struct Projectile {
 	float sticksInGround = 3000; // ms it lasts on the ground
+	PROJECTILE_TYPE type = PROJECTILE_TYPE::ARROW;
+};
+
+struct HomingProjectile{
+	Entity targetEntity;
+	HomingProjectile(Entity& targetEntity) { 
+		this->targetEntity = targetEntity; 
+	}
+	float speed;
 };
 
 struct Bomb {
-	int numBounces = 0;
+	int numBounces = 1;
 };
 
 struct HealthBar {
@@ -103,7 +120,7 @@ struct StaminaBar {
 struct Collectible
 {
 	float duration = 5000.f; // 5 seconds until it disappears
-	float timer = duration; 
+	float timer = 0; 
 	vec2 position = { 0, 0 };
 	vec2 scale = { 3, 3 };
 };
@@ -375,6 +392,7 @@ struct CollectibleTrap
 { 
 	std::string type = "trap"; 
 };
-
+struct Bow {};
+struct CollectibleBomb {};
 struct PauseMenuComponent {};
 struct HelpMenuComponent {};

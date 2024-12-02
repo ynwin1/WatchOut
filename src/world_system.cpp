@@ -1004,8 +1004,7 @@ void WorldSystem::playingControls(int key, int action, int mod)
             }
 		}
 	    break;
-			
-        /*case GLFW_KEY_1:
+        case GLFW_KEY_1:
             equipItem(INVENTORY_ITEM::TRAP);
             break;
         case GLFW_KEY_2:
@@ -1016,7 +1015,7 @@ void WorldSystem::playingControls(int key, int action, int mod)
             break;
         case GLFW_KEY_4:
             equipItem(INVENTORY_ITEM::BOMB);
-            break;*/
+            break;
         case GLFW_KEY_H:
             gameStateController.setGameState(GAME_STATE::HELP);
             break;

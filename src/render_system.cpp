@@ -639,31 +639,32 @@ void RenderSystem::updateCollectedPosition() {
 }
 
 void updateHpBarMeter() {
-	for (Entity entity : registry.players.entities) {
-		Player& player = registry.players.get(entity);
-		HealthBar& hpbar = registry.healthBars.get(entity);
-		Foreground& fg = registry.foregrounds.get(hpbar.meshEntity);
-		fg.scale.x = hpbar.width * player.health/100.f;
-		Text& text = registry.texts.get(hpbar.textEntity);
-		std::stringstream ss;
-		ss << "HP" << std::string(8, ' ') << std::to_string(player.health) << "/100";
-		text.value = ss.str();
+	Entity entity = registry.players.entities[0];
+	Player& player = registry.players.get(entity);
+	PlayerUIResource& playerUI = registry.playerUIResource;
+	// HealthBar& hpbar = registry.healthBars.get(entity);
+	Foreground& fg = registry.foregrounds.get(playerUI.hpMeshEntity);
+	fg.scale.x = playerUI.hpMaxSize.x * player.health/100.f;
+	Text& text = registry.texts.get(playerUI.hpTextEntity);
+	std::stringstream ss;
+	ss << "HP" << std::string(8, ' ') << std::to_string(player.health) << "/100";
+	text.value = ss.str();
 
-		if(player.health <= 30.0f) {
-			vec4 red = {1.0f, 0.0f, 0.0f, 1.0f};
-			registry.colours.get(hpbar.meshEntity) = red;
-			registry.colours.get(hpbar.frameEntity) = red;
-		}
-		else if(player.health <= 60.0f) {
-			vec4 orange = {1.0f, 0.45f, 0.0f, 1.0f};
-			registry.colours.get(hpbar.meshEntity) = orange;
-			registry.colours.get(hpbar.frameEntity) = orange;
-		} else {
-			vec4 green = {0.0f, 1.0f, 0.0f, 1.0f};
-			registry.colours.get(hpbar.meshEntity) = green;
-			registry.colours.get(hpbar.frameEntity) = green;
-		}
+	if(player.health <= 30.0f) {
+		vec4 red = {1.0f, 0.0f, 0.0f, 1.0f};
+		registry.colours.get(playerUI.hpMeshEntity) = red;
+		registry.colours.get(playerUI.hpFrameEntity) = red;
 	}
+	else if(player.health <= 60.0f) {
+		vec4 orange = {1.0f, 0.45f, 0.0f, 1.0f};
+		registry.colours.get(playerUI.hpMeshEntity) = orange;
+		registry.colours.get(playerUI.hpFrameEntity) = orange;
+	} else {
+		vec4 green = {0.0f, 1.0f, 0.0f, 1.0f};
+		registry.colours.get(playerUI.hpMeshEntity) = green;
+		registry.colours.get(playerUI.hpFrameEntity) = green;
+	}
+	
 	for (Entity entity : registry.enemies.entities) {
 		Enemy& enemy = registry.enemies.get(entity);
 		HealthBar& hpbar = registry.healthBars.get(entity);

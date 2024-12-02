@@ -706,7 +706,7 @@ void GameSaveManager::createPlayerDeserialization(std::map<std::string, nlohmann
 
 	handleKnockable(jeff, componentsMap);
 
-	createPlayerHealthBar(jeff, camera->getSize());
+	createPlayerUIHealthBar(camera->getSize());
 	createPlayerStaminaBar(jeff, camera->getSize());
 }
 

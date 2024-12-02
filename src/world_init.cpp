@@ -740,16 +740,15 @@ void createPlayerStaminaBar(Entity characterEntity, vec2 windowSize) {
 	staminabar.textEntity = textE;
 }
 
-void createPlayerHealthBar(Entity characterEntity, vec2 windowSize) {
-	auto meshE= Entity();
-	const float width = 150.0f;
-	const float height = 20.0f;
+void createPlayerUIHealthBar(vec2 windowSize) {
+	auto meshE = Entity();
+	vec2 maxSize = registry.playerUIResource.hpMaxSize;
 
 	vec2 position = {210.0f, windowSize.y - 50.0f};
 
 	Foreground& fg = registry.foregrounds.emplace(meshE);
 	fg.position = position;
-	fg.scale = {width, height};
+	fg.scale = maxSize;
 
 	vec4 green = vec4(0.0f, 1.0f, 0.0f, 1.0f);
 
@@ -767,7 +766,7 @@ void createPlayerHealthBar(Entity characterEntity, vec2 windowSize) {
 	auto frameE = Entity();
 	Foreground& frameFg = registry.foregrounds.emplace(frameE);
 	frameFg.position = position;
-	frameFg.scale = { width, height };
+	frameFg.scale = maxSize;
 	registry.colours.insert(frameE, green);
 	registry.renderRequests.insert(
 		frameE,
@@ -790,10 +789,9 @@ void createPlayerHealthBar(Entity characterEntity, vec2 windowSize) {
 			EFFECT_ASSET_ID::FONT,
 			GEOMETRY_BUFFER_ID::TEXT,
 		});
-	HealthBar& hpbar = registry.healthBars.emplace(characterEntity, meshE, frameE);
-	hpbar.width = width;
-	hpbar.height = height;
-	hpbar.textEntity = textE;
+	registry.playerUIResource.hpMeshEntity = meshE;
+	registry.playerUIResource.hpFrameEntity = frameE;
+	registry.playerUIResource.hpTextEntity = textE;
 }
 
 void createHealthBar(Entity characterEntity) {

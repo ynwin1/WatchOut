@@ -70,7 +70,7 @@ void WorldSystem::restart_game()
     
     // Create player entity
     playerEntity = createJeff(vec2(world_size_x / 2.f, world_size_y / 2.f));
-    createPlayerHealthBar(playerEntity, camera->getSize());
+    createPlayerUIHealthBar(camera->getSize());
     createPlayerStaminaBar(playerEntity, camera->getSize());
 
     gameStateController.setGameState(GAME_STATE::PLAYING);

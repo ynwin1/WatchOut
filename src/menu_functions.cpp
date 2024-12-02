@@ -61,7 +61,7 @@ Entity WorldSystem::createTutorial(vec2 windowSize) {
     registry.tutorialComponents.emplace(entity);
 
     Foreground& fg = registry.foregrounds.emplace(entity);
-    fg.position = {windowSize.x / 2, windowSize.y / 2 - 50};
+    fg.position = {windowSize.x / 2 + 50, windowSize.y / 2 - 50};
     fg.scale = {1500, 1200};
     registry.renderRequests.insert(
         entity,

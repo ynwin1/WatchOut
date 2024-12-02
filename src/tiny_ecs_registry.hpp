@@ -28,6 +28,7 @@ public:
 	ComponentContainer<Damaged> damageds;
 	ComponentContainer<Damaging> damagings;
 	ComponentContainer<DeathTimer> deathTimers;
+	ComponentContainer<Invulnerable> invulnerables;
 	ComponentContainer<Knockable> knockables;
 	ComponentContainer<Knocker> knockers;
 	ComponentContainer<Trappable> trappables;
@@ -100,6 +101,7 @@ public:
 		registry_list.push_back(&damageds);
 		registry_list.push_back(&damagings);
 		registry_list.push_back(&deathTimers);
+		registry_list.push_back(&invulnerables);
 		registry_list.push_back(&knockables);
 		registry_list.push_back(&knockers);
 		registry_list.push_back(&trappables);

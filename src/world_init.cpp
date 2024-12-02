@@ -634,7 +634,7 @@ Entity createEquipped(TEXTURE_ASSET_ID assetId) {
 			scale = { PHANTOM_TRAP_COLLECTABLE_BB_WIDTH * 0.8, PHANTOM_TRAP_COLLECTABLE_BB_HEIGHT * 0.8};
 		break;
 		case TEXTURE_ASSET_ID::BOW: {
-			scale = { BOW_BB_WIDTH, BOW_BB_HEIGHT};
+			scale = { BOW_BB_WIDTH * 1.25, BOW_BB_HEIGHT * 1.25};
 			AnimationController& ac = initBowAnimationController(entity);
 			ac.changeState(entity, AnimationState::Default);	
 		}

@@ -73,19 +73,19 @@ const float BOMBER_SPEED = 0.2;
 const float JUMP_STAMINA = 20.f;
 const float DASH_STAMINA = 20.f;
 
-const int BOAR_HEALTH = 50;
-const int BARBARIAN_HEALTH = 30;
-const int ARCHER_HEALTH = 25;
+const int BOAR_HEALTH = 30;
+const int BARBARIAN_HEALTH = 20;
+const int ARCHER_HEALTH = 20;
 const int BIRD_HEALTH = 10;
 const int WIZARD_HEALTH = 20;
 const int TROLL_HEALTH = 200;
 const int BOMBER_HEALTH = 100;
 
-const int BOAR_DAMAGE = 30;
+const int BOAR_DAMAGE = 20;
 const int BARBARIAN_DAMAGE = 20;
 const int ARCHER_DAMAGE = 25;
 const int BIRD_DAMAGE = 10;
-const int WIZARD_DAMAGE = 50;
+const int WIZARD_DAMAGE = 30;
 const int TROLL_DAMAGE = 5;
 const int BOMBER_DAMAGE = 0;
 
@@ -160,7 +160,7 @@ void createGameOverText(vec2 windowSize);
 void createGameSaveText(vec2 windowSize);
 
 // Display bars
-void createHealthBar(Entity characterEntity, vec4 color);
+void createHealthBar(Entity characterEntity);
 void createPlayerHealthBar(Entity characterEntity, vec2 windowSize);
 void createPlayerStaminaBar(Entity characterEntity, vec2 windowSize);
 

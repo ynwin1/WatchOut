@@ -497,6 +497,8 @@ Entity createJeff(vec2 position)
 	pointLight.constant = 1.f;
 	pointLight.linear = .005;
 	pointLight.quadratic = 0.f;
+
+	createHealthBar(entity);
 	
 	return entity;
 }

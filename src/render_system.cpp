@@ -616,7 +616,7 @@ void updateHpBarPositionHelper(const std::vector<Entity>& entities) {
         Motion& healthBarMotion =  registry.motions.get(healthBar.meshEntity);
          // place above character
         float topOffset = 25;
-		healthBarMotion.position.x = motion.position.x - (healthBarMotion.scale.x / 2);
+		healthBarMotion.position.x = motion.position.x - (healthBar.width / 2);
         healthBarMotion.position.y = motion.position.y;
 		healthBarMotion.position.z = motion.position.z + visualToWorldY(motion.scale.y) / 2 + topOffset;
 		Motion& hpFrameMotion =  registry.motions.get(healthBar.frameEntity);
@@ -641,8 +641,8 @@ void RenderSystem::updateCollectedPosition() {
 void updateHpBarMeter() {
 	Entity entity = registry.players.entities[0];
 	Player& player = registry.players.get(entity);
+	
 	PlayerUIResource& playerUI = registry.playerUIResource;
-	// HealthBar& hpbar = registry.healthBars.get(entity);
 	Foreground& fg = registry.foregrounds.get(playerUI.hpMeshEntity);
 	fg.scale.x = playerUI.hpMaxSize.x * player.health/100.f;
 	Text& text = registry.texts.get(playerUI.hpTextEntity);
@@ -650,19 +650,29 @@ void updateHpBarMeter() {
 	ss << "HP" << std::string(8, ' ') << std::to_string(player.health) << "/100";
 	text.value = ss.str();
 
+	HealthBar& playerHPBar = registry.healthBars.get(entity);
+	Motion& playerHPMotion = registry.motions.get(playerHPBar.meshEntity);
+	playerHPMotion.scale.x = playerHPBar.width * player.health/100.f;
+
 	if(player.health <= 30.0f) {
 		vec4 red = {1.0f, 0.0f, 0.0f, 1.0f};
 		registry.colours.get(playerUI.hpMeshEntity) = red;
 		registry.colours.get(playerUI.hpFrameEntity) = red;
+		registry.colours.get(playerHPBar.meshEntity) = red;
+		registry.colours.get(playerHPBar.frameEntity) = red;
 	}
 	else if(player.health <= 60.0f) {
 		vec4 orange = {1.0f, 0.45f, 0.0f, 1.0f};
 		registry.colours.get(playerUI.hpMeshEntity) = orange;
 		registry.colours.get(playerUI.hpFrameEntity) = orange;
+		registry.colours.get(playerHPBar.meshEntity) = orange;
+		registry.colours.get(playerHPBar.frameEntity) = orange;
 	} else {
 		vec4 green = {0.0f, 1.0f, 0.0f, 1.0f};
 		registry.colours.get(playerUI.hpMeshEntity) = green;
 		registry.colours.get(playerUI.hpFrameEntity) = green;
+		registry.colours.get(playerHPBar.meshEntity) = green;
+		registry.colours.get(playerHPBar.frameEntity) = green;
 	}
 	
 	for (Entity entity : registry.enemies.entities) {
@@ -674,6 +684,7 @@ void updateHpBarMeter() {
 }
 
 void updateHpBarPosition() {
+	updateHpBarPositionHelper(registry.players.entities);
     updateHpBarPositionHelper(registry.enemies.entities);
 }
 

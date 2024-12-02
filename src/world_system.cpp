@@ -43,8 +43,10 @@ void WorldSystem::init(
     glfwSetWindowUserPointer(window, this);
     auto key_redirect = [](GLFWwindow* wnd, int _0, int _1, int _2, int _3) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_key(_0, _1, _2, _3); };
     auto cursor_pos_redirect = [](GLFWwindow* wnd, double _0, double _1) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse_move({ _0, _1 }); };
+    auto mouse_button_redirect = [](GLFWwindow* wnd, int button, int action, int mods) {((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse_button(button, action, mods); };
     glfwSetKeyCallback(window, key_redirect);
     glfwSetCursorPosCallback(window, cursor_pos_redirect);
+    glfwSetMouseButtonCallback(window, mouse_button_redirect);
     // Window focus callback
     auto focus_redirect = [](GLFWwindow* wnd, int focused) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_window_focus(focused); };
     glfwSetWindowFocusCallback(window, focus_redirect);
@@ -128,11 +130,16 @@ void WorldSystem::initText() {
     registry.fpsTracker.textEntity = createFPSText(camera->getSize());
     registry.gameTimer.reset();
     registry.gameTimer.textEntity = createGameTimerText(camera->getSize());
+
+    registry.inventory.reset();
+    std::unordered_map<INVENTORY_ITEM, Entity>& itemCountTextEntities = registry.inventory.itemCountTextEntities;
+    itemCountTextEntities[INVENTORY_ITEM::BOW] = createItemCountText(camera->getSize(), TEXTURE_ASSET_ID::BOW);
+    itemCountTextEntities[INVENTORY_ITEM::BOMB] = createItemCountText(camera->getSize(), TEXTURE_ASSET_ID::BOMB);
     trapsCounter.reset();
 
     // init trapsCounter with text
-	trapsCounter.trapsMap[DAMAGE_TRAP] = { 0, createTrapsCounterText(camera->getSize()) };
-	trapsCounter.trapsMap[PHANTOM_TRAP] = { 0, createPhantomTrapsCounterText(camera->getSize()) };
+	trapsCounter.trapsMap[DAMAGE_TRAP] = { 0, createItemCountText(camera->getSize(), TEXTURE_ASSET_ID::TRAPCOLLECTABLE) };
+	trapsCounter.trapsMap[PHANTOM_TRAP] = { 0, createItemCountText(camera->getSize(), TEXTURE_ASSET_ID::PHANTOM_TRAP_BOTTLE_ONE) };
 }
 
 void WorldSystem::reloadText() {
@@ -148,6 +155,24 @@ void WorldSystem::trackFPS(float elapsed_ms) {
     if(fpsTracker.elapsedTime == 0) {
         Text& text = registry.texts.get(fpsTracker.textEntity);
         text.value = std::to_string(fpsTracker.fps) + " fps";
+    }
+}
+
+void WorldSystem::updateInventoryItemText() {
+    Inventory& inventory = registry.inventory;
+    for (auto& item : inventory.itemCountTextEntities) {
+        if(registry.texts.has(item.second)) {
+            Text& text = registry.texts.get(item.second);
+            std::stringstream ss;
+            ss << std::setw(2) << std::setfill('0') << inventory.itemCounts[item.first];
+            text.value = "*" + ss.str();
+
+            if(inventory.itemCounts[item.first] == 0) {
+                registry.colours.get(item.second) = {0.8f, 0.8f, 0.0f, 1.0f};
+            } else {
+                registry.colours.get(item.second) = {1.0f, 1.0f, 1.0f, 1.0f};
+            }
+        }
     }
 }
 
@@ -272,6 +297,31 @@ void WorldSystem::updateCollectibleTutorial() {
         }
     }
 }
+void WorldSystem::updateEquippedPosition() {
+	Entity& playerE = registry.players.entities[0];
+	Motion& playerM = registry.motions.get(playerE);
+
+    if(registry.motions.has(registry.inventory.equippedEntity)) {
+        Motion& equippedM = registry.motions.get(registry.inventory.equippedEntity);
+        equippedM.position = playerM.position;
+
+        double mousePosX, mousePosY;
+        glfwGetCursorPos(window, &mousePosX, &mousePosY);
+        vec3 mouseWorldPos = renderer->mouseToWorld({mousePosX, mousePosY});
+
+        const float fixedDistance = abs(playerM.scale.x) / 2;
+
+        vec3 direction = mouseWorldPos - playerM.position;
+        vec3 normalizedDirection = normalize(direction);
+
+        equippedM.position = playerM.position + normalizedDirection * fixedDistance;
+
+        if(registry.inventory.equipped == INVENTORY_ITEM::BOW) {
+            float angle = atan2(direction.y, direction.x);
+            equippedM.angle = angle;
+        }
+    }
+}
 
 bool WorldSystem::step(float elapsed_ms)
 {
@@ -289,11 +339,14 @@ bool WorldSystem::step(float elapsed_ms)
     trackFPS(elapsed_ms);
     updateGameTimer(elapsed_ms);
     updateTrapsCounterText();
+    updateInventoryItemText();
     toggleMesh();
     accelerateFireballs(elapsed_ms);
     despawnTraps(elapsed_ms);
     updateCollectedTimer(elapsed_ms);
     resetTrappedEntities();
+    updateHomingProjectiles(elapsed_ms);
+    updateEquippedPosition();
     updateJeffLight(elapsed_ms);
 
     if (camera->isToggled()) {
@@ -430,13 +483,257 @@ void WorldSystem::resetTrappedEntities() {
     }
 }
 
+void WorldSystem::updateMouseTexturePosition(vec2 mouse_position) {
+    if(registry.foregrounds.has(gameStateController.mouseTextureEntity)) {
+        vec2 screenPos = renderer->mouseToScreen(mouse_position);
+        Foreground& fg = registry.foregrounds.get(gameStateController.mouseTextureEntity);
+        fg.position = screenPos;
+    }
+}
+
+void WorldSystem::equipItem(INVENTORY_ITEM item, bool wasCollected) {
+    Inventory& inventory = registry.inventory;
+
+    if(item == inventory.equipped || 
+    (wasCollected && inventory.equipped != INVENTORY_ITEM::NONE))
+    {
+        return;
+    }
+
+    if(inventory.itemCounts[item] > 0) {
+        unEquipItem(); // unequip current item
+
+        inventory.equipped = item;
+
+        // disable mouse cursor
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+
+        double mousePosX, mousePosY;
+        glfwGetCursorPos(window, &mousePosX, &mousePosY);
+        vec2 mousePos = renderer->mouseToScreen({mousePosX, mousePosY});
+
+        gameStateController.mouseTextureEntity = createMousePointer(mousePos);
+
+        switch (inventory.equipped)
+        {
+        case INVENTORY_ITEM::TRAP:
+            inventory.equippedEntity = createEquipped(TEXTURE_ASSET_ID::TRAPCOLLECTABLE);
+            break;
+        case INVENTORY_ITEM::BOW:
+            inventory.equippedEntity = createEquipped(TEXTURE_ASSET_ID::BOW);
+            break;
+        case INVENTORY_ITEM::PHANTOM_TRAP:
+            inventory.equippedEntity = createEquipped(TEXTURE_ASSET_ID::PHANTOM_TRAP_BOTTLE_ONE);
+            break;
+        case INVENTORY_ITEM::BOMB:
+            inventory.equippedEntity = createEquipped(TEXTURE_ASSET_ID::BOMB);
+            break;
+        default:
+            break;
+        }
+    }
+}
+
+void WorldSystem::unEquipItem() {
+    registry.inventory.equipped = INVENTORY_ITEM::NONE;
+    registry.remove_all_components_of(registry.inventory.equippedEntity);
+    registry.remove_all_components_of(gameStateController.mouseTextureEntity);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+}
+
 // Should the game be over ?
 bool WorldSystem::is_over() const {
     return bool(glfwWindowShouldClose(window));
 }
 
 void WorldSystem::on_mouse_move(vec2 mouse_position) {
+    updateMouseTexturePosition(mouse_position);
+}
 
+Entity WorldSystem::shootHomingArrow(Entity targetEntity, float angle) {
+    Motion& targetM = registry.motions.get(targetEntity);
+    Motion& playerM = registry.motions.get(registry.players.entities.at(0));
+
+    // get start position of the arrow
+    vec3 normalizedDirection = normalize(vec3(targetM.position) - vec3(playerM.position));
+    const float fixedDistance = abs(playerM.scale.x) / 2;
+    vec3 pos = playerM.position + normalizedDirection * fixedDistance;
+
+    Entity arrowE = createArrow(pos, vec3(0), PLAYER_ARROW_DAMAGE);
+    registry.motions.get(arrowE).angle = angle;
+    registry.homingProjectiles.emplace(arrowE, targetEntity).speed = HOMING_ARROW_SPEED;
+
+    return arrowE;
+}
+
+
+void WorldSystem::shootArrow(vec3 mouseWorldPos) {
+    vec3 playerPos = registry.motions.get(playerEntity).position;
+    Entity arrow;
+    float birdClicked = false;
+
+    for(Entity birdE : registry.birds.entities) {
+        if(registry.deathTimers.has(birdE)) {
+            continue;
+        }
+
+        Motion& birdM = registry.motions.get(birdE);
+
+        vec2 visualPos = worldToVisual(birdM.position);
+        vec2 worldPos = {visualPos.x, visualToWorldY(visualPos.y)};
+        vec2 birdBBTopLeft = {worldPos.x - BIRD_BB_WIDTH / 2, worldPos.y - BIRD_BB_HEIGHT / 2};
+        vec2 birdBBBottomRight = {worldPos.x + BIRD_BB_WIDTH / 2, worldPos.y + BIRD_BB_HEIGHT / 2};
+        // apply AABB
+        birdClicked = birdBBTopLeft.x < mouseWorldPos.x &&
+                    birdBBTopLeft.y < mouseWorldPos.y &&
+                    birdBBBottomRight.x > mouseWorldPos.x &&
+                    birdBBBottomRight.y > mouseWorldPos.y;
+        if(birdClicked) {
+            vec2 direction = mouseWorldPos - playerPos;
+            float angle = atan2(direction.y, direction.x);
+            arrow = shootHomingArrow(birdE, angle);
+            break;
+        }
+    }
+
+    if(!birdClicked) {
+        arrow = shootProjectile(mouseWorldPos, PROJECTILE_TYPE::ARROW);
+    }
+
+    // add damaging component to projectile
+    Damaging& damaging = registry.damagings.emplace(arrow);
+    damaging.excludedEntity = playerEntity;
+    damaging.damage = PLAYER_ARROW_DAMAGE;
+}
+
+Entity WorldSystem::shootProjectile(vec3 targetPos, PROJECTILE_TYPE type) {
+    const float ANGLE = M_PI / 4;
+    const float MAX_VELOCITY = 10;
+    vec2 projectileSize = getProjectileInfo(type).size;
+
+    Motion& motion = registry.motions.get(registry.players.entities.at(0));
+
+    // get start position of the projectile
+    vec2 horizontal_direction = normalize(vec2(targetPos) - vec2(motion.position));
+    const float maxProjectileDimension = max(projectileSize.x, projectileSize.y);
+    vec3 pos = motion.position;
+    if (abs(horizontal_direction.x) > abs(horizontal_direction.y)) {
+        pos.x += (horizontal_direction.x > 0 ? 1 : -1) * (motion.hitbox.x / 2 + maxProjectileDimension);
+    } else {
+        pos.y += (horizontal_direction.y > 0 ? 1 : -1) * (motion.hitbox.y / 2 + maxProjectileDimension);
+    }
+    pos.z += motion.hitbox.z / 2 + maxProjectileDimension;
+    horizontal_direction = normalize(vec2(targetPos) - vec2(pos));
+
+    float horizontal_distance = distance(vec2(pos), vec2(targetPos));
+    float vertical_distance = targetPos.z - pos.z;
+
+    // prevent trying to shoot above what's possible
+    if (vertical_distance >= horizontal_distance)
+        vertical_distance = horizontal_distance - 1;
+
+    float horizontal_velocity, vertical_velocity;
+
+    // apply bounce logic if the type is a bomb
+    if (type == PROJECTILE_TYPE::BOMB_FUSED) {
+        float post_bounce_distance = horizontal_distance / (1 + BOUNCE_FACTOR);
+        float pre_bounce_distance = horizontal_distance - post_bounce_distance;
+
+        horizontal_velocity = sqrt(-GRAVITATIONAL_CONSTANT * pre_bounce_distance / 
+                                   (tan(ANGLE) * (vertical_distance / pre_bounce_distance - tan(ANGLE))));
+
+        // prevent crazy speeds
+        if (horizontal_velocity > MAX_VELOCITY)
+            horizontal_velocity = MAX_VELOCITY;
+
+        vertical_velocity = horizontal_velocity * tan(ANGLE);
+    } else {
+        float velocity = horizontal_distance * sqrt(-GRAVITATIONAL_CONSTANT / (vertical_distance - horizontal_distance));
+
+        // prevent crazy speeds
+        if (velocity > MAX_VELOCITY)
+            velocity = MAX_VELOCITY;
+
+        horizontal_velocity = velocity * cos(ANGLE);
+        vertical_velocity = velocity * sin(ANGLE);
+    }
+
+    vec2 horizontal_velocity_vector = horizontal_velocity * horizontal_direction;
+
+    Entity projectile = createProjectile(pos, vec3(horizontal_velocity_vector, vertical_velocity), type);
+
+    if (type == PROJECTILE_TYPE::TRAP || type == PROJECTILE_TYPE::PHANTOM_TRAP) {
+        registry.projectiles.get(projectile).sticksInGround = 0;
+    } else if (type == PROJECTILE_TYPE::BOMB_FUSED) {
+        registry.projectiles.get(projectile).sticksInGround = 500;
+    }
+
+    return projectile;
+}
+
+
+void WorldSystem::leftMouseClickAction(vec3 mouseWorldPos) {
+    Inventory& inventory = registry.inventory;
+    switch(inventory.equipped) {
+        case INVENTORY_ITEM::BOW:
+            shootArrow(mouseWorldPos);
+            inventory.itemCounts[INVENTORY_ITEM::BOW]--;
+            break;
+        case INVENTORY_ITEM::TRAP:
+            shootProjectile(mouseWorldPos, PROJECTILE_TYPE::TRAP);
+            inventory.itemCounts[INVENTORY_ITEM::TRAP]--;
+            trapsCounter.trapsMap[DAMAGE_TRAP].first = inventory.itemCounts[INVENTORY_ITEM::TRAP];
+            break;
+        case INVENTORY_ITEM::PHANTOM_TRAP:
+            shootProjectile(mouseWorldPos, PROJECTILE_TYPE::PHANTOM_TRAP);
+            inventory.itemCounts[INVENTORY_ITEM::PHANTOM_TRAP]--;
+            trapsCounter.trapsMap[PHANTOM_TRAP].first = inventory.itemCounts[INVENTORY_ITEM::PHANTOM_TRAP];
+            break;
+        case INVENTORY_ITEM::BOMB: {
+            Entity bomb = shootProjectile(mouseWorldPos, PROJECTILE_TYPE::BOMB_FUSED);
+            registry.bombs.emplace(bomb);
+            inventory.itemCounts[INVENTORY_ITEM::BOMB]--;
+        }
+            break;
+        default:
+            return;
+    }
+
+    if(inventory.equipped != INVENTORY_ITEM::BOW) {
+        sound->playSoundEffect(Sound::WOOSH, 0);
+    } else {
+        sound->playSoundEffect(Sound::ARROW, 0);
+    }
+
+    if(inventory.itemCounts[inventory.equipped] == 0) {
+        unEquipItem();
+    } else if(registry.animationControllers.has(inventory.equippedEntity)) {
+        if(inventory.equipped == INVENTORY_ITEM::BOW) {
+            Entity entity = registry.inventory.equippedEntity;
+            AnimationController& ac = registry.animationControllers.get(entity);
+            ac.changeState(entity, AnimationState::Attack);
+        }
+    }
+}
+
+void WorldSystem::on_mouse_button(int button, int action, int mod) {
+    if (action == GLFW_PRESS) {
+        switch (button) {
+        case GLFW_MOUSE_BUTTON_LEFT: {
+            double xpos, ypos;
+            glfwGetCursorPos(window, &xpos, &ypos); // get the current cursor position
+            vec3 mouseWorldPos = renderer->mouseToWorld({xpos, ypos});
+            leftMouseClickAction(mouseWorldPos);
+        }
+        break;
+        case GLFW_MOUSE_BUTTON_RIGHT: {
+            if(registry.inventory.equipped != INVENTORY_ITEM::NONE) {
+                unEquipItem();
+            }
+        }
+        break;
+        }
+    }
 }
 
 void WorldSystem::on_key(int key, int, int action, int mod)
@@ -664,18 +961,18 @@ void WorldSystem::playingControls(int key, int action, int mod)
                 sound->playSoundEffect(Sound::DASHING, 0);
             }
             break;
-        case GLFW_KEY_E:
-            place_trap(player_comp, player_motion, true, DAMAGE_TRAP);
+        case GLFW_KEY_1:
+            equipItem(INVENTORY_ITEM::TRAP);
             break;
-        case GLFW_KEY_Q:
-            place_trap(player_comp, player_motion, false, DAMAGE_TRAP);
+        case GLFW_KEY_2:
+            equipItem(INVENTORY_ITEM::PHANTOM_TRAP);
             break;
-		case GLFW_KEY_L:
-			place_trap(player_comp, player_motion, true, PHANTOM_TRAP);
-			break;
-		case GLFW_KEY_K:
-			place_trap(player_comp, player_motion, false, PHANTOM_TRAP);
-			break;
+        case GLFW_KEY_3:
+            equipItem(INVENTORY_ITEM::BOW);
+            break;
+        case GLFW_KEY_4:
+            equipItem(INVENTORY_ITEM::BOMB);
+            break;
         case GLFW_KEY_H:
             gameStateController.setGameState(GAME_STATE::HELP);
             break;
@@ -691,7 +988,7 @@ void WorldSystem::gameOverControls(int key, int action, int mod)
 {
     if (action == GLFW_PRESS) {
         switch (key) {
-        case GLFW_KEY_ENTER:
+        case GLFW_KEY_R:
             restart_game();
             break;
         case GLFW_KEY_Q:
@@ -880,8 +1177,13 @@ void WorldSystem::handle_deaths(float elapsed_ms) {
         DeathTimer& deathTimer = registry.deathTimers.get(deathEntity);
         deathTimer.timer -= elapsed_ms;
         if (deathTimer.timer < 0) {
-            // Remove
-            if (registry.motions.has(deathEntity)) {
+            if(registry.archers.has(deathEntity)) {
+                createCollectible(registry.motions.get(deathEntity).position, TEXTURE_ASSET_ID::BOW);
+            }
+            else if(registry.bombers.has(deathEntity)) {
+                createCollectible(registry.motions.get(deathEntity).position, TEXTURE_ASSET_ID::BOMB);
+            }
+            else if (registry.motions.has(deathEntity)) {
                 Motion& motion = registry.motions.get(deathEntity);
                 createHeart({ motion.position.x, motion.position.y });
             }
@@ -994,12 +1296,16 @@ void WorldSystem::entity_collectible_collision(Entity entity, Entity entity_othe
     if (registry.collectibleTraps.has(entity_other)) {
 		CollectibleTrap& collectibleTrap = registry.collectibleTraps.get(entity_other);
         if (collectibleTrap.type == DAMAGE_TRAP) {
-			trapsCounter.trapsMap[DAMAGE_TRAP].first++;
+            registry.inventory.itemCounts[INVENTORY_ITEM::TRAP]++;
+			trapsCounter.trapsMap[DAMAGE_TRAP].first = registry.inventory.itemCounts[INVENTORY_ITEM::TRAP];
 			createCollected(playerM, collectibleM.scale, TEXTURE_ASSET_ID::TRAPCOLLECTABLE);
+            equipItem(INVENTORY_ITEM::TRAP, true);
 		}
         else if (collectibleTrap.type == PHANTOM_TRAP) {
-            trapsCounter.trapsMap[PHANTOM_TRAP].first++;
+            registry.inventory.itemCounts[INVENTORY_ITEM::PHANTOM_TRAP]++;
+            trapsCounter.trapsMap[PHANTOM_TRAP].first = registry.inventory.itemCounts[INVENTORY_ITEM::PHANTOM_TRAP];
             createCollected(playerM, collectibleM.scale, TEXTURE_ASSET_ID::PHANTOM_TRAP_BOTTLE_ONE);
+            equipItem(INVENTORY_ITEM::PHANTOM_TRAP, true);
         }
     }
     else if (registry.hearts.has(entity_other)) {
@@ -1008,6 +1314,18 @@ void WorldSystem::entity_collectible_collision(Entity entity, Entity entity_othe
         player.health += addOn;
         createCollected(playerM, collectibleM.scale, TEXTURE_ASSET_ID::HEART);
 		printf("Player collected a heart\n");
+	}
+    else if (registry.bows.has(entity_other)) {
+        registry.inventory.itemCounts[INVENTORY_ITEM::BOW] += 5;
+        std::cout << "Player collected a bow. Bow count is now " << registry.inventory.itemCounts[INVENTORY_ITEM::BOW] << std::endl;
+        createCollected(playerM, collectibleM.scale, TEXTURE_ASSET_ID::BOW);
+        equipItem(INVENTORY_ITEM::BOW, true);
+		printf("Player collected a bow\n");
+	}
+    else if (registry.collectibleBombs.has(entity_other)) {
+        registry.inventory.itemCounts[INVENTORY_ITEM::BOMB] += 3;
+        createCollected(playerM, collectibleM.scale, TEXTURE_ASSET_ID::BOMB);
+        equipItem(INVENTORY_ITEM::BOMB, true);
 	}
 	else {
 		printf("Unknown collectible type\n");
@@ -1045,6 +1363,10 @@ void WorldSystem::entity_damaging_collision(Entity entity, Entity entity_other, 
     }
 
     if (registry.players.has(entity)) {
+        // prevent player taking damage from own damaging object
+        if(registry.players.has(damaging.excludedEntity)) {
+            return;
+        }
         // reduce player health
         Player& player = registry.players.get(entity);
         int new_health = player.health - damaging.damage;
@@ -1213,13 +1535,15 @@ void WorldSystem::setCollisionCooldown(Entity damager, Entity victim)
 void WorldSystem::despawn_collectibles(float elapsed_ms) {
 	for (auto& collectibleEntity : registry.collectibles.entities) {
 		Collectible& collectible = registry.collectibles.get(collectibleEntity);
-		collectible.timer -= elapsed_ms;
+		collectible.timer += elapsed_ms;
 
-        if (collectible.timer < 0) {
+        if (collectible.timer >= collectible.duration) {
 			registry.remove_all_components_of(collectibleEntity);
-		} else if(collectible.timer <= collectible.duration / 2) {
+		} else if(collectible.timer >= collectible.duration / 2) {
             AnimationController& animatedCollectible = registry.animationControllers.get(collectibleEntity);
-            animatedCollectible.changeState(collectibleEntity, AnimationState::Fading);
+            if(animatedCollectible.currentState != AnimationState::Fading) {
+                animatedCollectible.changeState(collectibleEntity, AnimationState::Fading);
+            }
         }
 	}
 }
@@ -1260,26 +1584,7 @@ void WorldSystem::checkAndHandlePlayerDeath(Entity& entity) {
 	}
 }
 
-void WorldSystem::place_trap(Player& player, Motion& motion, bool forward, std::string type) {
-    // Player position
-    vec2 playerPos = motion.position;
-    // Place trap based on player direction
-    vec2 gap = { 0.0f, 0.0f };
-    if (forward) {
-        gap.x = (abs(motion.scale.x) / 2 + 70.f);
-    }
-    else {
-        gap.x = -(abs(motion.scale.x) / 2 + 70.f);
-    }
-
-    // Cannot place trap beyond the map
-    if (playerPos.x + gap.x < 0 || playerPos.x + gap.x > world_size_x) {
-        printf("Cannot place trap beyond the map\n");
-        return;
-    }
-
-    vec2 trapPos = playerPos + gap;
-
+void WorldSystem::place_trap(vec3 trapPos, std::string type) {
 	if (type == DAMAGE_TRAP) {
 		int trapCount = trapsCounter.trapsMap[DAMAGE_TRAP].first;
 		if (trapCount == 0) {
@@ -1416,6 +1721,32 @@ void WorldSystem::accelerateFireballs(float elapsed_ms) {
             fireballMotion.velocity.x += (direction.x) * FIREBALL_ACCELERATION * (elapsed_ms / 1000);
             fireballMotion.velocity.y += (direction.y) * FIREBALL_ACCELERATION * (elapsed_ms / 1000);
         }
+    }
+}
+
+void WorldSystem::updateHomingProjectiles(float elapsed_ms) {
+    for (Entity entity : registry.homingProjectiles.entities) {
+        HomingProjectile& projectile = registry.homingProjectiles.get(entity);
+        Motion& projectileM = registry.motions.get(entity);
+
+        // check if target entity still exists
+        if(!registry.motions.has(projectile.targetEntity)) {
+            registry.remove_all_components_of(entity);
+            continue;
+        }
+
+        Motion& targetM = registry.motions.get(projectile.targetEntity);
+
+        // calculate direction towards target
+        vec3 targetPos = targetM.position; 
+        vec3 arrowPos = projectileM.position;   
+        vec3 direction = targetPos - arrowPos;
+        direction = normalize(direction);
+
+        // set the arrow's velocity towards the target 
+        projectileM.velocity.x = direction.x * projectile.speed;
+        projectileM.velocity.y = direction.y * projectile.speed;
+        projectileM.velocity.z = direction.z * projectile.speed;
     }
 }
 

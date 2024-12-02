@@ -92,7 +92,9 @@ void WorldSystem::restart_game()
 }
 
 void WorldSystem::load_game() {
-    saveManager->load_game();
+    if (!saveManager->load_game()) {
+		return;
+    }
     saveManager->loadTrapsCounter(trapsCounter.trapsMap);
     // set up texts in foreground
     reloadText();

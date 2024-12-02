@@ -259,7 +259,7 @@ Entity createBomber(vec2 pos)
 	initBomberAnimationController(entity);
 	registry.midgrounds.emplace(entity);
 
-	createHealthBar(entity, vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	createHealthBar(entity);
 
 	registry.knockables.emplace(entity);
 	auto& trappable = registry.trappables.emplace(entity);

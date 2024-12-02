@@ -132,6 +132,15 @@ void SpawnManager::spawnCollectible(std::string collectible, float elapsed_ms) {
     }
 }
 
+void SpawnManager::resetSpawnSystem() {
+    currentEnemyIdx = 0;
+    initialSpawnTime = 0.f;
+    for (auto& entity_spawn : next_spawn) {
+        entity_spawn.second = spawn_delays.at(entity_spawn.first);
+    }
+}
+
+
 void SpawnManager::step(float elapsed_ms) {
     if (!hasAllEnemiesSpawned()) {
         initialSpawn(elapsed_ms);

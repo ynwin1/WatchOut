@@ -52,8 +52,8 @@ private:
 		{"wizard", 20000.0f},
 		{"troll", 30000.0f},
 		{"bomber", 20000.0f},
-		{"heart", 0.0f},
-		{"collectible_trap", 0.0f}
+		{"heart", 5000.0f},
+		{"collectible_trap",5000.0f}
 	};
 
 	// By how many entities to increase at spawn delay
@@ -95,16 +95,16 @@ private:
 	};
 
 	vec2 get_spawn_location(const std::string& entity_type);
-
 	bool hasAllEnemiesSpawned();
 
 	void initialSpawn(float elapsed_ms);
-
 	void inGameSpawn(float elapsed_ms);
 
 	void spawnEnemies(float elapsed_ms);
 	void spawnCollectibles(float elapsed_ms);
 	void spawnCollectible(std::string collectible, float elapsed_ms);
+
+	void resetSpawnSystem();
 
 	// C++ random number generator
 	std::default_random_engine rng;

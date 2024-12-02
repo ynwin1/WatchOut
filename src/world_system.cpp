@@ -5,6 +5,8 @@
 #include "sound_system.hpp"
 #include "game_state_controller.hpp"
 #include "game_save_manager.hpp"
+#include "spawn_manager.hpp"
+
 #include <iostream>
 #include <iomanip> 
 #include <sstream>
@@ -25,7 +27,8 @@ void WorldSystem::init(
     AISystem* ai, 
     SoundSystem* sound, 
     GameSaveManager* saveManager, 
-    ParticleSystem* particles)
+    ParticleSystem* particles,
+    SpawnManager* spawnManager)
 {
     
     this->renderer = renderer;
@@ -36,6 +39,7 @@ void WorldSystem::init(
 	this->sound = sound;
 	this->saveManager = saveManager;
     this->particles = particles;
+	this->spawnManager = spawnManager;
 
     // Setting callbacks to member functions (that's why the redirect is needed)
     // Input is handled using GLFW, for more info see

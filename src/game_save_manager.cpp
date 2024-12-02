@@ -10,6 +10,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <fstream>
 
 void GameSaveManager::init(RenderSystem* renderer, GLFWwindow* window, Camera* camera) {
 	this->renderer = renderer;
@@ -546,11 +547,27 @@ For example, the player JEFF has a unique component called "player". This info i
 */
 
 // Load the game state from a JSON file
-void GameSaveManager::load_game() {
+bool GameSaveManager::load_game() {
 	std::ifstream file(gameSaveFilePath);
 	if (file.is_open()) {
+		// check if file is empty
+		file.seekg(0, std::ios::end);
+		if (file.tellg() == 0) {
+			std::cout << "File is empty" << std::endl;
+			file.close();
+			return false;
+		}
+		file.seekg(0);
+
 		json j;
-		file >> j;
+		try {
+			file >> j;
+		}
+		catch (json::parse_error& e) {
+			std::cout << "Error parsing JSON: " << e.what() << std::endl;
+			file.close();
+			return false;
+		}
 		file.close();
 
 		registry.clear_all_components();
@@ -561,7 +578,10 @@ void GameSaveManager::load_game() {
 	}
 	else {
 		std::cout << "Unable to open file to load game" << std::endl;
+		return false;
 	}
+
+	return true;
 }
 
 // Group all components that belong to the same entity

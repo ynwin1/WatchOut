@@ -957,7 +957,7 @@ void WorldSystem::playingControls(int key, int action, int mod)
   
     if (action == GLFW_PRESS) {
         switch (key) {
-        case GLFW_KEY_X:
+        case GLFW_KEY_C:
             if (player_stamina.stamina > DASH_STAMINA) {
                 const float dashDistance = 300;
                 // Start dashing if player is moving
@@ -1015,7 +1015,7 @@ void WorldSystem::allStateControls(int key, int action, int mod)
     if (action == GLFW_PRESS) {
         switch (key) {
 #ifndef NDEBUG
-        case GLFW_KEY_C:
+        case GLFW_KEY_X:
             // toggle camera on/off for debugging/testing
             camera->toggle();
             break;

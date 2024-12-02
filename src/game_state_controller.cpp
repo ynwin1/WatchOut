@@ -30,7 +30,9 @@ void GameStateController::onExitState(GAME_STATE oldState) {
         oldState == GAME_STATE::BOMBER_TUTORIAL) {
         world->exitEnemyTutorial();
     }
-    if (oldState == GAME_STATE::HEART_TUTORIAL || oldState == GAME_STATE::TRAP_TUTORIAL || oldState == GAME_STATE::PHANTOM_TRAP_TUTORIAL) {
+    if (oldState == GAME_STATE::HEART_TUTORIAL || oldState == GAME_STATE::TRAP_TUTORIAL || 
+        oldState == GAME_STATE::PHANTOM_TRAP_TUTORIAL || oldState == GAME_STATE::BOW_TUTORIAL ||
+        oldState == GAME_STATE::BOMB_TUTORIAL) {
         world->exitCollectibleTutorial();
     }
     if (oldState == GAME_STATE::PAUSED) {
@@ -97,6 +99,14 @@ void GameStateController::beforeEnterState(GAME_STATE newState) {
     }
     if (newState == GAME_STATE::PHANTOM_TRAP_TUTORIAL) {
         world->createPhantomTrapTutorial(world->camera->getSize());
+        return;
+    }
+    if (newState == GAME_STATE::BOW_TUTORIAL) {
+        world->createBowTutorial(world->camera->getSize());
+        return;
+    }
+    if (newState == GAME_STATE::BOMB_TUTORIAL) {
+        world->createBombTutorial(world->camera->getSize());
         return;
     }
     return;

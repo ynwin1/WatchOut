@@ -92,6 +92,8 @@ class RenderSystem {
 		textures_path("collectible_intros/heart.png"),// HEART INTRO
 		textures_path("collectible_intros/trap.png"), // TRAP INTRO
 		textures_path("collectible_intros/phantom_trap.png"), // PHANTOM TRAP INTRO
+		textures_path("collectible_intros/bow.png"), // BOW INTRO
+		textures_path("collectible_intros/bomb.png"), // BOMB INTRO
 		textures_path("bird/bird_fly.png"),			  	      // BIRD FLY
 		textures_path("bird/bird_swoop.png"),		          // BIRD SWOOP
 		textures_path("bird/bird_dead.png"),		          // BIRD DEAD

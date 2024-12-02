@@ -175,12 +175,12 @@ private:
 	void updateTutorial(float elapsed_ms);
 	void updateEnemyTutorial();
 	void updateCollectibleTutorial();
-	void updateLightPosition();
 	void updateHomingProjectiles(float elapsed_ms);
 	void updateEquippedPosition();
 	void updateMouseTexturePosition(vec2 mousePos);
 	void equipItem(INVENTORY_ITEM item, bool wasCollected = false);
 	void unEquipItem();
+	INVENTORY_ITEM getNextInventoryItem(INVENTORY_ITEM currentItem);
 
 	void updateJeffLight(float elapsed_ms);
 

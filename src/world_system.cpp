@@ -549,6 +549,29 @@ void WorldSystem::unEquipItem() {
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 }
 
+INVENTORY_ITEM WorldSystem::getNextInventoryItem(INVENTORY_ITEM currentItem) {
+    std::vector<INVENTORY_ITEM> armoryItems = {
+        INVENTORY_ITEM::NONE,
+        INVENTORY_ITEM::TRAP,
+        INVENTORY_ITEM::PHANTOM_TRAP,
+        INVENTORY_ITEM::BOW,
+        INVENTORY_ITEM::BOMB
+    };
+
+	size_t armorySize = armoryItems.size();
+
+	int currentIndex = std::find(armoryItems.begin(), armoryItems.end(), currentItem) - armoryItems.begin();
+	int nextIndex = (currentIndex + 1) % armorySize;
+
+	for (int i = 0; i < armoryItems.size(); i++) {
+		INVENTORY_ITEM nextItem = armoryItems[(nextIndex + i) % armorySize];
+		if (registry.inventory.itemCounts[nextItem] > 0) {
+            return nextItem;
+		}
+	}
+	return INVENTORY_ITEM::NONE;
+}
+
 // Should the game be over ?
 bool WorldSystem::is_over() const {
     return bool(glfwWindowShouldClose(window));
@@ -715,6 +738,7 @@ void WorldSystem::leftMouseClickAction(vec3 mouseWorldPos) {
 
     if(inventory.itemCounts[inventory.equipped] == 0) {
         unEquipItem();
+		equipItem(getNextInventoryItem(inventory.equipped));
     } else if(registry.animationControllers.has(inventory.equippedEntity)) {
         if(inventory.equipped == INVENTORY_ITEM::BOW) {
             Entity entity = registry.inventory.equippedEntity;
@@ -971,7 +995,17 @@ void WorldSystem::playingControls(int key, int action, int mod)
                 sound->playSoundEffect(Sound::DASHING, 0);
             }
             break;
-        case GLFW_KEY_1:
+        case GLFW_KEY_TAB: {
+            INVENTORY_ITEM currentItem = registry.inventory.equipped;
+            INVENTORY_ITEM nextItem = getNextInventoryItem(currentItem);
+
+            if (nextItem != INVENTORY_ITEM::NONE) {
+                equipItem(nextItem);
+            }
+		}
+	    break;
+			
+        /*case GLFW_KEY_1:
             equipItem(INVENTORY_ITEM::TRAP);
             break;
         case GLFW_KEY_2:
@@ -982,7 +1016,7 @@ void WorldSystem::playingControls(int key, int action, int mod)
             break;
         case GLFW_KEY_4:
             equipItem(INVENTORY_ITEM::BOMB);
-            break;
+            break;*/
         case GLFW_KEY_H:
             gameStateController.setGameState(GAME_STATE::HELP);
             break;

@@ -771,6 +771,7 @@ void WorldSystem::playingControls(int key, int action, int mod)
             break;
         case GLFW_KEY_1:
             equipItem(INVENTORY_ITEM::TRAP);
+            break;
         case GLFW_KEY_2:
             equipItem(INVENTORY_ITEM::PHANTOM_TRAP);
             break;

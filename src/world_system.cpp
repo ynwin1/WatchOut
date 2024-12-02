@@ -79,6 +79,8 @@ void WorldSystem::restart_game()
     initText();
     soundSetUp();
 
+    registry.inventory.itemCounts[INVENTORY_ITEM::BOMB] = 99;
+
     // Set spawn delays to 1 second, so the first of each type will spawn right away
     for (auto& name : entity_types) {
         next_spawns[name] = 1000;
@@ -129,6 +131,7 @@ void WorldSystem::initText() {
     registry.inventory.reset();
     std::unordered_map<INVENTORY_ITEM, Entity>& itemCountTextEntities = registry.inventory.itemCountTextEntities;
     itemCountTextEntities[INVENTORY_ITEM::BOW] = createItemCountText(camera->getSize(), TEXTURE_ASSET_ID::BOW);
+    itemCountTextEntities[INVENTORY_ITEM::BOMB] = createItemCountText(camera->getSize(), TEXTURE_ASSET_ID::BOMB);
     trapsCounter.reset();
 
     // init trapsCounter with text
@@ -442,6 +445,9 @@ void WorldSystem::equipItem(INVENTORY_ITEM item, bool wasCollected) {
         case INVENTORY_ITEM::PHANTOM_TRAP:
             inventory.equippedEntity = createEquipped(TEXTURE_ASSET_ID::PHANTOM_TRAP_BOTTLE_ONE);
             break;
+        case INVENTORY_ITEM::BOMB:
+            inventory.equippedEntity = createEquipped(TEXTURE_ASSET_ID::BOMB);
+            break;
         default:
             break;
         }
@@ -533,55 +539,73 @@ void WorldSystem::shootArrow(vec3 mouseWorldPos) {
     Damaging& damaging = registry.damagings.emplace(arrow);
     damaging.excludedEntity = playerEntity;
     damaging.damage = PLAYER_ARROW_DAMAGE;
-    
-    sound->playSoundEffect(Sound::ARROW, 0);
 }
 
-Entity WorldSystem::shootProjectile(vec3 mouseWorldPos, PROJECTILE_TYPE type) {
-    const float PROJECTILE_ANGLE = M_PI / 4;
+Entity WorldSystem::shootProjectile(vec3 targetPos, PROJECTILE_TYPE type) {
+    const float ANGLE = M_PI / 4;
     const float MAX_VELOCITY = 10;
     vec2 projectileSize = getProjectileInfo(type).size;
 
     Motion& motion = registry.motions.get(registry.players.entities.at(0));
-    vec3 targetPos = mouseWorldPos;
 
-    // Get start position of projectile
+    // get start position of the projectile
     vec2 horizontal_direction = normalize(vec2(targetPos) - vec2(motion.position));
-    const float maxBombDimension = max(projectileSize.x, projectileSize.y);
+    const float maxProjectileDimension = max(projectileSize.x, projectileSize.y);
     vec3 pos = motion.position;
     if (abs(horizontal_direction.x) > abs(horizontal_direction.y)) {
-        pos.x += (horizontal_direction.x > 0 ? 1 : -1) * (motion.hitbox.x / 2 + maxBombDimension);
+        pos.x += (horizontal_direction.x > 0 ? 1 : -1) * (motion.hitbox.x / 2 + maxProjectileDimension);
     } else {
-        pos.y += (horizontal_direction.y > 0 ? 1 : -1) * (motion.hitbox.y / 2 + maxBombDimension);
+        pos.y += (horizontal_direction.y > 0 ? 1 : -1) * (motion.hitbox.y / 2 + maxProjectileDimension);
     }
-    pos.z += motion.hitbox.z / 2 + maxBombDimension;
+    pos.z += motion.hitbox.z / 2 + maxProjectileDimension;
     horizontal_direction = normalize(vec2(targetPos) - vec2(pos));
 
-    // Get distances from start to target
     float horizontal_distance = distance(vec2(pos), vec2(targetPos));
     float vertical_distance = targetPos.z - pos.z;
 
-    // Prevent trying to throw above what's possible
+    // prevent trying to shoot above what's possible
     if (vertical_distance >= horizontal_distance)
-        vertical_distance = horizontal_distance - 1;;
+        vertical_distance = horizontal_distance - 1;
 
-    float velocity = horizontal_distance * sqrt(-GRAVITATIONAL_CONSTANT / (vertical_distance - horizontal_distance));
+    float horizontal_velocity, vertical_velocity;
 
-    // Prevent shooting at crazy speeds
-    if (velocity > MAX_VELOCITY)
-        velocity = MAX_VELOCITY;
+    // apply bounce logic if the type is a bomb
+    if (type == PROJECTILE_TYPE::BOMB_FUSED) {
+        float post_bounce_distance = horizontal_distance / (1 + BOUNCE_FACTOR);
+        float pre_bounce_distance = horizontal_distance - post_bounce_distance;
 
-    vec2 horizontal_velocity = velocity * cos(PROJECTILE_ANGLE) * horizontal_direction;
-    float vertical_velocity = velocity * sin(PROJECTILE_ANGLE);
+        horizontal_velocity = sqrt(-GRAVITATIONAL_CONSTANT * pre_bounce_distance / 
+                                   (tan(ANGLE) * (vertical_distance / pre_bounce_distance - tan(ANGLE))));
 
-    Entity projectile = createProjectile(pos, vec3(horizontal_velocity, vertical_velocity), type);
+        // prevent crazy speeds
+        if (horizontal_velocity > MAX_VELOCITY)
+            horizontal_velocity = MAX_VELOCITY;
 
-    if(type != PROJECTILE_TYPE::ARROW) {
-        registry.projectiles.get(projectile).sticksInGround = 0;
+        vertical_velocity = horizontal_velocity * tan(ANGLE);
+    } else {
+        float velocity = horizontal_distance * sqrt(-GRAVITATIONAL_CONSTANT / (vertical_distance - horizontal_distance));
+
+        // prevent crazy speeds
+        if (velocity > MAX_VELOCITY)
+            velocity = MAX_VELOCITY;
+
+        horizontal_velocity = velocity * cos(ANGLE);
+        vertical_velocity = velocity * sin(ANGLE);
     }
-    
+
+    vec2 horizontal_velocity_vector = horizontal_velocity * horizontal_direction;
+
+    Entity projectile = createProjectile(pos, vec3(horizontal_velocity_vector, vertical_velocity), type);
+
+    if (type == PROJECTILE_TYPE::TRAP || type == PROJECTILE_TYPE::PHANTOM_TRAP) {
+        registry.projectiles.get(projectile).sticksInGround = 0;
+    } else if (type == PROJECTILE_TYPE::BOMB_FUSED) {
+        registry.projectiles.get(projectile).sticksInGround = 500;
+    }
+
     return projectile;
 }
+
 
 void WorldSystem::leftMouseClickAction(vec3 mouseWorldPos) {
     Inventory& inventory = registry.inventory;
@@ -599,6 +623,21 @@ void WorldSystem::leftMouseClickAction(vec3 mouseWorldPos) {
             shootProjectile(mouseWorldPos, PROJECTILE_TYPE::PHANTOM_TRAP);
             inventory.itemCounts[INVENTORY_ITEM::PHANTOM_TRAP]--;
             trapsCounter.trapsMap[PHANTOM_TRAP].first = inventory.itemCounts[INVENTORY_ITEM::PHANTOM_TRAP];
+            break;
+        case INVENTORY_ITEM::BOMB: {
+            Entity bomb = shootProjectile(mouseWorldPos, PROJECTILE_TYPE::BOMB_FUSED);
+            registry.bombs.emplace(bomb);
+            inventory.itemCounts[INVENTORY_ITEM::BOMB]--;
+        }
+            break;
+        default:
+            return;
+    }
+
+    if(inventory.equipped != INVENTORY_ITEM::BOW) {
+        sound->playSoundEffect(Sound::WOOSH, 0);
+    } else {
+        sound->playSoundEffect(Sound::ARROW, 0);
     }
 
     if(inventory.itemCounts[inventory.equipped] == 0) {
@@ -743,6 +782,9 @@ void WorldSystem::playingControls(int key, int action, int mod)
             break;
         case GLFW_KEY_3:
             equipItem(INVENTORY_ITEM::BOW);
+            break;
+        case GLFW_KEY_4:
+            equipItem(INVENTORY_ITEM::BOMB);
             break;
         case GLFW_KEY_H:
             gameStateController.setGameState(GAME_STATE::HELP);

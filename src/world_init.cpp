@@ -571,15 +571,15 @@ Entity createBomb(vec3 pos, vec3 velocity)
 	Motion& motion = registry.motions.emplace(entity);
 	motion.position = pos;
 	motion.velocity = velocity;
-	motion.scale = { BOMB_BB_WIDTH, BOMB_BB_HEIGHT };
-	motion.hitbox = { BOMB_BB_WIDTH, BOMB_BB_HEIGHT, BOMB_BB_HEIGHT / zConversionFactor };
+	motion.scale = { BOMB_FUSED_BB_WIDTH, BOMB_FUSED_BB_HEIGHT };
+	motion.hitbox = { BOMB_FUSED_BB_WIDTH, BOMB_FUSED_BB_HEIGHT, BOMB_BB_HEIGHT / zConversionFactor };
 	motion.solid = true;
 	
 	Projectile& proj = registry.projectiles.emplace(entity);
 	proj.sticksInGround = 1000;
+	proj.type == PROJECTILE_TYPE::BOMB_FUSED;
 
-	Bomb& bomb = registry.bombs.emplace(entity);
-	bomb.numBounces = 1;
+	registry.bombs.emplace(entity);
 
 	Damaging& damaging = registry.damagings.emplace(entity);
 	damaging.damage = 2;
@@ -588,7 +588,7 @@ Entity createBomb(vec3 pos, vec3 velocity)
 	registry.renderRequests.insert(
 		entity,
 		{
-			TEXTURE_ASSET_ID::BOMB,
+			TEXTURE_ASSET_ID::BOMB_FUSED,
 			EFFECT_ASSET_ID::TEXTURED,
 			GEOMETRY_BUFFER_ID::SPRITE
 		});
@@ -627,10 +627,14 @@ Entity createEquipped(TEXTURE_ASSET_ID assetId) {
 		case TEXTURE_ASSET_ID::PHANTOM_TRAP_BOTTLE_ONE:
 			scale = { PHANTOM_TRAP_COLLECTABLE_BB_WIDTH * 0.8, PHANTOM_TRAP_COLLECTABLE_BB_HEIGHT * 0.8};
 		break;
-		case TEXTURE_ASSET_ID::BOW:
-			scale = { BOW_BB_WIDTH * 1.25, BOW_BB_HEIGHT * 1.25};
+		case TEXTURE_ASSET_ID::BOW: {
+			scale = { BOW_BB_WIDTH, BOW_BB_HEIGHT};
 			AnimationController& ac = initBowAnimationController(entity);
-			ac.changeState(entity, AnimationState::Default);
+			ac.changeState(entity, AnimationState::Default);	
+		}
+		break;
+		case TEXTURE_ASSET_ID::BOMB:
+			scale = { BOMB_BB_WIDTH * 0.8, BOMB_BB_HEIGHT * 0.8};
 		break;
 	}
 
@@ -1013,6 +1017,14 @@ Entity createItemCountText(vec2 windowSize, TEXTURE_ASSET_ID assetID) {
 			iconPos = keybindPos + vec2(10.0f, -40.0f);
 			textPos = iconPos + vec2(-30.0f, -55.0f);
 			keybind = "3";
+			break;
+		case TEXTURE_ASSET_ID::BOMB:
+			iconScale = { BOMB_BB_WIDTH * 0.9 , BOMB_BB_HEIGHT * 0.9};
+			position = startPos + vec2(220.0f, 0.0f);
+			keybindPos = position + vec2(-5.0f, 0.0f);
+			iconPos = keybindPos + vec2(10.0f, -40.0f);
+			textPos = iconPos + vec2(-30.0f, -55.0f);
+			keybind = "4";
 			break;
 		default:
 			break;
@@ -1447,6 +1459,9 @@ ProjectileInfo getProjectileInfo(PROJECTILE_TYPE type) {
         case PROJECTILE_TYPE::ARROW:
             return { {ARROW_BB_WIDTH, ARROW_BB_HEIGHT}, 
                      TEXTURE_ASSET_ID::ARROW };
+		case PROJECTILE_TYPE::BOMB_FUSED:
+            return { {BOMB_FUSED_BB_WIDTH, BOMB_FUSED_BB_HEIGHT}, 
+                     TEXTURE_ASSET_ID::BOMB };
         default:
             return { {0, 0}, TEXTURE_ASSET_ID::NONE };
     }

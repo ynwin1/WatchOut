@@ -486,9 +486,7 @@ void RenderSystem::step(float elapsed_ms)
 					createDamageTrap({motion.position.x, motion.position.y});
 				} else if(projectile.type == PROJECTILE_TYPE::PHANTOM_TRAP) {
 					createPhantomTrap({motion.position.x, motion.position.y});
-				}
-
-				if(registry.bombs.has(entity)) {
+				} else if(projectile.type == PROJECTILE_TYPE::BOMB_FUSED) {
 					createExplosion(motion.position);
 					sound->playSoundEffect(Sound::EXPLOSION, 0);
 				}

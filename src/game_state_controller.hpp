@@ -7,7 +7,8 @@ enum class INVENTORY_ITEM
     NONE,
     BOW,
     TRAP,
-    PHANTOM_TRAP
+    PHANTOM_TRAP,
+    BOMB
 };
 
 struct Inventory

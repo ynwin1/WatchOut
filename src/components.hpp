@@ -70,7 +70,8 @@ struct Damaging {
 enum class PROJECTILE_TYPE {
 	TRAP,
 	PHANTOM_TRAP,
-	ARROW
+	ARROW,
+	BOMB_FUSED
 };
 
 struct Projectile {
@@ -87,7 +88,7 @@ struct HomingProjectile{
 };
 
 struct Bomb {
-	int numBounces = 0;
+	int numBounces = 1;
 };
 
 struct HealthBar {

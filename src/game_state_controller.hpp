@@ -2,6 +2,27 @@
 
 #include "common.hpp"
 
+enum class INVENTORY_ITEM
+{
+    NONE,
+    BOW,
+    TRAP,
+    PHANTOM_TRAP,
+    BOMB
+};
+
+struct Inventory
+{
+    std::unordered_map<INVENTORY_ITEM, int> itemCounts;
+    std::unordered_map<INVENTORY_ITEM, Entity> itemCountTextEntities;
+    Entity equippedEntity;
+    INVENTORY_ITEM equipped = INVENTORY_ITEM::NONE;
+    void reset()
+    {
+        itemCounts.clear();
+        equipped = INVENTORY_ITEM::NONE;
+    }
+};
 
 enum class GAME_STATE
 {
@@ -27,6 +48,7 @@ public:
 
     const GAME_STATE getGameState() const;
 
+    Entity mouseTextureEntity;
 private:
     GAME_STATE currentGameState;
     WorldSystem* world;

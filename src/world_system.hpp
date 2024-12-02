@@ -130,6 +130,7 @@ private:
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);
 	void on_mouse_move(vec2 mouse_position);
+	void on_mouse_button(int button, int action, int mod);
 
 	// Title screen
 	void createTitleScreen();
@@ -147,11 +148,12 @@ private:
 	void despawn_collectibles(float elapsed_ms);
 	void handle_stamina(float elapsed_ms);
 	vec2 get_spawn_location(const std::string& entity_type);
-	void place_trap(Player& player, Motion& motion, bool forward, std::string type);
+	void place_trap(vec3 trapPos, std::string type);
 	void checkAndHandlePlayerDeath(Entity& entity);
 	void trackFPS(float elapsed_ms);
 	void updateGameTimer(float elapsed_ms);
 	void updateTrapsCounterText();
+	void updateInventoryItemText();
 	void toggleMesh();
 	void adjustSpawnSystem(float elapsed_ms);
 	void resetSpawnSystem();
@@ -162,6 +164,12 @@ private:
 	void despawnTraps(float elapsed_ms);
 	void updateCollectedTimer(float elapsed_ms);
 	void resetTrappedEntities();
+	void updateHomingProjectiles(float elapsed_ms);
+	void updateEquippedPosition();
+	void updateMouseTexturePosition(vec2 mousePos);
+	void equipItem(INVENTORY_ITEM item, bool wasCollected = false);
+	void unEquipItem();
+
 	void updateJeffLight(float elapsed_ms);
 
 	// Collision functions
@@ -194,6 +202,11 @@ private:
     void exitHelpMenu();
     Entity createPauseMenu(vec2 cameraPosition);
     void exitPauseMenu();
+
+	void leftMouseClickAction(vec3 mouseWorldPos);
+	void shootArrow(vec3 mouseWorldPos);
+	Entity shootProjectile(vec3 mouseWorldPos, PROJECTILE_TYPE type);
+	Entity shootHomingArrow(Entity targetEntity, float angle);
 
 	// C++ random number generator
 	std::default_random_engine rng;

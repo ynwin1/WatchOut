@@ -58,6 +58,10 @@ struct Trappable {
 	float originalSpeed = 0;
 };
 
+struct Explosion {
+	float duration = 500;
+};
+
 struct Damaging {
 	std::string type = "arrow"; // default type
 	unsigned int damage = 10;
@@ -65,6 +69,10 @@ struct Damaging {
 
 struct Projectile {
 	float sticksInGround = 3000; // ms it lasts on the ground
+};
+
+struct Bomb {
+	int numBounces = 0;
 };
 
 struct HealthBar {
@@ -135,6 +143,7 @@ struct Motion {
 
 	// Hitbox
 	vec3 hitbox = { 0, 0, 0 };
+	float gravity = 1.0;			// 1 means affected by gravity normally, 0 is no gravity
 	bool solid = false;
 };
 
@@ -167,7 +176,7 @@ struct DeathTimer
 
 struct Knockable
 {
-
+	bool knocked = false;
 };
 
 struct Knocker
@@ -331,8 +340,8 @@ struct Archer {
 	bool aiming = false;
 };
 struct Bird {
-	float swarmSpeed = 0.3f;
-	float swoopSpeed = 0.2f;
+	float swarmSpeed = 0.6f;
+	float swoopSpeed = 0.5f;
 	bool isSwooping = false;
 	float swoopTimer = 500;
 	vec2 swoopDirection = {0,0};
@@ -352,6 +361,12 @@ struct Wizard {
 struct Troll {
 	float desiredAngle = 0;
 	float laughCooldown = 20000.f;
+};
+
+struct Bomber {
+	float throwBombDelay = 0;
+	float throwBombDelayTimer = 0;
+	bool aiming = false;
 };
 
 // Collectible types

@@ -12,12 +12,18 @@ public:
 	void init(RenderSystem* renderer, GLFWwindow* window, Camera* camera);
 
 	// Save the game
-	void save_game(std::unordered_map<std::string, std::pair<int, Entity>> trapCounter);
+	void save_game(std::unordered_map<std::string, std::pair<int, Entity>> trapCounter, std::unordered_map<std::string, float> spawn_delays, std::unordered_map<std::string, int> max_entities, std::unordered_map<std::string, float> next_spawns);
 
 	// Load the game
 	void load_game();
 	
-	// load trap counter
+	// get spawn delays
+	std::unordered_map<std::string, float> getSpawnDelays();
+	// get max entities
+	std::unordered_map<std::string, int> getMaxEntities();
+	// get next spawns
+	std::unordered_map<std::string, float> getNextSpawns();
+  // load trap counter
 	void loadTrapsCounter(std::unordered_map<std::string, std::pair<int, Entity>>& trapCounterWorld);
 
 private:
@@ -73,15 +79,21 @@ private:
 
 	std::string GAMETIMER = "gameTimer";
 	std::string GAMESCORE = "gameScore";
+	std::string SPAWNDELAYS = "spawn_delays";
+	std::string MAXENTITIES = "max_entities";
+	std::string NEXTSPAWNS = "next_spawns";
 	std::string TRAPCOUNTER = "trapsCounter";
 
 	// Game Save file path
 	std::string gameSaveFilePath = data_path() + "/save/game_save.json";
 	// Map to store group of components for each entity
 	std::map<int, std::map<std::string, json>> entityComponentGroups;
+	std::unordered_map<std::string, float> spawnDelays;
+	std::unordered_map<std::string, int> maxEntities;
+	std::unordered_map<std::string, float> nextSpawns;
 
 	// Serialization
-	void serialize_containers(json& j, std::unordered_map<std::string, std::pair<int, Entity>> trapsCounter);
+	void serialize_containers(json& j, std::unordered_map<std::string, std::pair<int, Entity>> trapsCounter, std::unordered_map<std::string, float> spawn_delays, std::unordered_map<std::string, int> max_entities, std::unordered_map<std::string, float> next_spawns);
 
 	template <typename Component>
 	json serialize_container(const ComponentContainer<Component>& container);
@@ -89,7 +101,12 @@ private:
 
 	nlohmann::json serialize_game_timer(const GameTimer& gameTimer);
 	nlohmann::json serialize_game_score(const GameScore& gameScore);
+
+	nlohmann::json serialize_spawn_delays(std::unordered_map<std::string, float> spawn_delays);
+	nlohmann::json serialize_max_entities(std::unordered_map<std::string, int> max_entities);
+	nlohmann::json serialize_next_spawns(std::unordered_map<std::string, float> next_spawns);
 	nlohmann::json serialize_traps_counter(const std::unordered_map<std::string, std::pair<int, Entity>> trapCounter);
+
 
 	template <typename Component>
 	nlohmann::json serialize_component(const Component& component);
@@ -101,7 +118,10 @@ private:
 	void createEntity(std::vector<std::string> componentNames, std::map<std::string, nlohmann::json> componentsMap);
 	void deserialize_game_timer(const json& j);
 	void deserialize_game_score(const json& j);
-	void deserialize_traps_counter(const json& j);
+	void deserialize_spawn_delays(const json& j);
+	void deserialize_max_entities(const json& j);
+	void deserialize_next_spawns(const json& j);
+  void deserialize_traps_counter(const json& j);
 
 	void createPlayerDeserialization(std::map<std::string, nlohmann::json> componentsMap);
 	void createBoarDeserialization(std::map<std::string, nlohmann::json> componentsMap);
@@ -125,6 +145,7 @@ private:
 	void handleEnemy(Entity& entity, std::map<std::string, nlohmann::json> componentsMap);
 	void handleDasher(Entity& entity, std::map<std::string, nlohmann::json> componentsMap);
 	void handleKnocker(Entity& entity, std::map<std::string, nlohmann::json> componentsMap);
+	void handleKnockable(Entity& entity, std::map < std::string, nlohmann::json> componentsMap);
 	void handleCooldown(Entity& entity, std::map<std::string, nlohmann::json> componentsMap);
 
 	void handleBoar(Entity& entity, std::map<std::string, nlohmann::json> componentsMap);

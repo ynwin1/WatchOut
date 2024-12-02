@@ -17,7 +17,15 @@ WorldSystem::WorldSystem(std::default_random_engine& rng)
     this->rng = rng;
 }
 
-void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics, AISystem* ai, SoundSystem* sound, GameSaveManager* saveManager)
+void WorldSystem::init(
+    RenderSystem* renderer, 
+    GLFWwindow* window, 
+    Camera* camera, 
+    PhysicsSystem* physics, 
+    AISystem* ai, 
+    SoundSystem* sound, 
+    GameSaveManager* saveManager, 
+    ParticleSystem* particles)
 {
     
     this->renderer = renderer;
@@ -27,6 +35,7 @@ void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camer
     this->ai = ai;
 	this->sound = sound;
 	this->saveManager = saveManager;
+    this->particles = particles;
 
     // Setting callbacks to member functions (that's why the redirect is needed)
     // Input is handled using GLFW, for more info see
@@ -40,7 +49,7 @@ void WorldSystem::init(RenderSystem* renderer, GLFWwindow* window, Camera* camer
     auto focus_redirect = [](GLFWwindow* wnd, int focused) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_window_focus(focused); };
     glfwSetWindowFocusCallback(window, focus_redirect);
 
-    restart_game();
+	createTitleScreen();
 }
 
 WorldSystem::~WorldSystem() {
@@ -81,8 +90,16 @@ void WorldSystem::load_game() {
     saveManager->loadTrapsCounter(trapsCounter.trapsMap);
     // set up texts in foreground
     reloadText();
+  
+    // Pick up spawn data from last checkpoint
+    next_spawns = saveManager->getNextSpawns();
+	spawn_delays = saveManager->getSpawnDelays();
+	max_entities = saveManager->getMaxEntities();
+
+    show_mesh = false;
     playerEntity = registry.players.entities[0];
     gameStateController.setGameState(GAME_STATE::PLAYING);
+    loadAndSaveHighScore(false);
 }
 
 void WorldSystem::save_game() {
@@ -187,6 +204,7 @@ bool WorldSystem::step(float elapsed_ms)
 {
     adjustSpawnSystem(elapsed_ms);
     spawn(elapsed_ms);
+    spawn_particles(elapsed_ms);
     update_cooldown(elapsed_ms);
     handle_deaths(elapsed_ms);
     despawn_collectibles(elapsed_ms);
@@ -203,7 +221,7 @@ bool WorldSystem::step(float elapsed_ms)
     handleEnemiesKilledInSpan(elapsed_ms);
     updateScoreText();
     handleSurvivalBonusPoints(elapsed_ms);
-    updateLightPosition();
+    updateJeffLight(elapsed_ms);
 
     if (camera->isToggled()) {
         Motion& playerMotion = registry.motions.get(playerEntity);
@@ -263,10 +281,14 @@ void WorldSystem::updateScoreText() {
     text.value = "Score: " + std::to_string(gameScore.score);
 }
 
-void WorldSystem::updateLightPosition() {
+void WorldSystem::updateJeffLight(float elapsed_ms) {
     PointLight& pointLight = registry.pointLights.get(playerEntity);
+    
+    // Update Position
     Motion& motion = registry.motions.get(playerEntity);
     pointLight.position = motion.position;
+
+    // Make flicker
 }
 
 void WorldSystem::loadAndSaveHighScore(bool save) {
@@ -327,13 +349,9 @@ void WorldSystem::handle_collisions()
             entity_trap_collision(entity, entity_other, was_damaged);
         }
 
-        float COOLDOWN_TIME = 1000;
         std::pair<int, int> pair = { entity, entity_other };
         if (collisionCooldowns.find(pair) != collisionCooldowns.end()) {
             continue;
-        }
-        else {
-            collisionCooldowns[pair] = COOLDOWN_TIME;
         }
 
         // If the entity is a player
@@ -342,16 +360,13 @@ void WorldSystem::handle_collisions()
             if (registry.collectibles.has(entity_other)) {
 				entity_collectible_collision(entity, entity_other);
             }
-            else if (registry.enemies.has(entity_other)) {
-				// Collision between player and enemy
-                processPlayerEnemyCollision(entity, entity_other, was_damaged);
-            }
-            else if (registry.damagings.has(entity_other)) {
-                entity_damaging_collision(entity, entity_other, was_damaged);
-            }
         }
         else if (registry.enemies.has(entity)) {
-            if (registry.enemies.has(entity_other)) {
+            if (registry.players.has(entity_other)) {
+                // Collision between player and enemy
+                processPlayerEnemyCollision(entity_other, entity, was_damaged);
+            }
+            else if (registry.enemies.has(entity_other)) {
 				// Collision between two enemies
 				handleEnemyCollision(entity, entity_other, was_damaged);
             }
@@ -364,7 +379,10 @@ void WorldSystem::handle_collisions()
         }
         else if (registry.damagings.has(entity)) {
 			Damaging& damaging = registry.damagings.get(entity);
-            if (damaging.type == "fireball" && registry.obstacles.has(entity_other)) {
+            if (registry.players.has(entity_other) || registry.enemies.has(entity_other)) {
+                entity_damaging_collision(entity_other, entity, was_damaged);
+            }
+            else if (damaging.type == "fireball" && registry.obstacles.has(entity_other)) {
 				// Collision between damaging and obstacle
                 damaging_obstacle_collision(entity);
             }
@@ -406,27 +424,28 @@ void WorldSystem::on_mouse_move(vec2 mouse_position) {
 void WorldSystem::on_key(int key, int, int action, int mod)
 {
     switch (gameStateController.getGameState()) {
+	case GAME_STATE::TITLE:
+		titleControls(key, action, mod);
+		break;
     case GAME_STATE::PLAYING:
         playingControls(key, action, mod);
         break;
     case GAME_STATE::PAUSED:
-		sound->isBirdFlockSoundPlaying = false;
-		sound->isMovingSoundPlaying = false;
-        sound->pauseAllSoundEffects();
+        handleSoundOnPauseHelp();
         pauseControls(key, action, mod);
         break;
     case GAME_STATE::GAMEOVER:
         gameOverControls(key, action, mod);
         break;
     case GAME_STATE::HELP:
-        sound->isMovingSoundPlaying = false;
-        sound->isBirdFlockSoundPlaying = false;
-        sound->pauseAllSoundEffects();
+        handleSoundOnPauseHelp();
         helpControls(key, action, mod);
         break;
     }
+    if (gameStateController.getGameState() != GAME_STATE::TITLE) {
+        movementControls(key, action, mod);
+    }
     allStateControls(key, action, mod);
-    movementControls(key, action, mod);
 }
 
 void WorldSystem::helpControls(int key, int action, int mod)
@@ -434,13 +453,14 @@ void WorldSystem::helpControls(int key, int action, int mod)
     if (action == GLFW_PRESS) {
         switch (key) {
         case GLFW_KEY_Q:
-            glfwSetWindowShouldClose(window, true);
+            gameStateController.setGameState(GAME_STATE::TITLE);
+            createTitleScreen();
             break;
-        case GLFW_KEY_ENTER:
+        case GLFW_KEY_R:
             restart_game();
         case GLFW_KEY_H:
-            gameStateController.setGameState(GAME_STATE::PLAYING);
             sound->resumeAllSoundEffects();
+            gameStateController.setGameState(GAME_STATE::PLAYING);
             break;
         case GLFW_KEY_P:
         case GLFW_KEY_ESCAPE:
@@ -456,40 +476,73 @@ void WorldSystem::pauseControls(int key, int action, int mod)
     if (action == GLFW_PRESS) {
         switch (key) {
         case GLFW_KEY_Q:
-            glfwSetWindowShouldClose(window, true);
+            gameStateController.setGameState(GAME_STATE::TITLE);
+            createTitleScreen();
             break;
         case GLFW_KEY_H:
             gameStateController.setGameState(GAME_STATE::HELP);
             clearSaveText();
             break;
         case GLFW_KEY_S:
-            saveManager->save_game(trapsCounter.trapsMap);
+            saveManager->save_game(trapsCounter.trapsMap, spawn_delays, max_entities, next_spawns);
 			createGameSaveText(camera->getSize());
             printf("Saved game\n");
             break;
         case GLFW_KEY_L:
             load_game();
-			break;
+			  break;
         case GLFW_KEY_ENTER:
             restart_game();
         case GLFW_KEY_P:
         case GLFW_KEY_ESCAPE:
+            sound->resumeAllSoundEffects();
             gameStateController.setGameState(GAME_STATE::PLAYING);
-			sound->resumeAllSoundEffects();
             clearSaveText();
             break;
         }
     }
 }
 
+void WorldSystem::titleControls(int key, int action, int mod) {
+	if (action == GLFW_PRESS) {
+		switch (key) {
+		case GLFW_KEY_ENTER:
+			restart_game();
+			break;
+		case GLFW_KEY_L:
+			load_game();
+			break;
+		case GLFW_KEY_Q:
+			glfwSetWindowShouldClose(window, true);
+			break;
+		}
+	}
+}
+
 void WorldSystem::playingControls(int key, int action, int mod)
 {
     Player& player_comp = registry.players.get(playerEntity);
     Motion& player_motion = registry.motions.get(playerEntity);
+    Dash& player_dash = registry.dashers.get(playerEntity);
+    Stamina& player_stamina = registry.staminas.get(playerEntity);
   
     if (action == GLFW_PRESS) {
         switch (key) {
-        case GLFW_KEY_W:
+        case GLFW_KEY_X:
+            if (player_stamina.stamina > DASH_STAMINA) {
+                const float dashDistance = 300;
+                // Start dashing if player is moving
+                player_dash.isDashing = true;
+                player_dash.dashStartPosition = vec2(player_motion.position);
+                player_dash.dashTargetPosition = player_dash.dashStartPosition + player_motion.facing * dashDistance;
+                player_dash.dashTimer = 0.0f; // Reset timer
+                player_stamina.stamina -= DASH_STAMINA;
+
+                // play dash sound
+                sound->playSoundEffect(Sound::DASHING, 0);
+            }
+            break;
+        case GLFW_KEY_E:
             place_trap(player_comp, player_motion, true, DAMAGE_TRAP);
             break;
         case GLFW_KEY_Q:
@@ -516,24 +569,28 @@ void WorldSystem::gameOverControls(int key, int action, int mod)
 {
     if (action == GLFW_PRESS) {
         switch (key) {
-        case GLFW_KEY_ENTER:
+        case GLFW_KEY_R:
             restart_game();
             break;
         case GLFW_KEY_Q:
-            glfwSetWindowShouldClose(window, true);
+        case GLFW_KEY_ENTER:
+        case GLFW_KEY_ESCAPE:
+            gameStateController.setGameState(GAME_STATE::TITLE);
+            createTitleScreen();
         }
     }
 }
-
 
 void WorldSystem::allStateControls(int key, int action, int mod)
 {
     if (action == GLFW_PRESS) {
         switch (key) {
+#ifndef NDEBUG
         case GLFW_KEY_C:
             // toggle camera on/off for debugging/testing
             camera->toggle();
             break;
+#endif
         case GLFW_KEY_F:
             // toggle fps
             registry.fpsTracker.toggled = !registry.fpsTracker.toggled;
@@ -568,9 +625,7 @@ void WorldSystem::movementControls(int key, int action, int mod)
 {
     Player& player_comp = registry.players.get(playerEntity);
     Motion& player_motion = registry.motions.get(playerEntity);
-    Dash& player_dash = registry.dashers.get(playerEntity);
     Stamina& player_stamina = registry.staminas.get(playerEntity);
-    Trappable& player_trappable = registry.trappables.get(playerEntity);
 
     if (action != GLFW_PRESS && action != GLFW_RELEASE) {
         return;
@@ -581,16 +636,16 @@ void WorldSystem::movementControls(int key, int action, int mod)
     // Set movement states based on key input
     switch (key)
     {
-    case GLFW_KEY_UP:
+    case GLFW_KEY_W:
         player_comp.goingUp = pressed;
         break;
-    case GLFW_KEY_DOWN:
+    case GLFW_KEY_S:
         player_comp.goingDown = pressed;
         break;
-    case GLFW_KEY_LEFT:
+    case GLFW_KEY_A:
         player_comp.goingLeft = pressed;
         break;
-    case GLFW_KEY_RIGHT:
+    case GLFW_KEY_D:
         player_comp.goingRight = pressed;
         break;
     case GLFW_KEY_LEFT_SHIFT:
@@ -611,51 +666,22 @@ void WorldSystem::movementControls(int key, int action, int mod)
             player_comp.isRolling = false;
         }
         break;
-    case GLFW_KEY_D:
-        if (pressed) {
-            if (player_stamina.stamina > DASH_STAMINA) {
-                const float dashDistance = 300;
-                // Start dashing if player is moving
-                player_dash.isDashing = true;
-                player_dash.dashStartPosition = vec2(player_motion.position);
-                player_dash.dashTargetPosition = player_dash.dashStartPosition + player_motion.facing * dashDistance;
-                player_dash.dashTimer = 0.0f; // Reset timer
-                player_stamina.stamina -= DASH_STAMINA;
-
-                // play dash sound
-                sound->playSoundEffect(Sound::DASHING, 0);
-            }
-        }
-        break;
     case GLFW_KEY_SPACE:
         // Jump
-        if (pressed && !player_trappable.isTrapped) {
-            if (player_stamina.stamina >= JUMP_STAMINA && !player_comp.tryingToJump) {
-                player_comp.tryingToJump = true;
-                if (registry.jumpers.has(playerEntity)) {
-                    Jumper& jumper = registry.jumpers.get(playerEntity);
-                    if (!jumper.isJumping) {
-                        jumper.isJumping = true;
-                        player_comp.tryingToJump = true;
-                        player_motion.velocity.z = jumper.speed;
-                        player_stamina.stamina -= JUMP_STAMINA;
-                        if (player_stamina.stamina < 0) {
-                            player_stamina.stamina = 0;
-                        }
-                        // play jump sound
-                        sound->playSoundEffect(Sound::JUMPING, 0);
-                    }
-                }
-            }
-        }
-        else {
-            player_comp.tryingToJump = false;
-        }
+        player_comp.tryingToJump = pressed;
         break;
     default:
         break;
     }
     update_player_facing(player_comp, player_motion);
+}
+
+void WorldSystem::handleSoundOnPauseHelp() {
+    sound->isMovingSoundPlaying = false;
+    sound->isBirdFlockSoundPlaying = false;
+    sound->stopSoundEffect(Sound::BIRD_FLOCK);
+    sound->stopSoundEffect(Sound::WALKING);
+    sound->pauseAllSoundEffects();
 }
 
 void WorldSystem::update_player_facing(Player& player, Motion& motion) 
@@ -761,6 +787,40 @@ void WorldSystem::spawn(float elapsed_ms)
     }
 }
 
+void WorldSystem::spawn_particles(float elapsed_ms)
+{
+    Motion& playerMotion = registry.motions.get(playerEntity);
+
+    // SPAWN SMOKE ------------------------------------------------
+    vec3 position = playerMotion.position;
+    float direction = (playerMotion.scale.x > 0) ? 1.f : -1.f;
+    position.x += direction * playerMotion.hitbox.x / 2;
+    position.z += playerMotion.hitbox.z / 3;
+    vec2 size = { 20, 20 };
+    particles->createSmokeParticle(position, size);
+    particles->createSmokeParticle(position, size);
+    particles->createSmokeParticle(position, size);
+
+    for (Entity fireball : registry.damagings.entities) {
+        Damaging& damaging = registry.damagings.get(fireball);
+        if (damaging.type != "fireball") {
+            continue;
+        }
+        vec3 position = registry.motions.get(fireball).position;
+        vec2 size = { 50, 50 };
+        particles->createSmokeParticle(position, size);
+        particles->createSmokeParticle(position, size);
+        particles->createSmokeParticle(position, size);
+        particles->createSmokeParticle(position, size);
+    }
+
+    // SPAWN DASH SPRITES ------------------------------------------------
+    if (registry.dashers.get(playerEntity).isDashing) {
+        float facing = playerMotion.scale.x > 0 ? 1 : -1;
+        particles->createDashParticle(playerMotion.position, vec2(JEFF_BB_WIDTH * facing, JEFF_BB_HEIGHT));
+    }
+}
+
 vec2 WorldSystem::get_spawn_location(const std::string& entity_type)
 {
     vec2 spawn_location{};
@@ -858,12 +918,17 @@ void WorldSystem::entity_damaging_collision(Entity entity, Entity entity_other, 
 {
     Damaging& damaging = registry.damagings.get(entity_other);
 
+    if(registry.knockers.has(entity_other)) {
+        knock(entity, entity_other);
+    }
+
     if (registry.players.has(entity)) {
         // reduce player health
         Player& player = registry.players.get(entity);
         int new_health = player.health - damaging.damage;
         player.health = new_health < 0 ? 0 : new_health;
         was_damaged.push_back(entity);
+        setCollisionCooldown(entity_other, entity);
         printf("Player health reduced from %d to %d\n", player.health + damaging.damage, player.health);
     }
     else if (registry.enemies.has(entity)) {
@@ -871,6 +936,7 @@ void WorldSystem::entity_damaging_collision(Entity entity, Entity entity_other, 
         Enemy& enemy = registry.enemies.get(entity);
         enemy.health -= damaging.damage;
         was_damaged.push_back(entity);
+        setCollisionCooldown(entity_other, entity);
         printf("Enemy health reduced from %d to %d by damaging object\n", enemy.health + damaging.damage, enemy.health);
     }
     else {
@@ -878,7 +944,11 @@ void WorldSystem::entity_damaging_collision(Entity entity, Entity entity_other, 
         return;
     }
 
-    registry.remove_all_components_of(entity_other);
+    if(!registry.explosions.has(entity_other) && 
+       !registry.bombs.has(entity_other)) 
+    {
+        registry.remove_all_components_of(entity_other);
+    }
 }
 
 void WorldSystem::damaging_obstacle_collision(Entity damaging) {
@@ -903,8 +973,8 @@ void WorldSystem::entity_obstacle_collision(Entity entity, Entity obstacle, std:
 }
 
 void WorldSystem::processPlayerEnemyCollision(Entity player, Entity enemy, std::vector<Entity>& was_damaged) {
-    // Archers do not do melee damage
-    if (registry.archers.has(enemy)) {
+    // Archers/Bombers/Wizards do not do melee damage
+    if (registry.archers.has(enemy) || registry.bombers.has(enemy) || registry.wizards.has(enemy)) {
         return;
     }
 
@@ -915,6 +985,7 @@ void WorldSystem::processPlayerEnemyCollision(Entity player, Entity enemy, std::
         int newHealth = playerData.health - enemyData.damage;
         playerData.health = std::max(newHealth, 0);
         was_damaged.push_back(player);
+        setCollisionCooldown(enemy, player);
         printf("Player health reduced by enemy from %d to %d\n", playerData.health + enemyData.damage, playerData.health);
 
         // Check if enemy can have an attack cooldown
@@ -955,6 +1026,7 @@ void WorldSystem::handleEnemyCollision(Entity attacker, Entity target, std::vect
 
         targetData.health -= attackerData.damage;
         was_damaged.push_back(target);
+        setCollisionCooldown(attacker, target);
         printf("Enemy %d's health reduced from %d to %d by enemy\n", (unsigned int)target, targetData.health + attackerData.damage, targetData.health);
 
         if (attackerData.cooldown > 0) {
@@ -1012,6 +1084,13 @@ void WorldSystem::knock(Entity knocked, Entity knocker)
     vec3 d = normalize(vec3(horizontal_direction * cos(KNOCK_ANGLE), sin(KNOCK_ANGLE)));
     knockedMotion.velocity = d * strength;
     knockedMotion.position.z += 1; // move a little over ground to prevent being considered "on the ground" for this frame
+    registry.knockables.get(knocked).knocked = true;
+}
+
+void WorldSystem::setCollisionCooldown(Entity damager, Entity victim)
+{
+    float COOLDOWN_TIME = 1000;
+    collisionCooldowns[std::pair<Entity, Entity> {damager, victim}] = COOLDOWN_TIME;
 }
 
 void WorldSystem::despawn_collectibles(float elapsed_ms) {
@@ -1030,6 +1109,10 @@ void WorldSystem::despawn_collectibles(float elapsed_ms) {
 
 void WorldSystem::destroyDamagings() {
     for (auto& damagingEntity : registry.damagings.entities) {
+        if(registry.bombs.has(damagingEntity) || registry.explosions.has(damagingEntity)) {
+            continue;
+        }
+
         Damaging& damaging = registry.damagings.get(damagingEntity);
         Motion& motion = registry.motions.get(damagingEntity);
 

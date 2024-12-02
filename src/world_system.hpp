@@ -20,17 +20,21 @@ public:
 	WorldSystem(std::default_random_engine& rng);
 
 	// starts the game
-	void init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics, AISystem* ai, SoundSystem* sound, GameSaveManager* saveManager);
+	void init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics, AISystem* ai, SoundSystem* sound, GameSaveManager* saveManager, ParticleSystem* particles);
 
 	// Releases all associated resources
 	~WorldSystem();
 
 	GameStateController gameStateController;
 
+	std::unordered_map<std::string, float> spawn_delays;
+	std::unordered_map<std::string, int> max_entities;
+	std::unordered_map<std::string, float> next_spawns;
+
 	// Steps the game ahead by ms milliseconds
 	bool step(float elapsed_ms);
-	
 	bool show_mesh;
+	float countdown = 0.0f;
 
 	// Check for collisions
 	void handle_collisions();
@@ -60,6 +64,7 @@ private:
 	// GLFW Window handle
 	GLFWwindow* window;
 	RenderSystem* renderer;
+	ParticleSystem* particles;
 	PhysicsSystem* physics;
 	AISystem* ai;
 	Camera* camera;
@@ -70,9 +75,6 @@ private:
 	bool isWindowed = false;
 
 	Entity playerEntity;
-	std::unordered_map<std::string, float> spawn_delays;
-	std::unordered_map<std::string, int> max_entities;
-	std::unordered_map<std::string, float> next_spawns;
 
 	std::vector<std::string> entity_types = {
 		"boar",
@@ -81,6 +83,7 @@ private:
 		"bird",
 		"wizard",
 		"troll",
+		"bomber",
 		"heart",
 		"collectible_trap"
 	};
@@ -89,13 +92,13 @@ private:
 		{"boar", 1},
 		{"barbarian", 1},
 		{"archer", -2},
-		{"bird", 1},
+		{"bird", 8},
 		{"wizard", -2},
 		{"troll", -3},
+		{"bomber", -2},
 		{"heart", 2},
 		{"collectible_trap", 2}
 	};
-
 	const std::unordered_map<std::string, float> initial_spawn_delays = {
 		{"boar", 10000.0f},
 		{"barbarian", 10000.0f},
@@ -103,6 +106,7 @@ private:
 		{"bird", 20000.0f},
 		{"wizard", 20000.0f},
 		{"troll", 30000.0f},
+		{"bomber", 20000.0f},
 		{"heart", 5000.0f},
 		{"collectible_trap", 5000.0f}
 	};
@@ -112,9 +116,10 @@ private:
         {"boar", createBoar},
         {"barbarian", createBarbarian},
         {"archer", createArcher},
-        {"bird", createBirdFlock},
+        {"bird", createBird},
 	    {"wizard", createWizard},
         {"troll", createTroll},
+		{"bomber", createBomber},
         {"heart", createHeart},
 		{"collectible_trap", createCollectibleTrap}
     };
@@ -127,12 +132,16 @@ private:
 	void on_key(int key, int, int action, int mod);
 	void on_mouse_move(vec2 mouse_position);
 
+	// Title screen
+	void createTitleScreen();
+
 	// Save game
 	void save_game();
 
 
 	// Actions performed for each step
 	void spawn(float elapsed_ms);
+	void spawn_particles(float elapsed_ms);
 	void update_cooldown(float elapsed_ms);
 	void handle_deaths(float elapsed_ms);
 	void update_player_facing(Player& player, Motion& motion);
@@ -158,8 +167,8 @@ private:
 	void updateComboText();
 	void updateScoreText();
 	void handleSurvivalBonusPoints(float elapsed_ms);
-	void updateLightPosition();
 
+	void updateJeffLight(float elapsed_ms);
 
 	// Collision functions
 	void entity_collectible_collision(Entity entity, Entity collectible);
@@ -171,14 +180,18 @@ private:
 	void handleEnemyCollision(Entity attacker, Entity target, std::vector<Entity>& was_damaged);
 	void checkAndHandleEnemyDeath(Entity entity);
 	void knock(Entity knocked, Entity knocker);
+	void setCollisionCooldown(Entity damager, Entity victim);
 
 	// Controls
 	void allStateControls(int key, int action, int mod);
 	void movementControls(int key, int action, int mod);
+	void titleControls(int key, int action, int mod);
 	void playingControls(int key, int action, int mod);
 	void pauseControls(int key, int action, int mod);
 	void gameOverControls(int key, int action, int mod);
 	void helpControls(int key, int action, int mod);
+
+	void handleSoundOnPauseHelp();
 
 	void clearSaveText();
 

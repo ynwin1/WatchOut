@@ -11,7 +11,7 @@ Entity createBoar(vec2 pos)
 {
 	auto entity = Entity();
 
-	// Setting intial motion values
+	// Setting intial	 motion values
 	Motion& motion = registry.motions.emplace(entity);
 	motion.position = vec3(pos, getElevation(pos) + BOAR_BB_HEIGHT / 2);
 	motion.angle = 0.f;
@@ -38,7 +38,7 @@ Entity createBoar(vec2 pos)
 	initBoarAnimationController(entity);
 	registry.midgrounds.emplace(entity);
 
-	createHealthBar(entity, vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	createHealthBar(entity);
 
 	registry.knockables.emplace(entity);
 	registry.knockers.emplace(entity);
@@ -73,7 +73,7 @@ Entity createBarbarian(vec2 pos)
 	initBarbarianAnimationController(entity);
 	registry.midgrounds.emplace(entity);
 
-	createHealthBar(entity, vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	createHealthBar(entity);
 
 	registry.knockables.emplace(entity);
 	registry.knockers.emplace(entity);
@@ -108,7 +108,7 @@ Entity createArcher(vec2 pos)
 	initArcherAnimationController(entity);
 	registry.midgrounds.emplace(entity);
 
-	createHealthBar(entity, vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	createHealthBar(entity);
 
 	registry.knockables.emplace(entity);
 	auto& trappable = registry.trappables.emplace(entity);
@@ -127,7 +127,7 @@ Entity createBirdFlock(vec2 pos)
     for (int i = 0; i < flockSize; ++i)
     {
 		// Spawn birds with spacing
-		vec2 birdPosition = pos + vec2(i * spacing, 0);
+		vec2 birdPosition = pos + vec2(i % 2, (i % 2 + 1)) * spacing;
 		Entity bird = createBird(birdPosition);
 		if (i == 0) {
 			repBird = bird;
@@ -158,7 +158,7 @@ Entity createBird(vec2 birdPosition) {
 	initBirdAnimationController(entity);
 	registry.midgrounds.emplace(entity);
 
-	createHealthBar(entity, vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	createHealthBar(entity);
 	registry.knockables.emplace(entity);
 	auto& trappable = registry.trappables.emplace(entity);
 	trappable.originalSpeed = BIRD_SPEED;
@@ -190,7 +190,7 @@ Entity createWizard(vec2 pos) {
 	initWizardAnimationController(entity);
 	registry.midgrounds.emplace(entity);
 
-	createHealthBar(entity, vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	createHealthBar(entity);
 
 	registry.knockables.emplace(entity);
 	auto& trappable = registry.trappables.emplace(entity);
@@ -227,7 +227,7 @@ Entity createTroll(vec2 pos)
 
 	registry.midgrounds.emplace(entity);
 
-	createHealthBar(entity, vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	createHealthBar(entity);
 
 	auto& trappable = registry.trappables.emplace(entity);
 	trappable.originalSpeed = TROLL_SPEED;
@@ -237,8 +237,40 @@ Entity createTroll(vec2 pos)
 	initTrollAnimationController(entity);
 
 	return entity;
-}
-;
+};
+
+// Bomber creation
+Entity createBomber(vec2 pos)
+{
+	auto entity = Entity();
+
+	// Setting intial motion values
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = vec3(pos, getElevation(pos) + BOMBER_BB_HEIGHT / 2);
+	motion.angle = 0.f;
+	motion.scale = { BOMBER_BB_WIDTH, BOMBER_BB_HEIGHT };
+	motion.hitbox = { BOMBER_BB_WIDTH, BOMBER_BB_WIDTH, BOMBER_BB_HEIGHT / zConversionFactor };
+	motion.solid = true;
+
+	Enemy& enemy = registry.enemies.emplace(entity);
+	enemy.damage = BOMBER_DAMAGE;
+	enemy.maxHealth = BOMBER_HEALTH;
+	enemy.health = enemy.maxHealth;
+	motion.speed = BOMBER_SPEED;
+
+	registry.bombers.emplace(entity);
+
+	initBomberAnimationController(entity);
+	registry.midgrounds.emplace(entity);
+
+	createHealthBar(entity);
+
+	registry.knockables.emplace(entity);
+	auto& trappable = registry.trappables.emplace(entity);
+	trappable.originalSpeed = BOMBER_SPEED;
+	
+	return entity;
+};
 
 // Collectible trap creation
 Entity createCollectibleTrap(vec2 pos)
@@ -248,7 +280,7 @@ Entity createCollectibleTrap(vec2 pos)
 	int random = rand() % 2;
 	Motion& motion = registry.motions.emplace(entity);
 
-	if (random >= 0.5) {
+	if (random >= 0.8) {
 		collectibleTrap.type = "phantom_trap";
 		initPhantomTrapAnimationController(entity);
 		
@@ -421,12 +453,12 @@ Entity createJeff(vec2 position)
 
 	auto& pointLight = registry.pointLights.emplace(entity);
 	pointLight.position = motion.position;
-	pointLight.ambient = vec4(1.0, .75, 0.25, .2);
+	pointLight.ambient = vec4(1.0, .75, 0.25, 10);
 	pointLight.diffuse = vec4(1.0, .75, 0.25, 1.0);
 	pointLight.max_distance = 3250;
-	pointLight.constant = 1.0;
-	pointLight.linear = .00014;
-	pointLight.quadratic = 0.00001;
+	pointLight.constant = 1.f;
+	pointLight.linear = .005;
+	pointLight.quadratic = 0.f;
 	
 	return entity;
 }
@@ -493,6 +525,38 @@ Entity createArrow(vec3 pos, vec3 velocity, int damage)
 		entity,
 		{
 			TEXTURE_ASSET_ID::ARROW,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	return entity;
+}
+
+Entity createBomb(vec3 pos, vec3 velocity)
+{
+	auto entity = Entity();
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.velocity = velocity;
+	motion.scale = { BOMB_BB_WIDTH, BOMB_BB_HEIGHT };
+	motion.hitbox = { BOMB_BB_WIDTH, BOMB_BB_HEIGHT, BOMB_BB_HEIGHT / zConversionFactor };
+	motion.solid = true;
+	
+	Projectile& proj = registry.projectiles.emplace(entity);
+	proj.sticksInGround = 1000;
+
+	Bomb& bomb = registry.bombs.emplace(entity);
+	bomb.numBounces = 1;
+
+	Damaging& damaging = registry.damagings.emplace(entity);
+	damaging.damage = 2;
+	registry.midgrounds.emplace(entity);
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::BOMB,
 			EFFECT_ASSET_ID::TEXTURED,
 			GEOMETRY_BUFFER_ID::SPRITE
 		});
@@ -653,7 +717,7 @@ void createPlayerHealthBar(Entity characterEntity, vec2 windowSize) {
 	hpbar.textEntity = textE;
 }
 
-void createHealthBar(Entity characterEntity, vec4 color) {
+void createHealthBar(Entity characterEntity) {
 	auto meshEntity = Entity();
 
 	const float width = 60.0f;
@@ -666,6 +730,7 @@ void createHealthBar(Entity characterEntity, vec4 color) {
 	motion.angle = 0.f;
 	motion.scale = { width, height };
 
+	vec4 color = vec4(1, 0, 0, 0.4);
 	registry.colours.insert(meshEntity, color);
 
 	registry.renderRequests.insert(
@@ -758,6 +823,63 @@ Entity createFPSText(vec2 windowSize) {
 
 	registry.renderRequests.insert(
 			entity, 
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::FONT,
+			GEOMETRY_BUFFER_ID::TEXT
+		});
+
+	return entity;
+}
+
+Entity createTitleScreenBackground(vec2 windowSize) {
+	auto entity = Entity();
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::TITLE_BACKGROUND,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	Foreground& bg = registry.foregrounds.emplace(entity);
+	bg.position = { windowSize.x / 2, windowSize.y / 2 };
+	bg.scale = windowSize;
+		
+	return entity;
+}
+
+Entity createTitleScreenTitle(vec2 windowSize) {
+	auto entity = Entity();
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::TITLE_TEXT,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	Foreground& fg = registry.foregrounds.emplace(entity);
+	fg.position = { windowSize.x / 2, windowSize.y - 300.f };
+	fg.scale = { 1000.0f, 200.f };
+
+	return entity;
+}
+
+
+Entity createTitleScreenText(vec2 windowSize, std::string value, float fontSize, vec2 position) {
+	auto entity = Entity();
+
+	Text& text = registry.texts.emplace(entity);
+	text.value = value;
+	Foreground& fg = registry.foregrounds.emplace(entity);
+	fg.position = position;
+	fg.scale = { fontSize, fontSize };
+
+	registry.renderRequests.insert(
+		entity,
 		{
 			TEXTURE_ASSET_ID::NONE,
 			EFFECT_ASSET_ID::FONT,
@@ -863,12 +985,11 @@ Entity createPhantomTrapsCounterText(vec2 windowSize) {
 	return textE;
 }
 
-Entity createMapTile(vec2 position, vec2 size) {
+Entity createMapTile(vec2 position, vec2 size, float height) {
     auto entity = Entity();
-
-    registry.mapTiles.emplace(entity);
+	registry.mapTiles.emplace(entity);
 	Motion& motion = registry.motions.emplace(entity);
-	motion.position = vec3(position, 0);
+	motion.position = vec3(position, height);
 	motion.scale = vec2(size.x, size.y * yConversionFactor);
 	
     registry.renderRequests.insert(
@@ -878,7 +999,7 @@ Entity createMapTile(vec2 position, vec2 size) {
             EFFECT_ASSET_ID::TEXTURED,
             GEOMETRY_BUFFER_ID::SPRITE
         });
-    registry.backgrounds.emplace(entity);
+		registry.backgrounds.emplace(entity);
 	
     return entity;
 }
@@ -955,10 +1076,13 @@ Entity createNormalObstacle(vec2 position, vec2 size, TEXTURE_ASSET_ID assetId) 
 
 Entity createBottomCliff(vec2 position, vec2 size) {
     auto entity = Entity();
-	registry.mapTiles.emplace(entity);
 	Motion& motion = registry.motions.emplace(entity);
-	motion.position = vec3(position, 0);
+	motion.position = vec3(position, size.y / 2);
 	motion.scale = vec2(size.x, size.y * yConversionFactor);
+	motion.hitbox = { size.x, 1.9 * size.y, size.y };
+	motion.solid = true;
+
+	registry.obstacles.emplace(entity);
 
     registry.renderRequests.insert(
         entity, 
@@ -967,7 +1091,7 @@ Entity createBottomCliff(vec2 position, vec2 size) {
             EFFECT_ASSET_ID::TEXTURED,
             GEOMETRY_BUFFER_ID::SPRITE
         });
-    registry.backgrounds.emplace(entity); 
+    registry.midgrounds.emplace(entity); 
     return entity;
 }
 
@@ -975,8 +1099,12 @@ Entity createSideCliff(vec2 position, vec2 size) {
     auto entity = Entity();
 	registry.mapTiles.emplace(entity);
 	Motion& motion = registry.motions.emplace(entity);
-	motion.position = vec3(position, 0);
+	motion.position = vec3(position, size.y / 2);
 	motion.scale = vec2(size.x, size.y * yConversionFactor);
+	motion.hitbox = { abs(size.x) * 0.95, size.y, size.y };
+	motion.solid = true;
+
+	registry.obstacles.emplace(entity);
 
     registry.renderRequests.insert(
         entity, 
@@ -985,15 +1113,18 @@ Entity createSideCliff(vec2 position, vec2 size) {
             EFFECT_ASSET_ID::TEXTURED,
             GEOMETRY_BUFFER_ID::SPRITE
         });
-    registry.backgrounds.emplace(entity); 
+    registry.midgrounds.emplace(entity); 
     return entity;
 }
 Entity createTopCliff(vec2 position, vec2 size) {
     auto entity = Entity();
-	registry.mapTiles.emplace(entity);
 	Motion& motion = registry.motions.emplace(entity);
-	motion.position = vec3(position, 0);
+	motion.position = vec3(position, size.y / 2);
 	motion.scale = vec2(size.x, size.y * yConversionFactor);
+	motion.hitbox = { size.x, size.y / 16, size.y };
+	motion.solid = true;
+
+	registry.obstacles.emplace(entity);
 
     registry.renderRequests.insert(
         entity, 
@@ -1002,60 +1133,32 @@ Entity createTopCliff(vec2 position, vec2 size) {
             EFFECT_ASSET_ID::TEXTURED,
             GEOMETRY_BUFFER_ID::SPRITE
         });
-    registry.backgrounds.emplace(entity); 
+    registry.midgrounds.emplace(entity);
     return entity;
 }
 
 void createCliffs(GLFWwindow* window) {
 	float widthFactor = 0.5;
-	float cornerAdjustment = 0.2;
-	for (int col = 1 / widthFactor; col < (x_tiles - 1) / widthFactor; col++) {
-		vec2 position = { (col + 0.5) * tile_x * widthFactor, 0.5 * tile_y };
+	for (int col = 1 / widthFactor; col < x_tiles / widthFactor; col++) {
+		vec2 position = { (col - 0.5) * tile_x * widthFactor, tile_y };
 		vec2 size = { tile_x * widthFactor, tile_y };
 		createTopCliff(position, size);
 	}
-	for (int col = 1 / widthFactor; col < (x_tiles - 1) / widthFactor; col++) {
-		vec2 position = { (col + 0.5) * tile_x * widthFactor, (y_tiles - 0.5) * tile_y } ;
-		vec2 size = { tile_x * widthFactor, tile_y };
-		createBottomCliff(position, size);
-	}
-	for (int row = 0; row < y_tiles - 1; row++) {
-		vec2 position = { 0.5 * tile_x, (row + 0.5 + cornerAdjustment) * tile_y};
-		vec2 size = {tile_x, tile_y};
+	for (int row = 0; row < y_tiles; row++) {
+		vec2 position = { 0.3 * tile_x, (row + 1) * tile_y };
+		vec2 size = { tile_x, tile_y };
 		createSideCliff(position, size);
 	}
-	for (int row = 0; row < y_tiles - 1; row++) {
-		vec2 position = { (x_tiles - 0.5) * tile_x, (row + 0.5 + cornerAdjustment) * tile_y };
+	for (int row = 0; row < y_tiles; row++) {
+		vec2 position = { (x_tiles - 0.3) * tile_x, (row + 1) * tile_y };
 		vec2 size = { -tile_x, tile_y };
 		createSideCliff(position, size);
 	}
-
-
-	//// Top boundary cliffs
- //   for (int col = 0; col <= cliffsOnScreenX; col++) {
- //       vec2 position = {leftBound + col * cliffWidth, topBound - cliffThickness}; 
- //       vec2 size = {cliffWidth, cliffThickness};
- //       createTopCliff(position, size);
- //   }
-	//// Bottom boundary cliffs
- //   for (int col = 0; col <= cliffsOnScreenX; col++) {
- //       vec2 position = {leftBound + bottomCliffWidth / 2 + col * bottomCliffWidth - bottomCliffOffset, bottomBound - cliffThickness};  
- //       vec2 size = {cliffWidth, cliffThickness};
- //       createBottomCliff(position, size);
- //   }
- //   // Left boundary cliffs
- //   for (int row = 0; row < cliffsOnScreenY - 2; row++) {
- //       vec2 position = {leftBound - cliffThickness / 2, row * sideCliffHeight}; 
- //       vec2 size = {sideCliffHeight, sideCliffThickness};
- //       createSideCliff(position, size);
- //   }
-
-	//// Right boundary cliffs
- //   for (int row = 0; row < cliffsOnScreenY - 2; row++) {
- //       vec2 position = {rightBound + cliffThickness / 2,  row * sideCliffHeight};
- //       vec2 size = {-sideCliffHeight, sideCliffThickness};
- //       createSideCliff(position, size);
- //   }
+	for (int col = 1 / widthFactor; col < x_tiles / widthFactor; col++) {
+		vec2 position = { (col - 0.5) * tile_x * widthFactor, y_tiles * tile_y };
+		vec2 size = { tile_x * widthFactor, tile_y };
+		createBottomCliff(position, size);
+	}
 }
 
 void createMapTiles() {
@@ -1063,7 +1166,8 @@ void createMapTiles() {
         for (int col = 0; col < x_tiles; col++) { 
             vec2 position = {(col + 0.5) * tile_x, (row + 0.5) * tile_y};
             vec2 size = {tile_x, tile_y};
-            createMapTile(position, size);
+			float height = 0;
+            createMapTile(position, size, height);
         }
     }
 }
@@ -1258,6 +1362,28 @@ Entity createScoreText(vec2 windowSize) {
 
 	return entity;
 }
+
+void createExplosion(vec3 pos)
+{
+	auto entity = Entity();
+
+	registry.explosions.emplace(entity);
+	Damaging& dmg = registry.damagings.emplace(entity);
+	dmg.damage = 30;
+
+	// Setting intial motion values
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.scale = { EXPLOSION_BB_WIDTH + 30.0f, EXPLOSION_BB_HEIGHT + 30.0f };
+	motion.hitbox = { EXPLOSION_BB_WIDTH, EXPLOSION_BB_WIDTH, EXPLOSION_BB_HEIGHT / zConversionFactor };
+
+	Knocker& knocker = registry.knockers.emplace(entity);
+	knocker.strength = 1.5f;
+	
+	initExplosionAnimationController(entity);
+	registry.midgrounds.emplace(entity);
+};
+
 
 float getElevation(vec2 xy)
 {

@@ -86,7 +86,15 @@ enum class TEXTURE_ASSET_ID
 	BIRD_DEAD = BIRD_SWOOP + 1,
 	TROLL_RUN = BIRD_DEAD + 1,
 	TROLL_DEAD = TROLL_RUN + 1,
-	TEXTURE_COUNT = TROLL_DEAD + 1
+	BOMBER_IDLE = TROLL_DEAD + 1,
+	BOMBER_RUN = BOMBER_IDLE + 1,
+	BOMBER_DEAD = BOMBER_RUN + 1,
+	BOMB = BOMBER_DEAD + 1,
+	EXPLOSION = BOMB + 1,
+	TITLE_BACKGROUND = EXPLOSION + 1,
+	TITLE_TEXT = TITLE_BACKGROUND + 1,
+	SMOKE = TITLE_TEXT + 1,
+	TEXTURE_COUNT = SMOKE + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
@@ -101,7 +109,8 @@ enum class EFFECT_ASSET_ID
 	ANIMATED_NORMAL = ANIMATED + 1,
 	FONT = ANIMATED_NORMAL + 1,
 	TREE = FONT + 1,
-	EFFECT_COUNT = TREE + 1,
+	PARTICLE = TREE + 1,
+	EFFECT_COUNT = PARTICLE + 1,
 };
 const int effect_count = (int)EFFECT_ASSET_ID::EFFECT_COUNT;
 
@@ -149,4 +158,20 @@ struct PointLight {
 	float constant;
 	float linear;
 	float quadratic;
+};
+
+enum class PARTICLE {
+	SMOKE,
+	DASH
+};
+
+struct Particle
+{
+	PARTICLE type = PARTICLE::SMOKE;
+	vec3 position = { 0, 0, 0 };
+	float angle = 0;
+	vec3 velocity = { 0, 0, 0 };
+	vec2 scale = { 10, 10 };
+	float gravity = 1.0;			// 1 means affected by gravity normally, 0 is no gravity
+	float life = 10000.f;
 };

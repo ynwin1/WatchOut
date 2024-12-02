@@ -1,4 +1,4 @@
-﻿#include "physics_system.hpp"
+#include "physics_system.hpp"
 #include "world_init.hpp"
 #include "render_system.hpp"
 #include <iostream>
@@ -50,7 +50,9 @@ void PhysicsSystem::handleBoundsCheck() {
 	ComponentContainer<Motion>& motion_container = registry.motions;
 
 	for (uint i = 0; i < motion_container.components.size(); i++) {
-		if (registry.birds.has(motion_container.entities[i]) || registry.mapTiles.has(motion_container.entities[i])) {
+		if (registry.birds.has(motion_container.entities[i]) || 
+			registry.mapTiles.has(motion_container.entities[i]) ||
+			registry.explosions.has(motion_container.entities[i])) {
 			continue;
 		}
 
@@ -261,6 +263,11 @@ bool PhysicsSystem::meshCollides(Entity& mesh_entity, Entity& other_entity) {
 void PhysicsSystem::updatePositions(float elapsed_ms)
 {
 	for (Entity entity : registry.motions.entities) {
+		if(registry.explosions.has(entity)) {
+			// don't need to update explosion position
+			continue;
+		}
+
 		Motion& motion = registry.motions.get(entity);
 
 		// Z-position of entity when it is on the ground
@@ -283,27 +290,28 @@ void PhysicsSystem::updatePositions(float elapsed_ms)
 		motion.position.y += motion.velocity.y * elapsed_ms;
 		motion.position.z += motion.velocity.z * elapsed_ms;
 
-		// Apply gravity
+		// Apply gravity if above the ground
 		if (motion.position.z > groundZ) {
 			// Don't apply gravity to fireballs
-			if (registry.damagings.has(entity) && registry.damagings.get(entity).type == "fireball") {
+			if (registry.damagings.has(entity) && registry.damagings.get(entity).type == "fireball")
+			{ 
 				continue;
 			}
-			motion.velocity.z -= GRAVITATIONAL_CONSTANT * elapsed_ms;
+			motion.velocity.z -= motion.gravity * GRAVITATIONAL_CONSTANT * elapsed_ms;
 		}
 
-		// Hit the ground
-		if (motion.position.z < groundZ) {
-			motion.position.z = groundZ;
-			motion.velocity.z = 0;
+		// Can jump if on the ground
+		if (motion.position.z <= groundZ) {
 			if (registry.jumpers.has(entity)) {
 				Jumper& jumper = registry.jumpers.get(entity);
 				if (registry.players.has(entity)) {
 					Player& player = registry.players.get(entity);
 					Stamina& stamina = registry.staminas.get(entity);
-					if (player.tryingToJump && stamina.stamina > JUMP_STAMINA) {
+					if (player.tryingToJump && stamina.stamina > JUMP_STAMINA && !registry.trappables.get(entity).isTrapped) {
 						stamina.stamina -= JUMP_STAMINA;
 						motion.velocity.z = jumper.speed;
+						jumper.isJumping = true;
+						sound->playSoundEffect(Sound::JUMPING, 0);
 					}
 					else {
 						jumper.isJumping = false;
@@ -313,7 +321,33 @@ void PhysicsSystem::updatePositions(float elapsed_ms)
 					motion.velocity.z = jumper.speed;
 				}
 			}
-			else if (registry.projectiles.has(entity)) {
+		}
+
+		// Hit the ground
+		if (motion.position.z < groundZ && motion.velocity.z <= 0.0f) {
+			if (registry.bombs.has(entity) && registry.bombs.get(entity).numBounces > 0) {
+				// Apply upward velocity for bounce, reduced by a decay factor
+    	  motion.velocity.x *= FRICTION_FACTOR;
+    		motion.velocity.y *= FRICTION_FACTOR;
+    		motion.velocity.z = -motion.velocity.z * BOUNCE_FACTOR;
+	
+				registry.bombs.get(entity).numBounces -= 1;
+				continue;
+      }
+
+			motion.position.z = groundZ;
+			motion.velocity.z = 0;
+
+			if (registry.knockables.has(entity)) {
+				Knockable& knockable = registry.knockables.get(entity);
+				if (knockable.knocked) {
+					knockable.knocked = false;
+					motion.velocity.x = 0;
+					motion.velocity.y = 0;
+				}
+			}
+
+			if (registry.projectiles.has(entity)) {
 				motion.velocity.x = 0;
 				motion.velocity.y = 0;
 				if (registry.damagings.has(entity)) {
@@ -397,7 +431,7 @@ void PhysicsSystem::handle_mesh_collision(Entity mesh, Entity entity)
 	}
 
 	// Example - fireball
-	if (registry.damagings.has(entity)) {
+	if (registry.damagings.has(entity) && registry.damagings.get(entity).type == "fireball") {
 		// Destroy the damaging
 		registry.remove_all_components_of(entity);
 		return;
@@ -482,11 +516,15 @@ void PhysicsSystem::recoil_entities(Entity entity1, Entity entity2) {
 	}
 }
 
+void PhysicsSystem::init(SoundSystem* sound)
+{
+	this->sound = sound;
+}
+
 void PhysicsSystem::step(float elapsed_ms)
 {
 	updatePositions(elapsed_ms);
 	checkCollisions();
-	handleBoundsCheck();
 };
 
 std::vector<vec3> boundingBoxVertices(Motion& motion)

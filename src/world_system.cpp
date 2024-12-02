@@ -641,7 +641,9 @@ void WorldSystem::on_mouse_button(int button, int action, int mod) {
         }
         break;
         case GLFW_MOUSE_BUTTON_RIGHT: {
-            unEquipItem();
+            if(registry.inventory.equipped != INVENTORY_ITEM::NONE) {
+                unEquipItem();
+            }
         }
         break;
         }

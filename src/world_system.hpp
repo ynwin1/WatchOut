@@ -102,7 +102,7 @@ private:
 		{"bird", 8},
 		{"wizard", -2},
 		{"troll", -3},
-		{"bomber", 2},
+		{"bomber", -2},
 		{"heart", 2},
 		{"collectible_trap", 2}
 	};

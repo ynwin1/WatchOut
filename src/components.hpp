@@ -192,6 +192,11 @@ struct DeathTimer
 	float timer = 3000;
 };
 
+struct Invulnerable
+{
+	float timer = 2000;
+};
+
 struct Knockable
 {
 	bool knocked = false;

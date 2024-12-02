@@ -26,7 +26,8 @@ void GameStateController::onExitState(GAME_STATE oldState) {
     }
     if (oldState == GAME_STATE::BOAR_TUTORIAL || oldState == GAME_STATE::WIZARD_TUTORIAL ||
         oldState == GAME_STATE::BIRD_TUTORIAL || oldState == GAME_STATE::TROLL_TUTORIAL ||
-        oldState == GAME_STATE::ARCHER_TUTORIAL || oldState == GAME_STATE::BARBARIAN_TUTORIAL) {
+        oldState == GAME_STATE::ARCHER_TUTORIAL || oldState == GAME_STATE::BARBARIAN_TUTORIAL ||
+        oldState == GAME_STATE::BOMBER_TUTORIAL) {
         world->exitEnemyTutorial();
     }
     if (oldState == GAME_STATE::HEART_TUTORIAL || oldState == GAME_STATE::TRAP_TUTORIAL || oldState == GAME_STATE::PHANTOM_TRAP_TUTORIAL) {
@@ -80,6 +81,10 @@ void GameStateController::beforeEnterState(GAME_STATE newState) {
     }
     if (newState == GAME_STATE::BARBARIAN_TUTORIAL) {
         world->createBarbarianTutorial(world->camera->getSize());
+        return;
+    }
+    if (newState == GAME_STATE::BOMBER_TUTORIAL) {
+        world->createBomberTutorial(world->camera->getSize());
         return;
     }
     if (newState == GAME_STATE::HEART_TUTORIAL) {

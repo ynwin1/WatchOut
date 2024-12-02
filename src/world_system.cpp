@@ -234,6 +234,10 @@ void WorldSystem::updateEnemyTutorial() {
                 if (enemyType == "BARBARIAN") {
                     gameStateController.setGameState(GAME_STATE::BARBARIAN_TUTORIAL);
                 }
+                if (enemyType == "BOMBER") {
+                    gameStateController.setGameState(GAME_STATE::BOMBER_TUTORIAL);
+                }
+                
                 encounteredEnemies.insert(enemyType);
                 break; 
             }
@@ -468,6 +472,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     case GAME_STATE::TROLL_TUTORIAL: 
     case GAME_STATE::ARCHER_TUTORIAL: 
     case GAME_STATE::BARBARIAN_TUTORIAL: 
+    case GAME_STATE::BOMBER_TUTORIAL: 
         sound->pauseAllSoundEffects();
         enemyTutorialControls(key, action, mod);
         break;
@@ -674,7 +679,7 @@ void WorldSystem::gameOverControls(int key, int action, int mod)
 {
     if (action == GLFW_PRESS) {
         switch (key) {
-        case GLFW_KEY_R:
+        case GLFW_KEY_ENTER:
             restart_game();
             break;
         case GLFW_KEY_Q:

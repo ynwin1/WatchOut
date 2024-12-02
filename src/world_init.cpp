@@ -256,6 +256,7 @@ Entity createBomber(vec2 pos)
 
 	Enemy& enemy = registry.enemies.emplace(entity);
 	enemy.damage = BOMBER_DAMAGE;
+	enemy.type = "BOMBER";
 	enemy.maxHealth = BOMBER_HEALTH;
 	enemy.health = enemy.maxHealth;
 	motion.speed = BOMBER_SPEED;

@@ -102,7 +102,7 @@ private:
 		{"bird", 8},
 		{"wizard", -2},
 		{"troll", -3},
-		{"bomber", -2},
+		{"bomber", 2},
 		{"heart", 2},
 		{"collectible_trap", 2}
 	};
@@ -218,6 +218,7 @@ private:
 	Entity createTrollTutorial(vec2 cameraPosition);
 	Entity createArcherTutorial(vec2 cameraPosition);
 	Entity createBarbarianTutorial(vec2 cameraPosition);
+	Entity createBomberTutorial(vec2 cameraPosition);
 	void exitEnemyTutorial();
 	Entity createHeartTutorial(vec2 cameraPosition);
 	Entity createTrapTutorial(vec2 cameraPosition);

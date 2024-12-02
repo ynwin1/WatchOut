@@ -83,6 +83,7 @@ class RenderSystem {
 		textures_path("enemy_intros/troll.png"),      // TROLL INTRO
 		textures_path("enemy_intros/archer.png"),     // ARCHER INTRO
 		textures_path("enemy_intros/barbarian.png"),  // BARBARIAN INTRO
+		textures_path("enemy_intros/bomber.png"),  // BAOMBER INTRO
 		textures_path("enemy_intros/target.png"),     // ENEMY TARGET AREA
 		textures_path("collectible_intros/heart.png"),// HEART INTRO
 		textures_path("collectible_intros/trap.png"), // TRAP INTRO

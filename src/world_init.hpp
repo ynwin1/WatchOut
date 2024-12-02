@@ -192,6 +192,8 @@ Entity createSideCliff(vec2 position, vec2 scale);
 Entity createTopCliff(vec2 position, vec2 scale);
 void createTrees(RenderSystem* renderer);
 
+//Tutorial
+Entity createTutorialTarget(vec3 position);
 struct ProjectileInfo {
     vec2 size;
     TEXTURE_ASSET_ID assetId;

@@ -23,6 +23,7 @@ Entity createBoar(vec2 pos)
 	enemy.damage = BOAR_DAMAGE;
 	enemy.maxHealth = BOAR_HEALTH;
 	enemy.health = enemy.maxHealth;
+	enemy.type = "BOAR";
 	motion.speed = BOAR_SPEED;
 
 	registry.boars.emplace(entity);
@@ -65,6 +66,7 @@ Entity createBarbarian(vec2 pos)
 	enemy.cooldown = 1000;
 	enemy.maxHealth = BARBARIAN_HEALTH;
 	enemy.health = enemy.maxHealth;
+	enemy.type = "BARBARIAN";
 	motion.speed = BARBARIAN_SPEED;
 
 	registry.barbarians.emplace(entity);
@@ -99,6 +101,7 @@ Entity createArcher(vec2 pos)
 	enemy.damage = ARCHER_DAMAGE;
 	enemy.maxHealth = ARCHER_HEALTH;
 	enemy.health = enemy.maxHealth;
+	enemy.type = "ARCHER";
 	motion.speed = ARCHER_SPEED;
 
 	registry.archers.emplace(entity);
@@ -149,6 +152,7 @@ Entity createBird(vec2 birdPosition) {
 	enemy.cooldown = 2000.f;
 	enemy.maxHealth = BIRD_HEALTH;
 	enemy.health = enemy.maxHealth;
+	enemy.type = "BIRD";
 	motion.speed = BIRD_SPEED;
 
 	registry.birds.emplace(entity);
@@ -177,6 +181,7 @@ Entity createWizard(vec2 pos) {
 
 	Enemy& enemy = registry.enemies.emplace(entity);
 	enemy.damage = WIZARD_DAMAGE;
+	enemy.type = "WIZARD";
 	enemy.cooldown = 8000.f; // 8s
 	enemy.maxHealth = WIZARD_HEALTH;
 	enemy.health = enemy.maxHealth;
@@ -214,6 +219,7 @@ Entity createTroll(vec2 pos)
 
 	Enemy& enemy = registry.enemies.emplace(entity);
 	enemy.damage = TROLL_DAMAGE;
+	enemy.type = "TROLL";
 	enemy.cooldown = 0;
 	motion.speed = TROLL_SPEED;
 	enemy.maxHealth = TROLL_HEALTH;
@@ -250,6 +256,7 @@ Entity createBomber(vec2 pos)
 
 	Enemy& enemy = registry.enemies.emplace(entity);
 	enemy.damage = BOMBER_DAMAGE;
+	enemy.type = "BOMBER";
 	enemy.maxHealth = BOMBER_HEALTH;
 	enemy.health = enemy.maxHealth;
 	motion.speed = BOMBER_SPEED;
@@ -279,6 +286,8 @@ Entity createCollectibleTrap(vec2 pos)
 	if (random >= 0.8) {
 		collectibleTrap.type = "phantom_trap";
 		initPhantomTrapAnimationController(entity);
+		Collectible& collectible = registry.collectibles.emplace(entity);
+		collectible.type = "PHANTOM_TRAP";
 		
 		motion.position = vec3(pos, getElevation(pos) + PHANTOM_TRAP_COLLECTABLE_BB_HEIGHT / 2);
 		motion.angle = 0.f;
@@ -287,14 +296,14 @@ Entity createCollectibleTrap(vec2 pos)
 	}
 	else {
 		initTrapBottleAnimationController(entity);
+		Collectible& collectible = registry.collectibles.emplace(entity);
+		collectible.type = "TRAP";
 
 		motion.position = vec3(pos, getElevation(pos) + TRAP_COLLECTABLE_BB_HEIGHT / 2);
 		motion.angle = 0.f;
 		motion.scale = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT };
 		motion.hitbox = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT / zConversionFactor };
 	}
-
-	registry.collectibles.emplace(entity);
 
 	registry.midgrounds.emplace(entity);
 
@@ -325,12 +334,14 @@ Entity createCollectible(vec2 pos, TEXTURE_ASSET_ID assetID)
 			motion.scale = { BOW_BB_WIDTH, BOW_BB_HEIGHT };
 			registry.bows.emplace(entity);
 			collectible.duration = 10000;
+			collectible.type = "BOW";
 			initBowAnimationController(entity);
 			break;
 		case TEXTURE_ASSET_ID::BOMB:
 			motion.scale = { BOMB_BB_WIDTH, BOMB_BB_HEIGHT };
 			registry.collectibleBombs.emplace(entity);
 			collectible.duration = 10000;
+			collectible.type = "BOMB";
 			initBombAnimationController(entity);
 			break;
 		default:
@@ -358,7 +369,8 @@ Entity createHeart(vec2 pos)
 	fixed.scale = { HEART_BB_WIDTH, HEART_BB_WIDTH };
 	fixed.hitbox = { HEART_BB_WIDTH, HEART_BB_WIDTH, HEART_BB_HEIGHT / zConversionFactor };
 
-	registry.collectibles.emplace(entity);
+	Collectible& collectible = registry.collectibles.emplace(entity);
+	collectible.type = "HEART";
 
 	initHeartAnimationController(entity);
 
@@ -867,6 +879,32 @@ Entity createTargetArea(vec3 position) {
 
 	Cooldown& cooldown = registry.cooldowns.emplace(entity);
 	cooldown.remaining = 3000.f; // 3s
+	return entity;
+}
+
+Entity createTutorialTarget(vec3 position) {
+	auto entity = Entity();
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = position;
+	motion.position.z = 0.f;
+
+	float ogRadius = 170.f;
+	float scaledFactor = 150.0f / ogRadius;
+	motion.scale = { 2 * ogRadius * scaledFactor, 2 * ogRadius * scaledFactor * zConversionFactor };
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::TUTORIAL_TARGET,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	registry.backgrounds.emplace(entity);
+	registry.targetAreas.emplace(entity);
+	Cooldown& cooldown = registry.cooldowns.emplace(entity);
+	cooldown.remaining = 200.f; 
 	return entity;
 }
 

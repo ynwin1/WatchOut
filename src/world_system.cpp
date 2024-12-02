@@ -84,6 +84,11 @@ void WorldSystem::restart_game()
         next_spawns[name] = 1000;
     }
     loadAndSaveHighScore(false);
+
+    tutorialDelayTimer = 0.0f;
+    hasSwitchedToTutorial = false;
+    encounteredEnemies.clear();
+    encounteredCollectibles.clear();
 }
 
 void WorldSystem::load_game() {
@@ -213,6 +218,91 @@ void WorldSystem::updateCollectedTimer(float elapsed_ms) {
     }
 }
 
+void WorldSystem::updateTutorial(float elapsed_ms) {
+    if (!hasSwitchedToTutorial) {
+        tutorialDelayTimer += elapsed_ms / 1000.0f; 
+        if (tutorialDelayTimer >= 0.1f) {
+            gameStateController.setGameState(GAME_STATE::TUTORIAL);
+            hasSwitchedToTutorial = true;
+        }
+    }
+}
+
+void WorldSystem::updateEnemyTutorial() {
+    for(Entity enemy: registry.enemies.entities){
+        Motion& motion = registry.motions.get(enemy);
+        Motion& playerMotion = registry.motions.get(playerEntity);
+        vec2 playerPosition = { playerMotion.position.x, playerMotion.position.y };
+
+        vec2 enemyPosition = { motion.position.x, motion.position.y };
+        float distance = glm::distance(playerPosition, enemyPosition);
+
+         if (distance <= 300.0f) {
+            std::string enemyType = registry.enemies.get(enemy).type; 
+            if (encounteredEnemies.find(enemyType) == encounteredEnemies.end()) {
+                createTutorialTarget(motion.position);
+                if (enemyType == "BOAR") {
+                    gameStateController.setGameState(GAME_STATE::BOAR_TUTORIAL);
+                }
+                if (enemyType == "BIRD") {
+                    gameStateController.setGameState(GAME_STATE::BIRD_TUTORIAL);
+                }
+                if (enemyType == "TROLL") {
+                    gameStateController.setGameState(GAME_STATE::TROLL_TUTORIAL);
+                }
+                if (enemyType == "WIZARD") {
+                    gameStateController.setGameState(GAME_STATE::WIZARD_TUTORIAL);
+                }
+                if (enemyType == "ARCHER") {
+                    gameStateController.setGameState(GAME_STATE::ARCHER_TUTORIAL);
+                }
+                if (enemyType == "BARBARIAN") {
+                    gameStateController.setGameState(GAME_STATE::BARBARIAN_TUTORIAL);
+                }
+                if (enemyType == "BOMBER") {
+                    gameStateController.setGameState(GAME_STATE::BOMBER_TUTORIAL);
+                }
+                
+                encounteredEnemies.insert(enemyType);
+                break; 
+            }
+        }
+    }
+}
+
+void WorldSystem::updateCollectibleTutorial() {
+    for(Entity collectible: registry.collectibles.entities){
+        Motion& motion = registry.motions.get(collectible);
+        Motion& playerMotion = registry.motions.get(playerEntity);
+        vec2 playerPosition = { playerMotion.position.x, playerMotion.position.y };
+       
+        vec2 collectiblePosition = { motion.position.x, motion.position.y };
+        float distance = glm::distance(playerPosition, collectiblePosition);
+        if (distance <= 200.0f) {
+            std::string collectibleType = registry.collectibles.get(collectible).type; 
+            if (encounteredCollectibles.find(collectibleType) == encounteredCollectibles.end()) {
+                createTutorialTarget(motion.position);
+                if (collectibleType == "HEART") {
+                    gameStateController.setGameState(GAME_STATE::HEART_TUTORIAL);
+                }
+                if (collectibleType == "TRAP") {
+                    gameStateController.setGameState(GAME_STATE::TRAP_TUTORIAL);
+                }
+                if (collectibleType == "PHANTOM_TRAP") {
+                    gameStateController.setGameState(GAME_STATE::PHANTOM_TRAP_TUTORIAL);
+                }
+                if (collectibleType == "BOW") {
+                    gameStateController.setGameState(GAME_STATE::BOW_TUTORIAL);
+                }
+                if (collectibleType == "BOMB") {
+                    gameStateController.setGameState(GAME_STATE::BOMB_TUTORIAL);
+                }
+                encounteredCollectibles.insert(collectibleType);
+                break; 
+            }
+        }
+    }
+}
 void WorldSystem::updateEquippedPosition() {
 	Entity& playerE = registry.players.entities[0];
 	Motion& playerM = registry.motions.get(playerE);
@@ -241,6 +331,9 @@ void WorldSystem::updateEquippedPosition() {
 
 bool WorldSystem::step(float elapsed_ms)
 {
+    updateEnemyTutorial();
+    updateCollectibleTutorial();
+    updateTutorial(elapsed_ms);
     adjustSpawnSystem(elapsed_ms);
     spawn(elapsed_ms);
     spawn_particles(elapsed_ms);
@@ -266,7 +359,6 @@ bool WorldSystem::step(float elapsed_ms)
         Motion& playerMotion = registry.motions.get(playerEntity);
         camera->followPosition(vec2(playerMotion.position.x, playerMotion.position.y * yConversionFactor));
     }
-
 
     Player& player = registry.players.get(playerEntity);
     if(player.health == 0) {
@@ -670,6 +762,27 @@ void WorldSystem::on_key(int key, int, int action, int mod)
         handleSoundOnPauseHelp();
         helpControls(key, action, mod);
         break;
+    case GAME_STATE::TUTORIAL: 
+        tutorialControls(key, action, mod);
+        break;
+    case GAME_STATE::BOAR_TUTORIAL: 
+    case GAME_STATE::BIRD_TUTORIAL: 
+    case GAME_STATE::WIZARD_TUTORIAL: 
+    case GAME_STATE::TROLL_TUTORIAL: 
+    case GAME_STATE::ARCHER_TUTORIAL: 
+    case GAME_STATE::BARBARIAN_TUTORIAL: 
+    case GAME_STATE::BOMBER_TUTORIAL: 
+        sound->pauseAllSoundEffects();
+        enemyTutorialControls(key, action, mod);
+        break;
+    case GAME_STATE::HEART_TUTORIAL: 
+    case GAME_STATE::TRAP_TUTORIAL: 
+    case GAME_STATE::PHANTOM_TRAP_TUTORIAL: 
+    case GAME_STATE::BOW_TUTORIAL: 
+    case GAME_STATE::BOMB_TUTORIAL: 
+        sound->pauseAllSoundEffects();
+        collectibleTutorialControls(key, action, mod);
+        break;
     }
     if (gameStateController.getGameState() != GAME_STATE::TITLE) {
         movementControls(key, action, mod);
@@ -731,6 +844,91 @@ void WorldSystem::pauseControls(int key, int action, int mod)
         }
     }
 }
+
+void WorldSystem::tutorialControls(int key, int action, int mod) {
+    if (action == GLFW_PRESS) {
+        switch (key) {
+        case GLFW_KEY_Q:
+            glfwSetWindowShouldClose(window, true);
+            break;
+        case GLFW_KEY_ENTER:
+        case GLFW_KEY_SPACE:
+            onTutorialClick();
+            break;
+        case GLFW_KEY_H:
+            gameStateController.setGameState(GAME_STATE::PLAYING);
+            sound->resumeAllSoundEffects();
+            exitTutorial();
+            break;
+        }
+    }
+}
+
+void WorldSystem::enemyTutorialControls(int key, int action, int mod) {
+    if (action == GLFW_PRESS) {
+        switch (key) {
+        case GLFW_KEY_Q:
+            glfwSetWindowShouldClose(window, true);
+            break;
+        case GLFW_KEY_ENTER:
+        case GLFW_KEY_SPACE:
+            gameStateController.setGameState(GAME_STATE::PLAYING);
+            sound->resumeAllSoundEffects();
+            break;
+        case GLFW_KEY_ESCAPE:
+            gameStateController.setGameState(GAME_STATE::PAUSED);
+            break;
+        }
+    }
+}
+
+void WorldSystem::collectibleTutorialControls(int key, int action, int mod) {
+    if (action == GLFW_PRESS) {
+        switch (key) {
+        case GLFW_KEY_Q:
+            glfwSetWindowShouldClose(window, true);
+            break;
+        case GLFW_KEY_ENTER:
+        case GLFW_KEY_SPACE:
+            gameStateController.setGameState(GAME_STATE::PLAYING);
+            sound->resumeAllSoundEffects();
+            break;
+        case GLFW_KEY_ESCAPE:
+            gameStateController.setGameState(GAME_STATE::PAUSED);
+            break;
+        }
+    }
+}
+
+void WorldSystem::onTutorialClick() {
+    Entity entity = registry.tutorialComponents.entities[0];
+    TutorialComponent& tutorial = registry.tutorialComponents.get(entity);
+
+
+    if (tutorial.tutorialStep >= tutorial.maxTutorialSteps) {
+        gameStateController.setGameState(GAME_STATE::PLAYING);
+        exitTutorial();
+        return;
+    }
+    tutorial.tutorialStep++;
+    for (auto& entity : registry.tutorialComponents.entities) {
+        TEXTURE_ASSET_ID nextTexture;
+        switch (tutorial.tutorialStep) {
+        case 2:
+            nextTexture = TEXTURE_ASSET_ID::TUTORIAL_2;
+            break;
+        case 3:
+            nextTexture = TEXTURE_ASSET_ID::TUTORIAL_3;
+            break;
+        default:
+            nextTexture = TEXTURE_ASSET_ID::TUTORIAL_1;
+            break;
+        }
+
+        registry.renderRequests.get(entity).used_texture = nextTexture;
+    }
+}
+
 
 void WorldSystem::titleControls(int key, int action, int mod) {
 	if (action == GLFW_PRESS) {
@@ -1425,7 +1623,7 @@ void WorldSystem::handle_stamina(float elapsed_ms) {
         Dash& dash_comp = registry.dashers.get(staminaEntity);
         Jumper& player_jump = registry.jumpers.get(staminaEntity);
     
-        if (player_comp.isRunning && stamina.stamina > 0) {
+        if (player_comp.isRunning && player_comp.isMoving && stamina.stamina > 0) {
             stamina.stamina -= elapsed_ms / 1000.0f * stamina.stamina_loss_rate;
 
             if (stamina.stamina < 0) {

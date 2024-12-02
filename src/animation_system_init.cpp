@@ -57,6 +57,17 @@ const int COLLECTIBLE_IDLE_FRAME_TIME = 0;
 const int COLLECTIBLE_IDLE_NUM_FRAMES = 1;
 const int COLLECTIBLE_FADE_FRAME_TIME = 100;
 const int COLLECTIBLE_FADE_NUM_FRAMES = 2;
+const int BOW_DRAW_FRAME_TIME = 100;
+const int BOW_DRAW_NUM_FRAMES = 3;
+const int BOW_DRAWN_FRAME_TIME = 0;
+const int BOW_DRAWN_NUM_FRAMES = 1;
+
+const int BOMBER_IDLE_NUM_FRAMES = 4;
+const int BOMBER_IDLE_FRAME_TIME = 200;
+const int BOMBER_RUN_NUM_FRAMES = 4;
+const int BOMBER_RUN_FRAME_TIME = 150;
+const int BOMBER_DEAD_NUM_FRAMES = 1;
+const int BOMBER_DEAD_FRAME_TIME = 1000;
 
 const int PHANTOM_TRAP_FRAME_TIME = 100;
 const int PHANTOM_TRAP_NUM_FRAMES = 8;
@@ -278,6 +289,76 @@ AnimationController& initPhantomTrapAnimationController(Entity& entity) {
 		});
 
 	animationcontroller.changeState(entity, AnimationState::Idle);
+
+	return animationcontroller;
+}
+
+AnimationController& initBomberAnimationController(Entity& entity) {
+	AnimationController& animationcontroller = registry.animationControllers.emplace(entity);
+	animationcontroller.addAnimation(AnimationState::Idle, BOMBER_IDLE_FRAME_TIME, BOMBER_IDLE_NUM_FRAMES, TEXTURE_ASSET_ID::BOMBER_IDLE);
+	animationcontroller.addAnimation(AnimationState::Running, BOMBER_RUN_FRAME_TIME, BOMBER_RUN_NUM_FRAMES, TEXTURE_ASSET_ID::BOMBER_RUN);
+	animationcontroller.addAnimation(AnimationState::Dead, BOMBER_DEAD_FRAME_TIME, BOMBER_DEAD_NUM_FRAMES, TEXTURE_ASSET_ID::BOMBER_DEAD);
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::BOMBER_RUN,
+			EFFECT_ASSET_ID::ANIMATED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	animationcontroller.changeState(entity, AnimationState::Running);
+
+	return animationcontroller;
+}
+
+AnimationController& initExplosionAnimationController(Entity& entity) {
+    AnimationController& animationcontroller = registry.animationControllers.emplace(entity);
+	animationcontroller.addAnimation(AnimationState::Idle, 50, 10, TEXTURE_ASSET_ID::EXPLOSION);
+
+    registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::EXPLOSION,
+			EFFECT_ASSET_ID::ANIMATED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	animationcontroller.changeState(entity, AnimationState::Idle);
+
+    return animationcontroller;
+}
+
+AnimationController& initBowAnimationController(Entity& entity) {
+	AnimationController& animationcontroller = registry.animationControllers.emplace(entity);
+	animationcontroller.addAnimation(AnimationState::Idle, COLLECTIBLE_IDLE_FRAME_TIME, COLLECTIBLE_IDLE_NUM_FRAMES, TEXTURE_ASSET_ID::BOW);
+	animationcontroller.addAnimation(AnimationState::Fading, COLLECTIBLE_FADE_FRAME_TIME, COLLECTIBLE_FADE_NUM_FRAMES, TEXTURE_ASSET_ID::BOW_FADE);
+	animationcontroller.addAnimation(AnimationState::Attack, BOW_DRAW_FRAME_TIME, BOW_DRAW_NUM_FRAMES, TEXTURE_ASSET_ID::BOW_DRAW);
+	animationcontroller.addAnimation(AnimationState::Default, BOW_DRAWN_FRAME_TIME, BOW_DRAWN_NUM_FRAMES, TEXTURE_ASSET_ID::BOW_DRAWN);
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::BOW,
+			EFFECT_ASSET_ID::ANIMATED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	return animationcontroller;
+}
+
+AnimationController& initBombAnimationController(Entity& entity) {
+	AnimationController& animationcontroller = registry.animationControllers.emplace(entity);
+	animationcontroller.addAnimation(AnimationState::Idle, COLLECTIBLE_IDLE_FRAME_TIME, COLLECTIBLE_IDLE_NUM_FRAMES, TEXTURE_ASSET_ID::BOMB);
+	animationcontroller.addAnimation(AnimationState::Fading, COLLECTIBLE_FADE_FRAME_TIME, COLLECTIBLE_FADE_NUM_FRAMES, TEXTURE_ASSET_ID::BOMB_FADE);
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::BOMB,
+			EFFECT_ASSET_ID::ANIMATED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
 
 	return animationcontroller;
 }

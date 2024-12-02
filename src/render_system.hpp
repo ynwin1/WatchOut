@@ -8,6 +8,8 @@
 #include "render_components.hpp"
 #include "tiny_ecs.hpp"
 #include "components.hpp"
+#include "sound_system.hpp"
+#include "particle_system.hpp"
 
 
 const int MAX_POINT_LIGHTS = 3;
@@ -22,7 +24,6 @@ class RenderSystem {
 	 * Whenever possible, add to these lists instead of creating dynamic state
 	 * it is easier to debug and faster to execute for the computer.
 	 */
-	std::array<GLuint, texture_count> texture_gl_handles;
 	std::array<ivec2, texture_count> texture_dimensions = {
 		ivec2(20, 28),
 		ivec2(20, 34)
@@ -61,6 +62,10 @@ class RenderSystem {
 		textures_path("collectables/trapbottle.png"), // TRAPCOLLECTABLE
 		textures_path("collectables/trapbottle_fade.png"),
 		textures_path("collectables/trap.png"),       // TRAP
+		textures_path("collectables/bow.png"),
+		textures_path("collectables/bow_fade.png"),
+		textures_path("collectables/bow_draw.png"),
+		textures_path("collectables/bow_drawn.png"),
 		textures_path("collectables/phantom_trap_bottle.png"), // PHANTOM_TRAP_BOTTLE
 		textures_path("collectables/phantom_trap_bottle_fade.png"),
 		textures_path("collectables/phantom_trap_bottle_one.png"), // PHANTOM_TRAP_BOTTLE OF 1 FRAME
@@ -72,61 +77,43 @@ class RenderSystem {
 	  	textures_path("border/cliff2.png"),           // SIDE CLIFF
 	  	textures_path("border/cliffTop.png"),         // TOP CLIFF
 	  	textures_path("menu/HelpMenu.png"),           // MENU_HELP
-		textures_path("menu/PauseMenu.png"),           // MENU_PAUSED
-		textures_path("bird/bird_fly.png"),				 // BIRD FLY
-		textures_path("bird/bird_swoop.png"),			// BIRD SWOOP
-		textures_path("bird/bird_dead.png"),				 // BIRD DEAD
+		textures_path("menu/PauseMenu.png"),          // MENU_PAUSED
+		textures_path("tutorial/Tutorial1.png"),      // TUTORIAL SLIDE 1
+		textures_path("tutorial/Tutorial2.png"),      // TUTORIAL SLIDE 2
+		textures_path("tutorial/Tutorial3.png"),      // TUTORIAL SLIDE 3
+		textures_path("enemy_intros/boar.png"),       // BOAR INTO
+		textures_path("enemy_intros/bird.png"),       // BIRD INTRO
+		textures_path("enemy_intros/wizard.png"),     // WIZARD INTRO
+		textures_path("enemy_intros/troll.png"),      // TROLL INTRO
+		textures_path("enemy_intros/archer.png"),     // ARCHER INTRO
+		textures_path("enemy_intros/barbarian.png"),  // BARBARIAN INTRO
+		textures_path("enemy_intros/bomber.png"),  // BAOMBER INTRO
+		textures_path("enemy_intros/target.png"),     // ENEMY TARGET AREA
+		textures_path("collectible_intros/heart.png"),// HEART INTRO
+		textures_path("collectible_intros/trap.png"), // TRAP INTRO
+		textures_path("collectible_intros/phantom_trap.png"), // PHANTOM TRAP INTRO
+		textures_path("collectible_intros/bow.png"), // BOW INTRO
+		textures_path("collectible_intros/bomb.png"), // BOMB INTRO
+		textures_path("bird/bird_fly.png"),			  	      // BIRD FLY
+		textures_path("bird/bird_swoop.png"),		          // BIRD SWOOP
+		textures_path("bird/bird_dead.png"),		          // BIRD DEAD
 		textures_path("troll/Troll-6f-48x64.png"),
 		textures_path("troll/Troll-1f-48x64.png"),
+		textures_path("misc/crosshair.png"),
+		textures_path("bomber/Idle.png"),
+		textures_path("bomber/Run.png"),
+		textures_path("bomber/Dead.png"),
+		textures_path("bomb/bomb.png"),
+		textures_path("bomb/bomb_fused.png"),
+		textures_path("bomb/bomb_fade.png"),
+		textures_path("explosion/explosion.png"),		// https://craftpix.net/freebies/free-animated-explosion-sprite-pack/
 		textures_path("title_screen/titleBackground.png"), // TITLE SCREEN BACKGROUND
 		textures_path("title_screen/titleText.png"), // TITLE SCREEN TEXT
+		textures_path("particles/smoke_01.png")
 	};
 
 	// This should be in the same order as texture_paths
 	std::array<GLuint, texture_count> normal_gl_handles;
-	const std::array<std::string, texture_count> normal_paths = 
-	{
-		textures_path("barbarian/Idle32x36_n.png"),     // BARBARIAN_IDLE
-		textures_path("barbarian/Run32x36_n.png"),      // BARBARIAN_RUN
-		textures_path("barbarian/Dead32x36_n.png"),     // BARBARIAN_DEAD
-		textures_path("boar/idle1f28x19_n.png"),        // BOAR_IDLE
-		textures_path("boar/run7f28x19_n.png"),         // BOAR_RUN
-		textures_path("archer/Idle-4f-32x36_n.png"),    // ARCHER_IDLE
-		textures_path("archer/Run-6f-33x34_n.png"),     // ARCHER_RUN
-		textures_path("archer/Dead-1f-32x36_n.png"),    // ARCHER_DEAD
-		textures_path("archer/BowDraw-10f-33x34_n.png"),// ARCHER_BOW_DRAW
-		textures_path("archer/arrow_n.png"),            // ARROW
-		textures_path("wizard/Idle-4f-96x35_n.png"),    // WIZARD_IDLE
-		textures_path("wizard/Run-6f-96x35-Sheet_n.png"),// WIZARD_RUN
-		textures_path("wizard/Death-Sheet-6f-96x35_n.png"),// WIZARD_DEAD
-		textures_path("wizard/fireball-6f_n.png"),      // FIREBALL
-		textures_path("wizard/lightning_n.png"),        // LIGHTNING
-		textures_path("wizard/target_n.png"),           // TARGET AREA
-		textures_path("jeff/32Run_n.png"),              // JEFF_RUN
-		textures_path("jeff/32Idle_n.png"),             // JEFF_IDLE
-		textures_path("jeff/32Jump_n.png"),             // JEFF_JUMP
-		textures_path("collectables/heart_n.png"),      // HEART
-		textures_path("collectables/heart_fade_n.png"),
-		textures_path("collectables/trapbottle_n.png"), // TRAPCOLLECTABLE
-		textures_path("collectables/trapbottle_fade_n.png"),
-		textures_path("collectables/trap_n.png"),       // TRAP
-		textures_path("grass_tile/grass_tile_n.png"),   // GRASS_TILE
-		textures_path("tree/tree_n.png"),               // TREE
-		textures_path("shrub/shrub_n.png"),             // SHRUB
-		textures_path("rock/rock_n.png"),               // ROCK
-		textures_path("border/cliff_n.png"),            // BOTTOM CLIFF
-		textures_path("border/cliff2_n.png"),           // SIDE CLIFF
-		textures_path("border/cliffTop_n.png"),         // TOP CLIFF
-		textures_path("menu/HelpMenu_n.png"),           // MENU_HELP
-		textures_path("menu/PauseMenu_n.png"),          // MENU_PAUSED
-		textures_path("bird/bird_fly_n.png"),           // BIRD FLY
-		textures_path("bird/bird_swoop_n.png"),         // BIRD SWOOP
-		textures_path("bird/bird_dead_n.png"),          // BIRD DEAD
-		textures_path("troll/Troll-6f-48x64_n.png"),
-		textures_path("troll/Troll-1f-48x64_n.png")
-	};
-
-
 
 	std::array<GLuint, effect_count> effects;
 	// Make sure these paths remain in sync with the associated enumerators.
@@ -138,25 +125,29 @@ class RenderSystem {
 		shader_path("animated"), 
 		shader_path("animated_normal"), 
 		shader_path("font"), 
-		shader_path("tree")
+		shader_path("tree"),
+		shader_path("particle")
 	};
 	std::array<GLuint, effect_count> in_position_locations;
 	std::array<GLuint, effect_count> in_texcoord_locations;
 	std::array<GLuint, effect_count> to_screen_locations;
 	std::array<std::array<GLuint, MAX_POINT_LIGHTS * 7>, effect_count> point_light_uniform_locations;
 
-	std::array<GLuint, geometry_count> vertex_buffers;
-	std::array<GLuint, geometry_count> index_buffers;
 	std::array<Mesh, geometry_count> meshes;
 
 	void update_animations();
 	void update_jeff_animation();
+	void update_bow_animations();
 
 public:
+	std::array<GLuint, texture_count> texture_gl_handles;
+	std::array<GLuint, geometry_count> vertex_buffers;
+	std::array<GLuint, geometry_count> index_buffers;
+
 	GLFWwindow* create_window();
 
 	// Initialize the window
-	bool init(Camera* camera);
+	bool init(Camera* camera, ParticleSystem* particles, SoundSystem* sound);
 
 	template <class T>
 	void bindVBOandIBO(GEOMETRY_BUFFER_ID gid, std::vector<T> vertices, std::vector<uint16_t> indices);
@@ -191,9 +182,14 @@ public:
 	mat3 createProjectionMatrix();
 	mat4 createProjectionToScreenSpace();
 
+	vec2 mouseToScreen(vec2 mousePos);
+	vec3 mouseToWorld(vec2 mousePos);
+
 private:
+	SoundSystem* sound;
 	Camera* camera;
-	const float AMBIENT_LIGHT = 0.4;
+	ParticleSystem* particles;
+	const float AMBIENT_LIGHT = 0.13;
 
 	// Internal drawing functions for each entity type
 	void drawMesh(Entity entity, const mat3& projection, const mat4& projection_screen);
@@ -220,7 +216,9 @@ private:
 
 	void updateEntityFacing();
 
-	void updateCollectedPosition();
+    void updateCollectedPosition();
+
+	void updateExplosions(float elapsed_ms);
 
 	// Window handle
 	GLFWwindow* window;

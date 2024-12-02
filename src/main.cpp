@@ -26,6 +26,7 @@ int main()
 	WorldSystem world = WorldSystem(rng);
 	RenderSystem renderer;
 	PhysicsSystem physics;
+	ParticleSystem particles;
 	SoundSystem sound;
 	AISystem ai = AISystem(rng, &sound);
 	Camera camera;
@@ -43,10 +44,11 @@ int main()
 	// Initialize the main systems
 	
 	camera.init(window);
-	renderer.init(&camera);
+	physics.init(&sound);
+	renderer.init(&camera, &particles, &sound);
 	sound.init();
 	saveManager.init(&renderer, window, &camera);
-	world.init(&renderer, window, &camera, &physics, &ai, &sound, &saveManager);
+	world.init(&renderer, window, &camera, &physics, &ai, &sound, &saveManager, &particles);
 
 	auto t = Clock::now();
 	while (!world.is_over()) {
@@ -68,6 +70,7 @@ int main()
 		GAME_STATE currentState = world.gameStateController.getGameState();
 		if (currentState == GAME_STATE::PLAYING) {
 			physics.step(elapsed_ms);
+			particles.step(elapsed_ms);
 			world.step(elapsed_ms);
             world.handle_collisions();
 			ai.step(elapsed_ms);

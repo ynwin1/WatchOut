@@ -6,6 +6,7 @@
 #include "components.hpp"
 #include "render_components.hpp"
 #include "animation_system.hpp"
+#include "game_state_controller.hpp"
 
 class ECSRegistry
 {
@@ -42,11 +43,18 @@ public:
 	ComponentContainer<Mesh*> meshPtrs;
 	ComponentContainer<TargetArea> targetAreas;
 	ComponentContainer<Collected> collected;
+	ComponentContainer<HomingProjectile> homingProjectiles;
+	ComponentContainer<Bomb> bombs;
+	ComponentContainer<Explosion> explosions;
+	ComponentContainer<Particle> particles;
 	
 	ComponentContainer<PauseMenuComponent> pauseMenuComponents;
 	ComponentContainer<HelpMenuComponent> helpMenuComponents;
+	ComponentContainer<TutorialComponent> tutorialComponents;
+	ComponentContainer<EnemyTutorialComponents> enemyTutorialComponents;
+	ComponentContainer<CollectibleTutorialComponents> collectibleTutorialComponents;
 
-	std::map<char, TextChar> textChars; //for initializing text glyphs from freetype
+	std::map<char, TextChar> textChars; //for initializing text glyphs from freetypes
 
 	// Render component containers
 	ComponentContainer<RenderRequest> renderRequests;
@@ -65,11 +73,15 @@ public:
 	ComponentContainer<Bird> birds;
 	ComponentContainer<Wizard> wizards;
 	ComponentContainer<Troll> trolls;
+	ComponentContainer<Bomber> bombers;
 	ComponentContainer<Heart> hearts;
+	ComponentContainer<Bow> bows;
 	ComponentContainer<CollectibleTrap> collectibleTraps;
+	ComponentContainer<CollectibleBomb> collectibleBombs;
 
 	GameTimer gameTimer;
 	GameScore gameScore;
+	Inventory inventory;
 
 	//debugging
 	FPSTracker fpsTracker;
@@ -96,6 +108,12 @@ public:
 		registry_list.push_back(&obstacles);
 		registry_list.push_back(&meshPtrs);
 		registry_list.push_back(&collected);
+		registry_list.push_back(&homingProjectiles);
+		registry_list.push_back(&bows);
+		registry_list.push_back(&bombs);
+		registry_list.push_back(&explosions);
+		registry_list.push_back(&particles);
+		registry_list.push_back(&collectibleBombs);
 		
 		registry_list.push_back(&healthBars);
 		registry_list.push_back(&staminaBars);
@@ -117,6 +135,7 @@ public:
 		registry_list.push_back(&birds);
 		registry_list.push_back(&wizards);
 		registry_list.push_back(&trolls);
+		registry_list.push_back(&bombers);
 		registry_list.push_back(&hearts);
 		registry_list.push_back(&collectibleTraps);
 
@@ -124,6 +143,9 @@ public:
 
 		registry_list.push_back(&pauseMenuComponents);
 		registry_list.push_back(&helpMenuComponents);
+		registry_list.push_back(&tutorialComponents);
+		registry_list.push_back(&enemyTutorialComponents);
+		registry_list.push_back(&collectibleTutorialComponents);
 
 		spawnable_lists["boar"] = &boars;
 		spawnable_lists["barbarian"] = &barbarians;
@@ -131,6 +153,7 @@ public:
 		spawnable_lists["bird"] = &birds;
 		spawnable_lists["wizard"] = &wizards;
 		spawnable_lists["troll"] = &trolls;
+		spawnable_lists["bomber"] = &bombers;
 		spawnable_lists["heart"] = &hearts;
 		spawnable_lists["collectible_trap"] = &collectibleTraps;
 	}

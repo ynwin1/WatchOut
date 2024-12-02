@@ -11,7 +11,7 @@ Entity createBoar(vec2 pos)
 {
 	auto entity = Entity();
 
-	// Setting intial motion values
+	// Setting intial	 motion values
 	Motion& motion = registry.motions.emplace(entity);
 	motion.position = vec3(pos, getElevation(pos) + BOAR_BB_HEIGHT / 2);
 	motion.angle = 0.f;
@@ -23,6 +23,7 @@ Entity createBoar(vec2 pos)
 	enemy.damage = BOAR_DAMAGE;
 	enemy.maxHealth = BOAR_HEALTH;
 	enemy.health = enemy.maxHealth;
+	enemy.type = "BOAR";
 	motion.speed = BOAR_SPEED;
 
 	registry.boars.emplace(entity);
@@ -37,7 +38,7 @@ Entity createBoar(vec2 pos)
 	initBoarAnimationController(entity);
 	registry.midgrounds.emplace(entity);
 
-	createHealthBar(entity, vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	createHealthBar(entity);
 
 	registry.knockables.emplace(entity);
 	registry.knockers.emplace(entity);
@@ -65,6 +66,7 @@ Entity createBarbarian(vec2 pos)
 	enemy.cooldown = 1000;
 	enemy.maxHealth = BARBARIAN_HEALTH;
 	enemy.health = enemy.maxHealth;
+	enemy.type = "BARBARIAN";
 	motion.speed = BARBARIAN_SPEED;
 
 	registry.barbarians.emplace(entity);
@@ -72,7 +74,7 @@ Entity createBarbarian(vec2 pos)
 	initBarbarianAnimationController(entity);
 	registry.midgrounds.emplace(entity);
 
-	createHealthBar(entity, vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	createHealthBar(entity);
 
 	registry.knockables.emplace(entity);
 	registry.knockers.emplace(entity);
@@ -99,6 +101,7 @@ Entity createArcher(vec2 pos)
 	enemy.damage = ARCHER_DAMAGE;
 	enemy.maxHealth = ARCHER_HEALTH;
 	enemy.health = enemy.maxHealth;
+	enemy.type = "ARCHER";
 	motion.speed = ARCHER_SPEED;
 
 	registry.archers.emplace(entity);
@@ -106,7 +109,7 @@ Entity createArcher(vec2 pos)
 	initArcherAnimationController(entity);
 	registry.midgrounds.emplace(entity);
 
-	createHealthBar(entity, vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	createHealthBar(entity);
 
 	registry.knockables.emplace(entity);
 	auto& trappable = registry.trappables.emplace(entity);
@@ -149,6 +152,7 @@ Entity createBird(vec2 birdPosition) {
 	enemy.cooldown = 2000.f;
 	enemy.maxHealth = BIRD_HEALTH;
 	enemy.health = enemy.maxHealth;
+	enemy.type = "BIRD";
 	motion.speed = BIRD_SPEED;
 
 	registry.birds.emplace(entity);
@@ -156,7 +160,7 @@ Entity createBird(vec2 birdPosition) {
 	initBirdAnimationController(entity);
 	registry.midgrounds.emplace(entity);
 
-	createHealthBar(entity, vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	createHealthBar(entity);
 	registry.knockables.emplace(entity);
 	auto& trappable = registry.trappables.emplace(entity);
 	trappable.originalSpeed = BIRD_SPEED;
@@ -177,6 +181,7 @@ Entity createWizard(vec2 pos) {
 
 	Enemy& enemy = registry.enemies.emplace(entity);
 	enemy.damage = WIZARD_DAMAGE;
+	enemy.type = "WIZARD";
 	enemy.cooldown = 8000.f; // 8s
 	enemy.maxHealth = WIZARD_HEALTH;
 	enemy.health = enemy.maxHealth;
@@ -187,7 +192,7 @@ Entity createWizard(vec2 pos) {
 	initWizardAnimationController(entity);
 	registry.midgrounds.emplace(entity);
 
-	createHealthBar(entity, vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	createHealthBar(entity);
 
 	registry.knockables.emplace(entity);
 	auto& trappable = registry.trappables.emplace(entity);
@@ -214,6 +219,7 @@ Entity createTroll(vec2 pos)
 
 	Enemy& enemy = registry.enemies.emplace(entity);
 	enemy.damage = TROLL_DAMAGE;
+	enemy.type = "TROLL";
 	enemy.cooldown = 0;
 	motion.speed = TROLL_SPEED;
 	enemy.maxHealth = TROLL_HEALTH;
@@ -223,7 +229,7 @@ Entity createTroll(vec2 pos)
 
 	registry.midgrounds.emplace(entity);
 
-	createHealthBar(entity, vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	createHealthBar(entity);
 
 	auto& trappable = registry.trappables.emplace(entity);
 	trappable.originalSpeed = TROLL_SPEED;
@@ -233,8 +239,41 @@ Entity createTroll(vec2 pos)
 	initTrollAnimationController(entity);
 
 	return entity;
-}
-;
+};
+
+// Bomber creation
+Entity createBomber(vec2 pos)
+{
+	auto entity = Entity();
+
+	// Setting intial motion values
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = vec3(pos, getElevation(pos) + BOMBER_BB_HEIGHT / 2);
+	motion.angle = 0.f;
+	motion.scale = { BOMBER_BB_WIDTH, BOMBER_BB_HEIGHT };
+	motion.hitbox = { BOMBER_BB_WIDTH, BOMBER_BB_WIDTH, BOMBER_BB_HEIGHT / zConversionFactor };
+	motion.solid = true;
+
+	Enemy& enemy = registry.enemies.emplace(entity);
+	enemy.damage = BOMBER_DAMAGE;
+	enemy.type = "BOMBER";
+	enemy.maxHealth = BOMBER_HEALTH;
+	enemy.health = enemy.maxHealth;
+	motion.speed = BOMBER_SPEED;
+
+	registry.bombers.emplace(entity);
+
+	initBomberAnimationController(entity);
+	registry.midgrounds.emplace(entity);
+
+	createHealthBar(entity);
+
+	registry.knockables.emplace(entity);
+	auto& trappable = registry.trappables.emplace(entity);
+	trappable.originalSpeed = BOMBER_SPEED;
+	
+	return entity;
+};
 
 // Collectible trap creation
 Entity createCollectibleTrap(vec2 pos)
@@ -247,6 +286,8 @@ Entity createCollectibleTrap(vec2 pos)
 	if (random >= 0.8) {
 		collectibleTrap.type = "phantom_trap";
 		initPhantomTrapAnimationController(entity);
+		Collectible& collectible = registry.collectibles.emplace(entity);
+		collectible.type = "PHANTOM_TRAP";
 		
 		motion.position = vec3(pos, getElevation(pos) + PHANTOM_TRAP_COLLECTABLE_BB_HEIGHT / 2);
 		motion.angle = 0.f;
@@ -255,6 +296,8 @@ Entity createCollectibleTrap(vec2 pos)
 	}
 	else {
 		initTrapBottleAnimationController(entity);
+		Collectible& collectible = registry.collectibles.emplace(entity);
+		collectible.type = "TRAP";
 
 		motion.position = vec3(pos, getElevation(pos) + TRAP_COLLECTABLE_BB_HEIGHT / 2);
 		motion.angle = 0.f;
@@ -262,11 +305,53 @@ Entity createCollectibleTrap(vec2 pos)
 		motion.hitbox = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT / zConversionFactor };
 	}
 
-	registry.collectibles.emplace(entity);
-
 	registry.midgrounds.emplace(entity);
 
 	printf("Collectible trap created\n");
+
+	return entity;
+};
+
+Entity createCollectible(vec2 pos, TEXTURE_ASSET_ID assetID)
+{
+	auto entity = Entity();
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+
+	Collectible& collectible = registry.collectibles.emplace(entity);
+
+	switch(assetID) {
+		case TEXTURE_ASSET_ID::HEART:
+			motion.scale = { HEART_BB_WIDTH, HEART_BB_WIDTH };
+			initHeartAnimationController(entity);
+			break;
+		case TEXTURE_ASSET_ID::TRAP:
+			motion.scale = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT };
+			initTrapBottleAnimationController(entity);
+			break;
+		case TEXTURE_ASSET_ID::BOW:
+			motion.scale = { BOW_BB_WIDTH, BOW_BB_HEIGHT };
+			registry.bows.emplace(entity);
+			collectible.duration = 10000;
+			collectible.type = "BOW";
+			initBowAnimationController(entity);
+			break;
+		case TEXTURE_ASSET_ID::BOMB:
+			motion.scale = { BOMB_BB_WIDTH, BOMB_BB_HEIGHT };
+			registry.collectibleBombs.emplace(entity);
+			collectible.duration = 10000;
+			collectible.type = "BOMB";
+			initBombAnimationController(entity);
+			break;
+		default:
+			break;
+	}
+
+	motion.position = vec3(pos, getElevation(pos) + motion.scale.y / 2);
+	motion.hitbox = { motion.scale.x, motion.scale.x, motion.scale.y / zConversionFactor };
+
+	registry.midgrounds.emplace(entity);
 
 	return entity;
 };
@@ -284,7 +369,8 @@ Entity createHeart(vec2 pos)
 	fixed.scale = { HEART_BB_WIDTH, HEART_BB_WIDTH };
 	fixed.hitbox = { HEART_BB_WIDTH, HEART_BB_WIDTH, HEART_BB_HEIGHT / zConversionFactor };
 
-	registry.collectibles.emplace(entity);
+	Collectible& collectible = registry.collectibles.emplace(entity);
+	collectible.type = "HEART";
 
 	initHeartAnimationController(entity);
 
@@ -417,12 +503,12 @@ Entity createJeff(vec2 position)
 
 	auto& pointLight = registry.pointLights.emplace(entity);
 	pointLight.position = motion.position;
-	pointLight.ambient = vec4(1.0, .75, 0.25, .2);
+	pointLight.ambient = vec4(1.0, .75, 0.25, 10);
 	pointLight.diffuse = vec4(1.0, .75, 0.25, 1.0);
 	pointLight.max_distance = 3250;
-	pointLight.constant = 1.0;
-	pointLight.linear = .00014;
-	pointLight.quadratic = 0.00001;
+	pointLight.constant = 1.f;
+	pointLight.linear = .005;
+	pointLight.quadratic = 0.f;
 	
 	return entity;
 }
@@ -496,6 +582,38 @@ Entity createArrow(vec3 pos, vec3 velocity, int damage)
 	return entity;
 }
 
+Entity createBomb(vec3 pos, vec3 velocity)
+{
+	auto entity = Entity();
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.velocity = velocity;
+	motion.scale = { BOMB_FUSED_BB_WIDTH, BOMB_FUSED_BB_HEIGHT };
+	motion.hitbox = { BOMB_FUSED_BB_WIDTH, BOMB_FUSED_BB_HEIGHT, BOMB_BB_HEIGHT / zConversionFactor };
+	motion.solid = true;
+	
+	Projectile& proj = registry.projectiles.emplace(entity);
+	proj.sticksInGround = 1000;
+	proj.type = PROJECTILE_TYPE::BOMB_FUSED;
+
+	registry.bombs.emplace(entity);
+
+	Damaging& damaging = registry.damagings.emplace(entity);
+	damaging.damage = 2;
+	registry.midgrounds.emplace(entity);
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::BOMB_FUSED,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	return entity;
+}
+
 Entity createFireball(vec3 pos, vec2 direction) {
 	auto entity = Entity();
 
@@ -512,6 +630,47 @@ Entity createFireball(vec3 pos, vec2 direction) {
 	registry.midgrounds.emplace(entity);
 
 	initFireballAnimationController(entity);
+	return entity;
+}
+
+
+Entity createEquipped(TEXTURE_ASSET_ID assetId) {
+	auto entity = Entity();
+	vec2 scale;
+
+	switch (assetId) {
+		case TEXTURE_ASSET_ID::TRAPCOLLECTABLE:
+			scale = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT};
+		break;
+		case TEXTURE_ASSET_ID::PHANTOM_TRAP_BOTTLE_ONE:
+			scale = { PHANTOM_TRAP_COLLECTABLE_BB_WIDTH * 0.8, PHANTOM_TRAP_COLLECTABLE_BB_HEIGHT * 0.8};
+		break;
+		case TEXTURE_ASSET_ID::BOW: {
+			scale = { BOW_BB_WIDTH * 1.25, BOW_BB_HEIGHT * 1.25};
+			AnimationController& ac = initBowAnimationController(entity);
+			ac.changeState(entity, AnimationState::Default);	
+		}
+		break;
+		case TEXTURE_ASSET_ID::BOMB:
+			scale = { BOMB_BB_WIDTH * 0.8, BOMB_BB_HEIGHT * 0.8};
+		break;
+	}
+
+	if(assetId != TEXTURE_ASSET_ID::BOW) {
+		registry.renderRequests.insert(
+			entity,
+			{
+				assetId,
+				EFFECT_ASSET_ID::TEXTURED,
+				GEOMETRY_BUFFER_ID::SPRITE
+			});
+	}
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.scale = scale;
+
+	registry.midgrounds.emplace(entity);
+
 	return entity;
 }
 
@@ -649,7 +808,7 @@ void createPlayerHealthBar(Entity characterEntity, vec2 windowSize) {
 	hpbar.textEntity = textE;
 }
 
-void createHealthBar(Entity characterEntity, vec4 color) {
+void createHealthBar(Entity characterEntity) {
 	auto meshEntity = Entity();
 
 	const float width = 60.0f;
@@ -662,6 +821,7 @@ void createHealthBar(Entity characterEntity, vec4 color) {
 	motion.angle = 0.f;
 	motion.scale = { width, height };
 
+	vec4 color = vec4(1, 0, 0, 0.4);
 	registry.colours.insert(meshEntity, color);
 
 	registry.renderRequests.insert(
@@ -719,6 +879,32 @@ Entity createTargetArea(vec3 position) {
 
 	Cooldown& cooldown = registry.cooldowns.emplace(entity);
 	cooldown.remaining = 3000.f; // 3s
+	return entity;
+}
+
+Entity createTutorialTarget(vec3 position) {
+	auto entity = Entity();
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = position;
+	motion.position.z = 0.f;
+
+	float ogRadius = 170.f;
+	float scaledFactor = 150.0f / ogRadius;
+	motion.scale = { 2 * ogRadius * scaledFactor, 2 * ogRadius * scaledFactor * zConversionFactor };
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::TUTORIAL_TARGET,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	registry.backgrounds.emplace(entity);
+	registry.targetAreas.emplace(entity);
+	Cooldown& cooldown = registry.cooldowns.emplace(entity);
+	cooldown.remaining = 200.f; 
 	return entity;
 }
 
@@ -840,80 +1026,93 @@ Entity createGameTimerText(vec2 windowSize) {
 	return entity;
 }
 
-Entity createTrapsCounterText(vec2 windowSize) {
-	auto textE = Entity();
+Entity createItemCountText(vec2 windowSize, TEXTURE_ASSET_ID assetID) {
+	auto textKeybindE = Entity();
+	auto textCountE = Entity();
+	auto iconE = Entity();
+	vec2 startPos = {420.0f, windowSize.y - 30.0f};
+	vec2 iconScale;
+	vec2 position;
+	vec2 keybindPos;
+	vec2 iconPos;
+	vec2 textPos;
+	std::string keybind;
 
-	vec2 position = {(windowSize.x / 2) - 210.0f, windowSize.y - 80.0f};
+	switch(assetID) {
+		case TEXTURE_ASSET_ID::TRAPCOLLECTABLE:
+			iconScale = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT};
+			position = startPos;
+			keybindPos = position + vec2(-5.0f, 0.0f);
+			iconPos = keybindPos + vec2(0.0f, -40.0f);
+			textPos = iconPos + vec2(-30.0f, -55.0f);
+			keybind = "1";
+			break;
+		case TEXTURE_ASSET_ID::PHANTOM_TRAP_BOTTLE_ONE:
+			iconScale = { PHANTOM_TRAP_COLLECTABLE_BB_WIDTH * 0.75, PHANTOM_TRAP_COLLECTABLE_BB_HEIGHT * 0.75};
+			position = startPos + vec2(80.0f, 0.0f);
+			keybindPos = position + vec2(-10.0f, 0.0f);
+			iconPos = keybindPos + vec2(5.0f, -40.0f);
+			textPos = iconPos + vec2(-30.0f, -55.0f);
+			keybind = "2";
+			break;
+		case TEXTURE_ASSET_ID::BOW:
+			iconScale = { BOW_BB_WIDTH * 0.60, BOW_BB_HEIGHT * 0.60};
+			position = startPos + vec2(145.0f, 0.0f);
+			keybindPos = position + vec2(-5.0f, 0.0f);
+			iconPos = keybindPos + vec2(10.0f, -40.0f);
+			textPos = iconPos + vec2(-30.0f, -55.0f);
+			keybind = "3";
+			break;
+		case TEXTURE_ASSET_ID::BOMB:
+			iconScale = { BOMB_BB_WIDTH * 0.9 , BOMB_BB_HEIGHT * 0.9};
+			position = startPos + vec2(220.0f, 0.0f);
+			keybindPos = position + vec2(-5.0f, 0.0f);
+			iconPos = keybindPos + vec2(10.0f, -40.0f);
+			textPos = iconPos + vec2(-30.0f, -55.0f);
+			keybind = "4";
+			break;
+		default:
+			break;
+	}
 
-	registry.texts.emplace(textE);
-	Foreground& fg = registry.foregrounds.emplace(textE);
-	fg.position = position;
-	fg.scale = {1.5f, 1.5f};
-
-	registry.colours.insert(textE, {0.8f, 0.8f, 0.0f, 1.0f});
-
+	Text& textKeybind = registry.texts.emplace(textKeybindE);
+	textKeybind.value = keybind;
+	Foreground& fgKeybind = registry.foregrounds.emplace(textKeybindE);
+	fgKeybind.position = keybindPos;
+	fgKeybind.scale = {0.85f, 0.85f};
 	registry.renderRequests.insert(
-		textE, 
+		textKeybindE, 
 		{
 			TEXTURE_ASSET_ID::NONE,
 			EFFECT_ASSET_ID::FONT,
 			GEOMETRY_BUFFER_ID::TEXT
 		});
 
-	auto iconE = Entity();
+	registry.texts.emplace(textCountE);
+	Foreground& fg = registry.foregrounds.emplace(textCountE);
+	fg.position = textPos;
+	fg.scale = {1.2f, 1.2f};
+	registry.colours.insert(textCountE, {0.8f, 0.8f, 0.0f, 1.0f});
+	registry.renderRequests.insert(
+		textCountE, 
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::FONT,
+			GEOMETRY_BUFFER_ID::TEXT
+		});
 
 	Foreground& icon = registry.foregrounds.emplace(iconE);
-	icon.scale = { TRAP_COLLECTABLE_BB_WIDTH * 1.25, TRAP_COLLECTABLE_BB_WIDTH * 1.25 };
-	icon.position = {position.x - 20.0f, position.y + 16.0f};
-
+	icon.scale = iconScale;
+	icon.position = iconPos;
 	registry.renderRequests.insert(
 		iconE, 
 		{
-			TEXTURE_ASSET_ID::TRAPCOLLECTABLE,
+			assetID,
 			EFFECT_ASSET_ID::TEXTURED_FLAT,
 			GEOMETRY_BUFFER_ID::SPRITE
 		});
 	
-	return textE;
-}
-
-Entity createPhantomTrapsCounterText(vec2 windowSize) {
-	auto textE = Entity();
-
-	vec2 position = { (windowSize.x / 2) - 380.0f, windowSize.y - 80.0f };
-
-	registry.texts.emplace(textE);
-	Foreground& fg = registry.foregrounds.emplace(textE);
-	fg.position = position;
-	fg.scale = { 1.5f, 1.5f };
-
-	registry.colours.insert(textE, { 0.8f, 0.8f, 0.0f, 1.0f });
-
-	registry.renderRequests.insert(
-		textE,
-		{
-			TEXTURE_ASSET_ID::NONE,
-			EFFECT_ASSET_ID::FONT,
-			GEOMETRY_BUFFER_ID::TEXT
-		});
-
-	auto iconE = Entity();
-
-	Foreground& icon = registry.foregrounds.emplace(iconE);
-	icon.scale = { PHANTOM_TRAP_COLLECTABLE_BB_WIDTH * 0.85, PHANTOM_TRAP_COLLECTABLE_BB_HEIGHT * 0.85 };
-	icon.position = { position.x - 40.0f, position.y + 16.0f };
-
-	registry.renderRequests.insert(
-		iconE,
-		{
-			TEXTURE_ASSET_ID::PHANTOM_TRAP_BOTTLE_ONE,
-			EFFECT_ASSET_ID::TEXTURED_FLAT,
-			GEOMETRY_BUFFER_ID::SPRITE
-		});
-
-	registry.colours.emplace(iconE, vec4(1.0f, 1.0f, 1.0f, 1.0f));
-
-	return textE;
+	return textCountE;
 }
 
 Entity createMapTile(vec2 position, vec2 size, float height) {
@@ -1194,6 +1393,48 @@ void createGameOverText(vec2 windowSize) {
 
 }
 
+Entity createProjectile(vec3 pos, vec3 velocity, PROJECTILE_TYPE type)
+{
+	auto entity = Entity();
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.velocity = velocity;
+	motion.scale = getProjectileInfo(type).size;
+	motion.hitbox = { motion.scale.x, motion.scale.x, motion.scale.y / zConversionFactor };
+	
+	registry.projectiles.emplace(entity).type = type;
+	registry.midgrounds.emplace(entity);
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			getProjectileInfo(type).assetId,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	return entity;
+}
+
+Entity createMousePointer(vec2 mousePos) {
+	auto entity = Entity();
+
+	Foreground& fg = registry.foregrounds.emplace(entity);
+	fg.scale = { 40.0f, 40.0f};
+	fg.position = mousePos;
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::CROSSHAIR,
+			EFFECT_ASSET_ID::TEXTURED_FLAT,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	return entity;
+}
+
 void createGameSaveText(vec2 windowSize) {
 	auto entity = Entity();
 
@@ -1229,6 +1470,46 @@ void createTrees(RenderSystem* renderer) {
 		createTree(renderer, { posX, posY });
 		numTrees--;
 	}
+}
+
+void createExplosion(vec3 pos)
+{
+	auto entity = Entity();
+
+	registry.explosions.emplace(entity);
+	Damaging& dmg = registry.damagings.emplace(entity);
+	dmg.damage = 30;
+
+	// Setting intial motion values
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.scale = { EXPLOSION_BB_WIDTH + 30.0f, EXPLOSION_BB_HEIGHT + 30.0f };
+	motion.hitbox = { EXPLOSION_BB_WIDTH, EXPLOSION_BB_WIDTH, EXPLOSION_BB_HEIGHT / zConversionFactor };
+
+	Knocker& knocker = registry.knockers.emplace(entity);
+	knocker.strength = 1.5f;
+	
+	initExplosionAnimationController(entity);
+	registry.midgrounds.emplace(entity);
+};
+
+ProjectileInfo getProjectileInfo(PROJECTILE_TYPE type) {
+    switch (type) {
+        case PROJECTILE_TYPE::TRAP:
+            return { {TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT}, 
+                     TEXTURE_ASSET_ID::TRAPCOLLECTABLE };
+        case PROJECTILE_TYPE::PHANTOM_TRAP:
+            return { {PHANTOM_TRAP_COLLECTABLE_BB_WIDTH, PHANTOM_TRAP_COLLECTABLE_BB_HEIGHT}, 
+                     TEXTURE_ASSET_ID::PHANTOM_TRAP_BOTTLE_ONE };
+        case PROJECTILE_TYPE::ARROW:
+            return { {ARROW_BB_WIDTH, ARROW_BB_HEIGHT}, 
+                     TEXTURE_ASSET_ID::ARROW };
+		case PROJECTILE_TYPE::BOMB_FUSED:
+            return { {BOMB_FUSED_BB_WIDTH, BOMB_FUSED_BB_HEIGHT}, 
+                     TEXTURE_ASSET_ID::BOMB };
+        default:
+            return { {0, 0}, TEXTURE_ASSET_ID::NONE };
+    }
 }
 
 float getElevation(vec2 xy)

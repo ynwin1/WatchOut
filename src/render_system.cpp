@@ -1,6 +1,7 @@
 // internal
 #include "render_system.hpp"
 #include "tiny_ecs_registry.hpp"
+#include "world_init.hpp"
 
 // external
 #include <SDL.h>
@@ -432,6 +433,9 @@ void RenderSystem::draw()
 		drawMesh(entity, projection_2D, projection_screen);
 	}
 
+	// Draw all particles
+	particles->draw((GLuint)effects[(GLuint)EFFECT_ASSET_ID::PARTICLE]);
+
 	// Draw all foreground textures
 	for (Entity entity : registry.foregrounds.entities) {
 		if(entity == registry.fpsTracker.textEntity && !registry.fpsTracker.toggled) {
@@ -467,13 +471,25 @@ void RenderSystem::step(float elapsed_ms)
 	for (auto& animationController : registry.animationControllers.components) {
 		updateAnimation(animationController.animations[animationController.currentState], elapsed_ms);
 	}
-	
+
+	updateExplosions(elapsed_ms);
+
 	for (Entity entity : registry.projectiles.entities) {
 		Motion& motion = registry.motions.get(entity);
 		if (length(motion.velocity) == 0) {
 			Projectile& projectile = registry.projectiles.get(entity);
 			projectile.sticksInGround -= elapsed_ms;
 			if (projectile.sticksInGround <= 0) {
+	
+				if(projectile.type == PROJECTILE_TYPE::TRAP) {
+					createDamageTrap({motion.position.x, motion.position.y});
+				} else if(projectile.type == PROJECTILE_TYPE::PHANTOM_TRAP) {
+					createPhantomTrap({motion.position.x, motion.position.y});
+				} else if(projectile.type == PROJECTILE_TYPE::BOMB_FUSED) {
+								std::cout << "Projectile stuck in ground" << std::endl;
+					createExplosion(motion.position);
+					sound->playSoundEffect(Sound::EXPLOSION, 0);
+				}
 				registry.remove_all_components_of(entity);
 			}
 			continue;
@@ -488,8 +504,22 @@ void RenderSystem::step(float elapsed_ms)
 	updateCollectedPosition();
 }
 
+void RenderSystem::updateExplosions(float elapsed_ms) {
+	for (Entity entity : registry.explosions.entities) {
+		// explosion damage only happens in one frame
+		registry.damagings.remove(entity);
+
+		Explosion& explosion = registry.explosions.get(entity);
+		explosion.duration -= elapsed_ms;
+		if (explosion.duration < 0) {
+			registry.remove_all_components_of(entity);
+		}
+	}
+}
+
 void RenderSystem::update_animations() {
 	update_jeff_animation();
+	update_bow_animations();
 }
 
 void RenderSystem::update_jeff_animation() {
@@ -519,6 +549,18 @@ void RenderSystem::update_jeff_animation() {
 			// Player is idle if no movement keys are pressed
 			animationController.changeState(entity, AnimationState::Idle);
 		}
+	}
+}
+
+void RenderSystem::update_bow_animations() {
+	if(registry.animationControllers.has(registry.inventory.equippedEntity)) {
+		Entity entity = registry.inventory.equippedEntity;
+		AnimationController& ac = registry.animationControllers.get(entity);
+		if(ac.currentState == AnimationState::Attack && 
+			ac.animations[ac.currentState].currentFrame == 0 &&
+			ac.animations[ac.currentState].elapsedTime == 0) {
+			ac.changeState(entity, AnimationState::Default);
+		}	
 	}
 }
 
@@ -662,6 +704,50 @@ void RenderSystem::updateEntityFacing() {
       motion.scale.x = -1.0f * abs(motion.scale.x);
     }
 	}
+}
+
+vec2 RenderSystem::mouseToScreen(vec2 pos) {
+	float screenPosX;
+	float screenPosY;
+
+	if (camera->isToggled()) {
+		// convert mouse position to screen position
+		screenPosX = pos.x;
+		screenPosY = camera->getSize().y - pos.y;
+	} else {
+		int window_width;
+		int window_height;
+		glfwGetWindowSize(window, &window_width, &window_height);
+ 
+		screenPosX = pos.x ;
+		screenPosY = window_height - pos.y;
+	}
+
+	return { screenPosX, screenPosY };
+}
+
+vec3 RenderSystem::mouseToWorld(vec2 mousePos) {
+    float worldPosX;
+    float worldPosY;
+
+    if (camera->isToggled()) {
+        // top-left corner of the screen in world coordinates
+        float cameraLeft = camera->getPosition().x - camera->getSize().x / 2;
+        float cameraTop = visualToWorldY(camera->getPosition().y) - visualToWorldY(camera->getSize().y) / 2;
+
+        // Convert mouse position to world position
+        worldPosX = cameraLeft + mousePos.x;
+        worldPosY = cameraTop + (mousePos.y / yConversionFactor);
+    } else {
+        int window_width;
+        int window_height;
+        glfwGetWindowSize(window, &window_width, &window_height);
+ 
+        worldPosX = (mousePos.x * world_size_x) / window_width;
+        worldPosY = (mousePos.y * world_size_y) / window_height;
+    }
+
+    return { worldPosX, worldPosY, 0.0f };
 }
 
 mat4 RenderSystem::createProjectionToScreenSpace()  {

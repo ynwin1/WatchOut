@@ -10,6 +10,6 @@ uniform float ambient_light;
 
 void main()
 {
-	vec4 ambient = vec4(ambient_light * entity_colour.rgb, entity_colour.a);
+	vec4 ambient = vec4(entity_colour.rgb, entity_colour.a);
 	out_color = ambient;
 }

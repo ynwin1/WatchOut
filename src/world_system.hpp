@@ -3,6 +3,7 @@
 // stlib
 #include <vector>
 #include <random>
+#include <unordered_set>
 
 // internal 
 #include <render_system.hpp>
@@ -20,7 +21,7 @@ public:
 	WorldSystem(std::default_random_engine& rng);
 
 	// starts the game
-	void init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics, AISystem* ai, SoundSystem* sound, GameSaveManager* saveManager);
+	void init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics, AISystem* ai, SoundSystem* sound, GameSaveManager* saveManager, ParticleSystem* particles);
 
 	// Releases all associated resources
 	~WorldSystem();
@@ -33,7 +34,6 @@ public:
 
 	// Steps the game ahead by ms milliseconds
 	bool step(float elapsed_ms);
-	
 	bool show_mesh;
 	float countdown = 0.0f;
 
@@ -42,7 +42,7 @@ public:
 
 	// Should the game be over ?
 	bool is_over()const;
-
+	
 	friend class GameStateController;
 
 	// restart level
@@ -64,6 +64,7 @@ private:
 	// GLFW Window handle
 	GLFWwindow* window;
 	RenderSystem* renderer;
+	ParticleSystem* particles;
 	PhysicsSystem* physics;
 	AISystem* ai;
 	Camera* camera;
@@ -72,6 +73,13 @@ private:
 	GameSaveManager* saveManager;
 
 	bool isWindowed = false;
+
+	//Tutorial initialization
+	float tutorialDelayTimer = 0.0f; 
+    bool hasSwitchedToTutorial = false;
+
+	std::unordered_set<std::string> encounteredEnemies;
+	std::unordered_set<std::string> encounteredCollectibles;
 
 	Entity playerEntity;
 
@@ -82,6 +90,7 @@ private:
 		"bird",
 		"wizard",
 		"troll",
+		"bomber",
 		"heart",
 		"collectible_trap"
 	};
@@ -93,10 +102,10 @@ private:
 		{"bird", 8},
 		{"wizard", -2},
 		{"troll", -3},
+		{"bomber", -2},
 		{"heart", 2},
 		{"collectible_trap", 2}
 	};
-
 	const std::unordered_map<std::string, float> initial_spawn_delays = {
 		{"boar", 10000.0f},
 		{"barbarian", 10000.0f},
@@ -104,6 +113,7 @@ private:
 		{"bird", 20000.0f},
 		{"wizard", 20000.0f},
 		{"troll", 30000.0f},
+		{"bomber", 20000.0f},
 		{"heart", 5000.0f},
 		{"collectible_trap", 5000.0f}
 	};
@@ -116,6 +126,7 @@ private:
         {"bird", createBird},
 	    {"wizard", createWizard},
         {"troll", createTroll},
+		{"bomber", createBomber},
         {"heart", createHeart},
 		{"collectible_trap", createCollectibleTrap}
     };
@@ -127,6 +138,7 @@ private:
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);
 	void on_mouse_move(vec2 mouse_position);
+	void on_mouse_button(int button, int action, int mod);
 
 	// Title screen
 	void createTitleScreen();
@@ -137,17 +149,19 @@ private:
 
 	// Actions performed for each step
 	void spawn(float elapsed_ms);
+	void spawn_particles(float elapsed_ms);
 	void update_cooldown(float elapsed_ms);
 	void handle_deaths(float elapsed_ms);
 	void update_player_facing(Player& player, Motion& motion);
 	void despawn_collectibles(float elapsed_ms);
 	void handle_stamina(float elapsed_ms);
 	vec2 get_spawn_location(const std::string& entity_type);
-	void place_trap(Player& player, Motion& motion, bool forward, std::string type);
+	void place_trap(vec3 trapPos, std::string type);
 	void checkAndHandlePlayerDeath(Entity& entity);
 	void trackFPS(float elapsed_ms);
 	void updateGameTimer(float elapsed_ms);
 	void updateTrapsCounterText();
+	void updateInventoryItemText();
 	void toggleMesh();
 	void adjustSpawnSystem(float elapsed_ms);
 	void resetSpawnSystem();
@@ -158,7 +172,17 @@ private:
 	void despawnTraps(float elapsed_ms);
 	void updateCollectedTimer(float elapsed_ms);
 	void resetTrappedEntities();
+	void updateTutorial(float elapsed_ms);
+	void updateEnemyTutorial();
+	void updateCollectibleTutorial();
 	void updateLightPosition();
+	void updateHomingProjectiles(float elapsed_ms);
+	void updateEquippedPosition();
+	void updateMouseTexturePosition(vec2 mousePos);
+	void equipItem(INVENTORY_ITEM item, bool wasCollected = false);
+	void unEquipItem();
+
+	void updateJeffLight(float elapsed_ms);
 
 	// Collision functions
 	void entity_collectible_collision(Entity entity, Entity collectible);
@@ -170,6 +194,7 @@ private:
 	void handleEnemyCollision(Entity attacker, Entity target, std::vector<Entity>& was_damaged);
 	void checkAndHandleEnemyDeath(Entity entity);
 	void knock(Entity knocked, Entity knocker);
+	void setCollisionCooldown(Entity damager, Entity victim);
 
 	// Controls
 	void allStateControls(int key, int action, int mod);
@@ -179,6 +204,10 @@ private:
 	void pauseControls(int key, int action, int mod);
 	void gameOverControls(int key, int action, int mod);
 	void helpControls(int key, int action, int mod);
+	void tutorialControls(int key, int action, int mod);
+	void enemyTutorialControls(int key, int action, int mod);
+	void collectibleTutorialControls(int key, int action, int mod);
+	void onTutorialClick();
 
 	void handleSoundOnPauseHelp();
 
@@ -189,6 +218,27 @@ private:
     void exitHelpMenu();
     Entity createPauseMenu(vec2 cameraPosition);
     void exitPauseMenu();
+	Entity createTutorial(vec2 cameraPosition);
+	void exitTutorial();
+	Entity createBoarTutorial(vec2 cameraPosition);
+	Entity createBirdTutorial(vec2 cameraPosition);
+	Entity createWizardTutorial(vec2 cameraPosition);
+	Entity createTrollTutorial(vec2 cameraPosition);
+	Entity createArcherTutorial(vec2 cameraPosition);
+	Entity createBarbarianTutorial(vec2 cameraPosition);
+	Entity createBomberTutorial(vec2 cameraPosition);
+	void exitEnemyTutorial();
+	Entity createHeartTutorial(vec2 cameraPosition);
+	Entity createTrapTutorial(vec2 cameraPosition);
+	Entity createPhantomTrapTutorial(vec2 cameraPosition);
+	Entity createBowTutorial(vec2 cameraPosition);
+	Entity createBombTutorial(vec2 cameraPosition);
+	void exitCollectibleTutorial();
+
+	void leftMouseClickAction(vec3 mouseWorldPos);
+	void shootArrow(vec3 mouseWorldPos);
+	Entity shootProjectile(vec3 mouseWorldPos, PROJECTILE_TYPE type);
+	Entity shootHomingArrow(Entity targetEntity, float angle);
 
 	// C++ random number generator
 	std::default_random_engine rng;

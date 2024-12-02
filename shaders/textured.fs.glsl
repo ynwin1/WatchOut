@@ -43,7 +43,7 @@ void main()
     colour = ambient;
 	// point lights 
 	for (int i = 0; i < num_point_lights; i++) {
-        colour += CalcPointLight(pointLights[i], worldPos) * initialColour; 
+        colour.rgb += CalcPointLight(pointLights[i], worldPos).rgb * initialColour.rgb; 
     }
 }
 

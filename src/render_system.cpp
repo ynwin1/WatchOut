@@ -466,6 +466,17 @@ void RenderSystem::step(float elapsed_ms)
 		}
 	}
 
+	for (Entity entity : registry.invulnerables.entities) {
+		Invulnerable& invulnerable = registry.invulnerables.get(entity);
+		float opacity = 0.6 + cos(invulnerable.timer / 100) * 0.4;
+		if (registry.colours.has(entity)) {
+			vec4& colour = registry.colours.get(entity);
+			colour.a = opacity;
+		}
+		else {
+			registry.colours.insert(entity, vec4(1, 1, 1, opacity));
+		}
+	}
 
 	// Update animation frames
 	for (auto& animationController : registry.animationControllers.components) {

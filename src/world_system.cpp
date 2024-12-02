@@ -857,8 +857,7 @@ void WorldSystem::pauseControls(int key, int action, int mod)
             printf("Saved game\n");
             break;
         case GLFW_KEY_L:
-            load_game();
-			  break;
+			break;
         case GLFW_KEY_ENTER:
             restart_game();
         case GLFW_KEY_P:
@@ -1213,6 +1212,16 @@ void WorldSystem::update_cooldown(float elapsed_ms) {
             it++;
         }
     }
+
+    // Tick invulnerables
+    for (Entity entity : registry.invulnerables.entities) {
+        Invulnerable& invulnerable = registry.invulnerables.get(entity);
+        invulnerable.timer -= elapsed_ms;
+        if (invulnerable.timer < 0) {
+            registry.invulnerables.remove(entity);
+            registry.colours.remove(entity);
+        }
+    }
 }
 
 void WorldSystem::handle_deaths(float elapsed_ms) {
@@ -1405,7 +1414,7 @@ void WorldSystem::entity_damaging_collision(Entity entity, Entity entity_other, 
         knock(entity, entity_other);
     }
 
-    if (registry.players.has(entity)) {
+    if (registry.players.has(entity) && !registry.invulnerables.has(entity)) {
         // prevent player taking damage from own damaging object
         if(registry.players.has(damaging.excludedEntity)) {
             return;
@@ -1416,6 +1425,7 @@ void WorldSystem::entity_damaging_collision(Entity entity, Entity entity_other, 
         player.health = new_health < 0 ? 0 : new_health;
         was_damaged.push_back(entity);
         setCollisionCooldown(entity_other, entity);
+        registry.invulnerables.emplace(entity);
         printf("Player health reduced from %d to %d\n", player.health + damaging.damage, player.health);
     }
     else if (registry.enemies.has(entity)) {
@@ -1465,7 +1475,7 @@ void WorldSystem::processPlayerEnemyCollision(Entity player, Entity enemy, std::
         return;
     }
 
-    if (!registry.cooldowns.has(enemy)) {
+    if (!registry.cooldowns.has(enemy) && !registry.invulnerables.has(player)) {
         Player& playerData = registry.players.get(player);
         Enemy& enemyData = registry.enemies.get(enemy);
 
@@ -1473,6 +1483,7 @@ void WorldSystem::processPlayerEnemyCollision(Entity player, Entity enemy, std::
         playerData.health = std::max(newHealth, 0);
         was_damaged.push_back(player);
         setCollisionCooldown(enemy, player);
+        registry.invulnerables.emplace(player);
         printf("Player health reduced by enemy from %d to %d\n", playerData.health + enemyData.damage, playerData.health);
 
         // Check if enemy can have an attack cooldown

@@ -466,28 +466,12 @@ void WorldSystem::on_mouse_move(vec2 mouse_position) {
 
 Entity WorldSystem::shootHomingArrow(Entity targetEntity, float angle) {
     Motion& targetM = registry.motions.get(targetEntity);
-    Motion& motion = registry.motions.get(registry.players.entities.at(0));
+    Motion& playerM = registry.motions.get(registry.players.entities.at(0));
 
-    vec2 direction = normalize(vec2(targetM.position) - vec2(motion.position));
-    vec3 pos = motion.position;
-
-    float x_offset = ARROW_BB_WIDTH + motion.hitbox.x / 2;
-    float y_offset = ARROW_BB_HEIGHT + motion.hitbox.y / 2;
-	// travelling more horizontally so no y offset
-    if (abs(direction.x) > abs(direction.y)) {
-        y_offset = 0;
-    }
-    else if (abs(direction.x) < abs(direction.y)) {
-        x_offset = 0;
-    }
-    // offset must be on the left if travelling left
-    if (direction.x < 0) {
-        x_offset = -x_offset;
-    }
-    if (direction.y < 0) {
-        y_offset = -y_offset;
-    }
-    pos += vec3(x_offset, y_offset, 0);
+    // get start position of the arrow
+    vec3 normalizedDirection = normalize(vec3(targetM.position) - vec3(playerM.position));
+    const float fixedDistance = abs(playerM.scale.x) / 2;
+    vec3 pos = playerM.position + normalizedDirection * fixedDistance;
 
     Entity arrowE = createArrow(pos, vec3(0), PLAYER_ARROW_DAMAGE);
     registry.motions.get(arrowE).angle = angle;
@@ -495,6 +479,7 @@ Entity WorldSystem::shootHomingArrow(Entity targetEntity, float angle) {
 
     return arrowE;
 }
+
 
 void WorldSystem::shootArrow(vec3 mouseWorldPos) {
     vec3 playerPos = registry.motions.get(playerEntity).position;

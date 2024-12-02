@@ -13,7 +13,6 @@
 #include <algorithm>
 #include <sstream>
 #include <glm/gtx/string_cast.hpp>
-#include "world_init.hpp"
 
 void RenderSystem::drawText(Entity entity, const mat4& projection_screen) {
 	const Text& text = registry.texts.get(entity);

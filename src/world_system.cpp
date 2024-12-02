@@ -79,8 +79,6 @@ void WorldSystem::restart_game()
     initText();
     soundSetUp();
 
-    registry.inventory.itemCounts[INVENTORY_ITEM::BOMB] = 99;
-
     // Set spawn delays to 1 second, so the first of each type will spawn right away
     for (auto& name : entity_types) {
         next_spawns[name] = 1000;
@@ -1030,6 +1028,9 @@ void WorldSystem::handle_deaths(float elapsed_ms) {
             if(registry.archers.has(deathEntity)) {
                 createCollectible(registry.motions.get(deathEntity).position, TEXTURE_ASSET_ID::BOW);
             }
+            else if(registry.bombers.has(deathEntity)) {
+                createCollectible(registry.motions.get(deathEntity).position, TEXTURE_ASSET_ID::BOMB);
+            }
             else if (registry.motions.has(deathEntity)) {
                 Motion& motion = registry.motions.get(deathEntity);
                 createHeart({ motion.position.x, motion.position.y });
@@ -1167,6 +1168,11 @@ void WorldSystem::entity_collectible_collision(Entity entity, Entity entity_othe
         createCollected(playerM, collectibleM.scale, TEXTURE_ASSET_ID::BOW);
         equipItem(INVENTORY_ITEM::BOW, true);
 		printf("Player collected a bow\n");
+	}
+    else if (registry.collectibleBombs.has(entity_other)) {
+        registry.inventory.itemCounts[INVENTORY_ITEM::BOMB] += 3;
+        createCollected(playerM, collectibleM.scale, TEXTURE_ASSET_ID::BOMB);
+        equipItem(INVENTORY_ITEM::BOMB, true);
 	}
 	else {
 		printf("Unknown collectible type\n");

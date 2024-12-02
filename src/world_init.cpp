@@ -310,7 +310,7 @@ Entity createCollectible(vec2 pos, TEXTURE_ASSET_ID assetID)
 	Motion& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
 
-	Collectible& collecitble = registry.collectibles.emplace(entity);
+	Collectible& collectible = registry.collectibles.emplace(entity);
 
 	switch(assetID) {
 		case TEXTURE_ASSET_ID::HEART:
@@ -324,8 +324,14 @@ Entity createCollectible(vec2 pos, TEXTURE_ASSET_ID assetID)
 		case TEXTURE_ASSET_ID::BOW:
 			motion.scale = { BOW_BB_WIDTH, BOW_BB_HEIGHT };
 			registry.bows.emplace(entity);
-			collecitble.duration = 10000;
+			collectible.duration = 10000;
 			initBowAnimationController(entity);
+			break;
+		case TEXTURE_ASSET_ID::BOMB:
+			motion.scale = { BOMB_BB_WIDTH, BOMB_BB_HEIGHT };
+			registry.collectibleBombs.emplace(entity);
+			collectible.duration = 10000;
+			initBombAnimationController(entity);
 			break;
 		default:
 			break;
@@ -577,7 +583,7 @@ Entity createBomb(vec3 pos, vec3 velocity)
 	
 	Projectile& proj = registry.projectiles.emplace(entity);
 	proj.sticksInGround = 1000;
-	proj.type == PROJECTILE_TYPE::BOMB_FUSED;
+	proj.type = PROJECTILE_TYPE::BOMB_FUSED;
 
 	registry.bombs.emplace(entity);
 

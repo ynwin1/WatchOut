@@ -44,7 +44,6 @@ public:
 	ComponentContainer<TargetArea> targetAreas;
 	ComponentContainer<Collected> collected;
 	ComponentContainer<HomingProjectile> homingProjectiles;
-	ComponentContainer<Bow> bows;
 	ComponentContainer<Bomb> bombs;
 	ComponentContainer<Explosion> explosions;
 	ComponentContainer<Particle> particles;
@@ -73,7 +72,9 @@ public:
 	ComponentContainer<Troll> trolls;
 	ComponentContainer<Bomber> bombers;
 	ComponentContainer<Heart> hearts;
+	ComponentContainer<Bow> bows;
 	ComponentContainer<CollectibleTrap> collectibleTraps;
+	ComponentContainer<CollectibleBomb> collectibleBombs;
 
 	GameTimer gameTimer;
 	GameScore gameScore;
@@ -109,6 +110,7 @@ public:
 		registry_list.push_back(&bombs);
 		registry_list.push_back(&explosions);
 		registry_list.push_back(&particles);
+		registry_list.push_back(&collectibleBombs);
 		
 		registry_list.push_back(&healthBars);
 		registry_list.push_back(&staminaBars);

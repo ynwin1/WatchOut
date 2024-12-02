@@ -16,6 +16,7 @@ AnimationController& initBomberAnimationController(Entity& entity);
 AnimationController& initHeartAnimationController(Entity& entity);
 AnimationController& initTrapBottleAnimationController(Entity& entity);
 AnimationController& initBowAnimationController(Entity& entity);
+AnimationController& initBombAnimationController(Entity& entity);
 
 AnimationController& initExplosionAnimationController(Entity& entity);
 AnimationController& initPhantomTrapAnimationController(Entity& entity);

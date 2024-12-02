@@ -370,6 +370,6 @@ struct CollectibleTrap
 	std::string type = "trap"; 
 };
 struct Bow {};
-
+struct CollectibleBomb {};
 struct PauseMenuComponent {};
 struct HelpMenuComponent {};

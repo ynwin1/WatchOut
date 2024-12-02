@@ -481,12 +481,13 @@ void RenderSystem::step(float elapsed_ms)
 			Projectile& projectile = registry.projectiles.get(entity);
 			projectile.sticksInGround -= elapsed_ms;
 			if (projectile.sticksInGround <= 0) {
-
+	
 				if(projectile.type == PROJECTILE_TYPE::TRAP) {
 					createDamageTrap({motion.position.x, motion.position.y});
 				} else if(projectile.type == PROJECTILE_TYPE::PHANTOM_TRAP) {
 					createPhantomTrap({motion.position.x, motion.position.y});
 				} else if(projectile.type == PROJECTILE_TYPE::BOMB_FUSED) {
+								std::cout << "Projectile stuck in ground" << std::endl;
 					createExplosion(motion.position);
 					sound->playSoundEffect(Sound::EXPLOSION, 0);
 				}

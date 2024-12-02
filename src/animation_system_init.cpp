@@ -346,3 +346,19 @@ AnimationController& initBowAnimationController(Entity& entity) {
 
 	return animationcontroller;
 }
+
+AnimationController& initBombAnimationController(Entity& entity) {
+	AnimationController& animationcontroller = registry.animationControllers.emplace(entity);
+	animationcontroller.addAnimation(AnimationState::Idle, COLLECTIBLE_IDLE_FRAME_TIME, COLLECTIBLE_IDLE_NUM_FRAMES, TEXTURE_ASSET_ID::BOMB);
+	animationcontroller.addAnimation(AnimationState::Fading, COLLECTIBLE_FADE_FRAME_TIME, COLLECTIBLE_FADE_NUM_FRAMES, TEXTURE_ASSET_ID::BOMB_FADE);
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::BOMB,
+			EFFECT_ASSET_ID::ANIMATED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		});
+
+	return animationcontroller;
+}

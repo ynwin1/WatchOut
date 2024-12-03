@@ -364,7 +364,7 @@ struct PauseMenuComponent {};
 struct HelpMenuComponent {};
 struct TutorialComponent{
 	int tutorialStep = 1;
-	int maxTutorialSteps = 3;
+	int maxTutorialSteps = 4;
 };
 struct EnemyTutorialComponents{};
 struct CollectibleTutorialComponents{};

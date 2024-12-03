@@ -798,6 +798,26 @@ void WorldSystem::on_mouse_button(int button, int action, int mod) {
     if (action == GLFW_PRESS) {
         switch (button) {
         case GLFW_MOUSE_BUTTON_LEFT: {
+            // Handle tutorial progression
+            switch (gameStateController.getGameState()) {
+            case GAME_STATE::BOAR_TUTORIAL:
+            case GAME_STATE::BIRD_TUTORIAL:
+            case GAME_STATE::WIZARD_TUTORIAL:
+            case GAME_STATE::TROLL_TUTORIAL:
+            case GAME_STATE::ARCHER_TUTORIAL:
+            case GAME_STATE::BARBARIAN_TUTORIAL:
+            case GAME_STATE::BOMBER_TUTORIAL:
+            case GAME_STATE::HEART_TUTORIAL:
+            case GAME_STATE::TRAP_TUTORIAL:
+            case GAME_STATE::PHANTOM_TRAP_TUTORIAL:
+            case GAME_STATE::BOW_TUTORIAL:
+            case GAME_STATE::BOMB_TUTORIAL:
+                gameStateController.setGameState(GAME_STATE::PLAYING);
+                sound->resumeAllSoundEffects();
+                return; 
+            default:
+                break;
+            }
             double xpos, ypos;
             glfwGetCursorPos(window, &xpos, &ypos); // get the current cursor position
             vec3 mouseWorldPos = renderer->mouseToWorld({xpos, ypos});
@@ -990,6 +1010,9 @@ void WorldSystem::onTutorialClick() {
             break;
         case 3:
             nextTexture = TEXTURE_ASSET_ID::TUTORIAL_3;
+            break;
+        case 4:
+            nextTexture = TEXTURE_ASSET_ID::TUTORIAL_4;
             break;
         default:
             nextTexture = TEXTURE_ASSET_ID::TUTORIAL_1;

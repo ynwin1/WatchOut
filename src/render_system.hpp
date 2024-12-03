@@ -81,6 +81,7 @@ class RenderSystem {
 		textures_path("tutorial/Tutorial1.png"),      // TUTORIAL SLIDE 1
 		textures_path("tutorial/Tutorial2.png"),      // TUTORIAL SLIDE 2
 		textures_path("tutorial/Tutorial3.png"),      // TUTORIAL SLIDE 3
+		textures_path("tutorial/Tutorial4.png"),      // TUTORIAL SLIDE 4
 		textures_path("enemy_intros/boar.png"),       // BOAR INTO
 		textures_path("enemy_intros/bird.png"),       // BIRD INTRO
 		textures_path("enemy_intros/wizard.png"),     // WIZARD INTRO
@@ -190,7 +191,7 @@ private:
 	SoundSystem* sound;
 	Camera* camera;
 	ParticleSystem* particles;
-	const float AMBIENT_LIGHT = 0.13;
+	const float AMBIENT_LIGHT = 0.2;
 
 	// Internal drawing functions for each entity type
 	void drawMesh(Entity entity, const mat3& projection, const mat4& projection_screen);

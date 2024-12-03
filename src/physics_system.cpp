@@ -325,13 +325,13 @@ void PhysicsSystem::updatePositions(float elapsed_ms)
 
 		// Hit the ground
 		if (motion.position.z < groundZ && motion.velocity.z <= 0.0f) {
-			if (registry.bombs.has(entity) && registry.bombs.get(entity).numBounces > 0) {
+			if (registry.bounceables.has(entity) && registry.bounceables.get(entity).numBounces > 0) {
 				// Apply upward velocity for bounce, reduced by a decay factor
     	  motion.velocity.x *= FRICTION_FACTOR;
     		motion.velocity.y *= FRICTION_FACTOR;
     		motion.velocity.z = -motion.velocity.z * BOUNCE_FACTOR;
 	
-				registry.bombs.get(entity).numBounces -= 1;
+				registry.bounceables.get(entity).numBounces -= 1;
 				continue;
       }
 

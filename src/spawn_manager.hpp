@@ -12,6 +12,8 @@ public:
 
 	void step(float elapsed_ms);
 
+	void resetSpawnSystem();
+
 private:
 	Camera* camera;
 
@@ -104,7 +106,8 @@ private:
 	void spawnCollectibles(float elapsed_ms);
 	void spawnCollectible(std::string collectible, float elapsed_ms);
 
-	void resetSpawnSystem();
+	void despawnCollectibles(float elapsed_ms);
+	void despawnTraps(float elapsed_ms);
 
 	// C++ random number generator
 	std::default_random_engine rng;

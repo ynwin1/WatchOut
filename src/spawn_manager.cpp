@@ -131,6 +131,41 @@ void SpawnManager::spawnCollectible(std::string collectible, float elapsed_ms) {
     }
 }
 
+void SpawnManager::despawnCollectibles(float elapsed_ms) {
+    for (auto& collectibleEntity : registry.collectibles.entities) {
+        Collectible& collectible = registry.collectibles.get(collectibleEntity);
+        collectible.timer += elapsed_ms;
+
+        if (collectible.timer >= collectible.duration) {
+            registry.remove_all_components_of(collectibleEntity);
+        }
+        else if (collectible.timer >= collectible.duration / 2) {
+            AnimationController& animatedCollectible = registry.animationControllers.get(collectibleEntity);
+            if (animatedCollectible.currentState != AnimationState::Fading) {
+                animatedCollectible.changeState(collectibleEntity, AnimationState::Fading);
+            }
+        }
+    }
+}
+
+void SpawnManager::despawnTraps(float elapsed_ms) {
+    for (Entity& trapE : registry.traps.entities) {
+        Trap& trap = registry.traps.get(trapE);
+        trap.duration -= elapsed_ms;
+        if (trap.duration <= 0) {
+            registry.remove_all_components_of(trapE);
+        }
+    }
+
+    for (Entity& trapE : registry.phantomTraps.entities) {
+        PhantomTrap& trap = registry.phantomTraps.get(trapE);
+        trap.duration -= elapsed_ms;
+        if (trap.duration <= 0) {
+            registry.remove_all_components_of(trapE);
+        }
+    }
+}
+
 void SpawnManager::resetSpawnSystem() {
     currentEnemyIdx = 0;
     initialSpawnTime = 0.f;
@@ -139,7 +174,6 @@ void SpawnManager::resetSpawnSystem() {
     }
 }
 
-
 void SpawnManager::step(float elapsed_ms) {
     if (!hasAllEnemiesSpawned()) {
         initialSpawn(elapsed_ms);
@@ -147,4 +181,6 @@ void SpawnManager::step(float elapsed_ms) {
     else {
         inGameSpawn(elapsed_ms);
     }
+	despawnCollectibles(elapsed_ms);
+    despawnTraps(elapsed_ms);
 };

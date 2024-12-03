@@ -21,7 +21,7 @@ public:
 	WorldSystem(std::default_random_engine& rng);
 
 	// starts the game
-	void init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics, AISystem* ai, SoundSystem* sound, GameSaveManager* saveManager, ParticleSystem* particles, SpawnManager* spawnManager);
+	void init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics, AISystem* ai, SoundSystem* sound, GameSaveManager* saveManager, ParticleSystem* particles);
 
 	// Releases all associated resources
 	~WorldSystem();
@@ -71,7 +71,7 @@ private:
 	SoundSystem* sound;
 	TrapsCounter trapsCounter;
 	GameSaveManager* saveManager;
-	SpawnManager* spawnManager;
+	//SpawnManager* spawnManager;
 
 	bool isWindowed = false;
 

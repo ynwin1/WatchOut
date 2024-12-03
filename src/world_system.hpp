@@ -3,6 +3,7 @@
 // stlib
 #include <vector>
 #include <random>
+#include <unordered_set>
 
 // internal 
 #include <render_system.hpp>
@@ -41,7 +42,7 @@ public:
 
 	// Should the game be over ?
 	bool is_over()const;
-
+	
 	friend class GameStateController;
 
 	// restart level
@@ -73,6 +74,13 @@ private:
 	GameSaveManager* saveManager;
 
 	bool isWindowed = false;
+
+	//Tutorial initialization
+	float tutorialDelayTimer = 0.0f; 
+    bool hasSwitchedToTutorial = false;
+
+	std::unordered_set<std::string> encounteredEnemies;
+	std::unordered_set<std::string> encounteredCollectibles;
 
 	Entity playerEntity;
 
@@ -169,6 +177,10 @@ private:
 	void updateComboText();
 	void updateScoreText();
 	void handleSurvivalBonusPoints(float elapsed_ms);
+	void updateTutorial(float elapsed_ms);
+	void updateEnemyTutorial();
+	void updateCollectibleTutorial();
+	void updateLightPosition();
 	void updateHomingProjectiles(float elapsed_ms);
 	void updateEquippedPosition();
 	void updateMouseTexturePosition(vec2 mousePos);
@@ -197,6 +209,10 @@ private:
 	void pauseControls(int key, int action, int mod);
 	void gameOverControls(int key, int action, int mod);
 	void helpControls(int key, int action, int mod);
+	void tutorialControls(int key, int action, int mod);
+	void enemyTutorialControls(int key, int action, int mod);
+	void collectibleTutorialControls(int key, int action, int mod);
+	void onTutorialClick();
 
 	void handleSoundOnPauseHelp();
 
@@ -207,6 +223,22 @@ private:
     void exitHelpMenu();
     Entity createPauseMenu(vec2 cameraPosition);
     void exitPauseMenu();
+	Entity createTutorial(vec2 cameraPosition);
+	void exitTutorial();
+	Entity createBoarTutorial(vec2 cameraPosition);
+	Entity createBirdTutorial(vec2 cameraPosition);
+	Entity createWizardTutorial(vec2 cameraPosition);
+	Entity createTrollTutorial(vec2 cameraPosition);
+	Entity createArcherTutorial(vec2 cameraPosition);
+	Entity createBarbarianTutorial(vec2 cameraPosition);
+	Entity createBomberTutorial(vec2 cameraPosition);
+	void exitEnemyTutorial();
+	Entity createHeartTutorial(vec2 cameraPosition);
+	Entity createTrapTutorial(vec2 cameraPosition);
+	Entity createPhantomTrapTutorial(vec2 cameraPosition);
+	Entity createBowTutorial(vec2 cameraPosition);
+	Entity createBombTutorial(vec2 cameraPosition);
+	void exitCollectibleTutorial();
 
 	void leftMouseClickAction(vec3 mouseWorldPos);
 	void shootArrow(vec3 mouseWorldPos);

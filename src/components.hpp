@@ -123,6 +123,8 @@ struct Collectible
 	float timer = 0; 
 	vec2 position = { 0, 0 };
 	vec2 scale = { 3, 3 };
+	std::string type;
+
 };
 
 struct Collected {
@@ -189,6 +191,11 @@ struct Damaged
 struct DeathTimer
 {
 	float timer = 3000;
+};
+
+struct Invulnerable
+{
+	float timer = 2000;
 };
 
 struct Knockable
@@ -396,3 +403,9 @@ struct Bow {};
 struct CollectibleBomb {};
 struct PauseMenuComponent {};
 struct HelpMenuComponent {};
+struct TutorialComponent{
+	int tutorialStep = 1;
+	int maxTutorialSteps = 3;
+};
+struct EnemyTutorialComponents{};
+struct CollectibleTutorialComponents{};

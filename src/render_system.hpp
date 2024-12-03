@@ -62,6 +62,10 @@ class RenderSystem {
 		textures_path("collectables/trapbottle.png"), // TRAPCOLLECTABLE
 		textures_path("collectables/trapbottle_fade.png"),
 		textures_path("collectables/trap.png"),       // TRAP
+		textures_path("collectables/bow.png"),
+		textures_path("collectables/bow_fade.png"),
+		textures_path("collectables/bow_draw.png"),
+		textures_path("collectables/bow_drawn.png"),
 		textures_path("collectables/phantom_trap_bottle.png"), // PHANTOM_TRAP_BOTTLE
 		textures_path("collectables/phantom_trap_bottle_fade.png"),
 		textures_path("collectables/phantom_trap_bottle_one.png"), // PHANTOM_TRAP_BOTTLE OF 1 FRAME
@@ -73,16 +77,35 @@ class RenderSystem {
 	  	textures_path("border/cliff2.png"),           // SIDE CLIFF
 	  	textures_path("border/cliffTop.png"),         // TOP CLIFF
 	  	textures_path("menu/HelpMenu.png"),           // MENU_HELP
-		textures_path("menu/PauseMenu.png"),           // MENU_PAUSED
-		textures_path("bird/bird_fly.png"),				 // BIRD FLY
-		textures_path("bird/bird_swoop.png"),			// BIRD SWOOP
-		textures_path("bird/bird_dead.png"),				 // BIRD DEAD
+		textures_path("menu/PauseMenu.png"),          // MENU_PAUSED
+		textures_path("tutorial/Tutorial1.png"),      // TUTORIAL SLIDE 1
+		textures_path("tutorial/Tutorial2.png"),      // TUTORIAL SLIDE 2
+		textures_path("tutorial/Tutorial3.png"),      // TUTORIAL SLIDE 3
+		textures_path("enemy_intros/boar.png"),       // BOAR INTO
+		textures_path("enemy_intros/bird.png"),       // BIRD INTRO
+		textures_path("enemy_intros/wizard.png"),     // WIZARD INTRO
+		textures_path("enemy_intros/troll.png"),      // TROLL INTRO
+		textures_path("enemy_intros/archer.png"),     // ARCHER INTRO
+		textures_path("enemy_intros/barbarian.png"),  // BARBARIAN INTRO
+		textures_path("enemy_intros/bomber.png"),  // BAOMBER INTRO
+		textures_path("enemy_intros/target.png"),     // ENEMY TARGET AREA
+		textures_path("collectible_intros/heart.png"),// HEART INTRO
+		textures_path("collectible_intros/trap.png"), // TRAP INTRO
+		textures_path("collectible_intros/phantom_trap.png"), // PHANTOM TRAP INTRO
+		textures_path("collectible_intros/bow.png"), // BOW INTRO
+		textures_path("collectible_intros/bomb.png"), // BOMB INTRO
+		textures_path("bird/bird_fly.png"),			  	      // BIRD FLY
+		textures_path("bird/bird_swoop.png"),		          // BIRD SWOOP
+		textures_path("bird/bird_dead.png"),		          // BIRD DEAD
 		textures_path("troll/Troll-6f-48x64.png"),
 		textures_path("troll/Troll-1f-48x64.png"),
+		textures_path("misc/crosshair.png"),
 		textures_path("bomber/Idle.png"),
 		textures_path("bomber/Run.png"),
 		textures_path("bomber/Dead.png"),
 		textures_path("bomb/bomb.png"),
+		textures_path("bomb/bomb_fused.png"),
+		textures_path("bomb/bomb_fade.png"),
 		textures_path("explosion/explosion.png"),		// https://craftpix.net/freebies/free-animated-explosion-sprite-pack/
 		textures_path("title_screen/titleBackground.png"), // TITLE SCREEN BACKGROUND
 		textures_path("title_screen/titleText.png"), // TITLE SCREEN TEXT
@@ -114,6 +137,7 @@ class RenderSystem {
 
 	void update_animations();
 	void update_jeff_animation();
+	void update_bow_animations();
 
 public:
 	std::array<GLuint, texture_count> texture_gl_handles;
@@ -158,6 +182,9 @@ public:
 	mat3 createProjectionMatrix();
 	mat4 createProjectionToScreenSpace();
 
+	vec2 mouseToScreen(vec2 mousePos);
+	vec3 mouseToWorld(vec2 mousePos);
+
 private:
 	SoundSystem* sound;
 	Camera* camera;
@@ -189,7 +216,7 @@ private:
 
 	void updateEntityFacing();
 
-	void updateCollectedPosition();
+    void updateCollectedPosition();
 
 	void updateExplosions(float elapsed_ms);
 

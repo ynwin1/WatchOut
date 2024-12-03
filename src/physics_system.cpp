@@ -1,4 +1,4 @@
-﻿#include "physics_system.hpp"
+#include "physics_system.hpp"
 #include "world_init.hpp"
 #include "render_system.hpp"
 #include <iostream>
@@ -290,7 +290,7 @@ void PhysicsSystem::updatePositions(float elapsed_ms)
 		motion.position.y += motion.velocity.y * elapsed_ms;
 		motion.position.z += motion.velocity.z * elapsed_ms;
 
-		// Apply gravity
+		// Apply gravity if above the ground
 		if (motion.position.z > groundZ) {
 			// Don't apply gravity to fireballs
 			if (registry.damagings.has(entity) && registry.damagings.get(entity).type == "fireball")
@@ -300,29 +300,18 @@ void PhysicsSystem::updatePositions(float elapsed_ms)
 			motion.velocity.z -= motion.gravity * GRAVITATIONAL_CONSTANT * elapsed_ms;
 		}
 
-		// Hit the ground
-		if (motion.position.z < groundZ && motion.velocity.z <= 0.0f) {
-
-			if (registry.bombs.has(entity) && registry.bombs.get(entity).numBounces > 0) {
-				// Apply upward velocity for bounce, reduced by a decay factor
-    			motion.velocity.x *= FRICTION_FACTOR;
-    			motion.velocity.y *= FRICTION_FACTOR;
-    			motion.velocity.z = -motion.velocity.z * BOUNCE_FACTOR;
-	
-				registry.bombs.get(entity).numBounces -= 1;
-				continue;
-            }
-
-			motion.position.z = groundZ;
-			motion.velocity.z = 0;
+		// Can jump if on the ground
+		if (motion.position.z <= groundZ) {
 			if (registry.jumpers.has(entity)) {
 				Jumper& jumper = registry.jumpers.get(entity);
 				if (registry.players.has(entity)) {
 					Player& player = registry.players.get(entity);
 					Stamina& stamina = registry.staminas.get(entity);
-					if (player.tryingToJump && stamina.stamina > JUMP_STAMINA) {
+					if (player.tryingToJump && stamina.stamina > JUMP_STAMINA && !registry.trappables.get(entity).isTrapped) {
 						stamina.stamina -= JUMP_STAMINA;
 						motion.velocity.z = jumper.speed;
+						jumper.isJumping = true;
+						sound->playSoundEffect(Sound::JUMPING, 0);
 					}
 					else {
 						jumper.isJumping = false;
@@ -332,7 +321,33 @@ void PhysicsSystem::updatePositions(float elapsed_ms)
 					motion.velocity.z = jumper.speed;
 				}
 			}
-			else if (registry.projectiles.has(entity)) {
+		}
+
+		// Hit the ground
+		if (motion.position.z < groundZ && motion.velocity.z <= 0.0f) {
+			if (registry.bombs.has(entity) && registry.bombs.get(entity).numBounces > 0) {
+				// Apply upward velocity for bounce, reduced by a decay factor
+    	  motion.velocity.x *= FRICTION_FACTOR;
+    		motion.velocity.y *= FRICTION_FACTOR;
+    		motion.velocity.z = -motion.velocity.z * BOUNCE_FACTOR;
+	
+				registry.bombs.get(entity).numBounces -= 1;
+				continue;
+      }
+
+			motion.position.z = groundZ;
+			motion.velocity.z = 0;
+
+			if (registry.knockables.has(entity)) {
+				Knockable& knockable = registry.knockables.get(entity);
+				if (knockable.knocked) {
+					knockable.knocked = false;
+					motion.velocity.x = 0;
+					motion.velocity.y = 0;
+				}
+			}
+
+			if (registry.projectiles.has(entity)) {
 				motion.velocity.x = 0;
 				motion.velocity.y = 0;
 				if (registry.damagings.has(entity)) {
@@ -499,6 +514,11 @@ void PhysicsSystem::recoil_entities(Entity entity1, Entity entity2) {
 		motion1.position.x += x_direction * x_overlap * RECOIL_STRENGTH;
 		motion2.position.x -= x_direction * x_overlap * RECOIL_STRENGTH;
 	}
+}
+
+void PhysicsSystem::init(SoundSystem* sound)
+{
+	this->sound = sound;
 }
 
 void PhysicsSystem::step(float elapsed_ms)

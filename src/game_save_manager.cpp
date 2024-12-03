@@ -10,6 +10,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <fstream>
 
 void GameSaveManager::init(RenderSystem* renderer, GLFWwindow* window, Camera* camera) {
 	this->renderer = renderer;
@@ -295,6 +296,7 @@ nlohmann::json GameSaveManager::serialize_component<DeathTimer>(const DeathTimer
 template<>
 nlohmann::json GameSaveManager::serialize_component<Knockable>(const Knockable& knockable) {
 	nlohmann::json j;
+	j["knocked"] = knockable.knocked;
 	return j;
 }
 
@@ -545,11 +547,27 @@ For example, the player JEFF has a unique component called "player". This info i
 */
 
 // Load the game state from a JSON file
-void GameSaveManager::load_game() {
+bool GameSaveManager::load_game() {
 	std::ifstream file(gameSaveFilePath);
 	if (file.is_open()) {
+		// check if file is empty
+		file.seekg(0, std::ios::end);
+		if (file.tellg() == 0) {
+			std::cout << "File is empty" << std::endl;
+			file.close();
+			return false;
+		}
+		file.seekg(0);
+
 		json j;
-		file >> j;
+		try {
+			file >> j;
+		}
+		catch (json::parse_error& e) {
+			std::cout << "Error parsing JSON: " << e.what() << std::endl;
+			file.close();
+			return false;
+		}
 		file.close();
 
 		registry.clear_all_components();
@@ -560,7 +578,10 @@ void GameSaveManager::load_game() {
 	}
 	else {
 		std::cout << "Unable to open file to load game" << std::endl;
+		return false;
 	}
+
+	return true;
 }
 
 // Group all components that belong to the same entity
@@ -703,6 +724,8 @@ void GameSaveManager::createPlayerDeserialization(std::map<std::string, nlohmann
 	Trappable& trappable = registry.trappables.get(jeff);
 	trappable.isTrapped = componentsMap[TRAPPABLES]["isTrapped"];
 
+	handleKnockable(jeff, componentsMap);
+
 	createPlayerHealthBar(jeff, camera->getSize());
 	createPlayerStaminaBar(jeff, camera->getSize());
 }
@@ -724,6 +747,7 @@ void GameSaveManager::createBoarDeserialization(std::map<std::string, nlohmann::
 
 	handleMotion(boar, componentsMap);
 	handleTrappable(boar, componentsMap);
+	handleKnockable(boar, componentsMap);
 }
 
 void GameSaveManager::createBarbarianDeserialization(std::map<std::string, nlohmann::json> componentsMap) {
@@ -741,6 +765,7 @@ void GameSaveManager::createBarbarianDeserialization(std::map<std::string, nlohm
 
 	handleMotion(barbarian, componentsMap);
 	handleTrappable(barbarian, componentsMap);
+	handleKnockable(barbarian, componentsMap);
 }
 
 void GameSaveManager::createArcherDeserialization(std::map<std::string, nlohmann::json> componentsMap) {
@@ -760,6 +785,7 @@ void GameSaveManager::createArcherDeserialization(std::map<std::string, nlohmann
 
 	handleMotion(archer, componentsMap);
 	handleTrappable(archer, componentsMap);
+	handleKnockable(archer, componentsMap);
 }
 
 void GameSaveManager::createBirdDeserialization(std::map<std::string, nlohmann::json> componentsMap) {
@@ -779,6 +805,7 @@ void GameSaveManager::createBirdDeserialization(std::map<std::string, nlohmann::
 
 	handleMotion(bird, componentsMap);
 	handleTrappable(bird, componentsMap);
+	handleKnockable(bird, componentsMap);
 }
 
 void GameSaveManager::createWizardDeserialization(std::map<std::string, nlohmann::json> componentsMap) {
@@ -797,6 +824,7 @@ void GameSaveManager::createWizardDeserialization(std::map<std::string, nlohmann
 
 	handleMotion(wizard, componentsMap);
 	handleTrappable(wizard, componentsMap);
+	handleKnockable(wizard, componentsMap);
 }
 
 void GameSaveManager::createTrollDeserialization(std::map<std::string, nlohmann::json> componentsMap) {
@@ -921,10 +949,10 @@ void GameSaveManager::deserialize_traps_counter(const json& j) {
 		int count = trap.value()["count"];
 		Entity textEntity;
 		if (trapName == "trap") {
-			textEntity = createTrapsCounterText(camera->getSize());
+			textEntity = createItemCountText(camera->getSize(), TEXTURE_ASSET_ID::TRAPCOLLECTABLE);
 		}
 		else {
-			textEntity = createPhantomTrapsCounterText(camera->getSize());
+			textEntity = createItemCountText(camera->getSize(), TEXTURE_ASSET_ID::PHANTOM_TRAP_BOTTLE_ONE);
 		}
 		this->trapsCounter[trapName] = std::make_pair(count, textEntity);
 	}
@@ -986,7 +1014,12 @@ void GameSaveManager::handleDasher(Entity& entity, std::map<std::string, nlohman
 void GameSaveManager::handleKnocker(Entity& entity, std::map<std::string, nlohmann::json> componentsMap) {
 	Knocker& knocker = registry.knockers.get(entity);
 	knocker.strength = componentsMap[KNOCKERS]["strength"];
+}
 
+void GameSaveManager::handleKnockable(Entity& entity, std::map<std::string, nlohmann::json> componentsMap)
+{
+	Knockable& knockable = registry.knockables.get(entity);
+	knockable.knocked = componentsMap[KNOCKABLES]["knocked"];
 }
 
 void GameSaveManager::handleCooldown(Entity& entity, std::map<std::string, nlohmann::json> componentsMap) {

@@ -15,7 +15,7 @@ public:
 	void save_game(std::unordered_map<std::string, std::pair<int, Entity>> trapCounter, std::unordered_map<std::string, float> spawn_delays, std::unordered_map<std::string, int> max_entities, std::unordered_map<std::string, float> next_spawns);
 
 	// Load the game
-	void load_game();
+	bool load_game();
 	
 	// get spawn delays
 	std::unordered_map<std::string, float> getSpawnDelays();
@@ -145,6 +145,7 @@ private:
 	void handleEnemy(Entity& entity, std::map<std::string, nlohmann::json> componentsMap);
 	void handleDasher(Entity& entity, std::map<std::string, nlohmann::json> componentsMap);
 	void handleKnocker(Entity& entity, std::map<std::string, nlohmann::json> componentsMap);
+	void handleKnockable(Entity& entity, std::map < std::string, nlohmann::json> componentsMap);
 	void handleCooldown(Entity& entity, std::map<std::string, nlohmann::json> componentsMap);
 
 	void handleBoar(Entity& entity, std::map<std::string, nlohmann::json> componentsMap);

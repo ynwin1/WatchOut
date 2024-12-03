@@ -37,7 +37,7 @@ uniform PointLight pointLights[MAX_POINT_LIGHTS];
 layout(location = 0) out  vec4 colour;
 
 // Function declerations
-vec4 CalcPointLight(PointLight light, vec3 fragPos, vec3 normal);
+vec4 CalcPointLight(PointLight light, vec3 worldPos, vec3 normal, vec4 initialColour);
 
 void main()
 {
@@ -56,20 +56,19 @@ void main()
 
 	// point lights 
 	for (int i = 0; i < num_point_lights; i++) {
-        colour += CalcPointLight(pointLights[i], worldPos, normal) * initialColour; 
+        colour.rgb += CalcPointLight(pointLights[i], worldPos, normal, initialColour).rgb; 
     }
 }
 
-
-vec4 CalcPointLight(PointLight light, vec3 worldPos, vec3 normal)
+vec4 CalcPointLight(PointLight light, vec3 worldPos, vec3 normal, vec4 initialColour)
 {
     // Ambient light
-    vec4 ambient  = light.ambient;
+    vec4 ambient  = light.ambient * initialColour;
     // Diffuse light
     vec3 norm = normalize(normal);
     vec3 lightDir = normalize(light.position - worldPos); 
     float diff = max(dot(norm, lightDir), 0.0);
-    vec4 diffuse = diff * light.diffuse;
+    vec4 diffuse = diff * light.diffuse * initialColour;
     // attenuation
     float d = distance(light.position, worldPos);
     float attenuation = 1.0 / (light.constant + light.linear * d + 

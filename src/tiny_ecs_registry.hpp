@@ -6,6 +6,7 @@
 #include "components.hpp"
 #include "render_components.hpp"
 #include "animation_system.hpp"
+#include "game_state_controller.hpp"
 
 class ECSRegistry
 {
@@ -27,6 +28,7 @@ public:
 	ComponentContainer<Damaged> damageds;
 	ComponentContainer<Damaging> damagings;
 	ComponentContainer<DeathTimer> deathTimers;
+	ComponentContainer<Invulnerable> invulnerables;
 	ComponentContainer<Knockable> knockables;
 	ComponentContainer<Knocker> knockers;
 	ComponentContainer<Trappable> trappables;
@@ -42,12 +44,16 @@ public:
 	ComponentContainer<Mesh*> meshPtrs;
 	ComponentContainer<TargetArea> targetAreas;
 	ComponentContainer<Collected> collected;
+	ComponentContainer<HomingProjectile> homingProjectiles;
 	ComponentContainer<Bomb> bombs;
 	ComponentContainer<Explosion> explosions;
 	ComponentContainer<Particle> particles;
 	
 	ComponentContainer<PauseMenuComponent> pauseMenuComponents;
 	ComponentContainer<HelpMenuComponent> helpMenuComponents;
+	ComponentContainer<TutorialComponent> tutorialComponents;
+	ComponentContainer<EnemyTutorialComponents> enemyTutorialComponents;
+	ComponentContainer<CollectibleTutorialComponents> collectibleTutorialComponents;
 
 	std::map<char, TextChar> textChars; //for initializing text glyphs from freetypes
 
@@ -70,10 +76,13 @@ public:
 	ComponentContainer<Troll> trolls;
 	ComponentContainer<Bomber> bombers;
 	ComponentContainer<Heart> hearts;
+	ComponentContainer<Bow> bows;
 	ComponentContainer<CollectibleTrap> collectibleTraps;
+	ComponentContainer<CollectibleBomb> collectibleBombs;
 
 	GameTimer gameTimer;
 	GameScore gameScore;
+	Inventory inventory;
 
 	//debugging
 	FPSTracker fpsTracker;
@@ -92,6 +101,7 @@ public:
 		registry_list.push_back(&damageds);
 		registry_list.push_back(&damagings);
 		registry_list.push_back(&deathTimers);
+		registry_list.push_back(&invulnerables);
 		registry_list.push_back(&knockables);
 		registry_list.push_back(&knockers);
 		registry_list.push_back(&trappables);
@@ -100,9 +110,12 @@ public:
 		registry_list.push_back(&obstacles);
 		registry_list.push_back(&meshPtrs);
 		registry_list.push_back(&collected);
+		registry_list.push_back(&homingProjectiles);
+		registry_list.push_back(&bows);
 		registry_list.push_back(&bombs);
 		registry_list.push_back(&explosions);
 		registry_list.push_back(&particles);
+		registry_list.push_back(&collectibleBombs);
 		
 		registry_list.push_back(&healthBars);
 		registry_list.push_back(&staminaBars);
@@ -132,6 +145,9 @@ public:
 
 		registry_list.push_back(&pauseMenuComponents);
 		registry_list.push_back(&helpMenuComponents);
+		registry_list.push_back(&tutorialComponents);
+		registry_list.push_back(&enemyTutorialComponents);
+		registry_list.push_back(&collectibleTutorialComponents);
 
 		spawnable_lists["boar"] = &boars;
 		spawnable_lists["barbarian"] = &barbarians;

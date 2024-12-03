@@ -21,6 +21,7 @@ Entity createBoar(vec2 pos)
 
 	Enemy& enemy = registry.enemies.emplace(entity);
 	enemy.damage = BOAR_DAMAGE;
+	enemy.points = 2;
 	enemy.maxHealth = BOAR_HEALTH;
 	enemy.health = enemy.maxHealth;
 	enemy.type = "BOAR";
@@ -101,6 +102,7 @@ Entity createArcher(vec2 pos)
 	enemy.damage = ARCHER_DAMAGE;
 	enemy.maxHealth = ARCHER_HEALTH;
 	enemy.health = enemy.maxHealth;
+	enemy.points = 3;
 	enemy.type = "ARCHER";
 	motion.speed = ARCHER_SPEED;
 
@@ -185,6 +187,7 @@ Entity createWizard(vec2 pos) {
 	enemy.cooldown = 8000.f; // 8s
 	enemy.maxHealth = WIZARD_HEALTH;
 	enemy.health = enemy.maxHealth;
+	enemy.points = 5;
 	motion.speed = WIZARD_SPEED;
 
 	registry.wizards.emplace(entity);
@@ -219,6 +222,7 @@ Entity createTroll(vec2 pos)
 
 	Enemy& enemy = registry.enemies.emplace(entity);
 	enemy.damage = TROLL_DAMAGE;
+	enemy.points = 10;
 	enemy.type = "TROLL";
 	enemy.cooldown = 0;
 	motion.speed = TROLL_SPEED;
@@ -1012,8 +1016,8 @@ Entity createGameTimerText(vec2 windowSize) {
 	Text& text = registry.texts.emplace(entity);
 	text.value = "00:00:00";
 	Foreground& fg = registry.foregrounds.emplace(entity);
-	fg.position = {(windowSize.x / 2) + 50.0f, windowSize.y - 80.0f};
-	fg.scale = {2.0f, 2.0f};
+	fg.position = {(windowSize.x / 2) + 120.0f, windowSize.y - 70.0f};
+	fg.scale = {1.5f, 1.5f};
 
 	registry.renderRequests.insert(
 		entity, 
@@ -1302,28 +1306,6 @@ void createMapTiles() {
     }
 }
 
-void createHighScoreText(vec2 windowSize){
-	auto entity = Entity();
-
-	GameScore& gameScore = registry.gameScore;
-
-	Text& text = registry.texts.emplace(entity);
-    text.value = "Your High Score is  " + std::to_string(gameScore.highScoreHours) + "h " + std::to_string(gameScore.highScoreMinutes) + "m " + std::to_string(gameScore.highScoreSeconds) + "s ";
-	Foreground& fg = registry.foregrounds.emplace(entity);
-	fg.position = {windowSize.x / 2 - 220.f, windowSize.y / 2 - 50.f};
-	fg.scale = {1.0f, 1.0f};
-	
-	registry.colours.insert(entity, {1.0f, 0.85f, 0.0f, 1.0f});
-
-	registry.renderRequests.insert(
-		entity, 
-		{
-			TEXTURE_ASSET_ID::NONE,
-			EFFECT_ASSET_ID::FONT,
-			GEOMETRY_BUFFER_ID::TEXT
-		});
-}
-
 void createGameOverText(vec2 windowSize) {
 	auto backdrop = Entity();
 	Foreground& backdropFg = registry.foregrounds.emplace(backdrop);
@@ -1339,8 +1321,9 @@ void createGameOverText(vec2 windowSize) {
 			GEOMETRY_BUFFER_ID::RECTANGLE
 		});
 
-	GameTimer& gameTimer = registry.gameTimer;
 	std::vector<Entity> entities;
+	GameTimer& gameTimer = registry.gameTimer;
+	GameScore& gameScore = registry.gameScore;
 
 	auto entity1 = Entity();
 	Text& text1 = registry.texts.emplace(entity1);
@@ -1349,34 +1332,43 @@ void createGameOverText(vec2 windowSize) {
 	text1Fg.position = {windowSize.x / 2 - 315.0f, windowSize.y / 2 + 50.0f};
 	text1Fg.scale = {4.0f, 4.0f};
 	registry.colours.insert(entity1, {0.85f, 0.0f, 0.0f, 1.0f});
-	
+
 	auto entity2 = Entity();
 	Text& text2 = registry.texts.emplace(entity2);
+	text2.lineSpacing = 1.5f;
+	text2.alignment = TEXT_ALIGNMENT::CENTER;
 	Foreground& text2Fg = registry.foregrounds.emplace(entity2);
-	text2Fg.position = {windowSize.x / 2 - 160.f, windowSize.y / 2};
-	text2Fg.scale = {1.0f, 1.0f};
+	text2Fg.position = {windowSize.x / 2, windowSize.y / 2 - 20.f};
+	text2Fg.scale = {1.f, 1.f};
 	registry.colours.insert(entity2, {1.0f, 0.85f, 0.0f, 1.0f});
+
 	std::ostringstream oss;
-    oss << "You survived for ";
+    oss << "You Survived for ";
     if (gameTimer.hours > 0) {
         oss << gameTimer.hours << "h ";
-		text2Fg.position.x -= 20.f;
     }
     if (gameTimer.minutes > 0 || gameTimer.hours > 0) {
         oss << gameTimer.minutes << "m ";
-		text2Fg.position.x -= 40.f;
     }
     oss << gameTimer.seconds << "s";
-	text2.value = oss.str();
-
-	createHighScoreText(windowSize);
+	oss << "\nYour Score: " << gameScore.score;
+	oss << "\nYour High Score: " << gameScore.highScore;
+	oss << "\nYour Highest Survived Time: ";
+	if (gameScore.highScoreHours > 0) {
+        oss << gameScore.highScoreHours << "h ";
+    }
+    if (gameScore.highScoreMinutes > 0 || gameScore.highScoreHours > 0) {
+        oss << gameScore.highScoreMinutes << "m ";
+    }
+	oss << gameScore.highScoreSeconds << "s";
+	text2.value += oss.str();
 
 	auto entity3 = Entity();
 	Text& text3 = registry.texts.emplace(entity3);
 	text3.value = "Press ENTER to play again";
 	Foreground& text3Fg = registry.foregrounds.emplace(entity3);
-	text3Fg.position = {windowSize.x / 2 - 160.f, windowSize.y / 2 - 110.f};
-	text3Fg.scale = {0.8f, 0.8f};
+	text3Fg.position = {windowSize.x / 2 - 200.f, windowSize.y / 2 - 200.f};
+	text3Fg.scale = {1.f, 1.f};
 
 	entities.push_back(entity1);
 	entities.push_back(entity2);
@@ -1470,6 +1462,81 @@ void createTrees(RenderSystem* renderer) {
 		createTree(renderer, { posX, posY });
 		numTrees--;
 	}
+}
+
+Entity createPointsEarnedText(std::string textValue, Entity anchoredWorldEntity, vec4 color, float offsetPosX) {
+	auto entity = Entity();
+	Motion& anchoredMotion = registry.motions.get(anchoredWorldEntity);
+	Text& text = registry.texts.emplace(entity);
+	text.value = textValue;
+	text.anchoredWorldEntity = anchoredWorldEntity;
+	text.anchoredWorldOffset = {offsetPosX, -anchoredMotion.scale.y / 2 - 20.0f};
+
+	Foreground& fg = registry.foregrounds.emplace(entity);
+	fg.scale = {1.0f, 1.0f};
+
+	registry.colours.insert(entity, color);
+
+	SlideUp& slideUp = registry.slideUps.emplace(entity);
+	slideUp.fadeIn = true;
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::FONT,
+			GEOMETRY_BUFFER_ID::TEXT
+		});
+
+	return entity;
+}
+
+Entity createComboText(int comboValue, vec2 windowSize) {
+	auto entity = Entity();
+	Text& text = registry.texts.emplace(entity);
+	text.value = "COMBO *" + std::to_string(comboValue);
+
+	vec2 position = {windowSize.x / 2 - 130.0f, windowSize.y - 350.0f};
+
+	Foreground& fg = registry.foregrounds.emplace(entity);
+	fg.position = position;
+	fg.scale = {2.0f, 2.0f};
+
+	registry.colours.insert(entity, {1.0f, 1.0f, 1.0f, 1.0f});
+
+	SlideUp& slideUp = registry.slideUps.emplace(entity);
+	slideUp.fadeIn = true;
+	slideUp.screenStartY = position.y;
+	slideUp.animationLength = 2000.f;
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::FONT,
+			GEOMETRY_BUFFER_ID::TEXT
+		});
+
+	return entity;
+}
+
+Entity createScoreText(vec2 windowSize) {
+	auto entity = Entity();
+
+	registry.texts.emplace(entity);
+	Foreground& fg = registry.foregrounds.emplace(entity);
+	fg.position = {(windowSize.x / 2) - 200.0f, windowSize.y - 70.0f};
+	fg.scale = {1.5f, 1.5f};
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::FONT,
+			GEOMETRY_BUFFER_ID::TEXT
+		});
+
+	return entity;
 }
 
 void createExplosion(vec3 pos)

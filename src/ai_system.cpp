@@ -12,7 +12,7 @@ const float BOAR_COOLDOWN_TIME = 500;
 const float BOAR_CHARGE_SPEED = 1.0f;
 
 //Bird constants
-const float BIRD_AGGRO_RANGE = 300;   
+const float BIRD_AGGRO_RANGE = 150;   
 const float BIRD_SWOOP_DURATION = 500; 
 const float BIRD_COOLDOWN_TIME = 1000;
 const float BIRD_TURNING_SPEED = 0.002;

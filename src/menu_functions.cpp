@@ -310,11 +310,11 @@ void WorldSystem::createTitleScreen() {
 	createTitleScreenBackground(windowSize);
 	// createTitleScreenText(windowSize, "Watch Out!", 5.f, vec2(windowSize.x / 2 - 400.f, windowSize.y / 2 + 100));
 	createTitleScreenTitle(windowSize);
-	createTitleScreenText(windowSize, "Press Enter to Begin", 1.f, vec2(windowSize.x / 2 - 155.f, windowSize.y / 2 - 100));
-	createTitleScreenText(windowSize, "Press L to Load Progress", 1.f, vec2(windowSize.x / 2 - 185.f, windowSize.y / 2 - 200));
+	createTitleScreenText(windowSize, "Press Enter to Begin", 1.f, vec2(windowSize.x / 2 - 155.f, windowSize.y / 2 - 200));
+	/*createTitleScreenText(windowSize, "Press L to Load Progress", 1.f, vec2(windowSize.x / 2 - 185.f, windowSize.y / 2 - 200));*/
 	createTitleScreenText(windowSize, "Press Q to Quit", 1.f, vec2(windowSize.x / 2 - 115.f, windowSize.y / 2 - 300));
 	std::string teamText = "Team 17 Electric Boogaloo: Carlo, Katie, Linus, Tarun & Yan Naing";
-	createTitleScreenText(windowSize, teamText, 1.f, vec2(windowSize.x - 940.f, windowSize.y - 50));
+	createTitleScreenText(windowSize, teamText, 1.f, vec2(windowSize.x - 950.f, windowSize.y - 50));
 	camera->followPosition({ world_size_x / 2.f, world_size_y / 2.f });
 
 	soundSetUp();

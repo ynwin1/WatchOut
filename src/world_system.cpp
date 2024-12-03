@@ -851,13 +851,13 @@ void WorldSystem::pauseControls(int key, int action, int mod)
             gameStateController.setGameState(GAME_STATE::HELP);
             clearSaveText();
             break;
-        case GLFW_KEY_S:
+        /*case GLFW_KEY_S:
             saveManager->save_game(trapsCounter.trapsMap, spawn_delays, max_entities, next_spawns);
 			createGameSaveText(camera->getSize());
             printf("Saved game\n");
-            break;
-        case GLFW_KEY_L:
-			break;
+            break;*/
+        /*case GLFW_KEY_L:
+			break;*/
         case GLFW_KEY_ENTER:
             restart_game();
         case GLFW_KEY_P:
@@ -961,9 +961,9 @@ void WorldSystem::titleControls(int key, int action, int mod) {
 		case GLFW_KEY_ENTER:
 			restart_game();
 			break;
-		case GLFW_KEY_L:
+		/*case GLFW_KEY_L:
 			load_game();
-			break;
+			break;*/
 		case GLFW_KEY_Q:
 			glfwSetWindowShouldClose(window, true);
 			break;

@@ -59,13 +59,14 @@ bool SpawnManager::hasAllEnemiesSpawned() {
 void SpawnManager::initialSpawn(float elapsed_ms) {
     int maxEntitySize = 1;
 
-    for (int i = 0; i <= currentEnemyIdx; i++) {
+    for (int i = 0; i < currentEnemyIdx; i++) {
         std::string entity_type = entity_types[i];
         int currentEntitySize = registry.spawnable_lists.at(entity_type)->size();
         if (currentEntitySize < maxEntitySize) {
             vec2 spawn_location = get_spawn_location(entity_type);
             spawn_func f = spawn_functions.at(entity_type);
             (*f)(spawn_location);
+            std::cout << "Spawning " + entity_type << std::endl;
         }
     }
 

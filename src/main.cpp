@@ -33,7 +33,6 @@ int main()
 	Camera camera;
 	GameSaveManager saveManager;
 	SpawnManager spawnManager;
-	
 
 	// Initializing window
 	GLFWwindow* window = renderer.create_window();
@@ -51,7 +50,7 @@ int main()
 	sound.init();
 	saveManager.init(&renderer, window, &camera);
 	spawnManager.init(&camera);
-	world.init(&renderer, window, &camera, &physics, &ai, &sound, &saveManager, &particles);
+	world.init(&renderer, window, &camera, &physics, &ai, &sound, &saveManager, &particles, &spawnManager);
 
 	auto t = Clock::now();
 	while (!world.is_over()) {
@@ -79,7 +78,7 @@ int main()
 			ai.step(elapsed_ms);
 			renderer.step(elapsed_ms);
 			sound.step(elapsed_ms);
-			// spawnManager.step(elapsed_ms);
+			spawnManager.step(elapsed_ms);
 		}
 
 		renderer.draw();

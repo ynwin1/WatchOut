@@ -27,7 +27,8 @@ void WorldSystem::init(
     AISystem* ai, 
     SoundSystem* sound, 
     GameSaveManager* saveManager, 
-    ParticleSystem* particles)
+    ParticleSystem* particles,
+    SpawnManager* spawnManager)
 {
     
     this->renderer = renderer;
@@ -38,6 +39,7 @@ void WorldSystem::init(
 	this->sound = sound;
 	this->saveManager = saveManager;
     this->particles = particles;
+    this->spawnManager = spawnManager;
 
     // Setting callbacks to member functions (that's why the redirect is needed)
     // Input is handled using GLFW, for more info see
@@ -77,14 +79,10 @@ void WorldSystem::restart_game()
 
     gameStateController.setGameState(GAME_STATE::PLAYING);
     show_mesh = false;
-    resetSpawnSystem();
+    spawnManager->resetSpawnSystem();
     initText();
     soundSetUp();
 
-    // Set spawn delays to 1 second, so the first of each type will spawn right away
-    for (auto& name : entity_types) {
-        next_spawns[name] = 1000;
-    }
     loadAndSaveHighScore(false);
 
     tutorialDelayTimer = 0.0f;
@@ -100,11 +98,6 @@ void WorldSystem::load_game() {
     saveManager->loadTrapsCounter(trapsCounter.trapsMap);
     // set up texts in foreground
     reloadText();
-  
-    // Pick up spawn data from last checkpoint
-    next_spawns = saveManager->getNextSpawns();
-	spawn_delays = saveManager->getSpawnDelays();
-	max_entities = saveManager->getMaxEntities();
 
     show_mesh = false;
     playerEntity = registry.players.entities[0];
@@ -338,12 +331,8 @@ bool WorldSystem::step(float elapsed_ms)
     updateEnemyTutorial();
     updateCollectibleTutorial();
     updateTutorial(elapsed_ms);
-    adjustSpawnSystem(elapsed_ms);
-    spawn(elapsed_ms);
-    spawn_particles(elapsed_ms);
     update_cooldown(elapsed_ms);
     handle_deaths(elapsed_ms);
-    despawn_collectibles(elapsed_ms);
 	destroyDamagings();
     handle_stamina(elapsed_ms);
     trackFPS(elapsed_ms);
@@ -352,7 +341,6 @@ bool WorldSystem::step(float elapsed_ms)
     updateInventoryItemText();
     toggleMesh();
     accelerateFireballs(elapsed_ms);
-    despawnTraps(elapsed_ms);
     updateCollectedTimer(elapsed_ms);
     resetTrappedEntities();
     updateHomingProjectiles(elapsed_ms);
@@ -1132,24 +1120,6 @@ void WorldSystem::update_player_facing(Player& player, Motion& motion)
     }
 }
 
-void WorldSystem::despawnTraps(float elapsed_ms) {
-    for (Entity& trapE : registry.traps.entities) {
-        Trap& trap = registry.traps.get(trapE);
-        trap.duration -= elapsed_ms;
-        if (trap.duration <= 0) {
-            registry.remove_all_components_of(trapE);
-        }
-    }
-
-	for (Entity& trapE : registry.phantomTraps.entities) {
-		PhantomTrap& trap = registry.phantomTraps.get(trapE);
-		trap.duration -= elapsed_ms;
-		if (trap.duration <= 0) {
-			registry.remove_all_components_of(trapE);
-		}
-	}
-}
-
 void WorldSystem::update_cooldown(float elapsed_ms) {
     // Tick type-specific cooldowns
     for (auto& cooldownEntity : registry.cooldowns.entities) {
@@ -1204,25 +1174,6 @@ void WorldSystem::handle_deaths(float elapsed_ms) {
     }
 }
 
-void WorldSystem::spawn(float elapsed_ms)
-{
-    for (std::string& entity_type : entity_types) {
-        next_spawns.at(entity_type) -= elapsed_ms;
-        int maxEntitySize = max_entities.at(entity_type);
-		int currentEntitySize = registry.spawnable_lists.at(entity_type)->size();
-        if (registry.enemies.size() < MAX_TOTAL_ENEMIES && 
-            next_spawns.at(entity_type) < 0 && 
-            currentEntitySize < maxEntitySize) 
-        {
-            printf("Spawning: %s\n", entity_type.c_str());
-            vec2 spawnLocation = get_spawn_location(entity_type);
-            spawn_func f = spawn_functions.at(entity_type);
-            (*f)(spawnLocation);
-            next_spawns[entity_type] = spawn_delays.at(entity_type);
-        }
-    }
-}
-
 void WorldSystem::spawn_particles(float elapsed_ms)
 {
     Motion& playerMotion = registry.motions.get(playerEntity);
@@ -1255,44 +1206,6 @@ void WorldSystem::spawn_particles(float elapsed_ms)
         float facing = playerMotion.scale.x > 0 ? 1 : -1;
         particles->createDashParticle(playerMotion.position, vec2(JEFF_BB_WIDTH * facing, JEFF_BB_HEIGHT));
     }
-}
-
-vec2 WorldSystem::get_spawn_location(const std::string& entity_type)
-{
-    vec2 spawn_location{};
-
-    // spawn collectibles
-	if (entity_type == "heart" || entity_type == "collectible_trap") {
-		// spawn at random location on the map
-        float posX = uniform_dist(rng) * (rightBound - leftBound) + leftBound;
-        float posY = uniform_dist(rng) * (bottomBound - topBound) + topBound;
-        spawn_location = { posX, posY };
-    }
-    else 
-	// spawn enemies
-    {
-        // Do not spawn within camera's view (with some margins)
-        float exclusionTop = (camera->getPosition().y - camera->getSize().y / 2) / yConversionFactor - 100;
-        float exclusionBottom = (camera->getPosition().y + camera->getSize().y / 2) / yConversionFactor + 400;
-        float exclusionLeft = camera->getPosition().x - camera->getSize().x / 2 - 100;
-        float exclusionRight = camera->getPosition().x + camera->getSize().x / 2 + 100;
-
-        float posX = uniform_dist(rng) * (rightBound - leftBound) + leftBound;
-        float posY = uniform_dist(rng) * (bottomBound - topBound) + topBound;
-        // Spawning in exclusion zone
-        if (posX < exclusionRight && posX > exclusionLeft &&
-            posY < exclusionBottom && posY > exclusionTop)
-        {
-            if (exclusionTop > topBound) {
-                posY = exclusionTop;
-            }
-            else {
-                posY = exclusionBottom;
-            }
-        }
-        spawn_location = { posX, posY };
-    }
-    return spawn_location;
 }
 
 // Collision functions
@@ -1544,22 +1457,6 @@ void WorldSystem::setCollisionCooldown(Entity damager, Entity victim)
     collisionCooldowns[std::pair<Entity, Entity> {damager, victim}] = COOLDOWN_TIME;
 }
 
-void WorldSystem::despawn_collectibles(float elapsed_ms) {
-	for (auto& collectibleEntity : registry.collectibles.entities) {
-		Collectible& collectible = registry.collectibles.get(collectibleEntity);
-		collectible.timer += elapsed_ms;
-
-        if (collectible.timer >= collectible.duration) {
-			registry.remove_all_components_of(collectibleEntity);
-		} else if(collectible.timer >= collectible.duration / 2) {
-            AnimationController& animatedCollectible = registry.animationControllers.get(collectibleEntity);
-            if(animatedCollectible.currentState != AnimationState::Fading) {
-                animatedCollectible.changeState(collectibleEntity, AnimationState::Fading);
-            }
-        }
-	}
-}
-
 void WorldSystem::destroyDamagings() {
     for (auto& damagingEntity : registry.damagings.entities) {
         if(registry.bombs.has(damagingEntity) || registry.explosions.has(damagingEntity)) {
@@ -1673,41 +1570,6 @@ void WorldSystem::toggleMesh() {
                     GEOMETRY_BUFFER_ID::SPRITE });
         }
     }
-}
-
-void WorldSystem::adjustSpawnSystem(float elapsed_ms) {
-	GameTimer& gameTimer = registry.gameTimer;
-	if (gameTimer.elapsed > DIFFICULTY_INTERVAL) {
-		// Increase difficulty
-		for (auto& spawnDelay : spawn_delays) {
-			// increse spawn delay for collectibles
-			if (spawnDelay.first == "heart" || spawnDelay.first == "collectible_trap") {
-				spawnDelay.second *= 1.1f;
-            }
-            else {
-				// Decrease spawn delay for enemies
-                spawnDelay.second *= 0.9f;
-            }
-			
-		}
-		for (auto& maxEntity : max_entities) {
-			// Do not increase max entities for collectibles
-			if (maxEntity.first == "heart" || maxEntity.first == "collectible_trap") {
-				continue;
-			}
-			maxEntity.second++;
-		}
-		gameTimer.elapsed = 0;
-        sound->playSoundEffect(Sound::LEVELUP, 0);
-	}
-}
-
-void WorldSystem::resetSpawnSystem() {
-	// Reset spawn delays
-    spawn_delays = initial_spawn_delays;
-
-	// Reset max entities
-    max_entities = initial_max_entities;
 }
 
 // Pause the game when the window loses focus

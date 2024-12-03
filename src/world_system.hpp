@@ -13,6 +13,7 @@
 #include <world_init.hpp>
 #include <game_state_controller.hpp>
 #include <game_save_manager.hpp>
+#include <spawn_manager.hpp>
 
 // Container for all our entities and game logic
 class WorldSystem
@@ -21,7 +22,17 @@ public:
 	WorldSystem(std::default_random_engine& rng);
 
 	// starts the game
-	void init(RenderSystem* renderer, GLFWwindow* window, Camera* camera, PhysicsSystem* physics, AISystem* ai, SoundSystem* sound, GameSaveManager* saveManager, ParticleSystem* particles);
+	void init(
+		RenderSystem* renderer, 
+		GLFWwindow* window, 
+		Camera* camera, 
+		PhysicsSystem* physics, 
+		AISystem* ai, 
+		SoundSystem* sound, 
+		GameSaveManager* saveManager, 
+		ParticleSystem* particles, 
+		SpawnManager* spawnManager
+	);
 
 	// Releases all associated resources
 	~WorldSystem();
@@ -71,7 +82,7 @@ private:
 	SoundSystem* sound;
 	TrapsCounter trapsCounter;
 	GameSaveManager* saveManager;
-	//SpawnManager* spawnManager;
+	SpawnManager* spawnManager;
 
 	bool isWindowed = false;
 

@@ -370,7 +370,7 @@ bool WorldSystem::step(float elapsed_ms)
     handleSurvivalBonusPoints(elapsed_ms);
     updateHomingProjectiles(elapsed_ms);
     updateEquippedPosition();
-    updateJeffLight(elapsed_ms);
+    updatePointLightPositions(elapsed_ms);
 
     if (camera->isToggled()) {
         Motion& playerMotion = registry.motions.get(playerEntity);
@@ -429,14 +429,16 @@ void WorldSystem::updateScoreText() {
     text.value = "Score: " + std::to_string(gameScore.score);
 }
 
-void WorldSystem::updateJeffLight(float elapsed_ms) {
-    PointLight& pointLight = registry.pointLights.get(playerEntity);
-    
-    // Update Position
-    Motion& motion = registry.motions.get(playerEntity);
-    pointLight.position = motion.position;
-
-    // Make flicker
+void WorldSystem::updatePointLightPositions(float elapsed_ms) {
+    for (Entity& pointLightEntity: registry.pointLights.entities) {
+        // Update Position
+        PointLight& pointLight = registry.pointLights.get(pointLightEntity);
+        if (registry.motions.has(pointLightEntity)) {
+            Motion& motion = registry.motions.get(pointLightEntity);
+            pointLight.position = motion.position;
+        }
+    }
+    // TODO: Make flicker
 }
 
 void WorldSystem::loadAndSaveHighScore(bool save) {
@@ -1488,7 +1490,9 @@ void WorldSystem::entity_damaging_collision(Entity entity, Entity entity_other, 
         player.health = new_health < 0 ? 0 : new_health;
         was_damaged.push_back(entity);
         setCollisionCooldown(entity_other, entity);
-        registry.invulnerables.emplace(entity);
+        if (damaging.damage >= 5) {
+            registry.invulnerables.emplace(entity);
+        }
         printf("Player health reduced from %d to %d\n", player.health + damaging.damage, player.health);
     }
     else if (registry.enemies.has(entity)) {
@@ -1546,7 +1550,9 @@ void WorldSystem::processPlayerEnemyCollision(Entity player, Entity enemy, std::
         playerData.health = std::max(newHealth, 0);
         was_damaged.push_back(player);
         setCollisionCooldown(enemy, player);
-        registry.invulnerables.emplace(player);
+        if (enemyData.damage >= 5) {
+            registry.invulnerables.emplace(player);
+        }
         printf("Player health reduced by enemy from %d to %d\n", playerData.health + enemyData.damage, playerData.health);
 
         // Check if enemy can have an attack cooldown

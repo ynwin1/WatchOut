@@ -219,11 +219,33 @@ void SpawnManager::despawnTraps(float elapsed_ms) {
     }
 }
 
+void SpawnManager::adjustDifficulty(float elapsed_ms) {
+    if (difficultyTime >= difficultyInterval) {
+        // increase max size by 2
+        const int incrementCount = 2;
+        for (auto& entity_max : max_entities) {
+            entity_max.second += incrementCount;
+        }
+        // decrease spawn time
+        for (auto& spawn_time : spawn_delays) {
+            spawn_time.second *= 0.9;
+        }
+        // reset
+        difficultyTime = 0;
+    }
+    else {
+        difficultyTime += elapsed_ms;
+    }
+}
+
 void SpawnManager::resetSpawnSystem() {
     currentEnemyIdx = 0;
     initialSpawnTime = 0.f;
     for (auto& entity_spawn : next_spawn) {
-        entity_spawn.second = spawn_delays.at(entity_spawn.first);
+        entity_spawn.second = spawn_delays_og.at(entity_spawn.first);
+    }
+    for (auto& entity_max : max_entities) {
+        entity_max.second = max_entities_og.at(entity_max.first);
     }
 }
 
@@ -233,6 +255,7 @@ void SpawnManager::step(float elapsed_ms) {
     }
     else {
         inGameSpawn(elapsed_ms);
+        adjustDifficulty(elapsed_ms);
     }
 	spawnParticles(elapsed_ms);
 	despawnCollectibles(elapsed_ms);

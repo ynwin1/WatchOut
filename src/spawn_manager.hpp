@@ -26,6 +26,9 @@ private:
 	float initialSpawnTime = 0.f;
 	const float initialSpawnInterval = 15000.f; // 15 seconds
 
+	const float difficultyInterval = 120000.f;
+	float difficultyTime = 10000.f;
+
 	// Constants
 	std::vector<std::string> entity_types = {
 		"bird",
@@ -39,7 +42,19 @@ private:
 		"collectible_trap" // collectible
 	};
 
-	const std::unordered_map<std::string, float> spawn_delays = {
+	const std::unordered_map<std::string, float> spawn_delays_og = {
+		{"boar", 30000.0},
+		{"barbarian", 40000.0f},
+		{"archer", 50000.0f},
+		{"bird", 20000.0f},
+		{"wizard", 60000.0f},
+		{"troll", 70000.0f},
+		{"bomber", 90000.0f},
+		{"heart", 10000.0f},
+		{"collectible_trap", 10000.0f}
+	};
+
+	std::unordered_map<std::string, float> spawn_delays = {
 		{"boar", 30000.0},
 		{"barbarian", 40000.0f},
 		{"archer", 50000.0f},
@@ -76,7 +91,19 @@ private:
 		{"collectible_trap", 2}
 	};
 
-	const std::unordered_map<std::string, int> max_entities = {
+	const std::unordered_map<std::string, int> max_entities_og = {
+		{"boar", 5},
+		{"barbarian", 4},
+		{"archer", 3},
+		{"bird", 8},
+		{"wizard", 4},
+		{"troll", 5},
+		{"bomber", 3},
+		{"heart", 2},
+		{"collectible_trap", 2}
+	};
+
+	std::unordered_map<std::string, int> max_entities = {
 		{"boar", 5},
 		{"barbarian", 4},
 		{"archer", 3},
@@ -114,6 +141,8 @@ private:
 
 	void despawnCollectibles(float elapsed_ms);
 	void despawnTraps(float elapsed_ms);
+
+	void adjustDifficulty(float elapsed_ms);
 
 	// C++ random number generator
 	std::default_random_engine rng;

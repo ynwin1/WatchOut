@@ -2,6 +2,32 @@
 
 #include "common.hpp"
 
+struct EnemiesKilled {
+    int killSpanCount = 0;
+    float spanCountdown = 1000;
+    bool spanCountdownStarted = false;
+	Entity comboTextEntity;
+    void updateKillSpanCount() {
+        killSpanCount++;
+        if(!spanCountdownStarted) {
+            spanCountdownStarted = true;
+        } else {
+			// reset countdown to allow chaining kills
+			spanCountdown = 1000;
+		}
+    }
+    void updateSpanCountdown(float elapsed_ms) {
+        if(spanCountdownStarted) {
+            spanCountdown -= elapsed_ms;
+        }
+    }
+	void resetKillSpan() {
+		killSpanCount = 0;
+		spanCountdown = 1000;
+		spanCountdownStarted = false;
+	}
+};
+
 enum class INVENTORY_ITEM
 {
     NONE,
@@ -62,6 +88,10 @@ public:
 
     const GAME_STATE getGameState() const;
 
+	void restart();
+
+	EnemiesKilled enemiesKilled;
+	float survivalBonusTimer = 0;
     Entity mouseTextureEntity;
 private:
     GAME_STATE currentGameState;

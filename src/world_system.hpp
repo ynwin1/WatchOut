@@ -57,6 +57,7 @@ public:
 private:
 	const float DIFFICULTY_INTERVAL = 45000.0f;
 	const unsigned int MAX_TOTAL_ENEMIES = 100;
+	const float SURVIVAL_BONUS_INTERVAL = 120000.0f;
 
 	std::string DAMAGE_TRAP = "trap";
 	std::string PHANTOM_TRAP = "phantom_trap";
@@ -175,6 +176,10 @@ private:
 	void despawnTraps(float elapsed_ms);
 	void updateCollectedTimer(float elapsed_ms);
 	void resetTrappedEntities();
+	void handleEnemiesKilledInSpan(float elapsed_ms);
+	void updateComboText();
+	void updateScoreText();
+	void handleSurvivalBonusPoints(float elapsed_ms);
 	void updateTutorial(float elapsed_ms);
 	void updateEnemyTutorial();
 	void updateCollectibleTutorial();

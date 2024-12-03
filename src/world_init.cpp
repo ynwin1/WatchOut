@@ -694,10 +694,10 @@ Entity createLightning(vec2 pos) {
 
 	auto& pointLight = registry.pointLights.emplace(entity);
 	pointLight.position = motion.position;
-	pointLight.ambient = vec4(0.651, 0.988, 1, .1);
-	pointLight.diffuse = vec4(0.651, 0.988, 1, 1.0);
+	pointLight.ambient = vec4(0, 0.498, 0.988, .1);
+	pointLight.diffuse = vec4(0, 0.498, 0.988, 1.0);
 	pointLight.max_distance = 3250;
-	pointLight.constant = 1.f;
+	pointLight.constant = .3f;
 	pointLight.linear = .005;
 	pointLight.quadratic = 0.f;
 

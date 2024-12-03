@@ -14,9 +14,12 @@ struct PlayerResourceUI {
 };
 
 struct GameScore {
+    int score = 0;
+    int highScore = 0;
 	int highScoreHours = 0;
 	int highScoreMinutes = 0;
 	int highScoreSeconds = 0;
+    Entity textEntity;
 };
 
 struct GameTimer {
@@ -48,6 +51,32 @@ struct GameTimer {
 		hours = 0;
 		minutes = 0;
 		seconds = 0;
+    }
+};
+
+struct EnemiesKilled {
+    int killSpanCount = 0;
+    float spanCountdown = 1000;
+    bool spanCountdownStarted = false;
+	Entity comboTextEntity;
+    void updateKillSpanCount() {
+        killSpanCount++;
+        if(!spanCountdownStarted) {
+            spanCountdownStarted = true;
+        } else {
+			// reset countdown to allow chaining kills
+			spanCountdown = 1000;
+		}
+    }
+    void updateSpanCountdown(float elapsed_ms) {
+        if(spanCountdownStarted) {
+            spanCountdown -= elapsed_ms;
+        }
+    }
+	void resetKillSpan() {
+		killSpanCount = 0;
+		spanCountdown = 1000;
+		spanCountdownStarted = false;
 	}
 };
 
@@ -79,7 +108,20 @@ enum class GAME_STATE
     PLAYING,
     PAUSED,
     GAMEOVER,
-    HELP
+    HELP,
+    TUTORIAL,
+    BOAR_TUTORIAL,
+    WIZARD_TUTORIAL,
+    ARCHER_TUTORIAL,
+    BIRD_TUTORIAL,
+    TROLL_TUTORIAL,
+    BARBARIAN_TUTORIAL,
+    BOMBER_TUTORIAL,
+    HEART_TUTORIAL,
+    TRAP_TUTORIAL,
+    PHANTOM_TRAP_TUTORIAL,
+    BOW_TUTORIAL,
+    BOMB_TUTORIAL
 };
 
 class WorldSystem;
@@ -97,6 +139,10 @@ public:
 
     const GAME_STATE getGameState() const;
 
+	void restart();
+
+	EnemiesKilled enemiesKilled;
+	float survivalBonusTimer = 0;
     Entity mouseTextureEntity;
 private:
     GAME_STATE currentGameState;

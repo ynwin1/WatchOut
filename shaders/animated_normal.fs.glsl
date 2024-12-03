@@ -56,7 +56,7 @@ void main()
 
 	// point lights 
 	for (int i = 0; i < num_point_lights; i++) {
-        colour += CalcPointLight(pointLights[i], worldPos, normal, initialColour); 
+        colour.rgb += CalcPointLight(pointLights[i], worldPos, normal, initialColour).rgb; 
     }
 }
 

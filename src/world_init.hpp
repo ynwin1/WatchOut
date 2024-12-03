@@ -159,6 +159,9 @@ Entity createTitleScreenText(vec2 windowSize, std::string value, float fontSize,
 Entity createPauseHelpText(vec2 windowSize);
 Entity createFPSText(vec2 windowSize);
 Entity createGameTimerText(vec2 windowSize);
+Entity createPointsEarnedText(std::string text, Entity anchoredWorldEntity, vec4 color, float xOffset);
+Entity createComboText(int comboValue, vec2 windowSize);
+Entity createScoreText(vec2 windowSize);
 Entity createItemCountText(vec2 windowSize, TEXTURE_ASSET_ID assetID);
 
 Entity createMousePointer(vec2 mousePos);
@@ -191,6 +194,8 @@ Entity createSideCliff(vec2 position, vec2 scale);
 Entity createTopCliff(vec2 position, vec2 scale);
 void createTrees(RenderSystem* renderer);
 
+//Tutorial
+Entity createTutorialTarget(vec3 position);
 struct ProjectileInfo {
     vec2 size;
     TEXTURE_ASSET_ID assetId;

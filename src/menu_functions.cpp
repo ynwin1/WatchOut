@@ -55,6 +55,254 @@ void WorldSystem::exitPauseMenu() {
 	}
 }
 
+//Tutorial at the start
+Entity WorldSystem::createTutorial(vec2 windowSize) {
+    auto entity = Entity();
+    registry.tutorialComponents.emplace(entity);
+
+    Foreground& fg = registry.foregrounds.emplace(entity);
+    fg.position = {windowSize.x / 2 + 50, windowSize.y / 2 - 50};
+    fg.scale = {1500, 1200};
+    registry.renderRequests.insert(
+        entity,
+        {
+            TEXTURE_ASSET_ID::TUTORIAL_1,
+            EFFECT_ASSET_ID::TEXTURED,
+            GEOMETRY_BUFFER_ID::SPRITE
+        }); 
+
+    return entity;
+}
+
+void WorldSystem::exitTutorial() {
+	for (auto& entity: registry.tutorialComponents.entities) {
+		registry.remove_all_components_of(entity);
+	}
+}
+
+Entity WorldSystem::createBoarTutorial(vec2 windowSize) {
+    auto entity = Entity();
+    registry.enemyTutorialComponents.emplace(entity);
+
+    Foreground& fg = registry.foregrounds.emplace(entity);
+    fg.position = {windowSize.x / 2, 100};
+    fg.scale = {900, 700};
+    registry.renderRequests.insert(
+        entity,
+        {
+            TEXTURE_ASSET_ID::BOAR_INTRO,
+            EFFECT_ASSET_ID::TEXTURED,
+            GEOMETRY_BUFFER_ID::SPRITE
+        }); 
+
+    return entity;
+}
+Entity WorldSystem::createBirdTutorial(vec2 windowSize) {
+    auto entity = Entity();
+    registry.enemyTutorialComponents.emplace(entity);
+
+    Foreground& fg = registry.foregrounds.emplace(entity);
+    fg.position = {windowSize.x / 2, 100};
+    fg.scale = {900, 700};
+    registry.renderRequests.insert(
+        entity,
+        {
+            TEXTURE_ASSET_ID::BIRD_INTRO,
+            EFFECT_ASSET_ID::TEXTURED,
+            GEOMETRY_BUFFER_ID::SPRITE
+        }); 
+
+    return entity;
+}
+Entity WorldSystem::createWizardTutorial(vec2 windowSize) {
+    auto entity = Entity();
+    registry.enemyTutorialComponents.emplace(entity);
+
+    Foreground& fg = registry.foregrounds.emplace(entity);
+    fg.position = {windowSize.x / 2, 100};
+    fg.scale = {900, 700};
+    registry.renderRequests.insert(
+        entity,
+        {
+            TEXTURE_ASSET_ID::WIZARD_INTRO,
+            EFFECT_ASSET_ID::TEXTURED,
+            GEOMETRY_BUFFER_ID::SPRITE
+        }); 
+
+    return entity;
+}
+Entity WorldSystem::createTrollTutorial(vec2 windowSize) {
+    auto entity = Entity();
+    registry.enemyTutorialComponents.emplace(entity);
+
+    Foreground& fg = registry.foregrounds.emplace(entity);
+    fg.position = {windowSize.x / 2, 100};
+    fg.scale = {900, 700};
+    registry.renderRequests.insert(
+        entity,
+        {
+            TEXTURE_ASSET_ID::TROLL_INTRO,
+            EFFECT_ASSET_ID::TEXTURED,
+            GEOMETRY_BUFFER_ID::SPRITE
+        }); 
+
+    return entity;
+}
+Entity WorldSystem::createArcherTutorial(vec2 windowSize) {
+    auto entity = Entity();
+    registry.enemyTutorialComponents.emplace(entity);
+
+    Foreground& fg = registry.foregrounds.emplace(entity);
+    fg.position = {windowSize.x / 2, 100};
+    fg.scale = {900, 700};
+    registry.renderRequests.insert(
+        entity,
+        {
+            TEXTURE_ASSET_ID::ARCHER_INTRO,
+            EFFECT_ASSET_ID::TEXTURED,
+            GEOMETRY_BUFFER_ID::SPRITE
+        }); 
+
+    return entity;
+}
+Entity WorldSystem::createBarbarianTutorial(vec2 windowSize) {
+    auto entity = Entity();
+    registry.enemyTutorialComponents.emplace(entity);
+
+    Foreground& fg = registry.foregrounds.emplace(entity);
+    fg.position = {windowSize.x / 2, 100};
+    fg.scale = {900, 700};
+    registry.renderRequests.insert(
+        entity,
+        {
+            TEXTURE_ASSET_ID::BARBARIAN_INTRO,
+            EFFECT_ASSET_ID::TEXTURED,
+            GEOMETRY_BUFFER_ID::SPRITE
+        }); 
+
+    return entity;
+}
+
+Entity WorldSystem::createBomberTutorial(vec2 windowSize) {
+    auto entity = Entity();
+    registry.enemyTutorialComponents.emplace(entity);
+
+    Foreground& fg = registry.foregrounds.emplace(entity);
+    fg.position = {windowSize.x / 2, 100};
+    fg.scale = {900, 700};
+    registry.renderRequests.insert(
+        entity,
+        {
+            TEXTURE_ASSET_ID::BOMBER_INTRO,
+            EFFECT_ASSET_ID::TEXTURED,
+            GEOMETRY_BUFFER_ID::SPRITE
+        }); 
+
+    return entity;
+}
+
+void WorldSystem::exitEnemyTutorial() {
+	for (auto& entity: registry.enemyTutorialComponents.entities) {
+		registry.remove_all_components_of(entity);
+	}
+}
+
+Entity WorldSystem::createHeartTutorial(vec2 windowSize) {
+    auto entity = Entity();
+    registry.collectibleTutorialComponents.emplace(entity);
+
+    Foreground& fg = registry.foregrounds.emplace(entity);
+    fg.position = {windowSize.x / 2, 100};
+    fg.scale = {900, 700};
+    registry.renderRequests.insert(
+        entity,
+        {
+            TEXTURE_ASSET_ID::HEART_INTRO,
+            EFFECT_ASSET_ID::TEXTURED,
+            GEOMETRY_BUFFER_ID::SPRITE
+        }); 
+
+    return entity;
+}
+
+Entity WorldSystem::createTrapTutorial(vec2 windowSize) {
+    auto entity = Entity();
+    registry.collectibleTutorialComponents.emplace(entity);
+
+    Foreground& fg = registry.foregrounds.emplace(entity);
+    fg.position = {windowSize.x / 2, 100};
+    fg.scale = {900, 700};
+    registry.renderRequests.insert(
+        entity,
+        {
+            TEXTURE_ASSET_ID::TRAP_INTRO,
+            EFFECT_ASSET_ID::TEXTURED,
+            GEOMETRY_BUFFER_ID::SPRITE
+        }); 
+
+    return entity;
+}
+
+Entity WorldSystem::createPhantomTrapTutorial(vec2 windowSize) {
+    auto entity = Entity();
+    registry.collectibleTutorialComponents.emplace(entity);
+
+    Foreground& fg = registry.foregrounds.emplace(entity);
+    fg.position = {windowSize.x / 2, 100};
+    fg.scale = {900, 700};
+    registry.renderRequests.insert(
+        entity,
+        {
+            TEXTURE_ASSET_ID::PHANTOM_TRAP_INTRO,
+            EFFECT_ASSET_ID::TEXTURED,
+            GEOMETRY_BUFFER_ID::SPRITE
+        }); 
+
+    return entity;
+}
+
+Entity WorldSystem::createBowTutorial(vec2 windowSize) {
+    auto entity = Entity();
+    registry.collectibleTutorialComponents.emplace(entity);
+
+    Foreground& fg = registry.foregrounds.emplace(entity);
+    fg.position = {windowSize.x / 2, 100};
+    fg.scale = {900, 700};
+    registry.renderRequests.insert(
+        entity,
+        {
+            TEXTURE_ASSET_ID::BOW_INTRO,
+            EFFECT_ASSET_ID::TEXTURED,
+            GEOMETRY_BUFFER_ID::SPRITE
+        }); 
+
+    return entity;
+}
+
+Entity WorldSystem::createBombTutorial(vec2 windowSize) {
+    auto entity = Entity();
+    registry.collectibleTutorialComponents.emplace(entity);
+
+    Foreground& fg = registry.foregrounds.emplace(entity);
+    fg.position = {windowSize.x / 2, 100};
+    fg.scale = {900, 700};
+    registry.renderRequests.insert(
+        entity,
+        {
+            TEXTURE_ASSET_ID::BOMB_INTRO,
+            EFFECT_ASSET_ID::TEXTURED,
+            GEOMETRY_BUFFER_ID::SPRITE
+        }); 
+
+    return entity;
+}
+
+void WorldSystem::exitCollectibleTutorial() {
+	for (auto& entity: registry.collectibleTutorialComponents.entities) {
+		registry.remove_all_components_of(entity);
+	}
+}
+
 void WorldSystem::createTitleScreen() {
 	registry.clear_all_components();
 

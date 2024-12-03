@@ -15,7 +15,7 @@ public:
 	void save_game(std::unordered_map<std::string, std::pair<int, Entity>> trapCounter, std::unordered_map<std::string, float> spawn_delays, std::unordered_map<std::string, int> max_entities, std::unordered_map<std::string, float> next_spawns);
 
 	// Load the game
-	void load_game();
+	bool load_game();
 	
 	// get spawn delays
 	std::unordered_map<std::string, float> getSpawnDelays();

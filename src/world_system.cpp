@@ -651,7 +651,7 @@ Entity WorldSystem::shootHomingArrow(Entity targetEntity, float angle) {
     const float fixedDistance = abs(playerM.scale.x) / 2;
     vec3 pos = playerM.position + normalizedDirection * fixedDistance;
 
-    Entity arrowE = createArrow(pos, vec3(0), PLAYER_ARROW_DAMAGE);
+    Entity arrowE = createProjectile(pos, vec3(0), PROJECTILE_TYPE::ARROW);
     registry.motions.get(arrowE).angle = angle;
     registry.homingProjectiles.emplace(arrowE, targetEntity).speed = HOMING_ARROW_SPEED;
 

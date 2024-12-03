@@ -50,6 +50,7 @@ struct Enemy
 	std::string type;
 	unsigned int cooldown = 0;
 	float pathfindTime = 0;
+	int points = 1;
 };
 
 struct Trappable {
@@ -231,9 +232,12 @@ struct TargetArea {
 };
 
 struct GameScore {
+	int score = 0;
+	int highScore = 0;
 	int highScoreHours = 0;
 	int highScoreMinutes = 0;
 	int highScoreSeconds = 0;
+	Entity textEntity;
 };
 
 struct GameTimer {
@@ -268,8 +272,27 @@ struct GameTimer {
 	}
 };
 
+enum class TEXT_ALIGNMENT {
+	LEFT,
+	CENTER,
+	RIGHT
+};
+
 struct Text {
 	std::string value;
+	Entity anchoredWorldEntity;
+	vec2 anchoredWorldOffset;
+	TEXT_ALIGNMENT alignment = TEXT_ALIGNMENT::LEFT;
+	float lineSpacing = 1.3f;
+};
+
+struct SlideUp {
+	float animationLength = 1500;
+	float slideUpDuration = 200;
+	float screenDistanceY = 50;
+	float screenStartY = 0;
+	float elapsedMs = 0;
+	bool fadeIn = false;
 };
 
 struct TextChar {

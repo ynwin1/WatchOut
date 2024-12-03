@@ -29,14 +29,24 @@ void RenderSystem::drawText(Entity entity, const mat4& projection_screen) {
 
 	glActiveTexture(GL_TEXTURE0);
 
-	float startX = fg.position.x;
-	float startY = fg.position.y;
+	std::vector<vec2> renderPositions = getTextRenderPositions(text.value, fg.scale.x, text.lineSpacing, text.alignment, fg.position);
+
+	float lineIndex = 0;
+	float startX = renderPositions[lineIndex].x;
+	float startY = renderPositions[lineIndex].y;
 	const float scale = fg.scale.x;
 
 	std::string::const_iterator c;
     for (c = text.value.begin(); c != text.value.end(); c++)
     {
         TextChar ch = registry.textChars[*c];
+
+		if (*c == '\n') {
+			lineIndex++;
+			startX = renderPositions[lineIndex].x;
+        	startY = renderPositions[lineIndex].y;
+        	continue;
+    	}
 
         float xpos = startX + ch.bearing.x * scale;
 		float ypos = startY - (ch.size.y - ch.bearing.y) * scale;
@@ -513,6 +523,7 @@ void RenderSystem::step(float elapsed_ms)
 	update_staminabars();
 	updateEntityFacing();
 	updateCollectedPosition();
+	updateSlideUps(elapsed_ms);
 }
 
 void RenderSystem::updateExplosions(float elapsed_ms) {
@@ -647,6 +658,52 @@ void RenderSystem::updateCollectedPosition() {
         collectedM.position.y = playerM.position.y;
 		collectedM.position.z = playerM.position.z + visualToWorldY(playerM.scale.y) / 2 + topOffset;
     }   
+}
+
+void RenderSystem::updateSlideUps(float elapsed_ms) {
+	for (Entity entity : registry.slideUps.entities) {
+		SlideUp& slideUp = registry.slideUps.get(entity);
+
+		slideUp.animationLength -= elapsed_ms;
+		slideUp.elapsedMs += elapsed_ms;
+		// clamp elapsed time to duration
+		if(slideUp.elapsedMs > slideUp.slideUpDuration) { 
+			slideUp.elapsedMs = slideUp.slideUpDuration;
+		}
+
+		if(registry.texts.has(entity)) {
+			Text& text = registry.texts.get(entity);
+			Foreground& textFg = registry.foregrounds.get(entity);
+
+			// follow the anchored entity
+			if(registry.motions.has(text.anchoredWorldEntity)) { 
+				Motion& anchoredMotion = registry.motions.get(text.anchoredWorldEntity);
+				vec2 screenPos = worldToScreen({anchoredMotion.position.x + text.anchoredWorldOffset.x, anchoredMotion.position.y + text.anchoredWorldOffset.y, 0.0f});
+
+				textFg.position.x = screenPos.x;
+				if(slideUp.elapsedMs <= slideUp.slideUpDuration) {
+					//adjust slide up start position to anchored entity
+					slideUp.screenStartY = screenPos.y;
+				} else {
+					textFg.position.y = screenPos.y + slideUp.screenDistanceY;
+				}
+			} 
+
+			if (slideUp.elapsedMs <= slideUp.slideUpDuration) { 
+				// slide up text
+        		textFg.position.y = slideUp.screenStartY + slideUp.screenDistanceY * (slideUp.elapsedMs / slideUp.slideUpDuration);
+				 // fade in text
+				if(slideUp.fadeIn && registry.colours.has(entity)) {
+					vec4& colour = registry.colours.get(entity);
+					colour.a = slideUp.elapsedMs / slideUp.slideUpDuration;	
+				}
+    		}
+		}
+
+		if(slideUp.animationLength <= 0) {
+			registry.remove_all_components_of(entity);
+		}
+	}
 }
 
 void updateHpBarMeter() {
@@ -793,6 +850,61 @@ mat3 RenderSystem::createProjectionMatrix()
 	float tx = -(right + left) / (right - left);
 	float ty = -(top + bottom) / (top - bottom);
 	return { {sx, 0.f, 0.f}, {0.f, sy, 0.f}, {tx, ty, 1.f} };
+}
+
+vec2 RenderSystem::worldToScreen(vec3 worldPos) {
+	float screenPosX;
+	float screenPosY;
+
+	if(camera->isToggled()) {
+		// bottom left corner of the screen
+		float screenOriginPosX = camera->getPosition().x - camera->getSize().x / 2;
+		float screenOriginPosY = visualToWorldY(camera->getPosition().y) + visualToWorldY(camera->getSize().y) / 2;
+
+		// convert world position to screen position
+		screenPosX = worldPos.x - screenOriginPosX; 
+		screenPosY = (screenOriginPosY - worldPos.y) * yConversionFactor;
+	} else {
+		int window_width;
+    	int window_height;
+    	glfwGetWindowSize(window, &window_width, &window_height);
+
+		screenPosX = (worldPos.x * window_width) / world_size_x;
+		screenPosY = window_height - (worldPos.y * window_height) / world_size_y;
+	}
+
+	return { screenPosX, screenPosY };
+}
+
+std::vector<vec2> getTextRenderPositions(std::string textValue, float scale, float lineSpacing, TEXT_ALIGNMENT alignment, vec2 alignmentPos) {
+    std::vector<vec2> renderPositions;
+    float textLength = 0;
+    float lineIndex = 0;
+	float renderPosY = alignmentPos.y;
+    float lineHeight = registry.textChars['H'].size.y * scale * lineSpacing; 
+
+    for (auto c = textValue.begin(); c != textValue.end(); c++) {
+        if (*c != '\n') {
+            TextChar ch = registry.textChars[*c];
+            textLength += (ch.advance >> 6) * scale;
+        }
+
+        // If newline or last character
+        if (*c == '\n' || c == textValue.end() - 1) {
+            if (alignment == TEXT_ALIGNMENT::CENTER) {
+                renderPositions.push_back({alignmentPos.x - textLength / 2, renderPosY});
+            } else if (alignment == TEXT_ALIGNMENT::RIGHT) {
+                renderPositions.push_back({alignmentPos.x - textLength, renderPosY});
+            } else {
+                renderPositions.push_back({alignmentPos.x, renderPosY});
+            }
+
+			renderPosY -= lineHeight;
+            textLength = 0;
+        }
+    }
+
+    return renderPositions;
 }
 
 float worldToVisualY(float y, float z) 

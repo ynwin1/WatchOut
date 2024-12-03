@@ -182,6 +182,7 @@ public:
 	mat3 createProjectionMatrix();
 	mat4 createProjectionToScreenSpace();
 
+	vec2 worldToScreen(vec3 worldPos);
 	vec2 mouseToScreen(vec2 mousePos);
 	vec3 mouseToWorld(vec2 mousePos);
 
@@ -218,11 +219,14 @@ private:
 
     void updateCollectedPosition();
 
+	void updateSlideUps(float elapsed_ms);
 	void updateExplosions(float elapsed_ms);
 
 	// Window handle
 	GLFWwindow* window;
 };
+
+std::vector<vec2> getTextRenderPositions(std::string textValue, float scale, float lineSpacing, TEXT_ALIGNMENT alignment, vec2 alignmentPos);
 
 bool loadEffectFromFile(
 	const std::string& vs_path, const std::string& fs_path, GLuint& out_program);

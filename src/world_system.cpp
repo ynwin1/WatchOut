@@ -841,8 +841,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mod) {
 
 void WorldSystem::on_key(int key, int, int action, int mod)
 {
-	GAME_STATE gameState = gameStateController.getGameState();
-    switch (gameState) {
+    switch (gameStateController.getGameState()) {
 	case GAME_STATE::TITLE:
 		titleControls(key, action, mod);
 		break;
@@ -885,9 +884,9 @@ void WorldSystem::on_key(int key, int, int action, int mod)
         collectibleTutorialControls(key, action, mod);
         break;
     }
-    if (gameState != GAME_STATE::TITLE && gameState != GAME_STATE::TITLE_TUTORIAL) {
+	if (gameStateController.getGameState() != GAME_STATE::TITLE && gameStateController.getGameState() != GAME_STATE::TITLE_TUTORIAL) {
         movementControls(key, action, mod);
-    }
+	}
     allStateControls(key, action, mod);
 }
 
@@ -1340,7 +1339,6 @@ void WorldSystem::spawn(float elapsed_ms)
             next_spawns.at(entity_type) < 0 && 
             currentEntitySize < maxEntitySize) 
         {
-            printf("Spawning: %s\n", entity_type.c_str());
             vec2 spawnLocation = get_spawn_location(entity_type);
             spawn_func f = spawn_functions.at(entity_type);
             (*f)(spawnLocation);
@@ -1451,14 +1449,12 @@ void WorldSystem::entity_collectible_collision(Entity entity, Entity entity_othe
         unsigned int addOn = player.health <= 80 ? health : 100 - player.health;
         player.health += addOn;
         createCollected(playerM, collectibleM.scale, TEXTURE_ASSET_ID::HEART);
-		printf("Player collected a heart\n");
 	}
     else if (registry.bows.has(entity_other)) {
         registry.inventory.itemCounts[INVENTORY_ITEM::BOW] += 5;
         std::cout << "Player collected a bow. Bow count is now " << registry.inventory.itemCounts[INVENTORY_ITEM::BOW] << std::endl;
         createCollected(playerM, collectibleM.scale, TEXTURE_ASSET_ID::BOW);
         equipItem(INVENTORY_ITEM::BOW, true);
-		printf("Player collected a bow\n");
 	}
     else if (registry.collectibleBombs.has(entity_other)) {
         registry.inventory.itemCounts[INVENTORY_ITEM::BOMB] += 3;
@@ -1512,7 +1508,6 @@ void WorldSystem::entity_damaging_collision(Entity entity, Entity entity_other, 
         was_damaged.push_back(entity);
         setCollisionCooldown(entity_other, entity);
         registry.invulnerables.emplace(entity);
-        printf("Player health reduced from %d to %d\n", player.health + damaging.damage, player.health);
     }
     else if (registry.enemies.has(entity)) {
         // reduce enemy health
@@ -1520,7 +1515,6 @@ void WorldSystem::entity_damaging_collision(Entity entity, Entity entity_other, 
         enemy.health -= damaging.damage;
         was_damaged.push_back(entity);
         setCollisionCooldown(entity_other, entity);
-        printf("Enemy health reduced from %d to %d by damaging object\n", enemy.health + damaging.damage, enemy.health);
     }
     else {
         printf("Entity is not a player or enemy\n");
@@ -1570,7 +1564,6 @@ void WorldSystem::processPlayerEnemyCollision(Entity player, Entity enemy, std::
         was_damaged.push_back(player);
         setCollisionCooldown(enemy, player);
         registry.invulnerables.emplace(player);
-        printf("Player health reduced by enemy from %d to %d\n", playerData.health + enemyData.damage, playerData.health);
 
         // Check if enemy can have an attack cooldown
         if (enemyData.cooldown > 0) {
@@ -1611,7 +1604,6 @@ void WorldSystem::handleEnemyCollision(Entity attacker, Entity target, std::vect
         targetData.health -= attackerData.damage;
         was_damaged.push_back(target);
         setCollisionCooldown(attacker, target);
-        printf("Enemy %d's health reduced from %d to %d by enemy\n", (unsigned int)target, targetData.health + attackerData.damage, targetData.health);
 
         if (attackerData.cooldown > 0) {
             Cooldown& cooldown = registry.cooldowns.emplace(attacker);
@@ -1631,7 +1623,6 @@ void WorldSystem::checkAndHandleEnemyDeath(Entity enemy) {
             motion.angle = M_PI / 2; // Rotate enemy 90 degrees
             motion.hitbox = { motion.hitbox.z, motion.hitbox.y, motion.hitbox.x }; // Change hitbox to be on its side
         }
-        printf("Enemy %d died with health %d\n", (unsigned int)enemy, enemyData.health);
 
         if (registry.animationControllers.has(enemy)) {
             AnimationController& animationController = registry.animationControllers.get(enemy);

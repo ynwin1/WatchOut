@@ -311,8 +311,6 @@ Entity createCollectibleTrap(vec2 pos)
 
 	registry.midgrounds.emplace(entity);
 
-	printf("Collectible trap created\n");
-
 	return entity;
 };
 

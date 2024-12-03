@@ -801,6 +801,30 @@ void WorldSystem::on_mouse_button(int button, int action, int mod) {
             glfwGetCursorPos(window, &xpos, &ypos); // get the current cursor position
             vec3 mouseWorldPos = renderer->mouseToWorld({xpos, ypos});
             leftMouseClickAction(mouseWorldPos);
+
+            // tutorial progression on mouse click
+            switch (gameStateController.getGameState()) {
+            case GAME_STATE::BOAR_TUTORIAL:
+            case GAME_STATE::BIRD_TUTORIAL:
+            case GAME_STATE::WIZARD_TUTORIAL:
+            case GAME_STATE::TROLL_TUTORIAL:
+            case GAME_STATE::ARCHER_TUTORIAL:
+            case GAME_STATE::BARBARIAN_TUTORIAL:
+            case GAME_STATE::BOMBER_TUTORIAL:
+                gameStateController.setGameState(GAME_STATE::PLAYING);
+                sound->resumeAllSoundEffects();
+                break;
+            case GAME_STATE::HEART_TUTORIAL:
+            case GAME_STATE::TRAP_TUTORIAL:
+            case GAME_STATE::PHANTOM_TRAP_TUTORIAL:
+            case GAME_STATE::BOW_TUTORIAL:
+            case GAME_STATE::BOMB_TUTORIAL:
+                gameStateController.setGameState(GAME_STATE::PLAYING);
+                sound->resumeAllSoundEffects();
+                break;
+            default:
+                break;
+            }
         }
         break;
         case GLFW_MOUSE_BUTTON_RIGHT: {

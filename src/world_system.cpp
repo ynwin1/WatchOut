@@ -234,7 +234,7 @@ void WorldSystem::updateEnemyTutorial() {
         vec2 enemyPosition = { motion.position.x, motion.position.y };
         float distance = glm::distance(playerPosition, enemyPosition);
 
-         if (distance <= 500.0f) {
+         if (distance <= 600.0f) {
             std::string enemyType = registry.enemies.get(enemy).type; 
             if (encounteredEnemies.find(enemyType) == encounteredEnemies.end()) {
                 createTutorialTarget(motion.position);

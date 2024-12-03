@@ -57,6 +57,8 @@ const int COLLECTIBLE_IDLE_FRAME_TIME = 0;
 const int COLLECTIBLE_IDLE_NUM_FRAMES = 1;
 const int COLLECTIBLE_FADE_FRAME_TIME = 100;
 const int COLLECTIBLE_FADE_NUM_FRAMES = 2;
+const int BOMB_FUSED_FRAME_TIME = 200;
+const int BOMB_FUSED_NUM_FRAMES = 2;
 const int BOW_DRAW_FRAME_TIME = 100;
 const int BOW_DRAW_NUM_FRAMES = 3;
 const int BOW_DRAWN_FRAME_TIME = 0;
@@ -351,6 +353,7 @@ AnimationController& initBombAnimationController(Entity& entity) {
 	AnimationController& animationcontroller = registry.animationControllers.emplace(entity);
 	animationcontroller.addAnimation(AnimationState::Idle, COLLECTIBLE_IDLE_FRAME_TIME, COLLECTIBLE_IDLE_NUM_FRAMES, TEXTURE_ASSET_ID::BOMB);
 	animationcontroller.addAnimation(AnimationState::Fading, COLLECTIBLE_FADE_FRAME_TIME, COLLECTIBLE_FADE_NUM_FRAMES, TEXTURE_ASSET_ID::BOMB_FADE);
+	animationcontroller.addAnimation(AnimationState::Attack, BOMB_FUSED_FRAME_TIME, BOMB_FUSED_NUM_FRAMES, TEXTURE_ASSET_ID::BOMB_FUSED);
 
 	registry.renderRequests.insert(
 		entity,

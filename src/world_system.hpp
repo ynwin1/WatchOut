@@ -180,6 +180,7 @@ private:
 	void updateComboText();
 	void updateScoreText();
 	void handleSurvivalBonusPoints(float elapsed_ms);
+	void updatePointLightPositions(float elapsed_ms);
 	void updateTutorial(float elapsed_ms);
 	void updateEnemyTutorial();
 	void updateCollectibleTutorial();
@@ -189,8 +190,6 @@ private:
 	void equipItem(INVENTORY_ITEM item, bool wasCollected = false);
 	void unEquipItem();
 	INVENTORY_ITEM getNextInventoryItem(INVENTORY_ITEM currentItem);
-
-	void updateJeffLight(float elapsed_ms);
 
 	// Collision functions
 	void entity_collectible_collision(Entity entity, Entity collectible);

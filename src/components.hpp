@@ -88,7 +88,7 @@ struct HomingProjectile{
 	float speed;
 };
 
-struct Bomb {
+struct Bounceable {
 	int numBounces = 1;
 };
 
@@ -195,7 +195,7 @@ struct DeathTimer
 
 struct Invulnerable
 {
-	float timer = 2000;
+	float timer = 1000;
 };
 
 struct Knockable
@@ -229,47 +229,6 @@ struct Obstacle {
 };
 
 struct TargetArea {
-};
-
-struct GameScore {
-	int score = 0;
-	int highScore = 0;
-	int highScoreHours = 0;
-	int highScoreMinutes = 0;
-	int highScoreSeconds = 0;
-	Entity textEntity;
-};
-
-struct GameTimer {
-	int hours = 0;
-	int minutes = 0;
-	int seconds = 0;
-	float ms = 0;
-	float elapsed = 0;
-	Entity textEntity;
-	void update(float elapsedTime) {
-		ms += elapsedTime;
-		elapsed += elapsedTime;
-		if(ms >= 1000.f) {
-			ms -= 1000;
-        	seconds += 1;
-    	}
-    	if(seconds >= 60) {
-        	seconds -= 60;
-        	minutes += 1;
-    	}
-    	if(minutes >= 60) {
-        	minutes -= 60;
-        	hours += 1;
-    	}
-	}
-	void reset() {
-		ms = 0;
-		elapsed = 0;
-		hours = 0;
-		minutes = 0;
-		seconds = 0;
-	}
 };
 
 enum class TEXT_ALIGNMENT {
@@ -405,7 +364,7 @@ struct PauseMenuComponent {};
 struct HelpMenuComponent {};
 struct TutorialComponent{
 	int tutorialStep = 1;
-	int maxTutorialSteps = 3;
+	int maxTutorialSteps = 4;
 };
 struct EnemyTutorialComponents{};
 struct CollectibleTutorialComponents{};

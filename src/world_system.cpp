@@ -70,8 +70,8 @@ void WorldSystem::restart_game()
     
     // Create player entity
     playerEntity = createJeff(vec2(world_size_x / 2.f, world_size_y / 2.f));
-    createPlayerHealthBar(playerEntity, camera->getSize());
-    createPlayerStaminaBar(playerEntity, camera->getSize());
+    createPlayerUIHealthBar(camera->getSize());
+    createPlayerUIStaminaBar(camera->getSize());
 
     gameStateController.restart();
     registry.gameScore.score = 0;
@@ -133,7 +133,7 @@ void WorldSystem::handleSurvivalBonusPoints(float elapsed_ms) {
     if (gameStateController.survivalBonusTimer >= SURVIVAL_BONUS_INTERVAL) {
         int points = 35;
         registry.gameScore.score += points;
-        createPointsEarnedText("SURVIVAL BONUS +" + std::to_string(points), playerEntity, {0.8f, 0.8f, 0.0f, 1.0f}, -130.0f);
+        createPointsEarnedText("SURVIVAL BONUS +" + std::to_string(points), playerEntity, {0.8f, 0.8f, 0.0f, 1.0f});
         gameStateController.survivalBonusTimer = 0;
     }
 }
@@ -372,7 +372,7 @@ bool WorldSystem::step(float elapsed_ms)
     handleSurvivalBonusPoints(elapsed_ms);
     updateHomingProjectiles(elapsed_ms);
     updateEquippedPosition();
-    updateJeffLight(elapsed_ms);
+    updatePointLightPositions(elapsed_ms);
 
     if (camera->isToggled()) {
         Motion& playerMotion = registry.motions.get(playerEntity);
@@ -409,7 +409,7 @@ void WorldSystem::handleEnemiesKilledInSpan(float elapsed_ms) {
                 points = enemiesKilled.killSpanCount * 5;
             }
             registry.gameScore.score += points;
-            createPointsEarnedText("BONUS +" + std::to_string(points), playerEntity, {0.8f, 0.8f, 0.0f, 1.0f}, -60.0f);
+            createPointsEarnedText("BONUS +" + std::to_string(points), playerEntity, {0.8f, 0.8f, 0.0f, 1.0f});
         }
         enemiesKilled.resetKillSpan();
     }
@@ -431,14 +431,16 @@ void WorldSystem::updateScoreText() {
     text.value = "Score: " + std::to_string(gameScore.score);
 }
 
-void WorldSystem::updateJeffLight(float elapsed_ms) {
-    PointLight& pointLight = registry.pointLights.get(playerEntity);
-    
-    // Update Position
-    Motion& motion = registry.motions.get(playerEntity);
-    pointLight.position = motion.position;
-
-    // Make flicker
+void WorldSystem::updatePointLightPositions(float elapsed_ms) {
+    for (Entity& pointLightEntity: registry.pointLights.entities) {
+        // Update Position
+        PointLight& pointLight = registry.pointLights.get(pointLightEntity);
+        if (registry.motions.has(pointLightEntity)) {
+            Motion& motion = registry.motions.get(pointLightEntity);
+            pointLight.position = motion.position;
+        }
+    }
+    // TODO: Make flicker
 }
 
 void WorldSystem::loadAndSaveHighScore(bool save) {
@@ -792,8 +794,7 @@ void WorldSystem::leftMouseClickAction(vec3 mouseWorldPos) {
             trapsCounter.trapsMap[PHANTOM_TRAP].first = inventory.itemCounts[INVENTORY_ITEM::PHANTOM_TRAP];
             break;
         case INVENTORY_ITEM::BOMB: {
-            Entity bomb = shootProjectile(mouseWorldPos, PROJECTILE_TYPE::BOMB_FUSED);
-            registry.bombs.emplace(bomb);
+            shootProjectile(mouseWorldPos, PROJECTILE_TYPE::BOMB_FUSED);
             inventory.itemCounts[INVENTORY_ITEM::BOMB]--;
         }
             break;
@@ -823,6 +824,26 @@ void WorldSystem::on_mouse_button(int button, int action, int mod) {
     if (action == GLFW_PRESS) {
         switch (button) {
         case GLFW_MOUSE_BUTTON_LEFT: {
+            // Handle tutorial progression
+            switch (gameStateController.getGameState()) {
+            case GAME_STATE::BOAR_TUTORIAL:
+            case GAME_STATE::BIRD_TUTORIAL:
+            case GAME_STATE::WIZARD_TUTORIAL:
+            case GAME_STATE::TROLL_TUTORIAL:
+            case GAME_STATE::ARCHER_TUTORIAL:
+            case GAME_STATE::BARBARIAN_TUTORIAL:
+            case GAME_STATE::BOMBER_TUTORIAL:
+            case GAME_STATE::HEART_TUTORIAL:
+            case GAME_STATE::TRAP_TUTORIAL:
+            case GAME_STATE::PHANTOM_TRAP_TUTORIAL:
+            case GAME_STATE::BOW_TUTORIAL:
+            case GAME_STATE::BOMB_TUTORIAL:
+                gameStateController.setGameState(GAME_STATE::PLAYING);
+                sound->resumeAllSoundEffects();
+                return; 
+            default:
+                break;
+            }
             double xpos, ypos;
             glfwGetCursorPos(window, &xpos, &ypos); // get the current cursor position
             vec3 mouseWorldPos = renderer->mouseToWorld({xpos, ypos});
@@ -1009,6 +1030,9 @@ void WorldSystem::onTutorialClick() {
             break;
         case 3:
             nextTexture = TEXTURE_ASSET_ID::TUTORIAL_3;
+            break;
+        case 4:
+            nextTexture = TEXTURE_ASSET_ID::TUTORIAL_4;
             break;
         default:
             nextTexture = TEXTURE_ASSET_ID::TUTORIAL_1;
@@ -1434,13 +1458,13 @@ void WorldSystem::entity_collectible_collision(Entity entity, Entity entity_othe
         if (collectibleTrap.type == DAMAGE_TRAP) {
             registry.inventory.itemCounts[INVENTORY_ITEM::TRAP]++;
 			trapsCounter.trapsMap[DAMAGE_TRAP].first = registry.inventory.itemCounts[INVENTORY_ITEM::TRAP];
-			createCollected(playerM, collectibleM.scale, TEXTURE_ASSET_ID::TRAPCOLLECTABLE);
+			createCollected(TEXTURE_ASSET_ID::TRAPCOLLECTABLE);
             equipItem(INVENTORY_ITEM::TRAP, true);
 		}
         else if (collectibleTrap.type == PHANTOM_TRAP) {
             registry.inventory.itemCounts[INVENTORY_ITEM::PHANTOM_TRAP]++;
             trapsCounter.trapsMap[PHANTOM_TRAP].first = registry.inventory.itemCounts[INVENTORY_ITEM::PHANTOM_TRAP];
-            createCollected(playerM, collectibleM.scale, TEXTURE_ASSET_ID::PHANTOM_TRAP_BOTTLE_ONE);
+            createCollected(TEXTURE_ASSET_ID::PHANTOM_TRAP_BOTTLE_ONE);
             equipItem(INVENTORY_ITEM::PHANTOM_TRAP, true);
         }
     }
@@ -1448,17 +1472,18 @@ void WorldSystem::entity_collectible_collision(Entity entity, Entity entity_othe
         unsigned int health = registry.hearts.get(entity_other).health;
         unsigned int addOn = player.health <= 80 ? health : 100 - player.health;
         player.health += addOn;
-        createCollected(playerM, collectibleM.scale, TEXTURE_ASSET_ID::HEART);
+        createCollected(TEXTURE_ASSET_ID::HEART);
+		printf("Player collected a heart\n");
 	}
     else if (registry.bows.has(entity_other)) {
         registry.inventory.itemCounts[INVENTORY_ITEM::BOW] += 5;
         std::cout << "Player collected a bow. Bow count is now " << registry.inventory.itemCounts[INVENTORY_ITEM::BOW] << std::endl;
-        createCollected(playerM, collectibleM.scale, TEXTURE_ASSET_ID::BOW);
+        createCollected(TEXTURE_ASSET_ID::BOW);
         equipItem(INVENTORY_ITEM::BOW, true);
 	}
     else if (registry.collectibleBombs.has(entity_other)) {
         registry.inventory.itemCounts[INVENTORY_ITEM::BOMB] += 3;
-        createCollected(playerM, collectibleM.scale, TEXTURE_ASSET_ID::BOMB);
+        createCollected(TEXTURE_ASSET_ID::BOMB);
         equipItem(INVENTORY_ITEM::BOMB, true);
 	}
 	else {
@@ -1507,7 +1532,9 @@ void WorldSystem::entity_damaging_collision(Entity entity, Entity entity_other, 
         player.health = new_health < 0 ? 0 : new_health;
         was_damaged.push_back(entity);
         setCollisionCooldown(entity_other, entity);
-        registry.invulnerables.emplace(entity);
+        if (damaging.damage >= 5) {
+            registry.invulnerables.emplace(entity);
+        }
     }
     else if (registry.enemies.has(entity)) {
         // reduce enemy health
@@ -1522,7 +1549,7 @@ void WorldSystem::entity_damaging_collision(Entity entity, Entity entity_other, 
     }
 
     if(!registry.explosions.has(entity_other) && 
-       !registry.bombs.has(entity_other)) 
+       !registry.bounceables.has(entity_other)) 
     {
         registry.remove_all_components_of(entity_other);
     }
@@ -1563,7 +1590,9 @@ void WorldSystem::processPlayerEnemyCollision(Entity player, Entity enemy, std::
         playerData.health = std::max(newHealth, 0);
         was_damaged.push_back(player);
         setCollisionCooldown(enemy, player);
-        registry.invulnerables.emplace(player);
+        if (enemyData.damage >= 5) {
+            registry.invulnerables.emplace(player);
+        }
 
         // Check if enemy can have an attack cooldown
         if (enemyData.cooldown > 0) {
@@ -1631,7 +1660,7 @@ void WorldSystem::checkAndHandleEnemyDeath(Entity enemy) {
 
         registry.gameScore.score += enemyData.points;
         gameStateController.enemiesKilled.updateKillSpanCount();
-        createPointsEarnedText("+" + std::to_string(enemyData.points), enemy, {1.0f, 1.0f, 1.0f, 1.0f}, -20.0f);
+        createPointsEarnedText("+" + std::to_string(enemyData.points), enemy, {1.0f, 1.0f, 1.0f, 1.0f});
         updateComboText();
 
         HealthBar& hpbar = registry.healthBars.get(enemy);
@@ -1686,7 +1715,7 @@ void WorldSystem::despawn_collectibles(float elapsed_ms) {
 
 void WorldSystem::destroyDamagings() {
     for (auto& damagingEntity : registry.damagings.entities) {
-        if(registry.bombs.has(damagingEntity) || registry.explosions.has(damagingEntity)) {
+        if(registry.bounceables.has(damagingEntity) || registry.explosions.has(damagingEntity)) {
             continue;
         }
 

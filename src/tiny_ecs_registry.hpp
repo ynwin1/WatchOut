@@ -46,7 +46,7 @@ public:
 	ComponentContainer<Collected> collected;
 	ComponentContainer<SlideUp> slideUps;
 	ComponentContainer<HomingProjectile> homingProjectiles;
-	ComponentContainer<Bomb> bombs;
+	ComponentContainer<Bounceable> bounceables;
 	ComponentContainer<Explosion> explosions;
 	ComponentContainer<Particle> particles;
 	
@@ -84,6 +84,7 @@ public:
 	GameTimer gameTimer;
 	GameScore gameScore;
 	Inventory inventory;
+	PlayerResourceUI playerResourceUI;
 
 	//debugging
 	FPSTracker fpsTracker;
@@ -114,7 +115,7 @@ public:
 		registry_list.push_back(&slideUps);
 		registry_list.push_back(&homingProjectiles);
 		registry_list.push_back(&bows);
-		registry_list.push_back(&bombs);
+		registry_list.push_back(&bounceables);
 		registry_list.push_back(&explosions);
 		registry_list.push_back(&particles);
 		registry_list.push_back(&collectibleBombs);

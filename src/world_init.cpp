@@ -381,12 +381,30 @@ Entity createHeart(vec2 pos)
 	return entity;
 };
 
-Entity createCollected(Motion& playerM, vec2 size, TEXTURE_ASSET_ID assetID)
+Entity createCollected(TEXTURE_ASSET_ID assetID)
 {
 	auto entity = Entity();
+	vec2 scale;
 
 	Motion& motion = registry.motions.emplace(entity);
-	motion.scale = { size.x * 0.7, size.y * 0.7};
+	switch(assetID) {
+		case TEXTURE_ASSET_ID::HEART:
+			scale = { HEART_BB_WIDTH * 0.5, HEART_BB_WIDTH * 0.5 };
+			break;
+		case TEXTURE_ASSET_ID::TRAPCOLLECTABLE:
+			scale = { TRAP_COLLECTABLE_BB_WIDTH * 0.7, TRAP_COLLECTABLE_BB_HEIGHT * 0.7 };
+			break;
+		case TEXTURE_ASSET_ID::PHANTOM_TRAP_BOTTLE_ONE:
+			scale = { PHANTOM_TRAP_COLLECTABLE_BB_WIDTH * 0.5, PHANTOM_TRAP_COLLECTABLE_BB_HEIGHT * 0.5 };
+			break;
+		case TEXTURE_ASSET_ID::BOW:
+			scale = { BOW_BB_WIDTH * 0.5, BOW_BB_HEIGHT * 0.5 };
+			break;
+		case TEXTURE_ASSET_ID::BOMB:
+			scale = { BOMB_BB_WIDTH * 0.5, BOMB_BB_HEIGHT * 0.5 };
+			break;
+	}
+	motion.scale = scale;
 
 	registry.collected.emplace(entity);
 	registry.midgrounds.emplace(entity);
@@ -505,12 +523,15 @@ Entity createJeff(vec2 position)
 
 	auto& pointLight = registry.pointLights.emplace(entity);
 	pointLight.position = motion.position;
-	pointLight.ambient = vec4(1.0, .75, 0.25, 10);
+	pointLight.ambient = vec4(1.0, .75, 0.25, .1);
 	pointLight.diffuse = vec4(1.0, .75, 0.25, 1.0);
 	pointLight.max_distance = 3250;
 	pointLight.constant = 1.f;
 	pointLight.linear = .005;
 	pointLight.quadratic = 0.f;
+
+	createHealthBar(entity);
+	createStaminaBar(entity);
 	
 	return entity;
 }
@@ -584,38 +605,6 @@ Entity createArrow(vec3 pos, vec3 velocity, int damage)
 	return entity;
 }
 
-Entity createBomb(vec3 pos, vec3 velocity)
-{
-	auto entity = Entity();
-
-	Motion& motion = registry.motions.emplace(entity);
-	motion.position = pos;
-	motion.velocity = velocity;
-	motion.scale = { BOMB_FUSED_BB_WIDTH, BOMB_FUSED_BB_HEIGHT };
-	motion.hitbox = { BOMB_FUSED_BB_WIDTH, BOMB_FUSED_BB_HEIGHT, BOMB_BB_HEIGHT / zConversionFactor };
-	motion.solid = true;
-	
-	Projectile& proj = registry.projectiles.emplace(entity);
-	proj.sticksInGround = 1000;
-	proj.type = PROJECTILE_TYPE::BOMB_FUSED;
-
-	registry.bombs.emplace(entity);
-
-	Damaging& damaging = registry.damagings.emplace(entity);
-	damaging.damage = 2;
-	registry.midgrounds.emplace(entity);
-
-	registry.renderRequests.insert(
-		entity,
-		{
-			TEXTURE_ASSET_ID::BOMB_FUSED,
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE
-		});
-
-	return entity;
-}
-
 Entity createFireball(vec3 pos, vec2 direction) {
 	auto entity = Entity();
 
@@ -630,6 +619,15 @@ Entity createFireball(vec3 pos, vec2 direction) {
 	damaging.type = "fireball";
 	damaging.damage = 30;
 	registry.midgrounds.emplace(entity);
+
+	auto& pointLight = registry.pointLights.emplace(entity);
+	pointLight.position = motion.position;
+	pointLight.ambient = vec4(1.0, .63, .0, 1.0);
+	pointLight.diffuse = vec4(1.0, .63, .0, 1.0);
+	pointLight.max_distance = 3000;
+	pointLight.constant = .3f;
+	pointLight.linear = 0.017;
+	pointLight.quadratic = 0.00f;
 
 	initFireballAnimationController(entity);
 	return entity;
@@ -698,7 +696,53 @@ Entity createLightning(vec2 pos) {
 	return entity;
 }
 
-void createPlayerStaminaBar(Entity characterEntity, vec2 windowSize) {
+void createStaminaBar(Entity characterEntity) {
+	auto meshE = Entity();
+
+	const float width = 60.0f;
+	const float height = 10.0f;
+
+	Motion& characterMotion = registry.motions.get(characterEntity);
+
+	Motion& motion = registry.motions.emplace(meshE);
+	// position does not need to be initialized as it will always be set to match the associated entity
+	motion.angle = 0.f;
+	motion.scale = { width, height };
+
+	vec4 blue = vec4(0.0f, 0.0f, 1.0f, 1.0f);
+	registry.colours.insert(meshE, blue);
+
+	registry.renderRequests.insert(
+		meshE,
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::UNTEXTURED,
+			GEOMETRY_BUFFER_ID::RECTANGLE,
+		});
+	registry.midgrounds.emplace(meshE);
+
+	// HP bar frame
+	auto frameE = Entity();
+	Motion& frameM = registry.motions.emplace(frameE);
+	frameM.position = motion.position;
+	frameM.scale = { width, height };
+	registry.colours.insert(frameE, blue);
+	registry.renderRequests.insert(
+		frameE,
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::UNTEXTURED,
+			GEOMETRY_BUFFER_ID::RECTANGLE,
+			PRIMITIVE_TYPE::LINES,
+		});
+	registry.midgrounds.emplace(frameE);
+
+	StaminaBar& staminabar = registry.staminaBars.emplace(characterEntity, meshE, frameE);
+	staminabar.width = width;
+	staminabar.height = height;
+}
+
+void createPlayerUIStaminaBar(vec2 windowSize) {
 	auto meshE = Entity();
 	const float width = 150.0f;
 	const float height = 20.0f;
@@ -747,23 +791,21 @@ void createPlayerStaminaBar(Entity characterEntity, vec2 windowSize) {
 			EFFECT_ASSET_ID::FONT,
 			GEOMETRY_BUFFER_ID::TEXT,
 		});
-
-	StaminaBar& staminabar = registry.staminaBars.emplace(characterEntity, meshE, frameE);
-	staminabar.width = width;
-	staminabar.height = height;
-	staminabar.textEntity = textE;
+	
+	registry.playerResourceUI.staminaMeshEntity = meshE;
+	registry.playerResourceUI.staminaFrameEntity = frameE;
+	registry.playerResourceUI.staminaTextEntity = textE;
 }
 
-void createPlayerHealthBar(Entity characterEntity, vec2 windowSize) {
-	auto meshE= Entity();
-	const float width = 150.0f;
-	const float height = 20.0f;
+void createPlayerUIHealthBar(vec2 windowSize) {
+	auto meshE = Entity();
+	vec2 maxSize = registry.playerResourceUI.hpMaxSize;
 
 	vec2 position = {210.0f, windowSize.y - 50.0f};
 
 	Foreground& fg = registry.foregrounds.emplace(meshE);
 	fg.position = position;
-	fg.scale = {width, height};
+	fg.scale = maxSize;
 
 	vec4 green = vec4(0.0f, 1.0f, 0.0f, 1.0f);
 
@@ -781,7 +823,7 @@ void createPlayerHealthBar(Entity characterEntity, vec2 windowSize) {
 	auto frameE = Entity();
 	Foreground& frameFg = registry.foregrounds.emplace(frameE);
 	frameFg.position = position;
-	frameFg.scale = { width, height };
+	frameFg.scale = maxSize;
 	registry.colours.insert(frameE, green);
 	registry.renderRequests.insert(
 		frameE,
@@ -804,10 +846,9 @@ void createPlayerHealthBar(Entity characterEntity, vec2 windowSize) {
 			EFFECT_ASSET_ID::FONT,
 			GEOMETRY_BUFFER_ID::TEXT,
 		});
-	HealthBar& hpbar = registry.healthBars.emplace(characterEntity, meshE, frameE);
-	hpbar.width = width;
-	hpbar.height = height;
-	hpbar.textEntity = textE;
+	registry.playerResourceUI.hpMeshEntity = meshE;
+	registry.playerResourceUI.hpFrameEntity = frameE;
+	registry.playerResourceUI.hpTextEntity = textE;
 }
 
 void createHealthBar(Entity characterEntity) {
@@ -1044,41 +1085,33 @@ Entity createItemCountText(vec2 windowSize, TEXTURE_ASSET_ID assetID) {
 		case TEXTURE_ASSET_ID::TRAPCOLLECTABLE:
 			iconScale = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT};
 			position = startPos;
-			keybindPos = position + vec2(-5.0f, 0.0f);
-			iconPos = keybindPos + vec2(0.0f, -40.0f);
-			textPos = iconPos + vec2(-30.0f, -55.0f);
 			keybind = "1";
 			break;
 		case TEXTURE_ASSET_ID::PHANTOM_TRAP_BOTTLE_ONE:
 			iconScale = { PHANTOM_TRAP_COLLECTABLE_BB_WIDTH * 0.75, PHANTOM_TRAP_COLLECTABLE_BB_HEIGHT * 0.75};
-			position = startPos + vec2(80.0f, 0.0f);
-			keybindPos = position + vec2(-10.0f, 0.0f);
-			iconPos = keybindPos + vec2(5.0f, -40.0f);
-			textPos = iconPos + vec2(-30.0f, -55.0f);
+			position = startPos + vec2(70.0f, 0.0f);
 			keybind = "2";
 			break;
 		case TEXTURE_ASSET_ID::BOW:
 			iconScale = { BOW_BB_WIDTH * 0.60, BOW_BB_HEIGHT * 0.60};
-			position = startPos + vec2(145.0f, 0.0f);
-			keybindPos = position + vec2(-5.0f, 0.0f);
-			iconPos = keybindPos + vec2(10.0f, -40.0f);
-			textPos = iconPos + vec2(-30.0f, -55.0f);
+			position = startPos + vec2(140.0f, 0.0f);
 			keybind = "3";
 			break;
 		case TEXTURE_ASSET_ID::BOMB:
-			iconScale = { BOMB_BB_WIDTH * 0.9 , BOMB_BB_HEIGHT * 0.9};
-			position = startPos + vec2(220.0f, 0.0f);
-			keybindPos = position + vec2(-5.0f, 0.0f);
-			iconPos = keybindPos + vec2(10.0f, -40.0f);
-			textPos = iconPos + vec2(-30.0f, -55.0f);
+			iconScale = { BOMB_BB_WIDTH * 0.85 , BOMB_BB_HEIGHT * 0.85};
+			position = startPos + vec2(210.0f, 0.0f);
 			keybind = "4";
 			break;
 		default:
 			break;
 	}
+	keybindPos = position;
+	iconPos = keybindPos + vec2(0.0f, -40.0f);
+	textPos = iconPos + vec2(0.0f, -55.0f);
 
 	Text& textKeybind = registry.texts.emplace(textKeybindE);
 	textKeybind.value = keybind;
+	textKeybind.alignment = TEXT_ALIGNMENT::CENTER;
 	Foreground& fgKeybind = registry.foregrounds.emplace(textKeybindE);
 	fgKeybind.position = keybindPos;
 	fgKeybind.scale = {0.85f, 0.85f};
@@ -1090,7 +1123,8 @@ Entity createItemCountText(vec2 windowSize, TEXTURE_ASSET_ID assetID) {
 			GEOMETRY_BUFFER_ID::TEXT
 		});
 
-	registry.texts.emplace(textCountE);
+	Text& textCount = registry.texts.emplace(textCountE);
+	textCount.alignment = TEXT_ALIGNMENT::CENTER;
 	Foreground& fg = registry.foregrounds.emplace(textCountE);
 	fg.position = textPos;
 	fg.scale = {1.2f, 1.2f};
@@ -1392,17 +1426,25 @@ Entity createProjectile(vec3 pos, vec3 velocity, PROJECTILE_TYPE type)
 	motion.velocity = velocity;
 	motion.scale = getProjectileInfo(type).size;
 	motion.hitbox = { motion.scale.x, motion.scale.x, motion.scale.y / zConversionFactor };
+	motion.solid = true;
 	
-	registry.projectiles.emplace(entity).type = type;
+	Projectile& projectile = registry.projectiles.emplace(entity);
+	projectile.type = type;
 	registry.midgrounds.emplace(entity);
 
-	registry.renderRequests.insert(
-		entity,
-		{
-			getProjectileInfo(type).assetId,
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE
-		});
+	if(type == PROJECTILE_TYPE::BOMB_FUSED) {
+		registry.bounceables.emplace(entity);
+		AnimationController& ac = initBombAnimationController(entity);
+		ac.changeState(entity, AnimationState::Attack);
+	} else {
+		registry.renderRequests.insert(
+			entity,
+			{
+				getProjectileInfo(type).assetId,
+				EFFECT_ASSET_ID::TEXTURED,
+				GEOMETRY_BUFFER_ID::SPRITE
+			});
+	}
 
 	return entity;
 }
@@ -1462,13 +1504,18 @@ void createTrees(RenderSystem* renderer) {
 	}
 }
 
-Entity createPointsEarnedText(std::string textValue, Entity anchoredWorldEntity, vec4 color, float offsetPosX) {
+Entity createPointsEarnedText(std::string textValue, Entity anchoredWorldEntity, vec4 color) {
 	auto entity = Entity();
 	Motion& anchoredMotion = registry.motions.get(anchoredWorldEntity);
 	Text& text = registry.texts.emplace(entity);
 	text.value = textValue;
 	text.anchoredWorldEntity = anchoredWorldEntity;
-	text.anchoredWorldOffset = {offsetPosX, -anchoredMotion.scale.y / 2 - 20.0f};
+	text.anchoredWorldOffset = {0.0f, -anchoredMotion.scale.y / 2 - 20.0f};
+	text.alignment = TEXT_ALIGNMENT::CENTER;
+
+	if(registry.players.has(anchoredWorldEntity)) {
+		text.anchoredWorldOffset.y -= 50.0f;
+	}
 
 	Foreground& fg = registry.foregrounds.emplace(entity);
 	fg.scale = {1.0f, 1.0f};
@@ -1493,8 +1540,9 @@ Entity createComboText(int comboValue, vec2 windowSize) {
 	auto entity = Entity();
 	Text& text = registry.texts.emplace(entity);
 	text.value = "COMBO *" + std::to_string(comboValue);
+	text.alignment = TEXT_ALIGNMENT::CENTER;
 
-	vec2 position = {windowSize.x / 2 - 130.0f, windowSize.y - 350.0f};
+	vec2 position = {windowSize.x / 2, windowSize.y - 350.0f};
 
 	Foreground& fg = registry.foregrounds.emplace(entity);
 	fg.position = position;

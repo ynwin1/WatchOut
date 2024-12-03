@@ -858,7 +858,7 @@ void WorldSystem::pauseControls(int key, int action, int mod)
             break;*/
         /*case GLFW_KEY_L:
 			break;*/
-        case GLFW_KEY_ENTER:
+        case GLFW_KEY_R:
             restart_game();
         case GLFW_KEY_P:
         case GLFW_KEY_ESCAPE:

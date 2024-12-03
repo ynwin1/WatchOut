@@ -17,11 +17,14 @@ public:
 
 	void resetSpawnSystem();
 
+	void setTutorialMode(bool mode);
+
 private:
 	Camera* camera;
 	SoundSystem* soundSystem;
 	ParticleSystem* particleSystem;
 
+	bool isTutorialModeOn = false;
 	int currentEnemyIdx = 0;
 	float initialSpawnTime = 0.f;
 	const float initialSpawnInterval = 15000.f; // 15 seconds

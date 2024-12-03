@@ -1055,10 +1055,12 @@ void WorldSystem::titleTutorialControls(int key, int action, int mod) {
         case GLFW_KEY_Y:
             // move to title screen to ask if tutorial is needed
             isTutorialNeeded = true;
+            spawnManager->setTutorialMode(isTutorialNeeded);
             restart_game();
             break;
         case GLFW_KEY_N:
             isTutorialNeeded = false;
+            spawnManager->setTutorialMode(isTutorialNeeded);
             restart_game();
             break;
         case GLFW_KEY_Q:

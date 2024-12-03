@@ -17,6 +17,10 @@ void SpawnManager::init(Camera* camera, SoundSystem* soundSystem, ParticleSystem
 	this->particleSystem = particleSystem;
 }
 
+void SpawnManager::setTutorialMode(bool mode) {
+	isTutorialModeOn = mode;
+}
+
 vec2 SpawnManager::get_spawn_location(const std::string& entity_type, bool initial)
 {
     vec2 spawn_location{};
@@ -80,7 +84,7 @@ void SpawnManager::initialSpawn(float elapsed_ms) {
         std::string entity_type = entity_types[i];
         int currentEntitySize = registry.spawnable_lists.at(entity_type)->size();
         if (currentEntitySize < maxEntitySize) {
-            vec2 spawn_location = get_spawn_location(entity_type, true);
+            vec2 spawn_location = get_spawn_location(entity_type, isTutorialModeOn);
             spawn_func f = spawn_functions.at(entity_type);
             (*f)(spawn_location);
             std::cout << "Spawning " + entity_type << std::endl;

@@ -114,7 +114,6 @@ void SpawnManager::spawnEnemies(float elapsed_ms) {
     }
 }
 
-
 void SpawnManager::spawnCollectibles(float elapsed_ms) {
 	// collectible
 	spawnCollectible("collectible_trap", elapsed_ms); // collectible_trap

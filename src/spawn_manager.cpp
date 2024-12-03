@@ -32,8 +32,8 @@ vec2 SpawnManager::get_spawn_location(const std::string& entity_type, bool initi
     {
         if (initial) {
 			// spawn within camera's view
-			float exclusionTop = (camera->getPosition().y - camera->getSize().y / 2) / yConversionFactor + 100;
-			float exclusionBottom = (camera->getPosition().y + camera->getSize().y / 2) / yConversionFactor - 400;
+			float exclusionTop = (camera->getPosition().y - camera->getSize().y / 2) / yConversionFactor - 100;
+			float exclusionBottom = (camera->getPosition().y + camera->getSize().y / 2) / yConversionFactor + 400;
 			float exclusionLeft = camera->getPosition().x - camera->getSize().x / 2 + 100;
 			float exclusionRight = camera->getPosition().x + camera->getSize().x / 2 - 100;
 

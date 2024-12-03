@@ -234,7 +234,7 @@ void WorldSystem::updateEnemyTutorial() {
         vec2 enemyPosition = { motion.position.x, motion.position.y };
         float distance = glm::distance(playerPosition, enemyPosition);
 
-         if (distance <= 300.0f) {
+         if (distance <= 500.0f) {
             std::string enemyType = registry.enemies.get(enemy).type; 
             if (encounteredEnemies.find(enemyType) == encounteredEnemies.end()) {
                 createTutorialTarget(motion.position);
@@ -1238,14 +1238,11 @@ void WorldSystem::entity_collectible_collision(Entity entity, Entity entity_othe
         unsigned int addOn = player.health <= 80 ? health : 100 - player.health;
         player.health += addOn;
         createCollected(playerM, collectibleM.scale, TEXTURE_ASSET_ID::HEART);
-		printf("Player collected a heart\n");
 	}
     else if (registry.bows.has(entity_other)) {
         registry.inventory.itemCounts[INVENTORY_ITEM::BOW] += 5;
-        std::cout << "Player collected a bow. Bow count is now " << registry.inventory.itemCounts[INVENTORY_ITEM::BOW] << std::endl;
         createCollected(playerM, collectibleM.scale, TEXTURE_ASSET_ID::BOW);
         equipItem(INVENTORY_ITEM::BOW, true);
-		printf("Player collected a bow\n");
 	}
     else if (registry.collectibleBombs.has(entity_other)) {
         registry.inventory.itemCounts[INVENTORY_ITEM::BOMB] += 3;
@@ -1298,7 +1295,6 @@ void WorldSystem::entity_damaging_collision(Entity entity, Entity entity_other, 
         player.health = new_health < 0 ? 0 : new_health;
         was_damaged.push_back(entity);
         setCollisionCooldown(entity_other, entity);
-        printf("Player health reduced from %d to %d\n", player.health + damaging.damage, player.health);
     }
     else if (registry.enemies.has(entity)) {
         // reduce enemy health
@@ -1306,7 +1302,6 @@ void WorldSystem::entity_damaging_collision(Entity entity, Entity entity_other, 
         enemy.health -= damaging.damage;
         was_damaged.push_back(entity);
         setCollisionCooldown(entity_other, entity);
-        printf("Enemy health reduced from %d to %d by damaging object\n", enemy.health + damaging.damage, enemy.health);
     }
     else {
         printf("Entity is not a player or enemy\n");
@@ -1396,7 +1391,6 @@ void WorldSystem::handleEnemyCollision(Entity attacker, Entity target, std::vect
         targetData.health -= attackerData.damage;
         was_damaged.push_back(target);
         setCollisionCooldown(attacker, target);
-        printf("Enemy %d's health reduced from %d to %d by enemy\n", (unsigned int)target, targetData.health + attackerData.damage, targetData.health);
 
         if (attackerData.cooldown > 0) {
             Cooldown& cooldown = registry.cooldowns.emplace(attacker);

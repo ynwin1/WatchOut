@@ -5,11 +5,12 @@
 #include <unordered_map>
 
 #include <world_init.hpp>
+#include <sound_system.hpp>
 
 class SpawnManager
 {
 public:
-	void init(Camera* camera);
+	void init(Camera* camera, SoundSystem* soundSystem);
 
 	void step(float elapsed_ms);
 
@@ -17,10 +18,11 @@ public:
 
 private:
 	Camera* camera;
+	SoundSystem* soundSystem;
 
 	int currentEnemyIdx = 0;
 	float initialSpawnTime = 0.f;
-	const float initialSpawnInterval = 30000.f; // 30 seconds
+	const float initialSpawnInterval = 10000.f; // 10 seconds
 
 	// Constants
 	std::vector<std::string> entity_types = {
@@ -36,27 +38,27 @@ private:
 	};
 
 	const std::unordered_map<std::string, float> spawn_delays = {
-		{"boar", 20000.0f},
-		{"barbarian", 10000.0f},
-		{"archer", 20000.0f},
-		{"bird", 20000.0f},
-		{"wizard", 20000.0f},
-		{"troll", 30000.0f},
-		{"bomber", 20000.0f},
-		{"heart", 5000.0f},
-		{"collectible_trap", 5000.0f}
+		{"boar", 30000.0},
+		{"barbarian", 40000.0f},
+		{"archer", 50000.0f},
+		{"bird", 350000.0f},
+		{"wizard", 60000.0f},
+		{"troll", 70000.0f},
+		{"bomber", 90000.0f},
+		{"heart", 10000.0f},
+		{"collectible_trap", 10000.0f}
 	};
 
 	std::unordered_map<std::string, float> next_spawn = {
-		{"boar", 20000.0},
-		{"barbarian", 10000.0f},
-		{"archer", 20000.0f},
-		{"bird", 20000.0f},
-		{"wizard", 20000.0f},
-		{"troll", 30000.0f},
-		{"bomber", 20000.0f},
-		{"heart", 5000.0f},
-		{"collectible_trap",5000.0f}
+		{"boar", 30000.0},
+		{"barbarian", 40000.0f},
+		{"archer", 50000.0f},
+		{"bird", 350000.0f},
+		{"wizard", 60000.0f},
+		{"troll", 70000.0f},
+		{"bomber", 90000.0f},
+		{"heart", 10000.0f},
+		{"collectible_trap", 10000.0f}
 	};
 
 	// By how many entities to increase at spawn delay
@@ -64,7 +66,7 @@ private:
 		{"boar", 2},
 		{"barbarian", 2},
 		{"archer", 1},
-		{"bird", 3},
+		{"bird", 2},
 		{"wizard", 1},
 		{"troll", 1},
 		{"bomber", 1},
@@ -97,7 +99,7 @@ private:
 		{"collectible_trap", createCollectibleTrap}
 	};
 
-	vec2 get_spawn_location(const std::string& entity_type);
+	vec2 get_spawn_location(const std::string& entity_type, bool initial);
 	bool hasAllEnemiesSpawned();
 
 	void initialSpawn(float elapsed_ms);

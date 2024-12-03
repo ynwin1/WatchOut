@@ -92,7 +92,7 @@ private:
 		{"barbarian", 1},
 		{"archer", -2},
 		{"bird", 8},
-		{"wizard", -2},
+		{"wizard", 3},
 		{"troll", -3},
 		{"bomber", -2},
 		{"heart", 2},
@@ -162,7 +162,7 @@ private:
 	void despawnTraps(float elapsed_ms);
 	void updateCollectedTimer(float elapsed_ms);
 	void resetTrappedEntities();
-	void updateJeffLight(float elapsed_ms);
+	void updatePointLightPositions(float elapsed_ms);
 
 	// Collision functions
 	void entity_collectible_collision(Entity entity, Entity collectible);

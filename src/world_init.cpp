@@ -575,6 +575,15 @@ Entity createFireball(vec3 pos, vec2 direction) {
 	damaging.damage = 30;
 	registry.midgrounds.emplace(entity);
 
+	auto& pointLight = registry.pointLights.emplace(entity);
+	pointLight.position = motion.position;
+	pointLight.ambient = vec4(1.0, .63, .0, .2);
+	pointLight.diffuse = vec4(1.0, .63, .0, 1.0);
+	pointLight.max_distance = 500;
+	pointLight.constant = 1.0;
+	pointLight.linear = .00007;
+	pointLight.quadratic = 0.0002;
+
 	initFireballAnimationController(entity);
 	return entity;
 }

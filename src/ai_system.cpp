@@ -468,7 +468,10 @@ void AISystem::throwBomb(Entity thrower, vec3 targetPos)
     // Apply horizontal and vertical velocities
     vec2 horizontal_velocity_vector = horizontal_velocity * horizontal_direction;
 
-    createBomb(pos, vec3(horizontal_velocity_vector, vertical_velocity));
+    Entity bomb = createProjectile(pos, vec3(horizontal_velocity_vector, vertical_velocity), PROJECTILE_TYPE::BOMB_FUSED);
+    registry.projectiles.get(bomb).sticksInGround = 1000;
+    registry.damagings.emplace(bomb).damage = 2;
+
     sound->playSoundEffect(Sound::WOOSH, 0);
 }
 void AISystem::archerBehaviour(Entity entity, vec3 targetPosition, float elapsed_ms)

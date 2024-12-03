@@ -130,7 +130,7 @@ Entity createCollectibleTrap(vec2 pos);
 Entity createHeart(vec2 pos);
 
 // indicator showing the collected item
-Entity createCollected(Motion& playerM, vec2 size, TEXTURE_ASSET_ID assetID);
+Entity createCollected(TEXTURE_ASSET_ID assetID);
 
 Entity createEquipped(TEXTURE_ASSET_ID assetId);
 
@@ -142,8 +142,6 @@ Entity createPhantomTrap(vec2 pos);
 // Arrows fired by the archer/player
 Entity createArrow(vec3 pos, vec3 velocity, int damage);
 
-// Bombs thrown by the bomber
-Entity createBomb(vec3 pos, vec3 velocity);
 void createExplosion(vec3 position);
 
 // Fireballs fired by the wizard
@@ -161,7 +159,7 @@ Entity createTitleScreenText(vec2 windowSize, std::string value, float fontSize,
 Entity createPauseHelpText(vec2 windowSize);
 Entity createFPSText(vec2 windowSize);
 Entity createGameTimerText(vec2 windowSize);
-Entity createPointsEarnedText(std::string text, Entity anchoredWorldEntity, vec4 color, float xOffset);
+Entity createPointsEarnedText(std::string text, Entity anchoredWorldEntity, vec4 color);
 Entity createComboText(int comboValue, vec2 windowSize);
 Entity createScoreText(vec2 windowSize);
 Entity createItemCountText(vec2 windowSize, TEXTURE_ASSET_ID assetID);
@@ -176,9 +174,10 @@ void createGameOverText(vec2 windowSize);
 void createGameSaveText(vec2 windowSize);
 
 // Display bars
+void createStaminaBar(Entity characterEntity);
 void createHealthBar(Entity characterEntity);
-void createPlayerHealthBar(Entity characterEntity, vec2 windowSize);
-void createPlayerStaminaBar(Entity characterEntity, vec2 windowSize);
+void createPlayerUIHealthBar(vec2 windowSize);
+void createPlayerUIStaminaBar(vec2 windowSize);
 
 // Map objects
 void createMapTiles();

@@ -171,9 +171,10 @@ void createGameOverText(vec2 windowSize);
 void createGameSaveText(vec2 windowSize);
 
 // Display bars
+void createStaminaBar(Entity characterEntity);
 void createHealthBar(Entity characterEntity);
 void createPlayerUIHealthBar(vec2 windowSize);
-void createPlayerStaminaBar(Entity characterEntity, vec2 windowSize);
+void createPlayerUIStaminaBar(vec2 windowSize);
 
 // Map objects
 void createMapTiles();

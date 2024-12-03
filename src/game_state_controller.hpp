@@ -2,7 +2,7 @@
 
 #include "common.hpp"
 
-struct PlayerUIResource {
+struct PlayerResourceUI {
     Entity hpMeshEntity;
 	Entity hpFrameEntity;
 	Entity hpTextEntity;
@@ -12,7 +12,6 @@ struct PlayerUIResource {
     vec2 hpMaxSize = {150.f, 20.f};
     vec2 staminaMaxSize = {150.f, 20.f};
 };
-
 
 struct GameScore {
 	int highScoreHours = 0;

@@ -79,7 +79,7 @@ public:
 	GameTimer gameTimer;
 	GameScore gameScore;
 	Inventory inventory;
-	PlayerUIResource playerUIResource;
+	PlayerResourceUI playerResourceUI;
 
 	//debugging
 	FPSTracker fpsTracker;

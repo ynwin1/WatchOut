@@ -499,6 +499,7 @@ Entity createJeff(vec2 position)
 	pointLight.quadratic = 0.f;
 
 	createHealthBar(entity);
+	createStaminaBar(entity);
 	
 	return entity;
 }
@@ -654,7 +655,53 @@ Entity createLightning(vec2 pos) {
 	return entity;
 }
 
-void createPlayerStaminaBar(Entity characterEntity, vec2 windowSize) {
+void createStaminaBar(Entity characterEntity) {
+	auto meshE = Entity();
+
+	const float width = 60.0f;
+	const float height = 10.0f;
+
+	Motion& characterMotion = registry.motions.get(characterEntity);
+
+	Motion& motion = registry.motions.emplace(meshE);
+	// position does not need to be initialized as it will always be set to match the associated entity
+	motion.angle = 0.f;
+	motion.scale = { width, height };
+
+	vec4 blue = vec4(0.0f, 0.0f, 1.0f, 1.0f);
+	registry.colours.insert(meshE, blue);
+
+	registry.renderRequests.insert(
+		meshE,
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::UNTEXTURED,
+			GEOMETRY_BUFFER_ID::RECTANGLE,
+		});
+	registry.midgrounds.emplace(meshE);
+
+	// HP bar frame
+	auto frameE = Entity();
+	Motion& frameM = registry.motions.emplace(frameE);
+	frameM.position = motion.position;
+	frameM.scale = { width, height };
+	registry.colours.insert(frameE, blue);
+	registry.renderRequests.insert(
+		frameE,
+		{
+			TEXTURE_ASSET_ID::NONE,
+			EFFECT_ASSET_ID::UNTEXTURED,
+			GEOMETRY_BUFFER_ID::RECTANGLE,
+			PRIMITIVE_TYPE::LINES,
+		});
+	registry.midgrounds.emplace(frameE);
+
+	StaminaBar& staminabar = registry.staminaBars.emplace(characterEntity, meshE, frameE);
+	staminabar.width = width;
+	staminabar.height = height;
+}
+
+void createPlayerUIStaminaBar(vec2 windowSize) {
 	auto meshE = Entity();
 	const float width = 150.0f;
 	const float height = 20.0f;
@@ -703,16 +750,15 @@ void createPlayerStaminaBar(Entity characterEntity, vec2 windowSize) {
 			EFFECT_ASSET_ID::FONT,
 			GEOMETRY_BUFFER_ID::TEXT,
 		});
-
-	StaminaBar& staminabar = registry.staminaBars.emplace(characterEntity, meshE, frameE);
-	staminabar.width = width;
-	staminabar.height = height;
-	staminabar.textEntity = textE;
+	
+	registry.playerResourceUI.staminaMeshEntity = meshE;
+	registry.playerResourceUI.staminaFrameEntity = frameE;
+	registry.playerResourceUI.staminaTextEntity = textE;
 }
 
 void createPlayerUIHealthBar(vec2 windowSize) {
 	auto meshE = Entity();
-	vec2 maxSize = registry.playerUIResource.hpMaxSize;
+	vec2 maxSize = registry.playerResourceUI.hpMaxSize;
 
 	vec2 position = {210.0f, windowSize.y - 50.0f};
 
@@ -759,9 +805,9 @@ void createPlayerUIHealthBar(vec2 windowSize) {
 			EFFECT_ASSET_ID::FONT,
 			GEOMETRY_BUFFER_ID::TEXT,
 		});
-	registry.playerUIResource.hpMeshEntity = meshE;
-	registry.playerUIResource.hpFrameEntity = frameE;
-	registry.playerUIResource.hpTextEntity = textE;
+	registry.playerResourceUI.hpMeshEntity = meshE;
+	registry.playerResourceUI.hpFrameEntity = frameE;
+	registry.playerResourceUI.hpTextEntity = textE;
 }
 
 void createHealthBar(Entity characterEntity) {

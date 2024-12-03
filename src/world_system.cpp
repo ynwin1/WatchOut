@@ -70,8 +70,8 @@ void WorldSystem::restart_game()
     
     // Create player entity
     playerEntity = createJeff(vec2(world_size_x / 2.f, world_size_y / 2.f));
-    createPlayerHealthBar(playerEntity, camera->getSize());
-    createPlayerStaminaBar(playerEntity, camera->getSize());
+    createPlayerUIHealthBar(camera->getSize());
+    createPlayerUIStaminaBar(camera->getSize());
 
     gameStateController.restart();
     registry.gameScore.score = 0;
@@ -133,7 +133,7 @@ void WorldSystem::handleSurvivalBonusPoints(float elapsed_ms) {
     if (gameStateController.survivalBonusTimer >= SURVIVAL_BONUS_INTERVAL) {
         int points = 35;
         registry.gameScore.score += points;
-        createPointsEarnedText("SURVIVAL BONUS +" + std::to_string(points), playerEntity, {0.8f, 0.8f, 0.0f, 1.0f}, -130.0f);
+        createPointsEarnedText("SURVIVAL BONUS +" + std::to_string(points), playerEntity, {0.8f, 0.8f, 0.0f, 1.0f});
         gameStateController.survivalBonusTimer = 0;
     }
 }
@@ -407,7 +407,7 @@ void WorldSystem::handleEnemiesKilledInSpan(float elapsed_ms) {
                 points = enemiesKilled.killSpanCount * 5;
             }
             registry.gameScore.score += points;
-            createPointsEarnedText("BONUS +" + std::to_string(points), playerEntity, {0.8f, 0.8f, 0.0f, 1.0f}, -60.0f);
+            createPointsEarnedText("BONUS +" + std::to_string(points), playerEntity, {0.8f, 0.8f, 0.0f, 1.0f});
         }
         enemiesKilled.resetKillSpan();
     }
@@ -769,8 +769,7 @@ void WorldSystem::leftMouseClickAction(vec3 mouseWorldPos) {
             trapsCounter.trapsMap[PHANTOM_TRAP].first = inventory.itemCounts[INVENTORY_ITEM::PHANTOM_TRAP];
             break;
         case INVENTORY_ITEM::BOMB: {
-            Entity bomb = shootProjectile(mouseWorldPos, PROJECTILE_TYPE::BOMB_FUSED);
-            registry.bombs.emplace(bomb);
+            shootProjectile(mouseWorldPos, PROJECTILE_TYPE::BOMB_FUSED);
             inventory.itemCounts[INVENTORY_ITEM::BOMB]--;
         }
             break;
@@ -1388,13 +1387,13 @@ void WorldSystem::entity_collectible_collision(Entity entity, Entity entity_othe
         if (collectibleTrap.type == DAMAGE_TRAP) {
             registry.inventory.itemCounts[INVENTORY_ITEM::TRAP]++;
 			trapsCounter.trapsMap[DAMAGE_TRAP].first = registry.inventory.itemCounts[INVENTORY_ITEM::TRAP];
-			createCollected(playerM, collectibleM.scale, TEXTURE_ASSET_ID::TRAPCOLLECTABLE);
+			createCollected(TEXTURE_ASSET_ID::TRAPCOLLECTABLE);
             equipItem(INVENTORY_ITEM::TRAP, true);
 		}
         else if (collectibleTrap.type == PHANTOM_TRAP) {
             registry.inventory.itemCounts[INVENTORY_ITEM::PHANTOM_TRAP]++;
             trapsCounter.trapsMap[PHANTOM_TRAP].first = registry.inventory.itemCounts[INVENTORY_ITEM::PHANTOM_TRAP];
-            createCollected(playerM, collectibleM.scale, TEXTURE_ASSET_ID::PHANTOM_TRAP_BOTTLE_ONE);
+            createCollected(TEXTURE_ASSET_ID::PHANTOM_TRAP_BOTTLE_ONE);
             equipItem(INVENTORY_ITEM::PHANTOM_TRAP, true);
         }
     }
@@ -1402,19 +1401,19 @@ void WorldSystem::entity_collectible_collision(Entity entity, Entity entity_othe
         unsigned int health = registry.hearts.get(entity_other).health;
         unsigned int addOn = player.health <= 80 ? health : 100 - player.health;
         player.health += addOn;
-        createCollected(playerM, collectibleM.scale, TEXTURE_ASSET_ID::HEART);
+        createCollected(TEXTURE_ASSET_ID::HEART);
 		printf("Player collected a heart\n");
 	}
     else if (registry.bows.has(entity_other)) {
         registry.inventory.itemCounts[INVENTORY_ITEM::BOW] += 5;
         std::cout << "Player collected a bow. Bow count is now " << registry.inventory.itemCounts[INVENTORY_ITEM::BOW] << std::endl;
-        createCollected(playerM, collectibleM.scale, TEXTURE_ASSET_ID::BOW);
+        createCollected(TEXTURE_ASSET_ID::BOW);
         equipItem(INVENTORY_ITEM::BOW, true);
 		printf("Player collected a bow\n");
 	}
     else if (registry.collectibleBombs.has(entity_other)) {
         registry.inventory.itemCounts[INVENTORY_ITEM::BOMB] += 3;
-        createCollected(playerM, collectibleM.scale, TEXTURE_ASSET_ID::BOMB);
+        createCollected(TEXTURE_ASSET_ID::BOMB);
         equipItem(INVENTORY_ITEM::BOMB, true);
 	}
 	else {
@@ -1482,7 +1481,7 @@ void WorldSystem::entity_damaging_collision(Entity entity, Entity entity_other, 
     }
 
     if(!registry.explosions.has(entity_other) && 
-       !registry.bombs.has(entity_other)) 
+       !registry.bounceables.has(entity_other)) 
     {
         registry.remove_all_components_of(entity_other);
     }
@@ -1596,7 +1595,7 @@ void WorldSystem::checkAndHandleEnemyDeath(Entity enemy) {
 
         registry.gameScore.score += enemyData.points;
         gameStateController.enemiesKilled.updateKillSpanCount();
-        createPointsEarnedText("+" + std::to_string(enemyData.points), enemy, {1.0f, 1.0f, 1.0f, 1.0f}, -20.0f);
+        createPointsEarnedText("+" + std::to_string(enemyData.points), enemy, {1.0f, 1.0f, 1.0f, 1.0f});
         updateComboText();
 
         HealthBar& hpbar = registry.healthBars.get(enemy);
@@ -1651,7 +1650,7 @@ void WorldSystem::despawn_collectibles(float elapsed_ms) {
 
 void WorldSystem::destroyDamagings() {
     for (auto& damagingEntity : registry.damagings.entities) {
-        if(registry.bombs.has(damagingEntity) || registry.explosions.has(damagingEntity)) {
+        if(registry.bounceables.has(damagingEntity) || registry.explosions.has(damagingEntity)) {
             continue;
         }
 

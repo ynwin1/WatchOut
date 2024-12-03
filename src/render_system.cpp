@@ -636,9 +636,12 @@ void updateHpBarPositionHelper(const std::vector<Entity>& entities) {
 	    HealthBar& healthBar = registry.healthBars.get(entity);
         Motion& motion = registry.motions.get(entity);
         Motion& healthBarMotion =  registry.motions.get(healthBar.meshEntity);
+		float topOffset = 25;
          // place above character
-        float topOffset = 25;
-		healthBarMotion.position.x = motion.position.x - (healthBarMotion.scale.x / 2);
+		 if(registry.players.has(entity)) {
+			topOffset += healthBar.height + 5;
+		 }
+		healthBarMotion.position.x = motion.position.x - (healthBar.width / 2);
         healthBarMotion.position.y = motion.position.y;
 		healthBarMotion.position.z = motion.position.z + visualToWorldY(motion.scale.y) / 2 + topOffset;
 		Motion& hpFrameMotion =  registry.motions.get(healthBar.frameEntity);
@@ -649,12 +652,14 @@ void updateHpBarPositionHelper(const std::vector<Entity>& entities) {
 void RenderSystem::updateCollectedPosition() {
 	Entity& playerE = registry.players.entities[0];
 	Motion& playerM = registry.motions.get(playerE);
+	HealthBar& hpBar = registry.healthBars.get(playerE);
 
     for (Entity entity : registry.collected.entities) {
         Motion& collectedM =  registry.motions.get(entity);
         // place above character
-        float topOffset = 40;
-		collectedM.position.x = playerM.position.x;
+        float topOffset = 30;
+		float horizontalOffset = hpBar.width / 2;
+		collectedM.position.x = playerM.position.x + horizontalOffset + 15;
         collectedM.position.y = playerM.position.y;
 		collectedM.position.z = playerM.position.z + visualToWorldY(playerM.scale.y) / 2 + topOffset;
     }   
@@ -707,31 +712,42 @@ void RenderSystem::updateSlideUps(float elapsed_ms) {
 }
 
 void updateHpBarMeter() {
-	for (Entity entity : registry.players.entities) {
-		Player& player = registry.players.get(entity);
-		HealthBar& hpbar = registry.healthBars.get(entity);
-		Foreground& fg = registry.foregrounds.get(hpbar.meshEntity);
-		fg.scale.x = hpbar.width * player.health/100.f;
-		Text& text = registry.texts.get(hpbar.textEntity);
-		std::stringstream ss;
-		ss << "HP" << std::string(8, ' ') << std::to_string(player.health) << "/100";
-		text.value = ss.str();
+	Entity entity = registry.players.entities[0];
+	Player& player = registry.players.get(entity);
+	
+	PlayerResourceUI& playerUI = registry.playerResourceUI;
+	Foreground& fg = registry.foregrounds.get(playerUI.hpMeshEntity);
+	fg.scale.x = playerUI.hpMaxSize.x * player.health/100.f;
+	Text& text = registry.texts.get(playerUI.hpTextEntity);
+	std::stringstream ss;
+	ss << "HP" << std::string(8, ' ') << std::to_string(player.health) << "/100";
+	text.value = ss.str();
 
-		if(player.health <= 30.0f) {
-			vec4 red = {1.0f, 0.0f, 0.0f, 1.0f};
-			registry.colours.get(hpbar.meshEntity) = red;
-			registry.colours.get(hpbar.frameEntity) = red;
-		}
-		else if(player.health <= 60.0f) {
-			vec4 orange = {1.0f, 0.45f, 0.0f, 1.0f};
-			registry.colours.get(hpbar.meshEntity) = orange;
-			registry.colours.get(hpbar.frameEntity) = orange;
-		} else {
-			vec4 green = {0.0f, 1.0f, 0.0f, 1.0f};
-			registry.colours.get(hpbar.meshEntity) = green;
-			registry.colours.get(hpbar.frameEntity) = green;
-		}
+	HealthBar& playerHPBar = registry.healthBars.get(entity);
+	Motion& playerHPMotion = registry.motions.get(playerHPBar.meshEntity);
+	playerHPMotion.scale.x = playerHPBar.width * player.health/100.f;
+
+	if(player.health <= 30.0f) {
+		vec4 red = {1.0f, 0.0f, 0.0f, 1.0f};
+		registry.colours.get(playerUI.hpMeshEntity) = red;
+		registry.colours.get(playerUI.hpFrameEntity) = red;
+		registry.colours.get(playerHPBar.meshEntity) = red;
+		registry.colours.get(playerHPBar.frameEntity) = red;
 	}
+	else if(player.health <= 60.0f) {
+		vec4 orange = {1.0f, 0.45f, 0.0f, 1.0f};
+		registry.colours.get(playerUI.hpMeshEntity) = orange;
+		registry.colours.get(playerUI.hpFrameEntity) = orange;
+		registry.colours.get(playerHPBar.meshEntity) = orange;
+		registry.colours.get(playerHPBar.frameEntity) = orange;
+	} else {
+		vec4 green = {0.0f, 1.0f, 0.0f, 1.0f};
+		registry.colours.get(playerUI.hpMeshEntity) = green;
+		registry.colours.get(playerUI.hpFrameEntity) = green;
+		registry.colours.get(playerHPBar.meshEntity) = green;
+		registry.colours.get(playerHPBar.frameEntity) = green;
+	}
+	
 	for (Entity entity : registry.enemies.entities) {
 		Enemy& enemy = registry.enemies.get(entity);
 		HealthBar& hpbar = registry.healthBars.get(entity);
@@ -741,6 +757,7 @@ void updateHpBarMeter() {
 }
 
 void updateHpBarPosition() {
+	updateHpBarPositionHelper(registry.players.entities);
     updateHpBarPositionHelper(registry.enemies.entities);
 }
 
@@ -750,17 +767,32 @@ void RenderSystem::update_hpbars() {
 }
 
 void RenderSystem::update_staminabars() {
-	for (Entity entity : registry.players.entities) {
-		Player& player = registry.players.get(entity);
-		Stamina& stamina = registry.staminas.get(entity);
-		StaminaBar& staminabar = registry.staminaBars.get(entity);
-		Foreground& fg = registry.foregrounds.get(staminabar.meshEntity);
-		fg.scale.x = staminabar.width * stamina.stamina/100.f;
-		Text& text = registry.texts.get(staminabar.textEntity);
-		std::stringstream ss;
-		ss << "Stamina" << std::string(8, ' ') << std::to_string((int)stamina.stamina) << "/100";
-		text.value = ss.str();
-	}
+	
+	Entity& entity = registry.players.entities[0];
+	Player& player = registry.players.get(entity);
+	PlayerResourceUI& playerUI = registry.playerResourceUI;
+	Foreground& fg = registry.foregrounds.get(playerUI.staminaMeshEntity);
+	Stamina& stamina = registry.staminas.get(entity);
+	StaminaBar& staminaBar = registry.staminaBars.get(entity);
+	Motion& playerMotion = registry.motions.get(entity);
+	Motion& staminaBarMotion =  registry.motions.get(staminaBar.meshEntity);
+	Motion& staminaBarFrameMotion =  registry.motions.get(staminaBar.frameEntity);
+
+	// update meter
+	fg.scale.x = playerUI.staminaMaxSize.x * stamina.stamina/stamina.max_stamina;
+	staminaBarMotion.scale.x = staminaBar.width * stamina.stamina/stamina.max_stamina;
+	Text& text = registry.texts.get(playerUI.staminaTextEntity);
+	std::stringstream ss;
+	ss << "Stamina" << std::string(8, ' ') << std::to_string((int)stamina.stamina) << "/100";
+	text.value = ss.str();
+
+	// update position
+    // place above character
+	float topOffset = 25;
+	staminaBarMotion.position.x = playerMotion.position.x - (staminaBar.width / 2);
+    staminaBarMotion.position.y = playerMotion.position.y;
+	staminaBarMotion.position.z = playerMotion.position.z + visualToWorldY(playerMotion.scale.y) / 2 + topOffset;
+	staminaBarFrameMotion.position = staminaBarMotion.position;
 }
 
 void RenderSystem::updateEntityFacing() {

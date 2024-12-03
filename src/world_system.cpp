@@ -1355,7 +1355,6 @@ void WorldSystem::entity_collectible_collision(Entity entity, Entity entity_othe
         unsigned int addOn = player.health <= 80 ? health : 100 - player.health;
         player.health += addOn;
         createCollected(TEXTURE_ASSET_ID::HEART);
-		    printf("Player collected a heart\n");
 	}
     else if (registry.bows.has(entity_other)) {
         registry.inventory.itemCounts[INVENTORY_ITEM::BOW] += 5;

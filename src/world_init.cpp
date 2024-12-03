@@ -503,7 +503,7 @@ Entity createJeff(vec2 position)
 
 	auto& pointLight = registry.pointLights.emplace(entity);
 	pointLight.position = motion.position;
-	pointLight.ambient = vec4(1.0, .75, 0.25, 10);
+	pointLight.ambient = vec4(1.0, .75, 0.25, .1);
 	pointLight.diffuse = vec4(1.0, .75, 0.25, 1.0);
 	pointLight.max_distance = 3250;
 	pointLight.constant = 1.f;
@@ -631,12 +631,12 @@ Entity createFireball(vec3 pos, vec2 direction) {
 
 	auto& pointLight = registry.pointLights.emplace(entity);
 	pointLight.position = motion.position;
-	pointLight.ambient = vec4(1.0, .63, .0, .2);
+	pointLight.ambient = vec4(1.0, .63, .0, 1.0);
 	pointLight.diffuse = vec4(1.0, .63, .0, 1.0);
-	pointLight.max_distance = 500;
-	pointLight.constant = 1.0;
-	pointLight.linear = .00007;
-	pointLight.quadratic = 0.0002;
+	pointLight.max_distance = 3000;
+	pointLight.constant = .3f;
+	pointLight.linear = 0.017;
+	pointLight.quadratic = 0.00f;
 
 	initFireballAnimationController(entity);
 	return entity;

@@ -100,7 +100,7 @@ private:
 		{"barbarian", 1},
 		{"archer", -2},
 		{"bird", 8},
-		{"wizard", 3},
+		{"wizard", -2},
 		{"troll", -3},
 		{"bomber", -2},
 		{"heart", 2},

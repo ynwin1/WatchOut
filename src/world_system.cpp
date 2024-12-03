@@ -376,7 +376,7 @@ void WorldSystem::updatePointLightPositions(float elapsed_ms) {
         // Update Position
         PointLight& pointLight = registry.pointLights.get(pointLightEntity);
         if (registry.motions.has(pointLightEntity)) {
-            Motion& motion = registry.motions.get(playerEntity);
+            Motion& motion = registry.motions.get(pointLightEntity);
             pointLight.position = motion.position;
         }
     }

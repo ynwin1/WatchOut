@@ -6,11 +6,12 @@
 
 #include <world_init.hpp>
 #include <sound_system.hpp>
+#include <particle_system.hpp>
 
 class SpawnManager
 {
 public:
-	void init(Camera* camera, SoundSystem* soundSystem);
+	void init(Camera* camera, SoundSystem* soundSystem, ParticleSystem* particleSystem);
 
 	void step(float elapsed_ms);
 
@@ -19,10 +20,11 @@ public:
 private:
 	Camera* camera;
 	SoundSystem* soundSystem;
+	ParticleSystem* particleSystem;
 
 	int currentEnemyIdx = 0;
 	float initialSpawnTime = 0.f;
-	const float initialSpawnInterval = 10000.f; // 10 seconds
+	const float initialSpawnInterval = 15000.f; // 15 seconds
 
 	// Constants
 	std::vector<std::string> entity_types = {
@@ -108,6 +110,7 @@ private:
 	void spawnEnemies(float elapsed_ms);
 	void spawnCollectibles(float elapsed_ms);
 	void spawnCollectible(std::string collectible, float elapsed_ms);
+	void spawnParticles(float elapsed_ms);
 
 	void despawnCollectibles(float elapsed_ms);
 	void despawnTraps(float elapsed_ms);

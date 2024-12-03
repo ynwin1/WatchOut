@@ -49,8 +49,8 @@ int main()
 	renderer.init(&camera, &particles, &sound);
 	sound.init();
 	saveManager.init(&renderer, window, &camera);
-	spawnManager.init(&camera, &sound);
-	world.init(&renderer, window, &camera, &physics, &ai, &sound, &saveManager, &particles, &spawnManager);
+	spawnManager.init(&camera, &sound, &particles);
+	world.init(&renderer, window, &camera, &physics, &ai, &sound, &saveManager, &spawnManager);
 
 	auto t = Clock::now();
 	while (!world.is_over()) {

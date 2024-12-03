@@ -7,12 +7,14 @@
 #include <unordered_map>
 
 #include "spawn_manager.hpp"
+#include "particle_system.hpp"
 #include "common.hpp"
 
-void SpawnManager::init(Camera* camera, SoundSystem* soundSystem)
+void SpawnManager::init(Camera* camera, SoundSystem* soundSystem, ParticleSystem* particleSystem)
 {
 	this->camera = camera;
     this->soundSystem = soundSystem;
+	this->particleSystem = particleSystem;
 }
 
 vec2 SpawnManager::get_spawn_location(const std::string& entity_type, bool initial)
@@ -147,6 +149,41 @@ void SpawnManager::spawnCollectible(std::string collectible, float elapsed_ms) {
     }
 }
 
+void SpawnManager::spawnParticles(float elapsed_ms)
+{
+    Entity& player = registry.players.entities[0];
+    Motion& playerMotion = registry.motions.get(player);
+
+    // SPAWN SMOKE ------------------------------------------------
+    vec3 position = playerMotion.position;
+    float direction = (playerMotion.scale.x > 0) ? 1.f : -1.f;
+    position.x += direction * playerMotion.hitbox.x / 2;
+    position.z += playerMotion.hitbox.z / 3;
+    vec2 size = { 20, 20 };
+	particleSystem->createSmokeParticle(position, size);
+    particleSystem->createSmokeParticle(position, size);
+    particleSystem->createSmokeParticle(position, size);
+
+    for (Entity fireball : registry.damagings.entities) {
+        Damaging& damaging = registry.damagings.get(fireball);
+        if (damaging.type != "fireball") {
+            continue;
+        }
+        vec3 position = registry.motions.get(fireball).position;
+        vec2 size = { 50, 50 };
+        particleSystem->createSmokeParticle(position, size);
+        particleSystem->createSmokeParticle(position, size);
+        particleSystem->createSmokeParticle(position, size);
+        particleSystem->createSmokeParticle(position, size);
+    }
+
+    // SPAWN DASH SPRITES ------------------------------------------------
+    if (registry.dashers.get(player).isDashing) {
+        float facing = playerMotion.scale.x > 0 ? 1 : -1;
+        particleSystem->createDashParticle(playerMotion.position, vec2(JEFF_BB_WIDTH * facing, JEFF_BB_HEIGHT));
+    }
+}
+
 void SpawnManager::despawnCollectibles(float elapsed_ms) {
     for (auto& collectibleEntity : registry.collectibles.entities) {
         Collectible& collectible = registry.collectibles.get(collectibleEntity);
@@ -197,6 +234,7 @@ void SpawnManager::step(float elapsed_ms) {
     else {
         inGameSpawn(elapsed_ms);
     }
+	spawnParticles(elapsed_ms);
 	despawnCollectibles(elapsed_ms);
     despawnTraps(elapsed_ms);
 };

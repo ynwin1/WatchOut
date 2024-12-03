@@ -30,7 +30,6 @@ public:
 		AISystem* ai, 
 		SoundSystem* sound, 
 		GameSaveManager* saveManager, 
-		ParticleSystem* particles, 
 		SpawnManager* spawnManager
 	);
 

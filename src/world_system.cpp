@@ -27,7 +27,6 @@ void WorldSystem::init(
     AISystem* ai, 
     SoundSystem* sound, 
     GameSaveManager* saveManager, 
-    ParticleSystem* particles,
     SpawnManager* spawnManager)
 {
     
@@ -38,7 +37,6 @@ void WorldSystem::init(
     this->ai = ai;
 	this->sound = sound;
 	this->saveManager = saveManager;
-    this->particles = particles;
     this->spawnManager = spawnManager;
 
     // Setting callbacks to member functions (that's why the redirect is needed)
@@ -1180,40 +1178,6 @@ void WorldSystem::handle_deaths(float elapsed_ms) {
             }
             registry.remove_all_components_of(deathEntity);
         }
-    }
-}
-
-void WorldSystem::spawn_particles(float elapsed_ms)
-{
-    Motion& playerMotion = registry.motions.get(playerEntity);
-
-    // SPAWN SMOKE ------------------------------------------------
-    vec3 position = playerMotion.position;
-    float direction = (playerMotion.scale.x > 0) ? 1.f : -1.f;
-    position.x += direction * playerMotion.hitbox.x / 2;
-    position.z += playerMotion.hitbox.z / 3;
-    vec2 size = { 20, 20 };
-    particles->createSmokeParticle(position, size);
-    particles->createSmokeParticle(position, size);
-    particles->createSmokeParticle(position, size);
-
-    for (Entity fireball : registry.damagings.entities) {
-        Damaging& damaging = registry.damagings.get(fireball);
-        if (damaging.type != "fireball") {
-            continue;
-        }
-        vec3 position = registry.motions.get(fireball).position;
-        vec2 size = { 50, 50 };
-        particles->createSmokeParticle(position, size);
-        particles->createSmokeParticle(position, size);
-        particles->createSmokeParticle(position, size);
-        particles->createSmokeParticle(position, size);
-    }
-
-    // SPAWN DASH SPRITES ------------------------------------------------
-    if (registry.dashers.get(playerEntity).isDashing) {
-        float facing = playerMotion.scale.x > 0 ? 1 : -1;
-        particles->createDashParticle(playerMotion.position, vec2(JEFF_BB_WIDTH * facing, JEFF_BB_HEIGHT));
     }
 }
 

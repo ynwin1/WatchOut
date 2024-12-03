@@ -1463,7 +1463,9 @@ void WorldSystem::entity_damaging_collision(Entity entity, Entity entity_other, 
         player.health = new_health < 0 ? 0 : new_health;
         was_damaged.push_back(entity);
         setCollisionCooldown(entity_other, entity);
-        registry.invulnerables.emplace(entity);
+        if (damaging.damage >= 5) {
+            registry.invulnerables.emplace(entity);
+        }
         printf("Player health reduced from %d to %d\n", player.health + damaging.damage, player.health);
     }
     else if (registry.enemies.has(entity)) {
@@ -1521,7 +1523,9 @@ void WorldSystem::processPlayerEnemyCollision(Entity player, Entity enemy, std::
         playerData.health = std::max(newHealth, 0);
         was_damaged.push_back(player);
         setCollisionCooldown(enemy, player);
-        registry.invulnerables.emplace(player);
+        if (enemyData.damage >= 5) {
+            registry.invulnerables.emplace(player);
+        }
         printf("Player health reduced by enemy from %d to %d\n", playerData.health + enemyData.damage, playerData.health);
 
         // Check if enemy can have an attack cooldown

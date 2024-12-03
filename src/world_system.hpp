@@ -62,6 +62,8 @@ private:
 	std::string DAMAGE_TRAP = "trap";
 	std::string PHANTOM_TRAP = "phantom_trap";
 
+	bool isTutorialNeeded = true;
+
 	// GLFW Window handle
 	GLFWwindow* window;
 	RenderSystem* renderer;
@@ -143,6 +145,7 @@ private:
 
 	// Title screen
 	void createTitleScreen();
+	void createTitleScreenTutorial();
 
 	// Save game
 	void save_game();
@@ -186,6 +189,7 @@ private:
 	void updateMouseTexturePosition(vec2 mousePos);
 	void equipItem(INVENTORY_ITEM item, bool wasCollected = false);
 	void unEquipItem();
+	INVENTORY_ITEM getNextInventoryItem(INVENTORY_ITEM currentItem);
 
 	// Collision functions
 	void entity_collectible_collision(Entity entity, Entity collectible);
@@ -203,6 +207,7 @@ private:
 	void allStateControls(int key, int action, int mod);
 	void movementControls(int key, int action, int mod);
 	void titleControls(int key, int action, int mod);
+	void titleTutorialControls(int key, int action, int mod);
 	void playingControls(int key, int action, int mod);
 	void pauseControls(int key, int action, int mod);
 	void gameOverControls(int key, int action, int mod);

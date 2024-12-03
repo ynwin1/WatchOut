@@ -345,9 +345,11 @@ void WorldSystem::updateEquippedPosition() {
 
 bool WorldSystem::step(float elapsed_ms)
 {
-    updateEnemyTutorial();
-    updateCollectibleTutorial();
-    updateTutorial(elapsed_ms);
+    if (isTutorialNeeded) {
+        updateEnemyTutorial();
+        updateCollectibleTutorial();
+        updateTutorial(elapsed_ms);
+    }
     adjustSpawnSystem(elapsed_ms);
     spawn(elapsed_ms);
     spawn_particles(elapsed_ms);
@@ -620,6 +622,29 @@ void WorldSystem::unEquipItem() {
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 }
 
+INVENTORY_ITEM WorldSystem::getNextInventoryItem(INVENTORY_ITEM currentItem) {
+    std::vector<INVENTORY_ITEM> armoryItems = {
+        INVENTORY_ITEM::NONE,
+        INVENTORY_ITEM::TRAP,
+        INVENTORY_ITEM::PHANTOM_TRAP,
+        INVENTORY_ITEM::BOW,
+        INVENTORY_ITEM::BOMB
+    };
+
+	size_t armorySize = armoryItems.size();
+
+	int currentIndex = std::find(armoryItems.begin(), armoryItems.end(), currentItem) - armoryItems.begin();
+	int nextIndex = (currentIndex + 1) % armorySize;
+
+	for (int i = 0; i < armoryItems.size(); i++) {
+		INVENTORY_ITEM nextItem = armoryItems[(nextIndex + i) % armorySize];
+		if (registry.inventory.itemCounts[nextItem] > 0) {
+            return nextItem;
+		}
+	}
+	return INVENTORY_ITEM::NONE;
+}
+
 // Should the game be over ?
 bool WorldSystem::is_over() const {
     return bool(glfwWindowShouldClose(window));
@@ -785,6 +810,7 @@ void WorldSystem::leftMouseClickAction(vec3 mouseWorldPos) {
 
     if(inventory.itemCounts[inventory.equipped] == 0) {
         unEquipItem();
+		equipItem(getNextInventoryItem(inventory.equipped));
     } else if(registry.animationControllers.has(inventory.equippedEntity)) {
         if(inventory.equipped == INVENTORY_ITEM::BOW) {
             Entity entity = registry.inventory.equippedEntity;
@@ -840,6 +866,9 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	case GAME_STATE::TITLE:
 		titleControls(key, action, mod);
 		break;
+    case GAME_STATE::TITLE_TUTORIAL:
+		titleTutorialControls(key, action, mod);
+		break;
     case GAME_STATE::PLAYING:
         playingControls(key, action, mod);
         break;
@@ -876,9 +905,9 @@ void WorldSystem::on_key(int key, int, int action, int mod)
         collectibleTutorialControls(key, action, mod);
         break;
     }
-    if (gameStateController.getGameState() != GAME_STATE::TITLE) {
+	if (gameStateController.getGameState() != GAME_STATE::TITLE && gameStateController.getGameState() != GAME_STATE::TITLE_TUTORIAL) {
         movementControls(key, action, mod);
-    }
+	}
     allStateControls(key, action, mod);
 }
 
@@ -887,11 +916,11 @@ void WorldSystem::helpControls(int key, int action, int mod)
     if (action == GLFW_PRESS) {
         switch (key) {
         case GLFW_KEY_Q:
-            gameStateController.setGameState(GAME_STATE::TITLE);
             createTitleScreen();
             break;
         case GLFW_KEY_R:
-            restart_game();
+            createTitleScreenTutorial();
+            break;
         case GLFW_KEY_H:
             sound->resumeAllSoundEffects();
             gameStateController.setGameState(GAME_STATE::PLAYING);
@@ -910,27 +939,18 @@ void WorldSystem::pauseControls(int key, int action, int mod)
     if (action == GLFW_PRESS) {
         switch (key) {
         case GLFW_KEY_Q:
-            gameStateController.setGameState(GAME_STATE::TITLE);
             createTitleScreen();
             break;
         case GLFW_KEY_H:
             gameStateController.setGameState(GAME_STATE::HELP);
-            clearSaveText();
             break;
-        case GLFW_KEY_S:
-            saveManager->save_game(trapsCounter.trapsMap, spawn_delays, max_entities, next_spawns);
-			createGameSaveText(camera->getSize());
-            printf("Saved game\n");
+        case GLFW_KEY_R:
+            createTitleScreenTutorial();
             break;
-        case GLFW_KEY_L:
-			break;
-        case GLFW_KEY_ENTER:
-            restart_game();
         case GLFW_KEY_P:
         case GLFW_KEY_ESCAPE:
             sound->resumeAllSoundEffects();
             gameStateController.setGameState(GAME_STATE::PLAYING);
-            clearSaveText();
             break;
         }
     }
@@ -1028,16 +1048,36 @@ void WorldSystem::titleControls(int key, int action, int mod) {
 	if (action == GLFW_PRESS) {
 		switch (key) {
 		case GLFW_KEY_ENTER:
-			restart_game();
+			// move to title screen to ask if tutorial is needed
+            createTitleScreenTutorial();
 			break;
-		case GLFW_KEY_L:
+		/*case GLFW_KEY_L:
 			load_game();
-			break;
+			break;*/
 		case GLFW_KEY_Q:
 			glfwSetWindowShouldClose(window, true);
 			break;
 		}
 	}
+}
+
+void WorldSystem::titleTutorialControls(int key, int action, int mod) {
+    if (action == GLFW_PRESS) {
+        switch (key) {
+        case GLFW_KEY_Y:
+            // move to title screen to ask if tutorial is needed
+            isTutorialNeeded = true;
+            restart_game();
+            break;
+        case GLFW_KEY_N:
+            isTutorialNeeded = false;
+            restart_game();
+            break;
+        case GLFW_KEY_Q:
+            glfwSetWindowShouldClose(window, true);
+            break;
+        }
+    }
 }
 
 void WorldSystem::playingControls(int key, int action, int mod)
@@ -1049,7 +1089,7 @@ void WorldSystem::playingControls(int key, int action, int mod)
   
     if (action == GLFW_PRESS) {
         switch (key) {
-        case GLFW_KEY_X:
+        case GLFW_KEY_C:
             if (player_stamina.stamina > DASH_STAMINA) {
                 const float dashDistance = 300;
                 // Start dashing if player is moving
@@ -1063,6 +1103,15 @@ void WorldSystem::playingControls(int key, int action, int mod)
                 sound->playSoundEffect(Sound::DASHING, 0);
             }
             break;
+        case GLFW_KEY_TAB: {
+            INVENTORY_ITEM currentItem = registry.inventory.equipped;
+            INVENTORY_ITEM nextItem = getNextInventoryItem(currentItem);
+
+            if (nextItem != INVENTORY_ITEM::NONE) {
+                equipItem(nextItem);
+            }
+		}
+	    break;
         case GLFW_KEY_1:
             equipItem(INVENTORY_ITEM::TRAP);
             break;
@@ -1091,7 +1140,7 @@ void WorldSystem::gameOverControls(int key, int action, int mod)
     if (action == GLFW_PRESS) {
         switch (key) {
         case GLFW_KEY_R:
-            restart_game();
+            createTitleScreenTutorial();
             break;
         case GLFW_KEY_Q:
         case GLFW_KEY_ENTER:
@@ -1107,7 +1156,7 @@ void WorldSystem::allStateControls(int key, int action, int mod)
     if (action == GLFW_PRESS) {
         switch (key) {
 #ifndef NDEBUG
-        case GLFW_KEY_C:
+        case GLFW_KEY_X:
             // toggle camera on/off for debugging/testing
             camera->toggle();
             break;
@@ -1314,7 +1363,6 @@ void WorldSystem::spawn(float elapsed_ms)
             next_spawns.at(entity_type) < 0 && 
             currentEntitySize < maxEntitySize) 
         {
-            printf("Spawning: %s\n", entity_type.c_str());
             vec2 spawnLocation = get_spawn_location(entity_type);
             spawn_func f = spawn_functions.at(entity_type);
             (*f)(spawnLocation);
@@ -1432,7 +1480,6 @@ void WorldSystem::entity_collectible_collision(Entity entity, Entity entity_othe
         std::cout << "Player collected a bow. Bow count is now " << registry.inventory.itemCounts[INVENTORY_ITEM::BOW] << std::endl;
         createCollected(TEXTURE_ASSET_ID::BOW);
         equipItem(INVENTORY_ITEM::BOW, true);
-		printf("Player collected a bow\n");
 	}
     else if (registry.collectibleBombs.has(entity_other)) {
         registry.inventory.itemCounts[INVENTORY_ITEM::BOMB] += 3;
@@ -1488,7 +1535,6 @@ void WorldSystem::entity_damaging_collision(Entity entity, Entity entity_other, 
         if (damaging.damage >= 5) {
             registry.invulnerables.emplace(entity);
         }
-        printf("Player health reduced from %d to %d\n", player.health + damaging.damage, player.health);
     }
     else if (registry.enemies.has(entity)) {
         // reduce enemy health
@@ -1496,7 +1542,6 @@ void WorldSystem::entity_damaging_collision(Entity entity, Entity entity_other, 
         enemy.health -= damaging.damage;
         was_damaged.push_back(entity);
         setCollisionCooldown(entity_other, entity);
-        printf("Enemy health reduced from %d to %d by damaging object\n", enemy.health + damaging.damage, enemy.health);
     }
     else {
         printf("Entity is not a player or enemy\n");
@@ -1548,7 +1593,6 @@ void WorldSystem::processPlayerEnemyCollision(Entity player, Entity enemy, std::
         if (enemyData.damage >= 5) {
             registry.invulnerables.emplace(player);
         }
-        printf("Player health reduced by enemy from %d to %d\n", playerData.health + enemyData.damage, playerData.health);
 
         // Check if enemy can have an attack cooldown
         if (enemyData.cooldown > 0) {
@@ -1589,7 +1633,6 @@ void WorldSystem::handleEnemyCollision(Entity attacker, Entity target, std::vect
         targetData.health -= attackerData.damage;
         was_damaged.push_back(target);
         setCollisionCooldown(attacker, target);
-        printf("Enemy %d's health reduced from %d to %d by enemy\n", (unsigned int)target, targetData.health + attackerData.damage, targetData.health);
 
         if (attackerData.cooldown > 0) {
             Cooldown& cooldown = registry.cooldowns.emplace(attacker);
@@ -1609,7 +1652,6 @@ void WorldSystem::checkAndHandleEnemyDeath(Entity enemy) {
             motion.angle = M_PI / 2; // Rotate enemy 90 degrees
             motion.hitbox = { motion.hitbox.z, motion.hitbox.y, motion.hitbox.x }; // Change hitbox to be on its side
         }
-        printf("Enemy %d died with health %d\n", (unsigned int)enemy, enemyData.health);
 
         if (registry.animationControllers.has(enemy)) {
             AnimationController& animationController = registry.animationControllers.get(enemy);
@@ -1880,12 +1922,4 @@ void WorldSystem::soundSetUp() {
     sound->init();
     // play background music
     sound->playMusic(Music::BACKGROUND, -1);
-}
-
-void WorldSystem::clearSaveText() {
-    for (Entity textE : registry.texts.entities) {
-        if (registry.cooldowns.has(textE)) {
-            registry.remove_all_components_of(textE);
-        }
-    }
 }

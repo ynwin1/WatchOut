@@ -8,15 +8,21 @@ You are the lone survivor trapped in the world of Draugamoor, forced to face Kin
 
 | Function | Key Combination |
 |----------|----------------|
-| Movement  | Arrows |
-| Sprint    | Arrows + Left Shift |
-| Dash      | D |
-| Jump      | Space bar|
-| Place trap| Q (behind) or W (front)|
-| Mute/Unmute| M|
+| Movement  | WASD |
+| Sprint    | WASD + Left Shift |
+| Dash      | X |
+| Jump      | Space Bar |
+| Switch Weapons | Tab |
+| Aim | Cursor Movement |
+| Apply Weapon   | Left Mouse Button |
+| Sticky Trap | 1 |
+| Phantom Trap | 2 |
+| Bow & Arrow | 3 |
+| Bomb | 4 |
+| Mute/Unmute | M |
 | Pause     | P |
 | Help      | H |
-| Restart   | Enter |
-| Quit      | Pause OR Help then Q |
+| Restart   | R |
+| Quit      | P (OR) H then Q |
 
 

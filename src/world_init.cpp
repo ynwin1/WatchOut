@@ -367,12 +367,30 @@ Entity createHeart(vec2 pos)
 	return entity;
 };
 
-Entity createCollected(Motion& playerM, vec2 size, TEXTURE_ASSET_ID assetID)
+Entity createCollected(TEXTURE_ASSET_ID assetID)
 {
 	auto entity = Entity();
+	vec2 scale;
 
 	Motion& motion = registry.motions.emplace(entity);
-	motion.scale = { size.x * 0.7, size.y * 0.7};
+	switch(assetID) {
+		case TEXTURE_ASSET_ID::HEART:
+			scale = { HEART_BB_WIDTH * 0.5, HEART_BB_WIDTH * 0.5 };
+			break;
+		case TEXTURE_ASSET_ID::TRAPCOLLECTABLE:
+			scale = { TRAP_COLLECTABLE_BB_WIDTH * 0.7, TRAP_COLLECTABLE_BB_HEIGHT * 0.7 };
+			break;
+		case TEXTURE_ASSET_ID::PHANTOM_TRAP_BOTTLE_ONE:
+			scale = { PHANTOM_TRAP_COLLECTABLE_BB_WIDTH * 0.5, PHANTOM_TRAP_COLLECTABLE_BB_HEIGHT * 0.5 };
+			break;
+		case TEXTURE_ASSET_ID::BOW:
+			scale = { BOW_BB_WIDTH * 0.5, BOW_BB_HEIGHT * 0.5 };
+			break;
+		case TEXTURE_ASSET_ID::BOMB:
+			scale = { BOMB_BB_WIDTH * 0.5, BOMB_BB_HEIGHT * 0.5 };
+			break;
+	}
+	motion.scale = scale;
 
 	registry.collected.emplace(entity);
 	registry.midgrounds.emplace(entity);

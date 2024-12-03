@@ -1107,13 +1107,13 @@ void WorldSystem::entity_collectible_collision(Entity entity, Entity entity_othe
         if (collectibleTrap.type == DAMAGE_TRAP) {
             registry.inventory.itemCounts[INVENTORY_ITEM::TRAP]++;
 			trapsCounter.trapsMap[DAMAGE_TRAP].first = registry.inventory.itemCounts[INVENTORY_ITEM::TRAP];
-			createCollected(playerM, collectibleM.scale, TEXTURE_ASSET_ID::TRAPCOLLECTABLE);
+			createCollected(TEXTURE_ASSET_ID::TRAPCOLLECTABLE);
             equipItem(INVENTORY_ITEM::TRAP, true);
 		}
         else if (collectibleTrap.type == PHANTOM_TRAP) {
             registry.inventory.itemCounts[INVENTORY_ITEM::PHANTOM_TRAP]++;
             trapsCounter.trapsMap[PHANTOM_TRAP].first = registry.inventory.itemCounts[INVENTORY_ITEM::PHANTOM_TRAP];
-            createCollected(playerM, collectibleM.scale, TEXTURE_ASSET_ID::PHANTOM_TRAP_BOTTLE_ONE);
+            createCollected(TEXTURE_ASSET_ID::PHANTOM_TRAP_BOTTLE_ONE);
             equipItem(INVENTORY_ITEM::PHANTOM_TRAP, true);
         }
     }
@@ -1121,19 +1121,19 @@ void WorldSystem::entity_collectible_collision(Entity entity, Entity entity_othe
         unsigned int health = registry.hearts.get(entity_other).health;
         unsigned int addOn = player.health <= 80 ? health : 100 - player.health;
         player.health += addOn;
-        createCollected(playerM, collectibleM.scale, TEXTURE_ASSET_ID::HEART);
+        createCollected(TEXTURE_ASSET_ID::HEART);
 		printf("Player collected a heart\n");
 	}
     else if (registry.bows.has(entity_other)) {
         registry.inventory.itemCounts[INVENTORY_ITEM::BOW] += 5;
         std::cout << "Player collected a bow. Bow count is now " << registry.inventory.itemCounts[INVENTORY_ITEM::BOW] << std::endl;
-        createCollected(playerM, collectibleM.scale, TEXTURE_ASSET_ID::BOW);
+        createCollected(TEXTURE_ASSET_ID::BOW);
         equipItem(INVENTORY_ITEM::BOW, true);
 		printf("Player collected a bow\n");
 	}
     else if (registry.collectibleBombs.has(entity_other)) {
         registry.inventory.itemCounts[INVENTORY_ITEM::BOMB] += 3;
-        createCollected(playerM, collectibleM.scale, TEXTURE_ASSET_ID::BOMB);
+        createCollected(TEXTURE_ASSET_ID::BOMB);
         equipItem(INVENTORY_ITEM::BOMB, true);
 	}
 	else {

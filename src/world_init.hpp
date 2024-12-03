@@ -130,7 +130,7 @@ Entity createCollectibleTrap(vec2 pos);
 Entity createHeart(vec2 pos);
 
 // indicator showing the collected item
-Entity createCollected(Motion& playerM, vec2 size, TEXTURE_ASSET_ID assetID);
+Entity createCollected(TEXTURE_ASSET_ID assetID);
 
 Entity createEquipped(TEXTURE_ASSET_ID assetId);
 

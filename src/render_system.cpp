@@ -630,12 +630,14 @@ void updateHpBarPositionHelper(const std::vector<Entity>& entities) {
 void RenderSystem::updateCollectedPosition() {
 	Entity& playerE = registry.players.entities[0];
 	Motion& playerM = registry.motions.get(playerE);
+	HealthBar& hpBar = registry.healthBars.get(playerE);
 
     for (Entity entity : registry.collected.entities) {
         Motion& collectedM =  registry.motions.get(entity);
         // place above character
-        float topOffset = 40;
-		collectedM.position.x = playerM.position.x;
+        float topOffset = 30;
+		float horizontalOffset = hpBar.width / 2;
+		collectedM.position.x = playerM.position.x + horizontalOffset + 15;
         collectedM.position.y = playerM.position.y;
 		collectedM.position.z = playerM.position.z + visualToWorldY(playerM.scale.y) / 2 + topOffset;
     }   

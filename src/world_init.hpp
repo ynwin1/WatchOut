@@ -159,7 +159,7 @@ Entity createTitleScreenText(vec2 windowSize, std::string value, float fontSize,
 Entity createPauseHelpText(vec2 windowSize);
 Entity createFPSText(vec2 windowSize);
 Entity createGameTimerText(vec2 windowSize);
-Entity createPointsEarnedText(std::string text, Entity anchoredWorldEntity, vec4 color, float xOffset);
+Entity createPointsEarnedText(std::string text, Entity anchoredWorldEntity, vec4 color);
 Entity createComboText(int comboValue, vec2 windowSize);
 Entity createScoreText(vec2 windowSize);
 Entity createItemCountText(vec2 windowSize, TEXTURE_ASSET_ID assetID);

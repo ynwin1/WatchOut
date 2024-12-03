@@ -1078,41 +1078,33 @@ Entity createItemCountText(vec2 windowSize, TEXTURE_ASSET_ID assetID) {
 		case TEXTURE_ASSET_ID::TRAPCOLLECTABLE:
 			iconScale = { TRAP_COLLECTABLE_BB_WIDTH, TRAP_COLLECTABLE_BB_HEIGHT};
 			position = startPos;
-			keybindPos = position + vec2(-5.0f, 0.0f);
-			iconPos = keybindPos + vec2(0.0f, -40.0f);
-			textPos = iconPos + vec2(-30.0f, -55.0f);
 			keybind = "1";
 			break;
 		case TEXTURE_ASSET_ID::PHANTOM_TRAP_BOTTLE_ONE:
 			iconScale = { PHANTOM_TRAP_COLLECTABLE_BB_WIDTH * 0.75, PHANTOM_TRAP_COLLECTABLE_BB_HEIGHT * 0.75};
-			position = startPos + vec2(80.0f, 0.0f);
-			keybindPos = position + vec2(-10.0f, 0.0f);
-			iconPos = keybindPos + vec2(5.0f, -40.0f);
-			textPos = iconPos + vec2(-30.0f, -55.0f);
+			position = startPos + vec2(70.0f, 0.0f);
 			keybind = "2";
 			break;
 		case TEXTURE_ASSET_ID::BOW:
 			iconScale = { BOW_BB_WIDTH * 0.60, BOW_BB_HEIGHT * 0.60};
-			position = startPos + vec2(145.0f, 0.0f);
-			keybindPos = position + vec2(-5.0f, 0.0f);
-			iconPos = keybindPos + vec2(10.0f, -40.0f);
-			textPos = iconPos + vec2(-30.0f, -55.0f);
+			position = startPos + vec2(140.0f, 0.0f);
 			keybind = "3";
 			break;
 		case TEXTURE_ASSET_ID::BOMB:
-			iconScale = { BOMB_BB_WIDTH * 0.9 , BOMB_BB_HEIGHT * 0.9};
-			position = startPos + vec2(220.0f, 0.0f);
-			keybindPos = position + vec2(-5.0f, 0.0f);
-			iconPos = keybindPos + vec2(10.0f, -40.0f);
-			textPos = iconPos + vec2(-30.0f, -55.0f);
+			iconScale = { BOMB_BB_WIDTH * 0.85 , BOMB_BB_HEIGHT * 0.85};
+			position = startPos + vec2(210.0f, 0.0f);
 			keybind = "4";
 			break;
 		default:
 			break;
 	}
+	keybindPos = position;
+	iconPos = keybindPos + vec2(0.0f, -40.0f);
+	textPos = iconPos + vec2(0.0f, -55.0f);
 
 	Text& textKeybind = registry.texts.emplace(textKeybindE);
 	textKeybind.value = keybind;
+	textKeybind.alignment = TEXT_ALIGNMENT::CENTER;
 	Foreground& fgKeybind = registry.foregrounds.emplace(textKeybindE);
 	fgKeybind.position = keybindPos;
 	fgKeybind.scale = {0.85f, 0.85f};
@@ -1124,7 +1116,8 @@ Entity createItemCountText(vec2 windowSize, TEXTURE_ASSET_ID assetID) {
 			GEOMETRY_BUFFER_ID::TEXT
 		});
 
-	registry.texts.emplace(textCountE);
+	Text& textCount = registry.texts.emplace(textCountE);
+	textCount.alignment = TEXT_ALIGNMENT::CENTER;
 	Foreground& fg = registry.foregrounds.emplace(textCountE);
 	fg.position = textPos;
 	fg.scale = {1.2f, 1.2f};
@@ -1504,13 +1497,18 @@ void createTrees(RenderSystem* renderer) {
 	}
 }
 
-Entity createPointsEarnedText(std::string textValue, Entity anchoredWorldEntity, vec4 color, float offsetPosX) {
+Entity createPointsEarnedText(std::string textValue, Entity anchoredWorldEntity, vec4 color) {
 	auto entity = Entity();
 	Motion& anchoredMotion = registry.motions.get(anchoredWorldEntity);
 	Text& text = registry.texts.emplace(entity);
 	text.value = textValue;
 	text.anchoredWorldEntity = anchoredWorldEntity;
-	text.anchoredWorldOffset = {offsetPosX, -anchoredMotion.scale.y / 2 - 20.0f};
+	text.anchoredWorldOffset = {0.0f, -anchoredMotion.scale.y / 2 - 20.0f};
+	text.alignment = TEXT_ALIGNMENT::CENTER;
+
+	if(registry.players.has(anchoredWorldEntity)) {
+		text.anchoredWorldOffset.y -= 50.0f;
+	}
 
 	Foreground& fg = registry.foregrounds.emplace(entity);
 	fg.scale = {1.0f, 1.0f};
@@ -1535,8 +1533,9 @@ Entity createComboText(int comboValue, vec2 windowSize) {
 	auto entity = Entity();
 	Text& text = registry.texts.emplace(entity);
 	text.value = "COMBO *" + std::to_string(comboValue);
+	text.alignment = TEXT_ALIGNMENT::CENTER;
 
-	vec2 position = {windowSize.x / 2 - 130.0f, windowSize.y - 350.0f};
+	vec2 position = {windowSize.x / 2, windowSize.y - 350.0f};
 
 	Foreground& fg = registry.foregrounds.emplace(entity);
 	fg.position = position;

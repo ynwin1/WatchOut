@@ -133,7 +133,7 @@ void WorldSystem::handleSurvivalBonusPoints(float elapsed_ms) {
     if (gameStateController.survivalBonusTimer >= SURVIVAL_BONUS_INTERVAL) {
         int points = 35;
         registry.gameScore.score += points;
-        createPointsEarnedText("SURVIVAL BONUS +" + std::to_string(points), playerEntity, {0.8f, 0.8f, 0.0f, 1.0f}, -130.0f);
+        createPointsEarnedText("SURVIVAL BONUS +" + std::to_string(points), playerEntity, {0.8f, 0.8f, 0.0f, 1.0f});
         gameStateController.survivalBonusTimer = 0;
     }
 }
@@ -407,7 +407,7 @@ void WorldSystem::handleEnemiesKilledInSpan(float elapsed_ms) {
                 points = enemiesKilled.killSpanCount * 5;
             }
             registry.gameScore.score += points;
-            createPointsEarnedText("BONUS +" + std::to_string(points), playerEntity, {0.8f, 0.8f, 0.0f, 1.0f}, -60.0f);
+            createPointsEarnedText("BONUS +" + std::to_string(points), playerEntity, {0.8f, 0.8f, 0.0f, 1.0f});
         }
         enemiesKilled.resetKillSpan();
     }
@@ -1589,7 +1589,7 @@ void WorldSystem::checkAndHandleEnemyDeath(Entity enemy) {
 
         registry.gameScore.score += enemyData.points;
         gameStateController.enemiesKilled.updateKillSpanCount();
-        createPointsEarnedText("+" + std::to_string(enemyData.points), enemy, {1.0f, 1.0f, 1.0f, 1.0f}, -20.0f);
+        createPointsEarnedText("+" + std::to_string(enemyData.points), enemy, {1.0f, 1.0f, 1.0f, 1.0f});
         updateComboText();
 
         HealthBar& hpbar = registry.healthBars.get(enemy);

@@ -370,7 +370,7 @@ bool WorldSystem::step(float elapsed_ms)
     handleSurvivalBonusPoints(elapsed_ms);
     updateHomingProjectiles(elapsed_ms);
     updateEquippedPosition();
-    updateJeffLight(elapsed_ms);
+    updatePointLightPositions(elapsed_ms);
 
     if (camera->isToggled()) {
         Motion& playerMotion = registry.motions.get(playerEntity);
@@ -429,14 +429,16 @@ void WorldSystem::updateScoreText() {
     text.value = "Score: " + std::to_string(gameScore.score);
 }
 
-void WorldSystem::updateJeffLight(float elapsed_ms) {
-    PointLight& pointLight = registry.pointLights.get(playerEntity);
-    
-    // Update Position
-    Motion& motion = registry.motions.get(playerEntity);
-    pointLight.position = motion.position;
-
-    // Make flicker
+void WorldSystem::updatePointLightPositions(float elapsed_ms) {
+    for (Entity& pointLightEntity: registry.pointLights.entities) {
+        // Update Position
+        PointLight& pointLight = registry.pointLights.get(pointLightEntity);
+        if (registry.motions.has(pointLightEntity)) {
+            Motion& motion = registry.motions.get(pointLightEntity);
+            pointLight.position = motion.position;
+        }
+    }
+    // TODO: Make flicker
 }
 
 void WorldSystem::loadAndSaveHighScore(bool save) {

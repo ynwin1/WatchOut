@@ -177,17 +177,15 @@ private:
 	void updateComboText();
 	void updateScoreText();
 	void handleSurvivalBonusPoints(float elapsed_ms);
+	void updatePointLightPositions(float elapsed_ms);
 	void updateTutorial(float elapsed_ms);
 	void updateEnemyTutorial();
 	void updateCollectibleTutorial();
-	void updateLightPosition();
 	void updateHomingProjectiles(float elapsed_ms);
 	void updateEquippedPosition();
 	void updateMouseTexturePosition(vec2 mousePos);
 	void equipItem(INVENTORY_ITEM item, bool wasCollected = false);
 	void unEquipItem();
-
-	void updateJeffLight(float elapsed_ms);
 
 	// Collision functions
 	void entity_collectible_collision(Entity entity, Entity collectible);

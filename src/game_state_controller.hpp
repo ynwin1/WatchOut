@@ -27,6 +27,7 @@ struct Inventory
 enum class GAME_STATE
 {
     TITLE,
+    TITLE_TUTORIAL,
     PLAYING,
     PAUSED,
     GAMEOVER,

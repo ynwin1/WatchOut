@@ -333,9 +333,11 @@ void WorldSystem::updateEquippedPosition() {
 
 bool WorldSystem::step(float elapsed_ms)
 {
-    updateEnemyTutorial();
-    updateCollectibleTutorial();
-    updateTutorial(elapsed_ms);
+    if (isTutorialNeeded) {
+        updateEnemyTutorial();
+        updateCollectibleTutorial();
+        updateTutorial(elapsed_ms);
+    }
     adjustSpawnSystem(elapsed_ms);
     spawn(elapsed_ms);
     spawn_particles(elapsed_ms);
@@ -770,9 +772,13 @@ void WorldSystem::on_mouse_button(int button, int action, int mod) {
 
 void WorldSystem::on_key(int key, int, int action, int mod)
 {
-    switch (gameStateController.getGameState()) {
+	GAME_STATE gameState = gameStateController.getGameState();
+    switch (gameState) {
 	case GAME_STATE::TITLE:
 		titleControls(key, action, mod);
+		break;
+    case GAME_STATE::TITLE_TUTORIAL:
+		titleTutorialControls(key, action, mod);
 		break;
     case GAME_STATE::PLAYING:
         playingControls(key, action, mod);
@@ -810,7 +816,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
         collectibleTutorialControls(key, action, mod);
         break;
     }
-    if (gameStateController.getGameState() != GAME_STATE::TITLE) {
+    if (gameState != GAME_STATE::TITLE && gameState != GAME_STATE::TITLE_TUTORIAL) {
         movementControls(key, action, mod);
     }
     allStateControls(key, action, mod);
@@ -821,11 +827,11 @@ void WorldSystem::helpControls(int key, int action, int mod)
     if (action == GLFW_PRESS) {
         switch (key) {
         case GLFW_KEY_Q:
-            gameStateController.setGameState(GAME_STATE::TITLE);
             createTitleScreen();
             break;
         case GLFW_KEY_R:
-            restart_game();
+            createTitleScreenTutorial();
+            break;
         case GLFW_KEY_H:
             sound->resumeAllSoundEffects();
             gameStateController.setGameState(GAME_STATE::PLAYING);
@@ -844,27 +850,18 @@ void WorldSystem::pauseControls(int key, int action, int mod)
     if (action == GLFW_PRESS) {
         switch (key) {
         case GLFW_KEY_Q:
-            gameStateController.setGameState(GAME_STATE::TITLE);
             createTitleScreen();
             break;
         case GLFW_KEY_H:
             gameStateController.setGameState(GAME_STATE::HELP);
-            clearSaveText();
             break;
-        /*case GLFW_KEY_S:
-            saveManager->save_game(trapsCounter.trapsMap, spawn_delays, max_entities, next_spawns);
-			createGameSaveText(camera->getSize());
-            printf("Saved game\n");
-            break;*/
-        /*case GLFW_KEY_L:
-			break;*/
         case GLFW_KEY_R:
-            restart_game();
+            createTitleScreenTutorial();
+            break;
         case GLFW_KEY_P:
         case GLFW_KEY_ESCAPE:
             sound->resumeAllSoundEffects();
             gameStateController.setGameState(GAME_STATE::PLAYING);
-            clearSaveText();
             break;
         }
     }
@@ -959,7 +956,8 @@ void WorldSystem::titleControls(int key, int action, int mod) {
 	if (action == GLFW_PRESS) {
 		switch (key) {
 		case GLFW_KEY_ENTER:
-			restart_game();
+			// move to title screen to ask if tutorial is needed
+            createTitleScreenTutorial();
 			break;
 		/*case GLFW_KEY_L:
 			load_game();
@@ -969,6 +967,25 @@ void WorldSystem::titleControls(int key, int action, int mod) {
 			break;
 		}
 	}
+}
+
+void WorldSystem::titleTutorialControls(int key, int action, int mod) {
+    if (action == GLFW_PRESS) {
+        switch (key) {
+        case GLFW_KEY_Y:
+            // move to title screen to ask if tutorial is needed
+            isTutorialNeeded = true;
+            restart_game();
+            break;
+        case GLFW_KEY_N:
+            isTutorialNeeded = false;
+            restart_game();
+            break;
+        case GLFW_KEY_Q:
+            glfwSetWindowShouldClose(window, true);
+            break;
+        }
+    }
 }
 
 void WorldSystem::playingControls(int key, int action, int mod)
@@ -1031,7 +1048,7 @@ void WorldSystem::gameOverControls(int key, int action, int mod)
     if (action == GLFW_PRESS) {
         switch (key) {
         case GLFW_KEY_R:
-            restart_game();
+            createTitleScreenTutorial();
             break;
         case GLFW_KEY_Q:
         case GLFW_KEY_ENTER:
@@ -1811,12 +1828,4 @@ void WorldSystem::soundSetUp() {
     sound->init();
     // play background music
     sound->playMusic(Music::BACKGROUND, -1);
-}
-
-void WorldSystem::clearSaveText() {
-    for (Entity textE : registry.texts.entities) {
-        if (registry.cooldowns.has(textE)) {
-            registry.remove_all_components_of(textE);
-        }
-    }
 }

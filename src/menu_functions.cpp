@@ -320,3 +320,16 @@ void WorldSystem::createTitleScreen() {
 	soundSetUp();
 	gameStateController.setGameState(GAME_STATE::TITLE);
 }
+
+void WorldSystem::createTitleScreenTutorial() {
+    registry.clear_all_components();
+
+    vec2 windowSize = camera->getSize();
+    createTitleScreenBackground(windowSize);
+    createTitleScreenText(windowSize, "Do you need a tutorial?", 1.f, vec2(windowSize.x / 2 - 155.f, windowSize.y / 2 + 200));
+    createTitleScreenText(windowSize, "Yes (Y)", 1.f, vec2(windowSize.x / 2 - 185.f, windowSize.y / 2 - 200));
+    createTitleScreenText(windowSize, "No (N)", 1.f, vec2(windowSize.x / 2 - 115.f, windowSize.y / 2 - 300));
+    camera->followPosition({ world_size_x / 2.f, world_size_y / 2.f });
+
+    gameStateController.setGameState(GAME_STATE::TITLE_TUTORIAL);
+}

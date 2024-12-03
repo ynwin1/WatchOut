@@ -87,7 +87,7 @@ struct HomingProjectile{
 	float speed;
 };
 
-struct Bomb {
+struct Bounceable {
 	int numBounces = 1;
 };
 

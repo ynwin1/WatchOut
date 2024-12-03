@@ -142,8 +142,6 @@ Entity createPhantomTrap(vec2 pos);
 // Arrows fired by the archer/player
 Entity createArrow(vec3 pos, vec3 velocity, int damage);
 
-// Bombs thrown by the bomber
-Entity createBomb(vec3 pos, vec3 velocity);
 void createExplosion(vec3 position);
 
 // Fireballs fired by the wizard

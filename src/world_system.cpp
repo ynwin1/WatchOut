@@ -604,8 +604,7 @@ void WorldSystem::leftMouseClickAction(vec3 mouseWorldPos) {
             trapsCounter.trapsMap[PHANTOM_TRAP].first = inventory.itemCounts[INVENTORY_ITEM::PHANTOM_TRAP];
             break;
         case INVENTORY_ITEM::BOMB: {
-            Entity bomb = shootProjectile(mouseWorldPos, PROJECTILE_TYPE::BOMB_FUSED);
-            registry.bombs.emplace(bomb);
+            shootProjectile(mouseWorldPos, PROJECTILE_TYPE::BOMB_FUSED);
             inventory.itemCounts[INVENTORY_ITEM::BOMB]--;
         }
             break;
@@ -1199,7 +1198,7 @@ void WorldSystem::entity_damaging_collision(Entity entity, Entity entity_other, 
     }
 
     if(!registry.explosions.has(entity_other) && 
-       !registry.bombs.has(entity_other)) 
+       !registry.bounceables.has(entity_other)) 
     {
         registry.remove_all_components_of(entity_other);
     }
@@ -1360,7 +1359,7 @@ void WorldSystem::despawn_collectibles(float elapsed_ms) {
 
 void WorldSystem::destroyDamagings() {
     for (auto& damagingEntity : registry.damagings.entities) {
-        if(registry.bombs.has(damagingEntity) || registry.explosions.has(damagingEntity)) {
+        if(registry.bounceables.has(damagingEntity) || registry.explosions.has(damagingEntity)) {
             continue;
         }
 

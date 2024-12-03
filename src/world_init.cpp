@@ -572,38 +572,6 @@ Entity createArrow(vec3 pos, vec3 velocity, int damage)
 	return entity;
 }
 
-Entity createBomb(vec3 pos, vec3 velocity)
-{
-	auto entity = Entity();
-
-	Motion& motion = registry.motions.emplace(entity);
-	motion.position = pos;
-	motion.velocity = velocity;
-	motion.scale = { BOMB_FUSED_BB_WIDTH, BOMB_FUSED_BB_HEIGHT };
-	motion.hitbox = { BOMB_FUSED_BB_WIDTH, BOMB_FUSED_BB_HEIGHT, BOMB_BB_HEIGHT / zConversionFactor };
-	motion.solid = true;
-	
-	Projectile& proj = registry.projectiles.emplace(entity);
-	proj.sticksInGround = 1000;
-	proj.type = PROJECTILE_TYPE::BOMB_FUSED;
-
-	registry.bombs.emplace(entity);
-
-	Damaging& damaging = registry.damagings.emplace(entity);
-	damaging.damage = 2;
-	registry.midgrounds.emplace(entity);
-
-	registry.renderRequests.insert(
-		entity,
-		{
-			TEXTURE_ASSET_ID::BOMB_FUSED,
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE
-		});
-
-	return entity;
-}
-
 Entity createFireball(vec3 pos, vec2 direction) {
 	auto entity = Entity();
 
@@ -1364,17 +1332,25 @@ Entity createProjectile(vec3 pos, vec3 velocity, PROJECTILE_TYPE type)
 	motion.velocity = velocity;
 	motion.scale = getProjectileInfo(type).size;
 	motion.hitbox = { motion.scale.x, motion.scale.x, motion.scale.y / zConversionFactor };
+	motion.solid = true;
 	
-	registry.projectiles.emplace(entity).type = type;
+	Projectile& projectile = registry.projectiles.emplace(entity);
+	projectile.type = type;
 	registry.midgrounds.emplace(entity);
 
-	registry.renderRequests.insert(
-		entity,
-		{
-			getProjectileInfo(type).assetId,
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE
-		});
+	if(type == PROJECTILE_TYPE::BOMB_FUSED) {
+		registry.bounceables.emplace(entity);
+		AnimationController& ac = initBombAnimationController(entity);
+		ac.changeState(entity, AnimationState::Attack);
+	} else {
+		registry.renderRequests.insert(
+			entity,
+			{
+				getProjectileInfo(type).assetId,
+				EFFECT_ASSET_ID::TEXTURED,
+				GEOMETRY_BUFFER_ID::SPRITE
+			});
+	}
 
 	return entity;
 }

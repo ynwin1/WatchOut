@@ -44,7 +44,7 @@ public:
 	ComponentContainer<TargetArea> targetAreas;
 	ComponentContainer<Collected> collected;
 	ComponentContainer<HomingProjectile> homingProjectiles;
-	ComponentContainer<Bomb> bombs;
+	ComponentContainer<Bounceable> bounceables;
 	ComponentContainer<Explosion> explosions;
 	ComponentContainer<Particle> particles;
 	
@@ -108,7 +108,7 @@ public:
 		registry_list.push_back(&collected);
 		registry_list.push_back(&homingProjectiles);
 		registry_list.push_back(&bows);
-		registry_list.push_back(&bombs);
+		registry_list.push_back(&bounceables);
 		registry_list.push_back(&explosions);
 		registry_list.push_back(&particles);
 		registry_list.push_back(&collectibleBombs);

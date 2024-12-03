@@ -692,6 +692,15 @@ Entity createLightning(vec2 pos) {
 	Cooldown& duration = registry.cooldowns.emplace(entity);
 	duration.remaining = 1500.f;
 
+	auto& pointLight = registry.pointLights.emplace(entity);
+	pointLight.position = motion.position;
+	pointLight.ambient = vec4(0.651, 0.988, 1, .1);
+	pointLight.diffuse = vec4(0.651, 0.988, 1, 1.0);
+	pointLight.max_distance = 3250;
+	pointLight.constant = 1.f;
+	pointLight.linear = .005;
+	pointLight.quadratic = 0.f;
+
 	initLightningAnimationController(entity);
 	return entity;
 }

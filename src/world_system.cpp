@@ -990,6 +990,9 @@ void WorldSystem::onTutorialClick() {
         case 3:
             nextTexture = TEXTURE_ASSET_ID::TUTORIAL_3;
             break;
+        case 4:
+            nextTexture = TEXTURE_ASSET_ID::TUTORIAL_4;
+            break;
         default:
             nextTexture = TEXTURE_ASSET_ID::TUTORIAL_1;
             break;

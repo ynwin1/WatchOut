@@ -44,6 +44,7 @@ public:
 	ComponentContainer<Mesh*> meshPtrs;
 	ComponentContainer<TargetArea> targetAreas;
 	ComponentContainer<Collected> collected;
+	ComponentContainer<SlideUp> slideUps;
 	ComponentContainer<HomingProjectile> homingProjectiles;
 	ComponentContainer<Bomb> bombs;
 	ComponentContainer<Explosion> explosions;
@@ -110,6 +111,7 @@ public:
 		registry_list.push_back(&obstacles);
 		registry_list.push_back(&meshPtrs);
 		registry_list.push_back(&collected);
+		registry_list.push_back(&slideUps);
 		registry_list.push_back(&homingProjectiles);
 		registry_list.push_back(&bows);
 		registry_list.push_back(&bombs);

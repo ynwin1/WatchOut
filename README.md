@@ -10,7 +10,7 @@ You are the lone survivor trapped in the world of Draugamoor, forced to face Kin
 |----------|----------------|
 | Movement  | WASD |
 | Sprint    | WASD + Left Shift |
-| Dash      | X |
+| Dash      | C |
 | Jump      | Space Bar |
 | Switch Weapons | Tab |
 | Aim | Cursor Movement |

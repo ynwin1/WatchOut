@@ -692,6 +692,15 @@ Entity createLightning(vec2 pos) {
 	Cooldown& duration = registry.cooldowns.emplace(entity);
 	duration.remaining = 1500.f;
 
+	auto& pointLight = registry.pointLights.emplace(entity);
+	pointLight.position = motion.position;
+	pointLight.ambient = vec4(0, 0.498, 0.988, .1);
+	pointLight.diffuse = vec4(0, 0.498, 0.988, 1.0);
+	pointLight.max_distance = 3250;
+	pointLight.constant = .3f;
+	pointLight.linear = .005;
+	pointLight.quadratic = 0.f;
+
 	initLightningAnimationController(entity);
 	return entity;
 }
@@ -1601,6 +1610,15 @@ void createExplosion(vec3 pos)
 
 	Knocker& knocker = registry.knockers.emplace(entity);
 	knocker.strength = 1.5f;
+
+	auto& pointLight = registry.pointLights.emplace(entity);
+	pointLight.position = motion.position;
+	pointLight.ambient = vec4(1.0, .99, 0.67, .1);
+	pointLight.diffuse = vec4(1.0, .99, 0.67, 1.0);
+	pointLight.max_distance = 3250;
+	pointLight.constant = 1.f;
+	pointLight.linear = .005;
+	pointLight.quadratic = 0.f;
 	
 	initExplosionAnimationController(entity);
 	registry.midgrounds.emplace(entity);

@@ -362,6 +362,9 @@ void RenderSystem::bindPointLights(const GLuint program, const Entity& entity, c
 	PointLight validPointLights[MAX_POINT_LIGHTS]{};
 	int num_point_lights = 0;
 	for (auto& pointLight : registry.pointLights.components) {
+		if (num_point_lights >= MAX_POINT_LIGHTS) {
+			break;
+		}
 		float distance = glm::distance(motion.position, pointLight.position);
 		if (distance > pointLight.max_distance) {
 			continue;

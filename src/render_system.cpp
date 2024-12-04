@@ -507,7 +507,6 @@ void RenderSystem::step(float elapsed_ms)
 				} else if(projectile.type == PROJECTILE_TYPE::PHANTOM_TRAP) {
 					createPhantomTrap({motion.position.x, motion.position.y});
 				} else if(projectile.type == PROJECTILE_TYPE::BOMB_FUSED) {
-								std::cout << "Projectile stuck in ground" << std::endl;
 					createExplosion(motion.position);
 					sound->playSoundEffect(Sound::EXPLOSION, 0);
 				}

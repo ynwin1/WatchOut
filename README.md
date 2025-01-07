@@ -8,6 +8,8 @@ Genre: Action, Survival
 
 Tech: C++, OpenGL
 
+Link to download - https://ynwin1.itch.io/watch-out
+
 By Carlo Villaceran, Katie Louie, Linus Moreau, Tarun Narayan & Yan Naing Win (Team Electric Boogaloo)
 
 # About
